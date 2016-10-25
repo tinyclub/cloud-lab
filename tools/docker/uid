@@ -1,0 +1,10 @@
+#!/bin/bash
+#
+# update-lab-uid.sh
+#
+
+TOP_DIR=$(cd $(dirname $0) && pwd)/../../
+source $TOP_DIR/tools/docker/config $* >/dev/null
+
+UNIX_UID=`id -u $HOST_USER`
+set_var UNIX_UID

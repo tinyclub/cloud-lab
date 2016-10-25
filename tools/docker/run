@@ -1,0 +1,85 @@
+#!/bin/bash
+#
+# run -- Run the docker image of the lab
+#
+
+TOP_DIR=$(cd $(dirname $0) && pwd)/../../
+source $TOP_DIR/tools/docker/config $* >/dev/null
+
+# Check container conflicts
+[ -n "$CONTAINER_ID" ] \
+    && (docker ps -f id=$CONTAINER_ID | grep -v PORTS) \
+    && echo "LOG: $CONTAINER_ID exist, remove it before create new." \
+    && echo "LOG: $LAB_CONTAINER_ID" \
+    && exit 1
+
+# Generate an unique local port
+RETRY_COUNT=0
+
+while :;
+do
+    [ -z "$LOCAL_PORT" -o $RETRY_COUNT -ne 0 ] && LOCAL_PORT=$((RANDOM/500+6080))
+    echo "LOG: OUR PORT: $LOCAL_PORT"
+
+    ports=`docker ps -a | grep -v PORTS | sed -e "s%.*-\([^-]*$\)%\1%g" | tr '\n' ' '`
+    [ -n "$ports" ] && echo "LOG: OLD PORTS: $ports"
+
+    RETRY_COUNT=1
+    for port in $ports; do [ $LOCAL_PORT -eq $port ] && RETRY_COUNT=2 && break; done
+
+    [ $RETRY_COUNT -eq 1 ] && break
+    echo "LOG: Retry $RETRY_COUNT to get a unique port"
+done
+
+# Require to prepare some environment for docker containers in host
+[ -f $LAB_HOST_RUN ] && $LAB_HOST_RUN
+
+# Run the lab via start a lab container
+caps=""
+devs=""
+portmap="-p $LOCAL_PORT:$REMOTE_PORT"
+volumemap="-v $GIT_DIR:$GIT_WORKDIR"
+volumemap="$volumemap -v $LAB_DIR:$LAB_WORKDIR"
+volumemap="$volumemap -v $TOOL_DIR:$TOOL_WORKDIR"
+volumemap="$volumemap -v $CONFIG_DIR:$CONFIG_WORKDIR"
+limits=$LIMITS
+
+for cap in $CAPS; do caps="$caps --cap-add $cap"; done
+for dev in $DEVICES; do devs="$devs --device $dev"; done
+for map in $PORTMAP; do portmap="$portmap -p $map"; done
+for map in $VOLUMEMAP; do volumemap="$volumemap -v $map"; done
+
+CONTAINER_NAME=${LAB_NAME}-${LOCAL_PORT}
+container="--name $CONTAINER_NAME"
+# Remove the old one if exist
+(docker ps -a | grep -q $CONTAINER_NAME) && docker rm -f $CONTAINER_NAME
+
+CONTAINER_ID=$(docker run -d --privileged $container $portmap $caps $devices $limits $volumemap $IMAGE)
+
+CONTAINER_ID=${CONTAINER_ID:0:12}
+
+echo "LOG: Wait for lab launching..."
+while :; do
+    password=`docker logs $CONTAINER_ID 2>/dev/null | grep Password`
+    sleep 2
+    [ -n "$password" ] && break
+done
+
+echo "LOG: Container ID: ${CONTAINER_ID} Container Name: ${CONTAINER_NAME}"
+echo "LOG: $password"
+
+UNIX_PWD=`echo $password | sed -e "s/.* Password: \([^ ]*\) .*/\1/g"`
+VNC_PWD=`echo $password | sed -e "s/.* VNC Password: \(.*\)$/\1/g"`
+
+# Save the lab's information
+vars="CONTAINER_ID CONTAINER_NAME LOCAL_PORT UNIX_PWD VNC_PWD"
+for var in $vars; do set_var $var; done
+
+# For web portmapping
+[ -f $LAB_PORTMAP ] && grep -q ":8" $LAB_PORTMAP \
+    && (docker logs $CONTAINER_ID 2>/dev/null | grep Jekyll) \
+    && for port in $(grep ":8" $LAB_PORTMAP | cut -d':' -f1); \
+       do echo "LOG: Local Web Address: http://$HOST_NAME:$port/"; done
+
+# Open the lab
+$DOCKER_OPEN_CMD $*

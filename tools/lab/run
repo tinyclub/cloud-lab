@@ -1,0 +1,99 @@
+#!/bin/bash
+
+mkdir -p /var/run/sshd
+
+# no argument required of config for container
+IN_CONTAINER_CMD=1
+source /tools/docker/config >/dev/null
+
+get_var HOST_NAME localhost
+get_var UNIX_USER ubuntu
+get_var UNIX_IDENTIFY 1
+get_var UNIX_UID 1000
+set_var UNIX_UID
+
+# Update PS1 of the TERM
+sudo bash -c "sed -i -e 's%PS1=.*$%PS1=\"$UNIX_USER@$IMAGE\$ \"%g' /etc/skel/.bashrc"
+
+# create a ubuntu user
+
+HOME=/home/$UNIX_USER/
+DESKTOP=$HOME/Desktop/
+
+id -u $UNIX_USER &>/dev/null || useradd --uid $UNIX_UID --create-home --shell /bin/bash --user-group --groups adm,sudo $UNIX_USER
+
+# Install more system configuration files
+[ ! -d $DESKTOP ] && sudo mkdir $DESKTOP
+
+for f in `find $CONFIG_SYSTEM_WORKDIR -type f | sed -e "s%$CONFIG_SYSTEM_WORKDIR%%g"`
+do
+    d=`dirname $f`
+    [ ! -d $d ] && sudo mkdir -p $d
+    sudo cp $CONFIG_SYSTEM_WORKDIR/$f $f
+done
+
+SYSTEM_SUDOERS_USER=`find $CONFIG_SYSTEM_WORKDIR -type f -name "$UNIX_USER" | sed -e "s%$CONFIG_SYSTEM_WORKDIR%%g" | grep sudoers.d`
+SYSTEM_SUPERVISORD_CONF=`find $CONFIG_SYSTEM_WORKDIR -type f -name "supervisord.conf" | sed -e "s%$CONFIG_SYSTEM_WORKDIR%%g"`
+
+[ -n "$SYSTEM_SUDOERS_USER" -a -f "$SYSTEM_SUDOERS_USER" ] && sudo chmod 440 $SYSTEM_SUDOERS_USER
+sudo chown $UNIX_USER:$UNIX_USER -R $HOME/
+
+# Update locales
+locale-gen --purge en_US.utf8
+locale-gen --purge zh_CN.utf8
+
+# Install desktop wallpapers
+
+sudo -u $UNIX_USER -i bash -c "mkdir -p $HOME/.config/pcmanfm/LXDE/ \
+    && cp /usr/share/doro-lxde-wallpapers/desktop-items-0.conf $HOME/.config/pcmanfm/LXDE/"
+
+# Create password
+
+get_var UNIX_PWD
+get_var VNC_PWD
+
+[ -z "$UNIX_PWD" ] && UNIX_PWD=`pwgen -c -n -y -s -1 10` && set_var UNIX_PWD
+[ -z "$VNC_PWD" ] && VNC_PWD=`pwgen -c -n -y -s -1 10` && set_var VNC_PWD
+
+sudo chown $UNIX_USER:$UNIX_USER $LAB_UNIX_PWD $LAB_VNC_PWD $LAB_UNIX_UID
+sudo chmod a+w $LAB_UNIX_PWD $LAB_VNC_PWD $LAB_UNIX_UID
+
+# Don't touch me: otherwise, need to modify tools/docker/run
+echo "User: $UNIX_USER Password: $UNIX_PWD VNC Password: $VNC_PWD"
+
+# VNC OASS
+[ ! -d $HOME/.vnc/ ] && sudo -u $UNIX_USER mkdir $HOME/.vnc/
+sudo -u $UNIX_USER x11vnc -storepasswd $VNC_PWD $HOME/.vnc/passwd
+
+# UNIX PASS
+echo "$UNIX_USER:$UNIX_PWD" | chpasswd
+
+# Lock UNIX Password?
+[ $UNIX_IDENTIFY -eq 1 ] && passwd -l $UNIX_USER
+[ $UNIX_IDENTIFY -eq 0 ] && passwd -u $UNIX_USER
+
+# Disable the VNC login password
+get_var VNC_IDENTIFY 1
+[ $VNC_IDENTIFY -eq 0 -a "$HOST_NAME" == "localhost" ] \
+    && sed -i -e "s% -rfbauth /home/.*$%%g" $SYSTEM_SUPERVISORD_CONF
+
+# Configure local ip address for some labs
+local_shortcut_count=`find $DESKTOP -name local.desktop | wc -l`
+if [ $local_shortcut_count -ne 0 ]; then
+    container_ip=$(ip addr show eth0 | head -3 | tail -1 | sed -e "s%.*inet \(.*\)/.*%\1%g")
+    sed -i -e "s% -H HOST_IP% -H $container_ip%g" $SYSTEM_SUPERVISORD_CONF
+
+    find $DESKTOP -name local.desktop | xargs -i sudo -u ubuntu sed -i -e "s%localhost%$container_ip%g" {}
+    echo "LOG: Local Web Site Address: http://$container_ip/"
+fi
+
+# Prepare some services
+[ -x $LAB_CONTAINER_RUN ] && $LAB_CONTAINER_RUN
+
+# Start web service
+cd /web && ./run.py > /var/log/web.log 2>&1 &
+nginx -c /etc/nginx/nginx.conf
+
+[ -f /bin/tini ] && exec /bin/tini -- /usr/bin/supervisord -n
+
+exec /usr/bin/supervisord -n

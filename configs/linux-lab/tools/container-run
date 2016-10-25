@@ -1,0 +1,13 @@
+#!/bin/bash
+#
+# startup.sh -- lab specific startup script,
+#
+
+TOP_DIR=$(cd $(dirname $0) && pwd)/
+
+# Enable network bridge support
+
+$TOP_DIR/enable_net_bridge.sh
+
+## Start Net servers
+$TOP_DIR/restart-net-servers.sh

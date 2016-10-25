@@ -1,0 +1,24 @@
+[submodule "labs/cs630-qemu-lab"]
+	path = labs/cs630-qemu-lab
+	url = https://github.com/tinyclub/cs630-qemu-lab.git
+	branch = master
+[submodule "labs/linux-lab"]
+	path = labs/linux-lab
+	url = https://github.com/tinyclub/linux-lab.git
+	branch = master
+[submodule "labs/linux-0.11-lab"]
+	path = labs/linux-0.11-lab
+	url = https://github.com/tinyclub/linux-0.11-lab.git
+	branch = master
+[submodule "labs/markdown-lab"]
+	path = labs/markdown-lab
+	url = https://github.com/tinyclub/markdown-lab.git
+	branch = master
+[submodule "labs/tinylab.org"]
+	path = labs/tinylab.org
+	url = https://github.com/tinyclub/tinylab.org.git
+	branch = master
+[submodule "labs/linux-talents"]
+	path = labs/linux-talents
+	url = https://github.com/linux-talents/linux-talents.github.io.git
+	branch = master

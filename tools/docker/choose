@@ -1,0 +1,55 @@
+#!/bin/bash
+
+# choose -- Choose a lab
+#
+
+NEW_LAB=$1
+
+TOP_DIR=$(cd $(dirname $0) && pwd)/../../
+
+IN_CHOOSE_CMD=1
+source $TOP_DIR/tools/docker/config IGNORE_LAB_NAME >/dev/null
+OLD_LAB=$CURRENT
+
+function download_submodule
+{
+    LAB_CURRENT_DIR=$LAB_DIR/$CURRENT
+    LAB_LABS=$CONFIG_DIR/labs
+    get_var LABS $CURRENT
+
+    for lab in $LABS; do
+      LAB_CURRENT_DIR=$LAB_DIR/$lab
+      [ ! -f $LAB_CURRENT_DIR/.git ] \
+        && git submodule update --init $LAB_CURRENT_DIR \
+        && pushd $LAB_CURRENT_DIR \
+        && git checkout master && git pull \
+        && popd
+      echo "LOG: Source code downloaded to $LAB_CURRENT_DIR"
+    done
+}
+
+if [ -n "$NEW_LAB" ]; then
+    source $TOP_DIR/tools/docker/config $NEW_LAB >/dev/null
+
+    set_var CURRENT
+
+    [ -n "$OLD_LAB" -a "$OLD_LAB" != "$CURRENT" ] && echo "LOG: Switch from $OLD_LAB to $CURRENT"
+    download_submodule && exit 0
+fi
+
+echo -e "LOG: Available Labs:\n"
+ls $CONFIGS_DIR | tr -s ' ' | tr ' ' '\n' | cat -n
+echo ""
+
+read -p 'LOG: Choose the lab number: ' number
+
+CURRENT=`ls $CONFIGS_DIR | tr -s ' ' | tr ' ' '\n' | head -$number | tail -1`
+
+echo -e "\n     $number\t$CURRENT\n"
+
+set_var CURRENT
+
+echo -e "\nLOG: Download the lab...\n"
+
+# Clone the submodule
+download_submodule

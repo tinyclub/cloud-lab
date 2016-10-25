@@ -1,0 +1,7 @@
+[Desktop Entry]
+Encoding=UTF-8
+Name=CS630 Qemu Lab
+Comment=A Friendly Lab for X86 Assembly Learning
+Exec=/usr/bin/lxterminal --working-directory=/labs/cs630-qemu-lab/ -t "Assembly Course (CS630) Lab"
+Icon=/usr/share/pixmaps/lxterminal.xpm
+Type=Application

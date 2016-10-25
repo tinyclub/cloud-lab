@@ -1,0 +1,7 @@
+[Desktop Entry]
+Encoding=UTF-8
+Name=Demo Page
+Comment=Demonstrate the usage of Markdown Lab: http://tinylab.org/markdown-lab/
+Exec=/usr/bin/chromium-browser http://showterm.io/1809186b57f904d51aeff
+Icon=/usr/share/pixmaps/chromium-browser.png
+Type=Application

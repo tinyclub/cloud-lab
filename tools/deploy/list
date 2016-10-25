@@ -1,0 +1,27 @@
+#!/bin/bash
+
+TOP_DIR=$(cd $(dirname $0) && pwd)/../../
+source $TOP_DIR/tools/docker/config $* 2>&1>/dev/null
+
+[ ! -d $LAB_OUTPUT ] && exit 0
+
+labs=`find $LAB_OUTPUT -maxdepth 1 -mindepth 1`
+
+get_var HOST localhost
+
+for lab in $labs
+do
+    lab_basename=$(basename $lab)
+    lab_attr=$(echo $lab_basename | cut -d'+' -f2 | tr '-' ' ')
+    lab_attr_arr=($lab_attr)
+
+    lab_name=$(echo $lab_basename | cut -d'+' -f1)
+    lab_user=${lab_attr_arr[1]}
+    lab_life=${lab_attr_arr[2]}
+    lab_start=${lab_attr_arr[3]}${lab_attr_arr[4]}
+
+    TOP_DIR=$lab
+    source $TOP_DIR/tools/docker/config $lab_name 2>&1>/dev/null
+
+    echo $HOST $CONTAINER_ID $lab_name $LOCAL_PORT $lab_user $lab_life $lab_start $VNC_PWD
+done

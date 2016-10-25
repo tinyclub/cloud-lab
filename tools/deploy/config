@@ -1,0 +1,7 @@
+#!/bin/bash
+#
+# config -- Configure the common variables
+#
+
+TOP_DIR=$(cd $(dirname $TOP_DIR/null) && pwd)
+

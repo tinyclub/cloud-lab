@@ -1,0 +1,17 @@
+#!/bin/bash
+
+TOP_DIR=$(cd $(dirname $0) && pwd)/../../
+source $TOP_DIR/tools/docker/config $* >/dev/null
+
+[ ! -d $LAB_OUTPUT ] && exit 0
+
+rm_cmds=`find $LAB_OUTPUT/${CURRENT}*/ -name "rm" | grep -v deploy`
+
+for rm_cmd in $rm_cmds
+do
+    lab_name=$(echo $rm_cmd | sed -e 's%$LAB_OUTPUT%%g' | cut -d'+' -f1)
+    lab_name=$(basename $lab_name)
+    $rm_cmd $lab_name
+done
+
+rm -rf $LAB_OUTPUT/${CURRENT}*

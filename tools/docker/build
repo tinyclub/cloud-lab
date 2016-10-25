@@ -1,0 +1,21 @@
+#!/bin/bash
+#
+# build -- Build the docker image for the lab
+#
+# ref: https://docs.docker.com/engine/installation/linux/ubuntulinux/
+#
+# E.g. CACHE=0 tools/docer/build
+#
+
+TOP_DIR=$(cd $(dirname $0) && pwd)/../../
+source $TOP_DIR/tools/docker/config $* >/dev/null
+
+# Make sure docker is installed
+which docker 2>&1 > /dev/null || $DOCKER_INSTALL_CMD
+
+[ -n "$CACHE" -a "$CACHE" == "0"  ] && NO_CACHE="--no-cache"
+
+do_op "docker build $NO_CACHE -t " IMAGE $CONFIG_DIR
+
+# Note: Let docker without sudo
+(groups $HOST_USER | grep -q docker) || sudo usermod -aG docker $HOST_USER
