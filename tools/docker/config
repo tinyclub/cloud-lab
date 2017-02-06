@@ -56,7 +56,6 @@ DOCKER_DIR=$TOOL_DIR/docker/
 DOCKER_IDENTIFY_CMD=$DOCKER_DIR/identify
 DOCKER_INSTALL_CMD=$DOCKER_DIR/install
 DOCKER_OPEN_CMD=$DOCKER_DIR/open
-DOCKER_UID_CMD=$DOCKER_DIR/uid
 DOCKER_RUN_CMD=$DOCKER_DIR/run
 
 # Common variables
@@ -84,7 +83,7 @@ LAB_SUDO_IDENTIFY=$CONFIG_DOCKER_DIR/.sudo_identify
 # Lock the important files for security
 function do_lock
 {
-    chmod -R a-rw $CONFIG_DOCKER_DIR/.[^.]*
+    chmod -f -R a-rw $CONFIG_DOCKER_DIR/.[^.]*
     sudo chattr -R +i $CONFIG_DIR
     sudo chattr -R +i $TOOL_DIR
 }
@@ -94,7 +93,7 @@ function do_unlock
 {
     sudo chattr -R -i $CONFIG_DIR
     sudo chattr -R -i $TOOL_DIR
-    chmod -R 664 $CONFIG_DOCKER_DIR/.[^.]*
+    chmod -f -R 664 $CONFIG_DOCKER_DIR/.[^.]*
 }
 
 LAB_VARS="IMAGE CAPS DEVICES LIMITS PORTMAP VOLUMEMAP"

@@ -22,7 +22,10 @@ source $TOP_DIR/tools/docker/config $* >/dev/null
 [ ! -d $LAB_OUTPUT ] && mkdir -p $LAB_OUTPUT
 VNC_IDENTIFY=1; [ $lab_identify -eq 0 ] && VNC_IDENTIFY=0
 
+do_unlock
 get_var HOST localhost
+do_lock
+
 HOST_NAME=$HOST
 
 OLD_TOP_DIR=$TOP_DIR
@@ -48,10 +51,13 @@ do
     TOP_DIR=$LAB_DST
     source $TOP_DIR/tools/docker/config $lab_name >/dev/null
 
+    do_unlock
+
     set_var CURRENT
     set_var HOST_NAME
     set_var VNC_IDENTIFY
 
-    $DOCKER_UID_CMD $lab_name
+    do_lock
+
     $DOCKER_RUN_CMD $lab_name
 done

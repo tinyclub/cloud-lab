@@ -6,6 +6,8 @@ mkdir -p /var/run/sshd
 IN_CONTAINER_CMD=1
 source /tools/docker/config >/dev/null
 
+do_unlock
+
 get_var HOST_NAME localhost
 get_var UNIX_USER ubuntu
 get_var UNIX_IDENTIFY 0
@@ -61,6 +63,8 @@ get_var VNC_PWD
 # Sync UID between host and container
 sudo chown $UNIX_USER:$UNIX_USER $LAB_UNIX_PWD $LAB_VNC_PWD $LAB_UNIX_UID
 sudo chmod a+w $LAB_UNIX_PWD $LAB_VNC_PWD $LAB_UNIX_UID
+
+do_lock
 
 # Don't touch me: otherwise, need to modify tools/docker/run
 echo "User: $UNIX_USER Password: $UNIX_PWD VNC Password: $VNC_PWD"

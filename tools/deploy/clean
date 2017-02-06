@@ -3,8 +3,16 @@
 TOP_DIR=$(cd $(dirname $0) && pwd)/../../
 source $TOP_DIR/tools/docker/config $* >/dev/null
 
-$TOP_DIR/tools/deploy/rm $*
+clean_cmds=`find $LAB_OUTPUT/${CURRENT}*/ -name "clean" | grep -v deploy`
+
+for clean_cmd in $clean_cmds
+do
+    lab_name=$(echo $clean_cmd | sed -e 's%$LAB_OUTPUT%%g' | cut -d'+' -f1)
+    lab_name=$(basename $lab_name)
+    $clean_cmd $lab_name
+done
 
 rm -rf $LAB_OUTPUT
 
+do_unlock
 git clean -fdX 2>&1 >/dev/null

@@ -11,7 +11,10 @@ for rm_cmd in $rm_cmds
 do
     lab_name=$(echo $rm_cmd | sed -e 's%$LAB_OUTPUT%%g' | cut -d'+' -f1)
     lab_name=$(basename $lab_name)
+
+    unlock_cmd=$(echo $rm_cmd | sed -e "s/rm$/unlock/g")
     $rm_cmd $lab_name
+    $unlock_cmd $lab_name
 done
 
 rm -rf $LAB_OUTPUT/${CURRENT}*

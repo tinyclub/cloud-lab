@@ -59,6 +59,7 @@ UNIX_UID=`id -u $HOST_USER`
 
 do_unlock
 set_var UNIX_UID
+do_lock
 
 CONTAINER_ID=$(docker run -d --privileged $container $portmap $caps $devices $limits $volumemap $IMAGE)
 
@@ -71,11 +72,14 @@ while :; do
     [ -n "$password" ] && break
 done
 
+
 echo "LOG: Container ID: ${CONTAINER_ID} Container Name: ${CONTAINER_NAME}"
 echo "LOG: $password"
 
 UNIX_PWD=`echo $password | sed -e "s/.* Password: \([^ ]*\) .*/\1/g"`
 VNC_PWD=`echo $password | sed -e "s/.* VNC Password: \(.*\)$/\1/g"`
+
+do_unlock
 
 # Save the lab's information
 vars="CONTAINER_ID CONTAINER_NAME LOCAL_PORT UNIX_PWD VNC_PWD"
