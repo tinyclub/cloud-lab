@@ -2,7 +2,7 @@
 #
 # tproxy -- start the transparent proxy client
 #
-# Note: This is based on scripts/proxy-client-transparent.sh of https://github.com/tinyclub/cloud-ubuntu
+# Note: scripts/proxy-client-transparent.sh of https://github.com/tinyclub/cloud-ubuntu
 #
 
 TOP_DIR=$(cd $(dirname $0) && pwd)/../../

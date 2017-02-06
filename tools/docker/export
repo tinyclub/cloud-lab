@@ -2,7 +2,7 @@
 #
 # export -- export the vnc/ssh/webssh ports to internet
 #
-# Note: This is based on scripts/web-ubuntu.sh of https://github.com/tinyclub/cloud-ubuntu
+# Note: scripts/web-ubuntu.sh of https://github.com/tinyclub/cloud-ubuntu
 #
 
 TOP_DIR=$(cd $(dirname $0) && pwd)/../../
