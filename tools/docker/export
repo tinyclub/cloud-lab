@@ -1,0 +1,43 @@
+#!/bin/bash
+#
+# export -- export the vnc/ssh/webssh ports to internet
+#
+# Note: This is based on scripts/web-ubuntu.sh of https://github.com/tinyclub/cloud-ubuntu
+#
+
+TOP_DIR=$(cd $(dirname $0) && pwd)/../../
+source $TOP_DIR/tools/docker/config $* >/dev/null
+
+CONTAINER_NAME=cloud-ubuntu-web
+IMAGE_NAME=tinylab/$CONTAINER_NAME
+
+[ -z "$PULL" ] && PULL=0
+
+docker images | grep -q $IMAGE_NAME
+[ $? -ne 0 -o $PULL -eq 1 ] && docker pull $IMAGE_NAME
+
+DEFAULT_PORT_MAP=" -p $LOCAL_VNC_PORT:$REMOTE_VNC_PORT -p $LOCAL_SSH_PORT:$REMOTE_SSH_PORT -p $LOCAL_WEBSSH_PORT:$REMOTE_WEBSSH_PORT "
+
+# Available encrypt cmds: sha1sum, sha224sum, cksum, sha256sum, sha512sum, md5sum, sha384sum, sum
+[ -z "$ENCRYPT_CMD" ] && ENCRYPT_CMD="cat"
+[ -n "$UNIX_PWD" ] && UNIX_PWD=`echo -n $UNIX_PWD | $ENCRYPT_CMD | cut -d' ' -f1`
+[ -n "$VNC_PWD" ] && VNC_PWD=`echo -n $VNC_PWD | $ENCRYPT_CMD | cut -d' ' -f1`
+
+# 16:10: 640x480 800x480 1280x800 1440x900 1680x1050 1920x1200 2560x1600
+# 16:9: 960x540 1280x720 1920x1080 2560x1440
+which xrandr 2>&1 >/dev/null
+[ $? -eq 0 ] && SCREEN_SIZE=`xrandr --current | grep +$ | tr -s ' ' | cut -d' ' -f2`
+
+[ -z "$SCREEN_SIZE" ] && SCREEN_SIZE=1024x768
+
+[ -z "$HOST_NAME" ] && HOST_NAME=localhost
+[ -z "$UNIX_PWD" ] && UNIX_PWD=ubuntu
+[ -z "$VNC_PWD" ] && VNC_PWD=ubuntu
+[ -z "$PORT_MAP" ] && PORT_MAP="$DEFAULT_PORT_MAP"
+[ -z "$ENV_ARGS" ] && ENV_ARGS=" -e UNIX_PWD=$UNIX_PWD -e VNC_PWD=$VNC_PWD -e SCREEN_SIZE=$SCREEN_SIZE -e PROXY_SPEED_LIMIT=0"
+[ -z "$EXTRA_ARGS" ] && EXTRA_ARGS=""
+
+docker run \
+	--name $CONTAINER_NAME --privileged -d -t \
+	$PORT_MAP $ENV_ARGS $EXTRA_ARGS \
+	-h $HOST_NAME $IMAGE_NAME
