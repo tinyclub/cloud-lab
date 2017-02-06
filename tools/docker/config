@@ -119,7 +119,8 @@ fi
 IMAGES=`find $CONFIGS_DIR -name "name" | xargs -i cat {} | sort -u`
 
 LOCAL_DESKTOP_SHORTCUT=~/Desktop/${CONTAINER_NAME}.desktop
-[ -d $__CONFIG_SYSTEM_DIR ] && REMOTE_DESKTOP_SHORTCUT=`find $__CONFIG_SYSTEM_DIR -name "lab.desktop"`
+[ -d $__CONFIG_SYSTEM_DIR ] \
+  && REMOTE_DESKTOP_SHORTCUT=`find $__CONFIG_SYSTEM_DIR -maxdepth 4 -name "lab.desktop"`
 
 REMOTE_PORT=6080
 LAB_HOST_RUN=$__CONFIG_TOOL_DIR/host-run
