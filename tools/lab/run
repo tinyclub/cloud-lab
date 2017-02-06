@@ -106,6 +106,9 @@ echo "$UNIX_USER:$UNIX_PWD" | chpasswd
 [ $UNIX_IDENTIFY -eq 0 ] && passwd -l $UNIX_USER
 [ $UNIX_IDENTIFY -eq 1 ] && passwd -u $UNIX_USER
 
+# mount tmpfs
+mount -t tmpfs none /tmp/
+
 # Run Lab specific tasks
 [ -x $LAB_CONTAINER_RUN ] && UNIX_USER=$UNIX_USER $LAB_CONTAINER_RUN
 
