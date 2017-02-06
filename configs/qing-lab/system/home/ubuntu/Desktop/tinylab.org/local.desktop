@@ -2,6 +2,6 @@
 Encoding=UTF-8
 Name=Local Page
 Comment=Local site of http://tinylab.org
-Exec=/usr/bin/chromium-browser http://localhost:80/
+Exec=/usr/bin/chromium-browser http://localhost:8080/
 Icon=/usr/share/pixmaps/chromium-browser.png
 Type=Application
