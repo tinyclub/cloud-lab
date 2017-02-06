@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# debug -- Start shell in a container with root for debugging
+# bash -- Start shell in a container with root for debugging
 #
 
 TOP_DIR=$(cd $(dirname $0) && pwd)/../../

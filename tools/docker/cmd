@@ -1,0 +1,14 @@
+#!/bin/bash
+#
+# cmd -- Start any cmd in a container
+#
+
+TOP_DIR=$(cd $(dirname $0) && pwd)/../../
+source $TOP_DIR/tools/docker/config $* >/dev/null
+
+[ -z "$1" ] && echo "Usage: $0 [lab-name] cmd" && exit 0
+
+cmd=$1
+[ -n "$2" ] && cmd=$2
+
+do_op "docker exec -t -i " CONTAINER_ID "$cmd"

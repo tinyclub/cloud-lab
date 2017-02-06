@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# ssh-login -- login the docker lab via ssh
+# ssh -- login the docker lab via ssh
 #
 
 TOP_DIR=$(cd $(dirname $0) && pwd)/../../

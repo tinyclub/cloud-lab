@@ -1,8 +1,8 @@
 #!/bin/bash
 #
-# open -- open the docker lab via a browser
+# vnc -- open the docker lab's novnc frontend via a browser
 #
-# Usage: open [browser]
+# Usage: vnc [browser]
 #
 
 TOP_DIR=$(cd $(dirname $0) && pwd)/../../

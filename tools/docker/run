@@ -92,5 +92,5 @@ for var in $vars; do set_var $var; done
 
 do_lock
 
-# Open the lab
-$DOCKER_OPEN_CMD $*
+# Login the lab
+$DOCKER_VNC_CMD $*
