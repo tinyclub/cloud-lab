@@ -49,7 +49,7 @@ SYSTEM_SUDOERS_USER=/etc/sudoers.d/$UNIX_USER
 chown $UNIX_USER:$UNIX_USER -R $HOME/
 
 [ -d /usr/share/desktop/.config ] \
-    && sudo -u $UNIX_USER -i bash -c "cp -r /usr/share/desktop/.config /home/$UNIX_USER/"
+    && sudo -u $UNIX_USER -i bash -c "cp -r /usr/share/desktop/home/{.[^.]*,*} /home/$UNIX_USER/"
 
 # Create password, ENV > CONF > PWGEN
 
