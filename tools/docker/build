@@ -4,7 +4,7 @@
 #
 # ref: https://docs.docker.com/engine/installation/linux/ubuntulinux/
 #
-# E.g. CACHE=0 tools/docer/build
+# E.g. LAB_CACHE=0 tools/docer/build
 #
 
 TOP_DIR=$(cd $(dirname $0) && pwd)/../../
@@ -13,7 +13,7 @@ source $TOP_DIR/tools/docker/config $* >/dev/null
 # Make sure docker is installed
 which docker 2>&1 > /dev/null || $DOCKER_INSTALL_CMD
 
-[ -n "$CACHE" -a "$CACHE" == "0"  ] && NO_CACHE="--no-cache"
+[ -n "$LAB_CACHE" -a "$LAB_CACHE" == "0"  ] && NO_CACHE="--no-cache"
 
 do_op "docker build $NO_CACHE -t " IMAGE $CONFIG_DIR
 
