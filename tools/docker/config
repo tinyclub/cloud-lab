@@ -49,6 +49,11 @@ TOOL_WORKDIR=/tools
 CONFIGS_DIR=$TOP_DIR/configs/
 CONFIG_WORKDIR=/configs
 
+# Some commands not require to specify the lab name
+CMD=`basename $0`
+echo "choose unlock-all build-all pull-all push-all clean-all " | grep "$CMD "
+[ $? -eq 0 ] && IGNORE_LAB_NAME=1
+
 if [ -n "$IN_CONTAINER_CMD" ]; then
     LAB_DIR=$LAB_WORKDIR
     TOOL_DIR=$TOOL_WORKDIR

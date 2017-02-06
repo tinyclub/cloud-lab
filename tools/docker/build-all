@@ -1,7 +1,6 @@
 #!/bin/bash
 
 TOP_DIR=$(cd $(dirname $0) && pwd)/../../
-IGNORE_LAB_NAME=1
 source $TOP_DIR/tools/docker/config $* >/dev/null
 
 # markdown-lab must be built before qing-lab
