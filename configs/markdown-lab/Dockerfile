@@ -13,6 +13,7 @@ RUN apt-get install -y --force-yes --no-install-recommends \
 RUN apt-get install -y --force-yes --no-install-recommends \
 	texlive-xetex texlive-latex-recommended texlive-latex-extra \
 	texlive-fonts-recommended texlive-fonts-extra \
+	lmodern \
     && apt-get autoclean -y \
     && apt-get autoremove -y \
     && rm -rf /var/cache/apt/archives/*.deb
@@ -34,6 +35,12 @@ RUN apt-get install -y --force-yes --no-install-recommends \
 # For gitbook
 RUN apt-get install -y --force-yes --no-install-recommends \
 	calibre \
+    && apt-get autoclean -y \
+    && apt-get autoremove -y \
+    && rm -rf /var/cache/apt/archives/*.deb
+
+RUN apt-get install -y --force-yes --no-install-recommends \
+	nodejs npm \
     && apt-get autoclean -y \
     && apt-get autoremove -y \
     && rm -rf /var/cache/apt/archives/*.deb
