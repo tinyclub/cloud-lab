@@ -62,7 +62,7 @@ for var in $VARS; do
     # Available encrypt cmds: sha1sum, sha224sum, cksum, sha256sum, sha512sum, md5sum, sha384sum, sum
     value=$(eval echo \$${var})
     echo "$var" | grep -q "_PWD"
-    [ $? -eq 0 -a -n "$value" ] && __ENCRYPT_CMD=$ENCRYPT_CMD
+    [ $? -eq 0 -a -n "$ENCRYPT_CMD" -a -n "$value" ] && __ENCRYPT_CMD=$ENCRYPT_CMD
     vars="$vars -e $var=$(echo $value | $__ENCRYPT_CMD | cut -d' ' -f1)";
 done
 for env in $ENVS; do vars="$vars -e $env"; done
