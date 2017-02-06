@@ -37,9 +37,10 @@ if [ -d ~/Desktop -a -n "$REMOTE_DESKTOP_SHORTCUT" -a -f "$REMOTE_DESKTOP_SHORTC
         icon=firefox.png
     fi
 
+    TMP_URL=`echo $WEB_URL | tr '&' '|'`
     cat $REMOTE_DESKTOP_SHORTCUT \
-        | sed "s%Exec=.*%Exec=$WEB_BROWSER $WEB_URL%g" \
-        | sed "s%terminator.png%$icon%g;s%lxterminal.xpm%$icon%g" \
+        | sed "s%Exec=.*%Exec=$WEB_BROWSER $TMP_URL%g" \
+        | sed "s%terminator.png%$icon%g;s%lxterminal.xpm%$icon%g" | tr '|' '&' \
 	  >> $LOCAL_DESKTOP_SHORTCUT
     chmod a+x $LOCAL_DESKTOP_SHORTCUT
 fi
