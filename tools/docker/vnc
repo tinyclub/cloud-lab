@@ -25,7 +25,7 @@ if [ $? -eq 1 ]; then
 fi
 
 # Get vnc page
-WEB_URL=http://${HOST_NAME}:${LOCAL_VNC_PORT}/vnc.html
+WEB_URL="http://${HOST_NAME}:${LOCAL_VNC_PORT}/vnc.html?password=$VNC_PWD&autoconnect=1"
 
 # Create local shotcut on Desktop
 if [ -d ~/Desktop ]; then
@@ -51,4 +51,4 @@ fi
 which $WEB_BROWSER 2>&1>/dev/null \
     && ($WEB_BROWSER $WEB_URL 2>&1>/dev/null &)2>&1>/dev/null
 
-echo "Please login $WEB_URL with password: $VNC_PWD"
+echo "Please login $WEB_URL"
