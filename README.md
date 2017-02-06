@@ -17,12 +17,12 @@ science courses and provides a Docker based experiment environment as-is.
          1	cs630-qemu-lab
          2	linux-0.11-lab
          3	linux-lab
-         4	linux-talents
-         5	markdown-lab
+         4	markdown-lab
+         5	qing-lab
          6	tinylab.org
 
     Choose the lab number:
-         5	markdown-lab
+         4	markdown-lab
 
 
     Download the lab...
@@ -38,7 +38,6 @@ science courses and provides a Docker based experiment environment as-is.
 
 ### Run the Lab
 
-    $ tools/docker/uid           # Sync the UID
     $ tools/docker/identify 0    # Disable vnc password
 
     $ tools/docker/run
