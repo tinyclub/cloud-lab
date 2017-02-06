@@ -57,8 +57,8 @@ sudo -u $UNIX_USER -i bash -c "mkdir -p $HOME/.config/pcmanfm/LXDE/ \
 get_var UNIX_PWD
 get_var VNC_PWD
 
-[ -z "$UNIX_PWD" ] && UNIX_PWD=`pwgen -c -n -y -s -1 10` && set_var UNIX_PWD
-[ -z "$VNC_PWD" ] && VNC_PWD=`pwgen -c -n -y -s -1 10` && set_var VNC_PWD
+[ -z "$UNIX_PWD" ] && UNIX_PWD=`pwgen -c -n -y -s -1 15` && set_var UNIX_PWD
+[ -z "$VNC_PWD" ] && VNC_PWD=`pwgen -c -n -y -s -1 15` && set_var VNC_PWD
 
 # Sync UID between host and container
 sudo chown $UNIX_USER:$UNIX_USER $LAB_UNIX_PWD $LAB_VNC_PWD $LAB_UNIX_UID

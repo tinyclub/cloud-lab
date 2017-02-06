@@ -18,18 +18,20 @@ RETRY_COUNT=0
 
 while :;
 do
-    [ -z "$LOCAL_PORT" -o $RETRY_COUNT -ne 0 ] && LOCAL_PORT=$((RANDOM/499+6000))
-    echo "LOG: OUR PORT: $LOCAL_PORT"
+    [ -z "$LOCAL_VNC_PORT" -o $RETRY_COUNT -ne 0 ] && LOCAL_VNC_PORT=`get_vnc_port`
+    echo "LOG: OUR PORT: $LOCAL_VNC_PORT"
 
     ports=`docker ps -a | grep -v PORTS | sed -e "s%.*-\([^-]*$\)%\1%g" | tr '\n' ' '`
     [ -n "$ports" ] && echo "LOG: OLD PORTS: $ports"
 
     RETRY_COUNT=1
-    for port in $ports; do [ $LOCAL_PORT -eq $port ] && RETRY_COUNT=2 && break; done
+    for port in $ports; do [ $LOCAL_VNC_PORT -eq $port ] && RETRY_COUNT=2 && break; done
 
     [ $RETRY_COUNT -eq 1 ] && break
     echo "LOG: Retry $RETRY_COUNT to get a unique port"
 done
+
+LOCAL_SSH_PORT=`get_ssh_port $LOCAL_VNC_PORT`
 
 # Require to prepare some environment for docker containers in host
 [ -f $LAB_HOST_RUN ] && $LAB_HOST_RUN
@@ -37,7 +39,8 @@ done
 # Run the lab via start a lab container
 caps=""
 devs=""
-portmap="-p $LOCAL_PORT:$REMOTE_PORT"
+portmap="-p $LOCAL_VNC_PORT:$REMOTE_VNC_PORT"
+portmap="$portmap -p $LOCAL_SSH_PORT:$REMOTE_SSH_PORT"
 volumemap="-v $GIT_DIR:$GIT_WORKDIR"
 volumemap="$volumemap -v $LAB_DIR:$LAB_WORKDIR"
 volumemap="$volumemap -v $TOOL_DIR:$TOOL_WORKDIR"
@@ -49,7 +52,7 @@ for dev in $DEVICES; do devs="$devs --device $dev"; done
 for map in $PORTMAP; do portmap="$portmap -p $map"; done
 for map in $VOLUMEMAP; do volumemap="$volumemap -v $map"; done
 
-CONTAINER_NAME=${LAB_NAME}-${LOCAL_PORT}
+CONTAINER_NAME=${LAB_NAME}-${LOCAL_VNC_PORT}
 container="--name $CONTAINER_NAME"
 # Remove the old one if exist
 (docker ps -a | grep -q $CONTAINER_NAME) && docker rm -f $CONTAINER_NAME
@@ -82,7 +85,7 @@ VNC_PWD=`echo $password | sed -e "s/.* VNC Password: \(.*\)$/\1/g"`
 do_unlock
 
 # Save the lab's information
-vars="CONTAINER_ID CONTAINER_NAME LOCAL_PORT UNIX_PWD VNC_PWD"
+vars="CONTAINER_ID CONTAINER_NAME LOCAL_VNC_PORT UNIX_PWD VNC_PWD"
 for var in $vars; do set_var $var; done
 
 do_lock

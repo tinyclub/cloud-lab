@@ -23,5 +23,5 @@ do
     TOP_DIR=$lab
     source $TOP_DIR/tools/docker/config $lab_name 2>&1>/dev/null
 
-    echo $HOST $CONTAINER_ID $lab_name $LOCAL_PORT $lab_user $lab_life $lab_start $VNC_PWD
+    echo $HOST $CONTAINER_ID $lab_name $LOCAL_VNC_PORT $lab_user $lab_life $lab_start $VNC_PWD
 done

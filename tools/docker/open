@@ -12,7 +12,7 @@ do_unlock
 
 get_var WEB_BROWSER chromium-browser
 get_var HOST_NAME localhost
-get_var LOCAL_PORT 6080
+get_var LOCAL_VNC_PORT 6080
 get_var VNC_PWD ubuntu
 get_var CONTAINER_NAME
 
@@ -25,7 +25,7 @@ if [ $? -eq 1 ]; then
 fi
 
 # Get vnc page
-WEB_URL=http://${HOST_NAME}:${LOCAL_PORT}/vnc.html
+WEB_URL=http://${HOST_NAME}:${LOCAL_VNC_PORT}/vnc.html
 
 # Create local shotcut on Desktop
 if [ -d ~/Desktop ]; then
