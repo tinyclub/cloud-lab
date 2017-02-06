@@ -255,18 +255,18 @@ function get_webssh_port #vnc_port
 
 function is_vnc_exposed
 {
-    grep "^EXPOSE[[:space:]]*$REMOTE_VNC_PORT$" -q $DOCKER_FILE
+    grep "^EXPOSE.* $REMOTE_VNC_PORT" -q $DOCKER_FILE
     echo $?
 }
 
 function is_web_exposed
 {
-    grep "^EXPOSE[[:space:]]*$REMOTE_WEB_PORT$" -q $DOCKER_FILE
+    grep "^EXPOSE.* $REMOTE_WEB_PORT" -q $DOCKER_FILE
     echo $?
 }
 
 function is_webssh_exposed
 {
-    grep "^EXPOSE[[:space:]]*$REMOTE_WEBSSH_PORT$" -q $DOCKER_FILE
+    grep "^EXPOSE.* $REMOTE_WEBSSH_PORT$" -q $DOCKER_FILE
     echo $?
 }
