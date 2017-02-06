@@ -21,7 +21,7 @@ LAB_IDENTIFY=$CONFIG_DOCKER_DIR/.${ACCOUNT}_identify
 # Switch if no IDENTIFY argument pass
 if [ -z "$IDENTIFY" ]; then
     get_var IDENTIFY 1
-    if [ -n "$IDENTIFY" -a $IDENTIFY == "1" ]; then
+    if [ -n "$IDENTIFY" -a "$IDENTIFY" == "1" ]; then
         IDENTIFY=0
     else
         IDENTIFY=1
