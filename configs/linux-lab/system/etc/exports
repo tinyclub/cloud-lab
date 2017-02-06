@@ -9,5 +9,4 @@
 # /srv/nfs4/homes  gss/krb5i(rw,sync,no_subtree_check)
 #
 
-/labs/linux-lab/prebuilt/root/ *(rw,async,no_subtree_check,no_root_squash)
-/labs/linux-lab/output/ *(rw,async,no_subtree_check,no_root_squash)
+/labs/linux-lab/ *(rw,async,no_subtree_check,no_root_squash)
