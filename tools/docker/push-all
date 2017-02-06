@@ -8,5 +8,5 @@ source $TOP_DIR/tools/docker/config $* >/dev/null
 
 for IMAGE in $IMAGES
 do
-    do_op "docker push" IMAGE &
+    do_op "docker push" IMAGE
 done
