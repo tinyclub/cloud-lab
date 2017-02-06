@@ -20,10 +20,12 @@ function download_submodule
     for lab in $LABS; do
       LAB_CURRENT_DIR=$LAB_DIR/$lab
       [ ! -f $LAB_CURRENT_DIR/.git ] \
-        && git submodule update --init $LAB_CURRENT_DIR \
-        && pushd $LAB_CURRENT_DIR \
-        && git checkout master && git pull \
-        && popd
+        && git submodule update --init $LAB_CURRENT_DIR
+
+      pushd $LAB_CURRENT_DIR \
+      git checkout master && git pull \
+      popd
+
       echo "LOG: Source code downloaded to $LAB_CURRENT_DIR"
     done
 }
