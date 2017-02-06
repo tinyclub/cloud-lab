@@ -3,13 +3,22 @@
 # config -- Configure the common variables
 #
 
-[ -z "$LAB_SECURITY" ] && LAB_SECURITY=0
-
 TOP_DIR=$(cd $(dirname $TOP_DIR/null) && pwd)
+
+# Basic requirement: docker and let docker run without sudo
+
+DOCKER_INSTALL_CMD=$TOP_DIR/tools/docker/install
+which docker 2>&1 > /dev/null || $DOCKER_INSTALL_CMD
+(groups $HOST_USER | grep -q docker) || sudo usermod -aG docker $HOST_USER
+
+# Basic variables
 
 HOST_USER=$USER
 [ "$HOST_USER" == "root" ] && HOST_USER=$SUDO_USER
+
 [ -z "$TPROXY" ] && TPROXY=0
+
+[ -z "$LAB_SECURITY" ] && LAB_SECURITY=0
 
 if [ $LAB_SECURITY -eq 1 ]; then
     WEB_NOSSL=0
@@ -22,6 +31,8 @@ else
 fi
 
 VARS="UNIX_USER UNIX_PWD VNC_PWD TPROXY"
+
+# Basic files/directories
 
 LAB_HOST=$TOP_DIR/.host_name
 LAB_OUTPUT=$TOP_DIR/output
@@ -71,7 +82,6 @@ CONFIG_SYSTEM_DIR=$CONFIG_DIR/system
 
 DOCKER_DIR=$TOOL_DIR/docker/
 DOCKER_IDENTIFY_CMD=$DOCKER_DIR/identify
-DOCKER_INSTALL_CMD=$DOCKER_DIR/install
 DOCKER_VNC_CMD=$DOCKER_DIR/vnc
 DOCKER_SSH_CMD=$DOCKER_DIR/ssh
 DOCKER_WEBSSH_CMD=$DOCKER_DIR/webssh
@@ -133,6 +143,8 @@ function do_unlock
 {
     [ $LAB_SECURITY -eq 1 ] && __do_unlock
 }
+
+# Variables initialization from config file if exist
 
 LAB_VARS="IMAGE ENVS CAPS DEVICES LIMITS PORTMAP VOLUMEMAP"
 LAB_VARS="$LAB_VARS WEB_BROWSER"
