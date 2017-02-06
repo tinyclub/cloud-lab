@@ -5,7 +5,7 @@ source $TOP_DIR/tools/docker/config $* >/dev/null
 
 $TOP_DIR/tools/deploy/list $* | grep -v "LOG:" | sort -t ' ' -k 5 | \
 awk 'BEGIN{FS=" "}{ \
-	printf("http://%s:%s/vnc.html?name=%s&pwd=%s&user=%s&id=%s&life=%s&start=%s\n", $1, $2, $5, $7, $8, $9, $10, $11); \
+	printf("http://%s:%s/vnc.html?name=%s&password=%s&user=%s&id=%s&life=%s&start=%s\n", $1, $2, $5, $7, $8, $9, $10, $11); \
 	printf("    ssh ubuntu@%s -p %s #pwd=%s\n", $1, $3, $6); \
 	printf("    http://%s:%s\n", $1, $4); \
 	}'
