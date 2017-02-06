@@ -1,0 +1,52 @@
+#!/bin/bash
+#
+# tproxy -- start the transparent proxy client
+#
+# Note: This is based on scripts/proxy-client-transparent.sh of https://github.com/tinyclub/cloud-ubuntu
+#
+
+TOP_DIR=$(cd $(dirname $0) && pwd)/../../
+source $TOP_DIR/tools/docker/config $* >/dev/null
+
+CONTAINER_NAME=cloud-ubuntu-proxy_client_transparent
+IMAGE_NAME=tinylab/$CONTAINER_NAME
+
+[ -z "$PULL" ] && PULL=0
+
+docker images | grep -q $IMAGE_NAME
+[ $? -ne 0 -o $PULL -eq 1 ] && docker pull $IMAGE_NAME
+
+[ -z "$PROXY_PORT" ] && PROXY_PORT=1080
+EXTRA_ARGS="$EXTRA_ARGS -e PROXY_PORT=$PROXY_PORT"
+
+[ -n "$MAP_PORT" -a "$MAP_PORT" == "1" ] && EXTRA_ARGS="$EXTRA_ARGS -p $PROXY_PORT:$PROXY_PORT"
+
+[ -n "$PROXY_LIMIT" ] && EXTRA_ARGS="$EXTRA_ARGS -e PROXY_LIMIT=$PROXY_LIMIT"
+[ -n "$PROXY_DOWN_LIMIT" ] && EXTRA_ARGS="$EXTRA_ARGS -e PROXY_DOWN_LIMIT=$PROXY_DOWN_LIMIT"
+[ -n "$PROXY_UP_LIMIT" ] && EXTRA_ARGS="$EXTRA_ARGS -e PROXY_UP_LIMIT=$PROXY_UP_LIMIT"
+[ -n "$PROXY_SPEED" ] && EXTRA_ARGS="$EXTRA_ARGS -e PROXY_SPEED=$PROXY_SPEED"
+[ -n "$PROXY_DOWN_SPEED" ] && EXTRA_ARGS="$EXTRA_ARGS -e PROXY_DOWN_SPEED=$PROXY_DOWN_SPEED"
+[ -n "$PROXY_UP_SPEED" ] && EXTRA_ARGS="$EXTRA_ARGS -e PROXY_UP_SPEED=$PROXY_UP_SPEED"
+
+# Available encrypt cmds: sha1sum, sha224sum, cksum, sha256sum, sha512sum, md5sum, sha384sum, sum
+[ -z "$ENCRYPT_CMD" ] && ENCRYPT_CMD="cat"
+[ -n "$PROXY_PWD" ] && PROXY_PWD=`echo -n $PROXY_PWD | $ENCRYPT_CMD | cut -d' ' -f1`
+
+# 16:10: 640x480 800x480 1280x800 1440x900 1680x1050 1920x1200 2560x1600
+# 16:9: 960x540 1280x720 1920x1080 2560x1440
+which xrandr 2>&1 >/dev/null
+[ $? -eq 0 ] && SCREEN_SIZE=`xrandr --current | grep +$ | tr -s ' ' | cut -d' ' -f2`
+
+[ -z "$SCREEN_SIZE" ] && SCREEN_SIZE=1024x768
+
+[ -z "$HOST_NAME" ] && HOST_NAME=localhost
+[ -z "$UNIX_PWD" ] && UNIX_PWD=ubuntu
+[ -z "$VNC_PWD" ] && VNC_PWD=ubuntu
+[ -z "$PORT_MAP" ] && PORT_MAP="$DEFAULT_PORT_MAP"
+[ -z "$ENV_ARGS" ] && ENV_ARGS=" -e UNIX_PWD=$UNIX_PWD -e VNC_PWD=$VNC_PWD -e SCREEN_SIZE=$SCREEN_SIZE -e PROXY_SERVER=$PROXY_SERVER -e PROXY_PWD=$PROXY_PWD"
+[ -z "$EXTRA_ARGS" ] && EXTRA_ARGS=""
+
+docker run --dns 127.0.0.1 \
+	--name $CONTAINER_NAME --privileged -d -t \
+	$PORT_MAP $ENV_ARGS $EXTRA_ARGS \
+	-h $HOST_NAME $IMAGE_NAME
