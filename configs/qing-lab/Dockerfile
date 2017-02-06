@@ -176,7 +176,6 @@ WORKDIR /labs/
 
 EXPOSE 6080
 EXPOSE 80
-EXPOSE 81
 EXPOSE 22
 
 ENTRYPOINT ["/tools/lab/entrypoint.sh"]

@@ -32,6 +32,7 @@ do
 done
 
 LOCAL_SSH_PORT=`get_ssh_port $LOCAL_VNC_PORT`
+LOCAL_WEB_PORT=`get_web_port $LOCAL_VNC_PORT`
 
 # Require to prepare some environment for docker containers in host
 [ -f $LAB_HOST_RUN ] && $LAB_HOST_RUN
@@ -41,6 +42,7 @@ caps=""
 devs=""
 portmap="-p $LOCAL_VNC_PORT:$REMOTE_VNC_PORT"
 portmap="$portmap -p $LOCAL_SSH_PORT:$REMOTE_SSH_PORT"
+portmap="$portmap -p $LOCAL_WEB_PORT:$REMOTE_WEB_PORT"
 volumemap="-v $GIT_DIR:$GIT_WORKDIR"
 volumemap="$volumemap -v $LAB_DIR:$LAB_WORKDIR"
 volumemap="$volumemap -v $TOOL_DIR:$TOOL_WORKDIR"

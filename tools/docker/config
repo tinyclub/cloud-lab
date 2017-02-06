@@ -149,6 +149,7 @@ LOCAL_DESKTOP_SHORTCUT=~/Desktop/${CONTAINER_NAME}.desktop
 
 REMOTE_VNC_PORT=6080
 REMOTE_SSH_PORT=22
+REMOTE_WEB_PORT=80
 LAB_HOST_RUN=$CONFIG_TOOL_DIR/host-run
 LAB_CONTAINER_RUN=$CONFIG_TOOL_DIR/container-run
 
@@ -207,11 +208,13 @@ function do_op #op $ARG $args
     eval $op $arg $args
 }
 
-# VNC PORT RANGE: 6000 ~ 6499
-# SSH PORT RANGE: 6500 ~ 7000
-VNC_PORT_RANGE_SIZE=500
+# VNC PORT RANGE: 6000 ~ 6299
+# SSH PORT RANGE: 6300 ~ 6599
+# WEB PORT RANGE: 6600 ~ 8000
+VNC_PORT_RANGE_SIZE=300
 LOCAL_VNC_PORT_START=6000
-LOCAL_SSH_PORT_OFFSET=500
+LOCAL_SSH_PORT_OFFSET=300
+LOCAL_WEB_PORT_OFFSET=600
 
 function get_vnc_port
 {
@@ -223,4 +226,11 @@ function get_ssh_port #vnc_port
     local vnc_port=$1
 
     echo $((vnc_port+LOCAL_SSH_PORT_OFFSET))
+}
+
+function get_web_port #vnc_port
+{
+    local vnc_port=$1
+
+    echo $((vnc_port+LOCAL_WEB_PORT_OFFSET))
 }

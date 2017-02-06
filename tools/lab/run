@@ -10,7 +10,7 @@ do_unlock
 
 get_var HOST_NAME localhost
 get_var UNIX_USER ubuntu
-get_var UNIX_IDENTIFY 0
+get_var UNIX_IDENTIFY 1
 get_var SUDO_IDENTIFY 0
 get_var UNIX_UID 1000
 set_var UNIX_UID
