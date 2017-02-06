@@ -29,9 +29,12 @@ DESKTOP=$HOME/Desktop/
 
 [ $SUDO_IDENTIFY -eq 1 ] && UNIX_USER_GROUPS="--groups adm,sudo"
 [ $SUDO_IDENTIFY -eq 0 ] && UNIX_USER_GROUPS=""
-id -u $UNIX_USER &>/dev/null \
-    || rm -rf /home/$UNIX_USER \
-    && useradd --uid $UNIX_UID --create-home --shell /bin/bash --user-group $UNIX_USER_GROUPS $UNIX_USER
+
+# The old one should be removed before create a new one
+id -u $UNIX_USER &>/dev/null && userdel -f -r $UNIX_USER
+rm -rf $HOME
+
+useradd --uid $UNIX_UID --create-home --shell /bin/bash --user-group $UNIX_USER_GROUPS $UNIX_USER
 
 # Install more system configuration files
 [ ! -d $DESKTOP ] && mkdir $DESKTOP
@@ -52,8 +55,8 @@ SYSTEM_SUDOERS_USER=/etc/sudoers.d/$UNIX_USER
 
 chown $UNIX_USER:$UNIX_USER -R $HOME/
 
-[ -d /usr/share/desktop/.config ] \
-    && sudo -u $UNIX_USER -i bash -c "cp -r /usr/share/desktop/home/{.[^.]*,*} /home/$UNIX_USER/"
+[ -d /usr/share/desktop/home/.config ] \
+    && sudo -u $UNIX_USER -i bash -c "cp -r /usr/share/desktop/home/{.[^.]*,*} /home/$UNIX_USER/" 2>&1 >/dev/null
 
 # Create password, ENV > CONF > PWGEN
 
