@@ -4,6 +4,8 @@
 #
 # ref: https://docs.docker.com/engine/installation/linux/ubuntulinux/
 #
+# ref: https://jpetazzo.github.io/2014/01/29/docker-device-mapper-resize/
+#
 
 echo "LOG: Install docker-engine with $0"
 
