@@ -21,6 +21,7 @@ do
     lab_start=${lab_attr_arr[3]}${lab_attr_arr[4]}
 
     TOP_DIR=$lab
+    unset LOCAL_VNC_PORT
     source $TOP_DIR/tools/docker/config $lab_name 2>&1>/dev/null
 
     LOCAL_SSH_PORT=`get_ssh_port $LOCAL_VNC_PORT`
