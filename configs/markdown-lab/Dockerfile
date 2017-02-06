@@ -12,8 +12,12 @@ RUN apt-get install -y --force-yes --no-install-recommends \
 
 RUN apt-get install -y --force-yes --no-install-recommends \
 	texlive-xetex texlive-latex-recommended texlive-latex-extra \
-	texlive-fonts-recommended texlive-fonts-extra \
-	lmodern \
+    && apt-get autoclean -y \
+    && apt-get autoremove -y \
+    && rm -rf /var/cache/apt/archives/*.deb
+
+RUN apt-get install -y --force-yes --no-install-recommends \
+	texlive-fonts-recommended texlive-fonts-extra lmodern \
     && apt-get autoclean -y \
     && apt-get autoremove -y \
     && rm -rf /var/cache/apt/archives/*.deb
