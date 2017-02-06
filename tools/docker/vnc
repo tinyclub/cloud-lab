@@ -10,7 +10,7 @@ source $TOP_DIR/tools/docker/config $* >/dev/null
 
 do_unlock
 
-get_var WEB_BROWSER firefox
+get_var WEB_BROWSER chromium-browser
 get_var HOST_NAME localhost
 get_var LOCAL_VNC_PORT $REMOTE_VNC_PORT
 get_var VNC_PWD ubuntu
