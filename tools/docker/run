@@ -93,6 +93,6 @@ for var in $vars; do set_var $var; done
 
 do_lock
 
-$DOCKER_WEBSSH_CMD $*
+# $DOCKER_WEBSSH_CMD $*
 
 $DOCKER_VNC_CMD $*
