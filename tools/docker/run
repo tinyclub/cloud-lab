@@ -83,7 +83,7 @@ do_unlock
 set_var UNIX_UID
 do_lock
 
-CONTAINER_ID=$(docker run -d --privileged $container $portmap $caps $devices $limits $volumemap $vars $IMAGE)
+CONTAINER_ID=$(docker run -d --privileged $container $portmap $caps $devices $limits $volumemap $vars $EXTRA_ARGS $IMAGE)
 
 CONTAINER_ID=${CONTAINER_ID:0:12}
 

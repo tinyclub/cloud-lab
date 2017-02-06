@@ -12,16 +12,12 @@ cat <<EOF
 TODO:
     1. system
        configs/xxx-lab/system/home/ubuntu/Desktop/lab.desktop --> configs/qing-lab/system/home/ubuntu/Desktop/xxx-lab/lab.desktop
-       configs/*/system/etc/supervisor/conf.d/supervisord.conf --> configs/qing-lab/system/etc/supervisor/conf.d/supervisord.conf
-       configs/*/system/etc/xdg/lxsession/LXDE/autostart --> configs/qing-lab/system/etc/xdg/lxsession/LXDE/autostart
        configs/*/system/etc/sudoers.d/ubuntu --> configs/qing-lab/system/etc/sudoers.d/ubuntu
        configs/*/system/home/ubuntu/.bashrc --> configs/qing-lab/system/home/ubuntu/.bashrc
     2. tools
        configs/*/tools --> configs/qing-lab/tools/
        configs/*/tools/host-run --> configs/qing-lab/tools/host-run
-       configs/*/tools/pre-startup.sh --> configs/qing-lab/tools/pre-startup.sh
-       configs/*/tools/startup.sh --> configs/qing-lab/tools/startup.sh
-       configs/*/tools/post-startup.sh --> configs/qing-lab/tools/post-startup.sh
+       configs/*/tools/startup.sh --> configs/qing-lab/tools/container-run
     3. docker
        configs/*/docker/ --> configs/qing-lab/docker/
        configs/*/docker/caps --> configs/qing-lab/docker/caps

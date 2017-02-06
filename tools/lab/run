@@ -39,12 +39,15 @@ useradd --uid $UNIX_UID --create-home --shell /bin/bash --user-group $UNIX_USER_
 # Install more system configuration files
 [ ! -d $DESKTOP ] && mkdir $DESKTOP
 
-for f in `find $CONFIG_SYSTEM_DIR -type f | sed -e "s%$CONFIG_SYSTEM_DIR%%g"`
+for system in $CONFIG_SYSTEM_DIR $CORE_SYSTEM_DIR
 do
+  for f in `find $system -type f | sed -e "s%$system%%g"`
+  do
     d=$(echo $f | sed -e "s%$DEF_HOME%$HOME%g")
     dest=`dirname $d`
     [ ! -d $dest ] && mkdir -p $dest
-    cp $CONFIG_SYSTEM_DIR/$f $d
+    cp $system/$f $d
+  done
 done
 
 SYSTEM_SUDOERS_USER=/etc/sudoers.d/$UNIX_USER
