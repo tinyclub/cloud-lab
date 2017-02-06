@@ -63,8 +63,8 @@ RUN apt-get install -y --force-yes --no-install-recommends \
     && apt-get autoremove -y \
     && rm -rf /var/cache/apt/archives/*.deb
 
-RUN bash -c 'echo deb http://www.emdebian.org/debian/ wheezy main > /etc/apt/sources.list.d/emdebian.list'
-#RUN bash -c 'echo deb http://mirrors.ustc.edu.cn/emdebian/toolchains/ wheezy main > /etc/apt/sources.list.d/emdebian.list'
+#RUN bash -c 'echo deb http://www.emdebian.org/debian/ wheezy main > /etc/apt/sources.list.d/emdebian.list'
+RUN bash -c 'echo deb http://mirrors.ustc.edu.cn/emdebian/toolchains/ wheezy main > /etc/apt/sources.list.d/emdebian.list'
 RUN apt-get -y update
 
 RUN apt-get install -y --force-yes --no-install-recommends \
