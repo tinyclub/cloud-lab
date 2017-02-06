@@ -101,11 +101,12 @@ echo "$UNIX_USER:$UNIX_PWD" | chpasswd
 # Run Lab specific tasks
 [ -x $LAB_CONTAINER_RUN ] && UNIX_USER=$UNIX_USER $LAB_CONTAINER_RUN
 
-# Launch supervisor tasks
-
-/usr/bin/supervisord -n -c $SYSTEM_SUPERVISORD_CONF
-
+# Run image built-in tasks
 for f in /etc/startup.aux/*.sh
 do
     . $f
 done
+
+# Launch supervisor tasks
+
+/usr/bin/supervisord -n -c $SYSTEM_SUPERVISORD_CONF
