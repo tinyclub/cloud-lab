@@ -3,8 +3,8 @@
 # batch -- create multiple containers in one script
 #
 # usage:
-#
-#    users="a b c d e f g" lab="linux-lab" host="myhost" cleanup=1 tools/deploy/batch
+# E.x.:
+#    users="a b c d e f g" lab="linux-lab" host="myhost" cleanup=1 security=0 tools/deploy/batch
 #
 
 TOP_DIR=$(cd $(dirname $0) && pwd)/../../
@@ -13,8 +13,9 @@ TOP_DIR=$(cd $(dirname $0) && pwd)/../../
 [ -z "$lab" ] && lab=tinylab.org
 [ -z "$host" ] && host=139.162.52.212
 [ -z "$cleanup" ] && cleanup=0
+[ -z "$security" ] && security=1
 
-export LAB_SECURITY=1
+export LAB_SECURITY=$security
 export LAB_BATCH=1
 
 ${TOP_DIR}/tools/docker/choose $lab
@@ -22,6 +23,7 @@ ${TOP_DIR}/tools/docker/choose $lab
 if [ $cleanup -eq 1 ]; then
     ${TOP_DIR}/tools/deploy/rm $lab
     ${TOP_DIR}/tools/deploy/clean $lab
+    ${TOP_DIR}/tools/docker/choose $lab
 fi
 
 ${TOP_DIR}/tools/docker/unlock $lab
