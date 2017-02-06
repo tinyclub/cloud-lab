@@ -1,4 +1,4 @@
-FROM tinylab/cloud-ubuntu-dev_cn
+FROM tinylab/cloud-ubuntu-dev_cn_input
 MAINTAINER Wu Zhangjin <wuzhangjin@gmail.com>
 
 RUN apt-get -y update
