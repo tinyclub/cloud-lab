@@ -1,7 +1,7 @@
 #!/bin/bash
 
 TOP_DIR=$(cd $(dirname $0) && pwd)/../../
-source $TOP_DIR/tools/docker/config $* 2>&1>/dev/null
+source $TOP_DIR/tools/docker/config $* >/dev/null 2>&1
 
 [ ! -d $LAB_OUTPUT ] && exit 0
 
@@ -24,7 +24,7 @@ do
 
     TOP_DIR=$lab
     unset UNIX_USER UNIX_PWD VNC_PWD CONTAINER_NAME CONTAINER_IP CONTAINER_TOKEN
-    source $TOP_DIR/tools/docker/config $lab_name 2>&1>/dev/null
+    source $TOP_DIR/tools/docker/config $lab_name >/dev/null 2>&1
 
     CONTAINER_IP=`docker inspect --format '{{ .NetworkSettings.IPAddress }}' $CONTAINER_NAME`
     CONTAINER_TOKEN=`echo -n $CONTAINER_IP | $ENCRYPT_CMD | cut -d' ' -f1`

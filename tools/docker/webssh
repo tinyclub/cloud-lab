@@ -13,7 +13,7 @@ get_var UNIX_USER ubuntu
 get_var UNIX_PWD ubuntu
 do_lock
 
-which $WEB_BROWSER 2>&1>/dev/null
+which $WEB_BROWSER >/dev/null 2>&1
 if [ $? -eq 1 ]; then
     echo "LOG: No $WEB_BROWSER found, use firefox instead."
     WEB_BROWSER=firefox
@@ -24,4 +24,4 @@ WEBSSH_CMD="$WEB_BROWSER $WEB_HTTP://${HOST_NAME}:${LOCAL_WEBSSH_PORT}?ssh=ssh:/
 
 echo -e "LOG: Please login with 'ip=$CONTAINER_IP, port=$REMOTE_SSH_PORT, user=$UNIX_USER, password=$UNIX_PWD' and enter workdir: $LAB_WORKDIR\n"
 
-($WEBSSH_CMD 2>&1>/dev/null &) 2>&1>/dev/null
+($WEBSSH_CMD >/dev/null 2>&1 &) >/dev/null 2>&1

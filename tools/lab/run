@@ -62,7 +62,7 @@ SYSTEM_SUDOERS_USER=/etc/sudoers.d/$UNIX_USER
 chown $UNIX_USER:$UNIX_USER -R $HOME/
 
 [ -d /usr/share/desktop/home/.config ] \
-    && sudo -u $UNIX_USER -i bash -c "cp -r /usr/share/desktop/home/{.[^.]*,*} /home/$UNIX_USER/" 2>&1 >/dev/null
+    && sudo -u $UNIX_USER -i bash -c "cp -r /usr/share/desktop/home/{.[^.]*,*} /home/$UNIX_USER/" >/dev/null 2>&1
 
 # Create password, ENV > CONF > PWGEN
 
@@ -93,7 +93,7 @@ if [ "$UNIX_USER" != "$DEF_USER" ]; then
 fi
 
 # VNC PASS
-which x11vnc 2>&1>/dev/null
+which x11vnc >/dev/null 2>&1
 if [ $? -eq 0 ]; then
     VNC_PWD_FILE=$HOME/.vnc/passwd
     [ ! -d $HOME/.vnc ] && mkdir -p $HOME/.vnc

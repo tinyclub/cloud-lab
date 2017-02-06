@@ -7,7 +7,7 @@
 # ref: https://jpetazzo.github.io/2014/01/29/docker-device-mapper-resize/
 #
 
-which docker 2>&1 > /dev/null && echo "LOG: docker was already installed, remove it before reinstall." && exit 0
+which docker > /dev/null 2>&1 && exit 0
 
 [ -f /etc/issue ] && grep -qi ubuntu /etc/issue
 if [ $? -eq 0 ]; then

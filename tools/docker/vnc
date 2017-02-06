@@ -15,7 +15,7 @@ get_var CONTAINER_NAME
 
 do_lock
 
-which $WEB_BROWSER 2>&1>/dev/null
+which $WEB_BROWSER >/dev/null 2>&1
 if [ $? -eq 1 ]; then
     echo "LOG: No $WEB_BROWSER found, use firefox instead."
     WEB_BROWSER=firefox
@@ -50,7 +50,7 @@ fi
     && for port in $(grep ":8" $LAB_PORTMAP | cut -d':' -f1); \
        do echo "LOG: Local Web Address: http://$HOST_NAME:$port/"; done
 
-which $WEB_BROWSER 2>&1>/dev/null \
-    && ($WEB_BROWSER $WEB_URL 2>&1>/dev/null &)2>&1>/dev/null
+which $WEB_BROWSER >/dev/null 2>&1 \
+    && ($WEB_BROWSER $WEB_URL >/dev/null 2>&1 &)>/dev/null 2>&1
 
 echo "Please login $WEB_URL"

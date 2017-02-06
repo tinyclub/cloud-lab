@@ -15,4 +15,4 @@ done
 sudo rm -rf $LAB_OUTPUT/${CURRENT}*
 
 do_unlock
-git clean -fdX 2>&1 >/dev/null
+git clean -fdX >/dev/null 2>&1
