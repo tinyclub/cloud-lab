@@ -96,11 +96,14 @@ for var in $vars; do set_var $var; done
 
 do_lock
 
-# Login the lab: Prefer VNC to SSH
+# Login the lab: issue all available login methods
 WEB=`is_web_exposed`
 [ $WEB -eq 0 ] && $DOCKER_WEB_CMD $*
 
+WEBSSH=`is_webssh_exposed`
+[ $WEBSSH -eq 0 ] && $DOCKER_WEBSSH_CMD $*
+
 VNC=`is_vnc_exposed`
-[ $VNC -eq 0 ] && $DOCKER_VNC_CMD $* && exit 0
+[ $VNC -eq 0 ] && $DOCKER_VNC_CMD $*
 
 $DOCKER_SSH_CMD $*
