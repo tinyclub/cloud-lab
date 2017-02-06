@@ -28,11 +28,7 @@ CONTAINER_IP=`docker inspect --format '{{ .NetworkSettings.IPAddress }}' $CONTAI
 token=`echo -n $CONTAINER_IP | $ENCRYPT_CMD | cut -d' ' -f1`
 
 # Get vnc page
-if [ -n "HTTPS" -a "$HTTPS" == "0" ]; then
-    WEB_URL="http://${HOST_NAME}:${LOCAL_VNC_PORT}/vnc.html?token=$token&password=$VNC_PWD&autoconnect=1"
-else
-    WEB_URL="https://${HOST_NAME}:${LOCAL_VNC_PORT}/vnc.html?token=$token&password=$VNC_PWD&autoconnect=1&encrypt=1"
-fi
+WEB_URL="$WEB_HTTP://${HOST_NAME}:${LOCAL_VNC_PORT}/vnc.html?token=$token&password=$VNC_PWD&autoconnect=1&encrypt=$WEB_ENCRYPT"
 
 # Create local shotcut on Desktop
 if [ -d ~/Desktop -a -n "$REMOTE_DESKTOP_SHORTCUT" -a -f "$REMOTE_DESKTOP_SHORTCUT" ]; then

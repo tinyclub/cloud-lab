@@ -34,7 +34,7 @@ which xrandr 2>&1 >/dev/null
 [ -z "$UNIX_PWD" ] && UNIX_PWD=ubuntu
 [ -z "$VNC_PWD" ] && VNC_PWD=ubuntu
 [ -z "$PORT_MAP" ] && PORT_MAP="$DEFAULT_PORT_MAP"
-[ -z "$ENV_ARGS" ] && ENV_ARGS=" -e UNIX_PWD=$UNIX_PWD -e VNC_PWD=$VNC_PWD -e SCREEN_SIZE=$SCREEN_SIZE -e PROXY_SPEED_LIMIT=0"
+[ -z "$ENV_ARGS" ] && ENV_ARGS=" -e UNIX_PWD=$UNIX_PWD -e VNC_PWD=$VNC_PWD -e SCREEN_SIZE=$SCREEN_SIZE -e PROXY_SPEED_LIMIT=0 -e NOSSL=$WEB_NOSSL"
 [ -z "$EXTRA_ARGS" ] && EXTRA_ARGS=""
 
 docker run \
