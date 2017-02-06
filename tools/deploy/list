@@ -25,10 +25,11 @@ do
 
     LOCAL_SSH_PORT=`get_ssh_port $LOCAL_VNC_PORT`
     LOCAL_WEB_PORT=`get_web_port $LOCAL_VNC_PORT`
+    LOCAL_WEBSSH_PORT=`get_webssh_port $LOCAL_VNC_PORT`
 
     do_unlock
     get_var UNIX_USER ubuntu
     do_lock
 
-    echo $HOST $LOCAL_VNC_PORT $LOCAL_SSH_PORT $LOCAL_WEB_PORT $lab_name $UNIX_PWD $VNC_PWD $lab_user $CONTAINER_ID $lab_life $lab_start
+    echo $HOST $LOCAL_VNC_PORT $LOCAL_SSH_PORT $LOCAL_WEB_PORT $LOCAL_WEBSSH_PORT $lab_name $UNIX_PWD $VNC_PWD $lab_user $CONTAINER_ID $lab_life $lab_start $UNIX_USER
 done
