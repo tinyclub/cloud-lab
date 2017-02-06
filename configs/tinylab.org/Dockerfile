@@ -10,7 +10,7 @@ RUN apt-get install -y chromium-browser
 RUN apt-get install -y ruby
 RUN gem sources -r http://rubygems.org/
 RUN gem sources -r https://rubygems.org/
-RUN gem sources -a https://ruby.taobao.org/
+RUN gem sources -a https://gems.ruby-china.org/
 
 RUN gem install showterm
 
