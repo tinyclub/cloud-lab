@@ -30,7 +30,8 @@ DESKTOP=$HOME/Desktop/
 [ $SUDO_IDENTIFY -eq 1 ] && UNIX_USER_GROUPS="--groups adm,sudo"
 [ $SUDO_IDENTIFY -eq 0 ] && UNIX_USER_GROUPS=""
 id -u $UNIX_USER &>/dev/null \
-    || useradd --uid $UNIX_UID --create-home --shell /bin/bash --user-group $UNIX_USER_GROUPS $UNIX_USER
+    || rm -rf /home/$UNIX_USER \
+    && useradd --uid $UNIX_UID --create-home --shell /bin/bash --user-group $UNIX_USER_GROUPS $UNIX_USER
 
 # Install more system configuration files
 [ ! -d $DESKTOP ] && mkdir $DESKTOP
