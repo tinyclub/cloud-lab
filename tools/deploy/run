@@ -62,5 +62,5 @@ do
 
     do_lock
 
-    $DOCKER_RUN_CMD $lab_name
+    UNIX_USER=$lab_name $DOCKER_RUN_CMD $lab_name
 done
