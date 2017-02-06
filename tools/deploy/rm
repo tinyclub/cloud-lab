@@ -17,4 +17,4 @@ do
     $unlock_cmd $lab_name
 done
 
-rm -rf $LAB_OUTPUT/${CURRENT}*
+sudo rm -rf $LAB_OUTPUT/${CURRENT}*
