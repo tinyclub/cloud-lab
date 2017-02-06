@@ -50,21 +50,30 @@ RUN apt-get install -y --force-yes --no-install-recommends \
     && rm -rf /var/cache/apt/archives/*.deb
 
 # RUN npm config set registry https://registry.npm.taobao.org/
-RUN npm config set registry http://npmreg.mirrors.ustc.edu.cn/
+# RUN npm config set registry http://npmreg.mirrors.ustc.edu.cn/
 
-RUN npm install gitbook-cli -g \
+RUN export npm_config_cache=$(mktemp -d) \
+    && npm install gitbook-cli -g \
+    && npm cache clean \
+    && rm -rf /tmp/* \
     && rm /usr/local/bin/gitbook \
     && sh -c 'echo "nodejs /usr/local/lib/node_modules/gitbook-cli/bin/gitbook.js \$@" > /usr/local/bin/gitbook' \
     && chmod +x /usr/local/bin/gitbook
 
-RUN npm install gitbook-plugin-duoshuo -g
-RUN npm install gitbook-plugin-disqus -g
-RUN npm install gitbook-plugin-google_code_prettify -g
-RUN npm install gitbook-plugin-collapsible-menu -g
-RUN npm install gitbook-plugin-maxiang -g
-RUN npm install gitbook-plugin-multipart -g
+RUN export npm_config_cache=$(mktemp -d) \
+    && npm install gitbook-plugin-duoshuo -g \
+    && npm install gitbook-plugin-disqus -g \
+    && npm install gitbook-plugin-google_code_prettify -g \
+    && npm install gitbook-plugin-collapsible-menu -g \
+    && npm install gitbook-plugin-maxiang -g \
+    && npm install gitbook-plugin-multipart -g \
+    && npm cache clean \
+    && rm -rf /tmp/*
 
-# RUN gitbook fetch latest
+# RUN export npm_config_cache=$(mktemp -d) \
+#    && gitbook fetch latest \
+#    && npm cache clean \
+#    && rm -rf /tmp/*
 # ...
 
 RUN rm -rf /var/lib/apt/lists/*
