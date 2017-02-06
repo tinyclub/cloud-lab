@@ -11,4 +11,6 @@ do
     echo -e "\n\n========== Building tinylab/$i ==========\n\n"
 
     ${TOP_DIR}/tools/docker/build $i
+
+    [ $? -ne 0 ] && exit 1
 done
