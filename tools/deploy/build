@@ -1,0 +1,14 @@
+#!/bin/bash
+
+TOP_DIR=$(cd $(dirname $0) && pwd)/../../
+IN_CHOOSE_CMD=1
+source $TOP_DIR/tools/docker/config IGNORE_LAB_NAME >/dev/null
+
+# markdown-lab must be built before qing-lab
+
+for i in `ls $CONFIGS_DIR | tr -s ' '`
+do
+    echo -e "\n\n========== Building tinylab/$i ==========\n\n"
+
+    ${TOP_DIR}/tools/docker/build $i
+done
