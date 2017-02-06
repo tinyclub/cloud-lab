@@ -18,7 +18,7 @@ RETRY_COUNT=0
 
 while :;
 do
-    [ -z "$LOCAL_PORT" -o $RETRY_COUNT -ne 0 ] && LOCAL_PORT=$((RANDOM/500+6080))
+    [ -z "$LOCAL_PORT" -o $RETRY_COUNT -ne 0 ] && LOCAL_PORT=$((RANDOM/499+6000))
     echo "LOG: OUR PORT: $LOCAL_PORT"
 
     ports=`docker ps -a | grep -v PORTS | sed -e "s%.*-\([^-]*$\)%\1%g" | tr '\n' ' '`
