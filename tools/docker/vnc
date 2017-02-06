@@ -2,8 +2,6 @@
 #
 # vnc -- open the docker lab's novnc frontend via a browser
 #
-# Usage: vnc [browser]
-#
 
 TOP_DIR=$(cd $(dirname $0) && pwd)/../../
 source $TOP_DIR/tools/docker/config $* >/dev/null

@@ -9,15 +9,14 @@
 
 TOP_DIR=$(cd $(dirname $0) && pwd)/../../
 
-[ -z "$users" ] && users="falcon taotao bobo cee1 heiher taozi"
+[ -z "$users" ] && users="falcon cee1 heiher"
 [ -z "$peruser" ] && peruser=1
 [ -z "$lab" ] && lab=tinylab.org
-[ -z "$host" ] && host=139.162.52.212
+[ -z "$host" ] && host=tinylab.org
 [ -z "$cleanup" ] && cleanup=0
 [ -z "$security" ] && security=1
 
-export LAB_SECURITY=$security
-export LAB_BATCH=1
+. ${TOP_DIR}/tools/deploy/init
 
 ${TOP_DIR}/tools/docker/choose $lab
 
@@ -40,5 +39,5 @@ echo $host > ${TOP_DIR}/.host_name
 
 for user in $users
 do
-    ${TOP_DIR}/tools/deploy/run $lab 1 $peruser $user
+    ${TOP_DIR}/tools/deploy/run $lab $user $peruser
 done
