@@ -231,7 +231,7 @@ LOCAL_SSH_PORT_OFFSET=3
 
 function get_vnc_port
 {
-    echo $((RANDOM/(VNC_PORT_RANGE_SIZE-1)+LOCAL_VNC_PORT_START))
+    echo $((RANDOM%VNC_PORT_RANGE_SIZE+LOCAL_VNC_PORT_START))
 }
 
 function get_ssh_port #vnc_port
