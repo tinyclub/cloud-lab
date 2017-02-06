@@ -81,10 +81,28 @@ LAB_VNC_IDENTIFY=$CONFIG_DOCKER_DIR/.vnc_identify
 LAB_UNIX_IDENTIFY=$CONFIG_DOCKER_DIR/.unix_identify
 LAB_SUDO_IDENTIFY=$CONFIG_DOCKER_DIR/.sudo_identify
 
+# Lock the important files for security
+function do_lock
+{
+    chmod -R a-rw $CONFIG_DOCKER_DIR/.[^.]*
+    sudo chattr -R +i $CONFIG_DIR
+    sudo chattr -R +i $TOOL_DIR
+}
+
+# Unlock the important files for configuration
+function do_unlock
+{
+    sudo chattr -R -i $CONFIG_DIR
+    sudo chattr -R -i $TOOL_DIR
+    chmod -R 664 $CONFIG_DOCKER_DIR/.[^.]*
+}
+
 LAB_VARS="IMAGE CAPS DEVICES LIMITS PORTMAP VOLUMEMAP"
 LAB_VARS="$LAB_VARS WEB_BROWSER"
 LAB_VARS="$LAB_VARS CONTAINER_NAME CONTAINER_ID HOST_NAME LOCAL_PORT"
 LAB_VARS="$LAB_VARS UNIX_USER UNIX_PWD VNC_PWD UNIX_UID UNIX_IDENTIFY VNC_IDENTIFY SUDO_IDENTIFY"
+
+do_unlock
 
 for VAR in $LAB_VARS
 do
@@ -97,6 +115,8 @@ do
 
     echo `eval echo "LOG: $VAR=\\$${VAR}"`
 done
+
+do_lock
 
 if [ -n "$IMAGE" ]; then
     LAB_USER=`dirname $IMAGE`
@@ -168,18 +188,4 @@ function do_op #op $ARG $args
     echo "LOG: Running ' $op $arg $args'"
 
     eval $op $arg $args
-}
-
-# Lock the important files for security
-function do_lock
-{
-    sudo chattr -R +i $CONFIG_DIR
-    sudo chattr -R +i $TOOL_DIR
-}
-
-# Unlock the important files for configuration
-function do_unlock
-{
-    sudo chattr -R -i $CONFIG_DIR
-    sudo chattr -R -i $TOOL_DIR
 }

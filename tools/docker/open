@@ -8,13 +8,21 @@
 TOP_DIR=$(cd $(dirname $0) && pwd)/../../
 source $TOP_DIR/tools/docker/config $* >/dev/null
 
+do_unlock
+
 get_var WEB_BROWSER chromium-browser
 get_var HOST_NAME localhost
 get_var LOCAL_PORT 6080
 get_var VNC_PWD ubuntu
 get_var CONTAINER_NAME
 
-which $WEB_BROWSER 2>&1>/dev/null || (echo "LOG: No $WEB_BROWSER found, use firefox instead." && WEB_BROWSER=firefox)
+do_lock
+
+which $WEB_BROWSER 2>&1>/dev/null
+if [ $? -eq 1 ]; then
+    echo "LOG: No $WEB_BROWSER found, use firefox instead."
+    WEB_BROWSER=firefox
+fi
 
 # Get vnc page
 WEB_URL=http://${HOST_NAME}:${LOCAL_PORT}/vnc.html
