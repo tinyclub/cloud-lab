@@ -11,7 +11,9 @@ RUN apt-get install -y --force-yes --no-install-recommends \
 
 RUN rm -rf /var/lib/apt/lists/*
 
-RUN gem install iconv jekyll jekyll-paginate
+RUN gem install --clear-sources iconv jekyll jekyll-paginate \
+    && gem cleanup \
+    && rm -rf /home/ubuntu/.gem
 
 EXPOSE 6080 443 80 22
 
