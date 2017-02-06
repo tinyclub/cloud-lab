@@ -3,7 +3,7 @@
 TOP_DIR=$(cd $(dirname $0) && pwd)/../../
 source $TOP_DIR/tools/docker/config $* >/dev/null
 
-$TOP_DIR/tools/deploy/list $* | grep -v "LOG:" | \
+$TOP_DIR/tools/deploy/list $* | grep -v "LOG:" | sort -t ' ' -k 5 | \
 while read host id name port user life start pwd; do
-   echo "http://$host:$port/vnc.html?name=$name&pwd=$pwd"
+   echo "http://$host:$port/vnc.html?name=$name&user=$user&pwd=$pwd"
 done
