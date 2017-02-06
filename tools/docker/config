@@ -175,7 +175,7 @@ function do_op #op $ARG $args
 
     [ -z "$arg" ] && echo "LOG: '$ARG' required for '$op'" && exit 1
 
-    echo "LOG: Running '$op $arg $args'"
+    echo "LOG: Running ' $op $arg $args'"
 
     eval $op $arg $args
 }
