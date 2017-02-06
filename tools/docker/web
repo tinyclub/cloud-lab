@@ -7,7 +7,7 @@ TOP_DIR=$(cd $(dirname $0) && pwd)/../../
 source $TOP_DIR/tools/docker/config $* >/dev/null
 
 do_unlock
-get_var WEB_BROWSER chromium-browser
+get_var WEB_BROWSER firefox
 get_var HOST_NAME localhost
 get_var UNIX_USER ubuntu
 get_var LOCAL_VNC_PORT 6080
