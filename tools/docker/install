@@ -7,7 +7,17 @@
 # ref: https://jpetazzo.github.io/2014/01/29/docker-device-mapper-resize/
 #
 
-echo "LOG: Install docker-engine with $0"
+which docker 2>&1 > /dev/null && echo "LOG: docker was already installed, remove it before reinstall." && exit 0
+
+[ -f /etc/issue ] && grep -qi ubuntu /etc/issue
+if [ $? -eq 0 ]; then
+    echo "LOG: Install docker-engine with $0"
+else
+    echo "LOG: Please install docker-engine with doc: https://docs.docker.com/engine/installation/linux/ubuntulinux/"
+    exit 1
+fi
+
+# Install docker-engine for Ubuntu
 
 sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 58118E89F3A912897C070ADBF76221572C52609D
 version=`sed -n -e "/ main/p" /etc/apt/sources.list | grep -v ^# | head -1 | cut -d' ' -f3`

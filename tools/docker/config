@@ -3,13 +3,17 @@
 # config -- Configure the common variables
 #
 
+# debug with DEBUG=1
+[ x$DEBUG = x"1" ] && set -x
+
 TOP_DIR=$(cd $(dirname $TOP_DIR/null) && pwd)
 
 # Basic requirement: docker and let docker run without sudo
-
-DOCKER_INSTALL_CMD=$TOP_DIR/tools/docker/install
-which docker 2>&1 > /dev/null || $DOCKER_INSTALL_CMD
-(groups $HOST_USER | grep -q docker) || sudo usermod -aG docker $HOST_USER
+if [ ! -n "$IN_CONTAINER_CMD" ]; then
+	DOCKER_INSTALL_CMD=$TOP_DIR/tools/docker/install
+	$DOCKER_INSTALL_CMD || exit 1
+	(groups $HOST_USER | grep -q docker) || sudo usermod -aG docker $HOST_USER
+fi
 
 # Basic variables
 
