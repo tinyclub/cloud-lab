@@ -4,11 +4,10 @@
 #
 
 lab_name=$1
-lab_identify=$2
+lab_user=$2
 lab_total=$3
-lab_user=$4
 # In hours
-lab_life=$5
+lab_life=$4
 
 TOP_DIR=$(cd $(dirname $0) && pwd)/../../
 source $TOP_DIR/tools/docker/config $* >/dev/null
