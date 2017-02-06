@@ -58,8 +58,11 @@ DOCKER_DIR=$TOOL_DIR/docker/
 DOCKER_IDENTIFY_CMD=$DOCKER_DIR/identify
 DOCKER_INSTALL_CMD=$DOCKER_DIR/install
 DOCKER_VNC_CMD=$DOCKER_DIR/vnc
+DOCKER_SSH_CMD=$DOCKER_DIR/ssh
+DOCKER_WEB_CMD=$DOCKER_DIR/web
 DOCKER_RUN_CMD=$DOCKER_DIR/run
 DOCKER_UNLOCK_CMD=$DOCKER_DIR/unlock
+DOCKER_FILE=$CONFIG_DIR/Dockerfile
 
 # Common variables
 
@@ -233,4 +236,16 @@ function get_web_port #vnc_port
     local vnc_port=$1
 
     echo $((vnc_port+LOCAL_WEB_PORT_OFFSET))
+}
+
+function is_vnc_exposed
+{
+    grep "^EXPOSE[[:space:]]*$REMOTE_VNC_PORT$" -q $DOCKER_FILE
+    echo $?
+}
+
+function is_web_exposed
+{
+    grep "^EXPOSE[[:space:]]*$REMOTE_WEB_PORT$" -q $DOCKER_FILE
+    echo $?
 }

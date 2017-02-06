@@ -1,7 +1,0 @@
-[Desktop Entry]
-Encoding=UTF-8
-Name=TinyLab.org Lab
-Comment=A Friendly Lab for jekyll website
-Exec=/usr/bin/lxterminal --working-directory=/labs/tinylab.org/ -T "TinyLab.org Lab"
-Icon=/usr/share/pixmaps/lxterminal.xpm
-Type=Application

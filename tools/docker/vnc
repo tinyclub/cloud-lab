@@ -12,7 +12,7 @@ do_unlock
 
 get_var WEB_BROWSER chromium-browser
 get_var HOST_NAME localhost
-get_var LOCAL_VNC_PORT 6080
+get_var LOCAL_VNC_PORT $REMOTE_VNC_PORT
 get_var VNC_PWD ubuntu
 get_var CONTAINER_NAME
 
@@ -28,17 +28,18 @@ fi
 WEB_URL="http://${HOST_NAME}:${LOCAL_VNC_PORT}/vnc.html?password=$VNC_PWD&autoconnect=1"
 
 # Create local shotcut on Desktop
-if [ -d ~/Desktop ]; then
+if [ -d ~/Desktop -a -n "$REMOTE_DESKTOP_SHORTCUT" -a -f "$REMOTE_DESKTOP_SHORTCUT" ]; then
     echo '#!/usr/bin/env xdg-open' > $LOCAL_DESKTOP_SHORTCUT
     if [ "$WEB_BROWSER" == "chromium-browser" ]; then
         icon=chromium-browser.png
     else
         icon=firefox.png
     fi
+
     cat $REMOTE_DESKTOP_SHORTCUT \
         | sed "s%Exec=.*%Exec=$WEB_BROWSER $WEB_URL%g" \
-	| sed "s%terminator.png%$icon%g;s%lxterminal.xpm%$icon%g" \
-	>> $LOCAL_DESKTOP_SHORTCUT
+        | sed "s%terminator.png%$icon%g;s%lxterminal.xpm%$icon%g" \
+	  >> $LOCAL_DESKTOP_SHORTCUT
     chmod a+x $LOCAL_DESKTOP_SHORTCUT
 fi
 

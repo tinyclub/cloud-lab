@@ -25,4 +25,4 @@ WEB_CMD="$WEB_BROWSER http://${HOST_NAME}:${LOCAL_WEB_PORT}"
 
 echo -e "LOG: Please browser with '$WEB_CMD'\n"
 
-eval $WEB_CMD
+($WEB_CMD 2>&1>/dev/null &) 2>&1>/dev/null

@@ -49,8 +49,10 @@ locale-gen --purge zh_CN.utf8
 
 # Install desktop wallpapers
 
-sudo -u $UNIX_USER -i bash -c "mkdir -p $HOME/.config/pcmanfm/LXDE/ \
-    && cp /usr/share/doro-lxde-wallpapers/desktop-items-0.conf $HOME/.config/pcmanfm/LXDE/"
+DESKTOP_WALLPAPER_CONF=/usr/share/doro-lxde-wallpapers/desktop-items-0.conf
+[ -f $DESKTOP_WALLPAPER_CONF ] \
+  && sudo -u $UNIX_USER -i bash -c "mkdir -p $HOME/.config/pcmanfm/LXDE/ \
+    && cp $DESKTOP_WALLPAPER_CONF $HOME/.config/pcmanfm/LXDE/"
 
 # Create password
 
@@ -70,10 +72,18 @@ do_lock
 echo "User: $UNIX_USER Password: $UNIX_PWD VNC Password: $VNC_PWD"
 
 # VNC OASS
-VNC_PWD_FILE=/vnc/passwd
-[ ! -d /vnc/ ] && mkdir /vnc/
-x11vnc -storepasswd $VNC_PWD $VNC_PWD_FILE
-sed -i -e "s% -rfbauth VNC_PWD_FILE$% -rfbauth $VNC_PWD_FILE%g" $SYSTEM_SUPERVISORD_CONF
+which x11vnc 2>&1>/dev/null
+if [ $? -eq 0 ]; then
+    VNC_PWD_FILE=/vnc/passwd
+    [ ! -d /vnc/ ] && mkdir /vnc/
+    x11vnc -storepasswd $VNC_PWD $VNC_PWD_FILE
+    sed -i -e "s% -rfbauth VNC_PWD_FILE$% -rfbauth $VNC_PWD_FILE%g" $SYSTEM_SUPERVISORD_CONF
+
+    # Disable the VNC login password
+    get_var VNC_IDENTIFY 1
+    [ $VNC_IDENTIFY -eq 0 -a "$HOST_NAME" == "localhost" ] \
+        && sed -i -e "s% -rfbauth VNC_PWD_FILE$%%g" $SYSTEM_SUPERVISORD_CONF
+fi
 
 # UNIX PASS
 echo "$UNIX_USER:$UNIX_PWD" | chpasswd
@@ -82,20 +92,14 @@ echo "$UNIX_USER:$UNIX_PWD" | chpasswd
 [ $UNIX_IDENTIFY -eq 0 ] && passwd -l $UNIX_USER
 [ $UNIX_IDENTIFY -eq 1 ] && passwd -u $UNIX_USER
 
-# Disable the VNC login password
-get_var VNC_IDENTIFY 1
-[ $VNC_IDENTIFY -eq 0 -a "$HOST_NAME" == "localhost" ] \
-    && sed -i -e "s% -rfbauth VNC_PWD_FILE$%%g" $SYSTEM_SUPERVISORD_CONF
+container_ip=$(ip addr show eth0 | head -3 | tail -1 | sed -e "s%.*inet \(.*\)/.*%\1%g")
+sed -i -e "s% -H HOST_IP% -H $container_ip%g" $SYSTEM_SUPERVISORD_CONF
+echo "LOG: Jekyll Local Web Site Address: http://$container_ip/"
 
 # Configure local ip address for some labs
 local_shortcut_count=`find $DESKTOP -name local.desktop | wc -l`
-if [ $local_shortcut_count -ne 0 ]; then
-    container_ip=$(ip addr show eth0 | head -3 | tail -1 | sed -e "s%.*inet \(.*\)/.*%\1%g")
-    sed -i -e "s% -H HOST_IP% -H $container_ip%g" $SYSTEM_SUPERVISORD_CONF
-
-    find $DESKTOP -name local.desktop | xargs -i sudo -u $UNIX_USER sed -i -e "s%localhost%$container_ip%g" {}
-    echo "LOG: Jekyll Local Web Site Address: http://$container_ip/"
-fi
+[ $local_shortcut_count -ne 0 ] \
+    && find $DESKTOP -name local.desktop | xargs -i sudo -u $UNIX_USER sed -i -e "s%localhost%$container_ip%g" {}
 
 # Prepare some services
 [ -x $LAB_CONTAINER_RUN ] && $LAB_CONTAINER_RUN
@@ -113,8 +117,10 @@ FAIL2BAN_SOCK=/var/run/fail2ban/fail2ban.sock
 service fail2ban start
 
 # Start web service
-cd /web && ./run.py > /var/log/web.log 2>&1 &
-nginx -c /etc/nginx/nginx.conf
+if [ -d "/web" ]; then
+    cd /web && ./run.py > /var/log/web.log 2>&1 &
+    which nginx 2>&1>/dev/null && nginx -c /etc/nginx/nginx.conf
+fi
 
 [ -f /bin/tini ] && exec /bin/tini -- /usr/bin/supervisord -n
 
