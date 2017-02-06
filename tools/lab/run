@@ -48,12 +48,9 @@ SYSTEM_SUDOERS_USER=/etc/sudoers.d/$UNIX_USER
 
 chown $UNIX_USER:$UNIX_USER -R $HOME/
 
-DESKTOP_WALLPAPER_CONF=/usr/share/desktop/desktop-items-0.conf
-[ -f $DESKTOP_WALLPAPER_CONF ] \
-  && sudo -u $UNIX_USER -i bash -c "mkdir -p $HOME/.config/pcmanfm/LXDE/ \
-    && mkdir -p /home/$UNIX_USER/.config/lxpanel/LXDE/panels \
-    && cp $DESKTOP_WALLPAPER_CONF $HOME/.config/pcmanfm/LXDE/ \
-    && cp /usr/share/desktop/panel $HOME/.config/lxpanel/LXDE/panels/panel"
+[ -f /usr/share/desktop/locales/.bashrc ] \
+    && sudo -u $UNIX_USER -i bash -c "cp -r /usr/share/desktop/.config /home/$UNIX_USER/; \
+        cp -r /usr/share/desktop/locales/.bashrc /home/$UNIX_USER/"
 
 # Create password, ENV > CONF > PWGEN
 
