@@ -21,6 +21,10 @@ do
     [ -z "$LOCAL_VNC_PORT" -o $RETRY_COUNT -ne 0 ] && LOCAL_VNC_PORT=`get_vnc_port`
     echo "LOG: OUR PORT: $LOCAL_VNC_PORT"
 
+    LOCAL_SSH_PORT=`get_ssh_port $LOCAL_VNC_PORT`
+    LOCAL_WEB_PORT=`get_web_port $LOCAL_VNC_PORT`
+    LOCAL_WEBSSH_PORT=`get_webssh_port $LOCAL_VNC_PORT`
+
     ports=`docker ps -a --format="{{.Ports}}" | tr ',' '\n' | grep ":" | cut -d':' -f2 | cut -d'-' -f1 | sort -u | tr '\n' ' '`
     [ -n "$ports" ] && echo "LOG: OLD PORTS: $ports"
 
