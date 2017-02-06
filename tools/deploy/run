@@ -15,7 +15,7 @@ source $TOP_DIR/tools/docker/config $* >/dev/null
 
 [ -z "$lab_identify" ] && lab_identify=1
 [ -z "$lab_total" ] && lab_total=1
-[ -z "$lab_user" ] && lab_user=anonymous
+[ -z "$lab_user" ] && lab_user=ubuntu
 [ -z "$lab_life" ] && lab_life=24H
 [ -z "$lab_name" ] && lab_name=$CURRENT
 
