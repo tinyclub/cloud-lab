@@ -2,6 +2,6 @@
 Encoding=UTF-8
 Name=Qing Lab
 Comment=Labs Collection
-Exec=/usr/bin/terminator --working-directory=/labs/ -T "Qing Lab"
-Icon=/usr/share/pixmaps/terminator.png
+Exec=/usr/bin/lxterminal --working-directory=/labs/ -T "Qing Lab"
+Icon=/usr/share/pixmaps/lxterminal.xpm
 Type=Application

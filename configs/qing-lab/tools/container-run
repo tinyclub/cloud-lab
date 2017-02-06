@@ -11,3 +11,6 @@ $TOP_DIR/enable_net_bridge.sh
 
 ## Start Net servers
 $TOP_DIR/restart-net-servers.sh
+
+## Configure jekyll service
+$TOP_DIR/configure-jekyll.sh
