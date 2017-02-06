@@ -25,7 +25,7 @@ do
     [ -n "$ports" ] && echo "LOG: OLD PORTS: $ports"
 
     RETRY_COUNT=1
-    for port in $ports; do [ $LOCAL_VNC_PORT -eq $port ] && RETRY_COUNT=2 && break; done
+    for port in $ports; do [ $LOCAL_VNC_PORT -eq $port -o $LOCAL_SSH_PORT -eq $port -o $LOCAL_WEB_PORT -eq $port -o $LOCAL_WEBSSH_PORT -eq $port ] && RETRY_COUNT=2 && break; done
 
     [ $RETRY_COUNT -eq 1 ] && break
     echo "LOG: Retry $RETRY_COUNT to get a unique port"
