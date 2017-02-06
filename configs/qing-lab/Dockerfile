@@ -1,4 +1,4 @@
-FROM tinylab/cloud-ubuntu-vm_embedded_markdown
+FROM tinylab/cloud-ubuntu-vm_embedded_markdown_jekyll
 MAINTAINER Wu Zhangjin <wuzhangjin@gmail.com>
 
 WORKDIR /labs/
