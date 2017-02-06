@@ -13,7 +13,7 @@ which docker 2>&1 > /dev/null || $DOCKER_INSTALL_CMD
 
 for IMAGE in $IMAGES
 do
-    do_op "docker pull" IMAGE
+    do_op "docker pull" IMAGE &
 done
 
 # Note: Let docker without sudo
