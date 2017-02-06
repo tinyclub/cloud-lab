@@ -57,7 +57,7 @@ else
     fi
 
     # Container don't need this CURRENT
-    [ -z "$CURRENT" -a -z "$IN_CHOOSE_CMD" ] && echo "LOG: Current lab not specified" >&2 && exit 1
+    [ -z "$CURRENT" -a -z "$IGNORE_LAB_NAME" ] && echo "LOG: Current lab not specified" >&2 && exit 1
     [ -n "$CURRENT" ] && echo "LOG: Current Lab is $CURRENT" >&2
 
     CONFIG_DIR=$TOP_DIR/configs/$CURRENT

@@ -7,8 +7,8 @@ NEW_LAB=$1
 
 TOP_DIR=$(cd $(dirname $0) && pwd)/../../
 
-IN_CHOOSE_CMD=1
-source $TOP_DIR/tools/docker/config IGNORE_LAB_NAME >/dev/null
+IGNORE_LAB_NAME=1
+source $TOP_DIR/tools/docker/config $* >/dev/null
 OLD_LAB=$CURRENT
 
 function download_submodule
