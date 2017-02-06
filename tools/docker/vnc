@@ -25,7 +25,11 @@ if [ $? -eq 1 ]; then
 fi
 
 # Get vnc page
-WEB_URL="http://${HOST_NAME}:${LOCAL_VNC_PORT}/vnc.html?password=$VNC_PWD&autoconnect=1"
+if [ -n "HTTPS" -a "$HTTPS" == "1" ]; then
+    WEB_URL="https://${HOST_NAME}:${LOCAL_VNC_PORT}/vnc.html?password=$VNC_PWD&autoconnect=1&encrypt=1"
+else
+    WEB_URL="http://${HOST_NAME}:${LOCAL_VNC_PORT}/vnc.html?password=$VNC_PWD&autoconnect=1"
+fi
 
 # Create local shotcut on Desktop
 if [ -d ~/Desktop -a -n "$REMOTE_DESKTOP_SHORTCUT" -a -f "$REMOTE_DESKTOP_SHORTCUT" ]; then

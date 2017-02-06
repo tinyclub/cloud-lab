@@ -1,7 +1,5 @@
 #!/bin/bash
 
-mkdir -p /var/run/sshd
-
 # no argument required of config for container
 IN_CONTAINER_CMD=1
 source /tools/docker/config >/dev/null
@@ -25,7 +23,8 @@ DESKTOP=$HOME/Desktop/
 
 [ $SUDO_IDENTIFY -eq 1 ] && UNIX_USER_GROUPS="--groups adm,sudo"
 [ $SUDO_IDENTIFY -eq 0 ] && UNIX_USER_GROUPS=""
-id -u $UNIX_USER &>/dev/null || useradd --uid $UNIX_UID --create-home --shell /bin/bash --user-group $UNIX_USER_GROUPS $UNIX_USER
+id -u $UNIX_USER &>/dev/null \
+    || useradd --uid $UNIX_UID --create-home --shell /bin/bash --user-group $UNIX_USER_GROUPS $UNIX_USER
 
 # Install more system configuration files
 [ ! -d $DESKTOP ] && mkdir $DESKTOP
@@ -38,21 +37,16 @@ do
 done
 
 SYSTEM_SUDOERS_USER=`find $CONFIG_SYSTEM_DIR -type f -name "$UNIX_USER" | sed -e "s%$CONFIG_SYSTEM_DIR%%g" | grep sudoers.d`
-SYSTEM_SUPERVISORD_CONF=`find $CONFIG_SYSTEM_DIR -type f -name "supervisord.conf" | sed -e "s%$CONFIG_SYSTEM_DIR%%g"`
 
 [ -n "$SYSTEM_SUDOERS_USER" -a -f "$SYSTEM_SUDOERS_USER" ] && chmod 440 $SYSTEM_SUDOERS_USER
 chown $UNIX_USER:$UNIX_USER -R $HOME/
 
-# Update locales
-locale-gen --purge en_US.utf8
-locale-gen --purge zh_CN.utf8
-
-# Install desktop wallpapers
-
-DESKTOP_WALLPAPER_CONF=/usr/share/doro-lxde-wallpapers/desktop-items-0.conf
+DESKTOP_WALLPAPER_CONF=/usr/share/desktop/desktop-items-0.conf
 [ -f $DESKTOP_WALLPAPER_CONF ] \
   && sudo -u $UNIX_USER -i bash -c "mkdir -p $HOME/.config/pcmanfm/LXDE/ \
-    && cp $DESKTOP_WALLPAPER_CONF $HOME/.config/pcmanfm/LXDE/"
+    && mkdir -p /home/$UNIX_USER/.config/lxpanel/LXDE/panels \
+    && cp $DESKTOP_WALLPAPER_CONF $HOME/.config/pcmanfm/LXDE/ \
+    && cp /usr/share/desktop/panel $HOME/.config/lxpanel/LXDE/panels/panel"
 
 # Create password, ENV > CONF > PWGEN
 
@@ -74,18 +68,18 @@ do_lock
 # Don't touch me: otherwise, need to modify tools/docker/run
 echo "User: $UNIX_USER Password: $UNIX_PWD VNC Password: $VNC_PWD"
 
-# VNC OASS
+SYSTEM_SUPERVISORD_CONF=/etc/supervisor/supervisord.conf
+# VNC PASS
 which x11vnc 2>&1>/dev/null
 if [ $? -eq 0 ]; then
-    VNC_PWD_FILE=/vnc/passwd
-    [ ! -d /vnc/ ] && mkdir /vnc/
+    VNC_PWD_FILE=$HOME/.vnc/passwd
+    [ ! -d $HOME/.vnc ] && mkdir -p $HOME/.vnc
     x11vnc -storepasswd $VNC_PWD $VNC_PWD_FILE
-    sed -i -e "s% -rfbauth VNC_PWD_FILE$% -rfbauth $VNC_PWD_FILE%g" $SYSTEM_SUPERVISORD_CONF
 
     # Disable the VNC login password
     get_var VNC_IDENTIFY 1
     [ $VNC_IDENTIFY -eq 0 -a "$HOST_NAME" == "localhost" ] \
-        && sed -i -e "s% -rfbauth VNC_PWD_FILE$%%g" $SYSTEM_SUPERVISORD_CONF
+        && sed -i -e "s% -rfbauth $VNC_PWD_FILE$%%g" $SYSTEM_SUPERVISORD_CONF
 fi
 
 # UNIX PASS
@@ -95,36 +89,14 @@ echo "$UNIX_USER:$UNIX_PWD" | chpasswd
 [ $UNIX_IDENTIFY -eq 0 ] && passwd -l $UNIX_USER
 [ $UNIX_IDENTIFY -eq 1 ] && passwd -u $UNIX_USER
 
-container_ip=$(ip addr show eth0 | head -3 | tail -1 | sed -e "s%.*inet \(.*\)/.*%\1%g")
-sed -i -e "s% -H HOST_IP% -H $container_ip%g" $SYSTEM_SUPERVISORD_CONF
-echo "LOG: Jekyll Local Web Site Address: http://$container_ip/"
+# Run Lab specific tasks
+[ -x $LAB_CONTAINER_RUN ] && UNIX_USER=$UNIX_USER $LAB_CONTAINER_RUN
 
-# Configure local ip address for some labs
-local_shortcut_count=`find $DESKTOP -name local.desktop | wc -l`
-[ $local_shortcut_count -ne 0 ] \
-    && find $DESKTOP -name local.desktop | xargs -i sudo -u $UNIX_USER sed -i -e "s%localhost%$container_ip%g" {}
+# Launch supervisor tasks
 
-# Prepare some services
-[ -x $LAB_CONTAINER_RUN ] && $LAB_CONTAINER_RUN
+/usr/bin/supervisord -n -c $SYSTEM_SUPERVISORD_CONF
 
-# Prepare /tmp
-rm -rf /tmp/*
-mount -t tmpfs none /tmp
-
-# Start some services
-service rsyslog start
-service ssh start
-
-FAIL2BAN_SOCK=/var/run/fail2ban/fail2ban.sock
-[ -f $FAIL2BAN_SOCK ] && rm -rf $FAIL2BAN_SOCK
-service fail2ban start
-
-# Start web service
-if [ -d "/web" ]; then
-    cd /web && ./run.py > /var/log/web.log 2>&1 &
-    which nginx 2>&1>/dev/null && nginx -c /etc/nginx/nginx.conf
-fi
-
-[ -f /bin/tini ] && exec /bin/tini -- /usr/bin/supervisord -n
-
-exec /usr/bin/supervisord -n
+for f in /etc/startup.aux/*.sh
+do
+    . $f
+done
