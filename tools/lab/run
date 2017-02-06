@@ -4,10 +4,14 @@
 IN_CONTAINER_CMD=1
 source /tools/docker/config >/dev/null
 
+# Don't touch me
+DEF_USER=ubuntu
+
 do_unlock
 
+[ -z "$UNIX_USER" ] && get_var UNIX_USER $DEF_USER
+
 get_var HOST_NAME localhost
-get_var UNIX_USER ubuntu
 get_var UNIX_IDENTIFY 1
 get_var SUDO_IDENTIFY 0
 get_var UNIX_UID 1000
@@ -18,7 +22,9 @@ bash -c "sed -i -e 's%PS1=.*$%PS1=\"$UNIX_USER@$IMAGE\$ \"%g' /etc/skel/.bashrc"
 
 # create a ubuntu user
 
-HOME=/home/$UNIX_USER/
+HOME=/home/$UNIX_USER
+DEF_HOME=/home/$DEF_USER
+DEF_SYSTEM_SUDOERS_USER=/etc/sudoers.d/$DEF_USER
 DESKTOP=$HOME/Desktop/
 
 [ $SUDO_IDENTIFY -eq 1 ] && UNIX_USER_GROUPS="--groups adm,sudo"
@@ -31,14 +37,15 @@ id -u $UNIX_USER &>/dev/null \
 
 for f in `find $CONFIG_SYSTEM_DIR -type f | sed -e "s%$CONFIG_SYSTEM_DIR%%g"`
 do
-    d=`dirname $f`
-    [ ! -d $d ] && mkdir -p $d
-    cp $CONFIG_SYSTEM_DIR/$f $f
+    d=$(echo $f | sed -e "s%$DEF_HOME%$HOME%g")
+    dest=`dirname $d`
+    [ ! -d $dest ] && mkdir -p $dest
+    cp $CONFIG_SYSTEM_DIR/$f $d
 done
 
-SYSTEM_SUDOERS_USER=`find $CONFIG_SYSTEM_DIR -type f -name "$UNIX_USER" | sed -e "s%$CONFIG_SYSTEM_DIR%%g" | grep sudoers.d`
+SYSTEM_SUDOERS_USER=/etc/sudoers.d/$UNIX_USER
+[ -f "$DEF_SYSTEM_SUDOERS_USER" ] && mv $DEF_SYSTEM_SUDOERS_USER $SYSTEM_SUDOERS_USER && chmod 440 $SYSTEM_SUDOERS_USER
 
-[ -n "$SYSTEM_SUDOERS_USER" -a -f "$SYSTEM_SUDOERS_USER" ] && chmod 440 $SYSTEM_SUDOERS_USER
 chown $UNIX_USER:$UNIX_USER -R $HOME/
 
 DESKTOP_WALLPAPER_CONF=/usr/share/desktop/desktop-items-0.conf
@@ -56,8 +63,9 @@ DESKTOP_WALLPAPER_CONF=/usr/share/desktop/desktop-items-0.conf
 [ -z "$UNIX_PWD" ] && UNIX_PWD=`pwgen -c -n -s -1 15`
 [ -z "$VNC_PWD" ] && VNC_PWD=`pwgen -c -n -s -1 15`
 
-[ -z "$UNIX_PWD" ] && set_var UNIX_PWD
-[ -z "$VNC_PWD" ] && set_var VNC_PWD
+[ -n "$UNIX_USER" ] && set_var UNIX_USER
+[ -n "$UNIX_PWD" ] && set_var UNIX_PWD
+[ -n "$VNC_PWD" ] && set_var VNC_PWD
 
 # Sync UID between host and container
 sudo chown $UNIX_USER:$UNIX_USER $LAB_UNIX_PWD $LAB_VNC_PWD $LAB_UNIX_UID
@@ -69,6 +77,11 @@ do_lock
 echo "User: $UNIX_USER Password: $UNIX_PWD VNC Password: $VNC_PWD"
 
 SYSTEM_SUPERVISORD_CONF=/etc/supervisor/supervisord.conf
+if [ "$UNIX_USER" != "$DEF_USER" ]; then
+    sed -i -e "s%$DEF_HOME%$HOME%g" $SYSTEM_SUPERVISORD_CONF
+    sed -i -e "s%user=$DEF_USER%user=$UNIX_USER%g" $SYSTEM_SUPERVISORD_CONF
+fi
+
 # VNC PASS
 which x11vnc 2>&1>/dev/null
 if [ $? -eq 0 ]; then

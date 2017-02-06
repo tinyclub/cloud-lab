@@ -17,4 +17,4 @@ EXPOSE 6080 443 80 22
 
 WORKDIR /labs/
 
-ENTRYPOINT ["/tools/lab/entrypoint.sh"]
+ENTRYPOINT ["/tools/lab/run"]
