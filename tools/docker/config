@@ -3,6 +3,8 @@
 # config -- Configure the common variables
 #
 
+[ -z "$LAB_SECURITY" ] && LAB_SECURITY=0
+
 TOP_DIR=$(cd $(dirname $TOP_DIR/null) && pwd)
 
 HOST_USER=$USER
@@ -82,19 +84,33 @@ LAB_UNIX_IDENTIFY=$CONFIG_DOCKER_DIR/.unix_identify
 LAB_SUDO_IDENTIFY=$CONFIG_DOCKER_DIR/.sudo_identify
 
 # Lock the important files for security
-function do_lock
+function __do_lock
 {
+    # echo "LOG: __do_lock"
+
     chmod -f -R a-rw $CONFIG_DOCKER_DIR/.[^.]*
     sudo chattr -R +i $CONFIGS_DIR
     sudo chattr -R +i $TOOL_DIR
 }
 
 # Unlock the important files for configuration
-function do_unlock
+function __do_unlock
 {
+    # echo "LOG: __do_unlock"
+
     sudo chattr -R -i $CONFIGS_DIR
     sudo chattr -R -i $TOOL_DIR
     chmod -f -R 664 $CONFIG_DOCKER_DIR/.[^.]*
+}
+
+function do_lock
+{
+    [ $LAB_SECURITY -eq 1 ] && __do_lock
+}
+
+function do_unlock
+{
+    [ $LAB_SECURITY -eq 1 ] && __do_unlock
 }
 
 LAB_VARS="IMAGE CAPS DEVICES LIMITS PORTMAP VOLUMEMAP"
