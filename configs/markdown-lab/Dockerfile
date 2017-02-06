@@ -49,7 +49,9 @@ RUN apt-get install -y --force-yes --no-install-recommends \
     && apt-get autoremove -y \
     && rm -rf /var/cache/apt/archives/*.deb
 
-# RUN npm config set registry https://registry.npm.taobao.org
+# RUN npm config set registry https://registry.npm.taobao.org/
+RUN npm config set registry http://npmreg.mirrors.ustc.edu.cn/
+
 RUN npm install gitbook-cli -g \
     && rm /usr/local/bin/gitbook \
     && sh -c 'echo "nodejs /usr/local/lib/node_modules/gitbook-cli/bin/gitbook.js \$@" > /usr/local/bin/gitbook' \
