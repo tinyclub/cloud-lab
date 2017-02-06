@@ -8,7 +8,8 @@ TOP_DIR=$(cd $(dirname $TOP_DIR/null) && pwd)
 HOST_USER=$USER
 [ "$HOST_USER" == "root" ] && HOST_USER=$SUDO_USER
 
-CONFIGS_DIR=$TOP_DIR/configs/
+LAB_HOST=$TOP_DIR/.host_name
+LAB_OUTPUT=$TOP_DIR/output
 
 GIT_DIR=$TOP_DIR/.git
 GIT_WORKDIR=/.git
@@ -16,81 +17,69 @@ GIT_WORKDIR=/.git
 LAB_DIR=$TOP_DIR/labs
 LAB_WORKDIR=/labs
 
-LAB_HOST=$TOP_DIR/.host_name
-LAB_OUTPUT=$TOP_DIR/output
-
 TOOL_DIR=$TOP_DIR/tools
 TOOL_WORKDIR=/tools
-DOCKER_DIR=$TOOL_DIR/docker/
 
+CONFIGS_DIR=$TOP_DIR/configs/
+CONFIG_WORKDIR=/configs
+
+if [ -n "$IN_CONTAINER_CMD" ]; then
+    LAB_DIR=$LAB_WORKDIR
+    TOOL_DIR=$TOOL_WORKDIR
+    CONFIG_DIR=$CONFIG_WORKDIR
+else
+    # Allow to pass lab name
+    CURRENT=$1
+    LAB_CURRENT=$LAB_DIR/.current_lab
+
+    [ -n "$CURRENT" ] && ls $CONFIGS_DIR | tr -s ' ' | tr ' ' '\n' | grep -q ^$CURRENT$
+    if [ $? -eq 1 -o -z "$CURRENT" ]; then
+        CURRENT=""
+        if [ -f $LAB_CURRENT ]; then
+            CURRENT=$(< $LAB_CURRENT)
+            LAB_CURRENT_DIR=$LAB_DIR/$CURRENT
+        fi
+    fi
+
+    # Container don't need this CURRENT
+    [ -z "$CURRENT" -a -z "$IN_CHOOSE_CMD" ] && echo "LOG: Current lab not specified" >&2 && exit 1
+    [ -n "$CURRENT" ] && echo "LOG: Current Lab is $CURRENT" >&2
+
+    CONFIG_DIR=$TOP_DIR/configs/$CURRENT
+fi
+
+CONFIG_TOOL_DIR=$CONFIG_DIR/tools
+CONFIG_DOCKER_DIR=$CONFIG_DIR/docker
+CONFIG_SYSTEM_DIR=$CONFIG_DIR/system
+
+DOCKER_DIR=$TOOL_DIR/docker/
 DOCKER_IDENTIFY_CMD=$DOCKER_DIR/identify
 DOCKER_INSTALL_CMD=$DOCKER_DIR/install
 DOCKER_OPEN_CMD=$DOCKER_DIR/open
 DOCKER_UID_CMD=$DOCKER_DIR/uid
 DOCKER_RUN_CMD=$DOCKER_DIR/run
 
-# Allow to pass lab name
-CURRENT=$1
-LAB_CURRENT=$LAB_DIR/.current_lab
-
-[ -n "$CURRENT" ] && ls $CONFIGS_DIR | tr -s ' ' | tr ' ' '\n' | grep -q ^$CURRENT$
-if [ $? -eq 1 -o -z "$CURRENT" ]; then
-    CURRENT=""
-    if [ -f $LAB_CURRENT ]; then
-        CURRENT=$(< $LAB_CURRENT)
-        LAB_CURRENT_DIR=$LAB_DIR/$CURRENT
-    fi
-fi
-
-# Container don't need this CURRENT
-[ -z "$CURRENT" -a -z "$IN_CHOOSE_CMD" -a -z "$IN_CONTAINER_CMD" ] && echo "LOG: Current lab not specified" >&2 && exit 1
-[ -n "$CURRENT" ] && echo "LOG: Current Lab is $CURRENT" >&2
-
-CONFIG_WORKDIR=/configs
-
-CONFIG_TOOL_WORKDIR=$CONFIG_WORKDIR/tools
-CONFIG_DOCKER_WORKDIR=$CONFIG_WORKDIR/docker
-CONFIG_SYSTEM_WORKDIR=$CONFIG_WORKDIR/system
-
-CONFIG_DIR=$TOP_DIR/configs/$CURRENT
-
-CONFIG_TOOL_DIR=$CONFIG_DIR/tools
-CONFIG_DOCKER_DIR=$CONFIG_DIR/docker
-CONFIG_SYSTEM_DIR=$CONFIG_DIR/system
-
-if [ -n "$IN_CONTAINER_CMD" ]; then
-    # For container
-    __CONFIG_DOCKER_DIR=$CONFIG_DOCKER_WORKDIR
-    __CONFIG_SYSTEM_DIR=$CONFIG_SYSTEM_WORKDIR
-    __CONFIG_TOOL_DIR=$CONFIG_TOOL_WORKDIR
-else
-    # For host
-    __CONFIG_DOCKER_DIR=$CONFIG_DOCKER_DIR
-    __CONFIG_SYSTEM_DIR=$CONFIG_SYSTEM_DIR
-    __CONFIG_TOOL_DIR=$CONFIG_TOOL_DIR
-fi
-
 # Common variables
 
-LAB_IMAGE=$__CONFIG_DOCKER_DIR/name
-LAB_CAPS=$__CONFIG_DOCKER_DIR/caps
-LAB_DEVICES=$__CONFIG_DOCKER_DIR/devices
-LAB_LIMITS=$__CONFIG_DOCKER_DIR/limits
-LAB_PORTMAP=$__CONFIG_DOCKER_DIR/portmap
-LAB_VOLUMEMAP=$__CONFIG_DOCKER_DIR/volumemap
+LAB_IMAGE=$CONFIG_DOCKER_DIR/name
+LAB_CAPS=$CONFIG_DOCKER_DIR/caps
+LAB_DEVICES=$CONFIG_DOCKER_DIR/devices
+LAB_LIMITS=$CONFIG_DOCKER_DIR/limits
+LAB_PORTMAP=$CONFIG_DOCKER_DIR/portmap
+LAB_VOLUMEMAP=$CONFIG_DOCKER_DIR/volumemap
 
-LAB_WEB_BROWSER=$__CONFIG_DOCKER_DIR/.web_browser
-LAB_CONTAINER_NAME=$__CONFIG_DOCKER_DIR/.container_name
-LAB_CONTAINER_ID=$__CONFIG_DOCKER_DIR/.container_id
-LAB_LOCAL_PORT=$__CONFIG_DOCKER_DIR/.local_port
-LAB_HOST_NAME=$__CONFIG_DOCKER_DIR/.host_name
-LAB_UNIX_USER=$__CONFIG_DOCKER_DIR/.unix_user
-LAB_UNIX_PWD=$__CONFIG_DOCKER_DIR/.unix_pwd
-LAB_UNIX_UID=$__CONFIG_DOCKER_DIR/.unix_uid
-LAB_VNC_PWD=$__CONFIG_DOCKER_DIR/.vnc_pwd
-LAB_VNC_IDENTIFY=$__CONFIG_DOCKER_DIR/.vnc_identify
-LAB_UNIX_IDENTIFY=$__CONFIG_DOCKER_DIR/.unix_identify
-LAB_SUDO_IDENTIFY=$__CONFIG_DOCKER_DIR/.sudo_identify
+LAB_WEB_BROWSER=$CONFIG_DOCKER_DIR/.web_browser
+LAB_CONTAINER_NAME=$CONFIG_DOCKER_DIR/.container_name
+LAB_CONTAINER_ID=$CONFIG_DOCKER_DIR/.container_id
+LAB_LOCAL_PORT=$CONFIG_DOCKER_DIR/.local_port
+LAB_HOST_NAME=$CONFIG_DOCKER_DIR/.host_name
+LAB_UNIX_USER=$CONFIG_DOCKER_DIR/.unix_user
+LAB_UNIX_PWD=$CONFIG_DOCKER_DIR/.unix_pwd
+LAB_UNIX_UID=$CONFIG_DOCKER_DIR/.unix_uid
+LAB_VNC_PWD=$CONFIG_DOCKER_DIR/.vnc_pwd
+LAB_VNC_IDENTIFY=$CONFIG_DOCKER_DIR/.vnc_identify
+LAB_UNIX_IDENTIFY=$CONFIG_DOCKER_DIR/.unix_identify
+LAB_SUDO_IDENTIFY=$CONFIG_DOCKER_DIR/.sudo_identify
 
 LAB_VARS="IMAGE CAPS DEVICES LIMITS PORTMAP VOLUMEMAP"
 LAB_VARS="$LAB_VARS WEB_BROWSER"
@@ -119,12 +108,12 @@ fi
 IMAGES=`find $CONFIGS_DIR -name "name" | xargs -i cat {} | sort -u`
 
 LOCAL_DESKTOP_SHORTCUT=~/Desktop/${CONTAINER_NAME}.desktop
-[ -d $__CONFIG_SYSTEM_DIR ] \
-  && REMOTE_DESKTOP_SHORTCUT=`find $__CONFIG_SYSTEM_DIR -maxdepth 4 -name "lab.desktop"`
+[ -d $CONFIG_SYSTEM_DIR ] \
+  && REMOTE_DESKTOP_SHORTCUT=`find $CONFIG_SYSTEM_DIR -maxdepth 4 -name "lab.desktop"`
 
 REMOTE_PORT=6080
-LAB_HOST_RUN=$__CONFIG_TOOL_DIR/host-run
-LAB_CONTAINER_RUN=$__CONFIG_TOOL_DIR/container-run
+LAB_HOST_RUN=$CONFIG_TOOL_DIR/host-run
+LAB_CONTAINER_RUN=$CONFIG_TOOL_DIR/container-run
 
 # Common functions
 
@@ -140,7 +129,7 @@ function get_var #VAR #defval
     var_file=`eval echo \\${LAB_$VAR}`
 
     [ -n "$var_file" -a -f "$var_file" ] && var_value='$(< $var_file)' && eval `eval echo \\$VAR='$var_value'`
-    [ -z "$var_value" ] && eval `eval echo \\$VAR=$defval` 
+    [ -z "$var_value" ] && eval `eval echo \\$VAR=$defval`
 
     #echo `eval echo "LOG: GET: $VAR=\\$${VAR}"`
 }
@@ -179,4 +168,18 @@ function do_op #op $ARG $args
     echo "LOG: Running ' $op $arg $args'"
 
     eval $op $arg $args
+}
+
+# Lock the important files for security
+function do_lock
+{
+    sudo chattr -R +i $CONFIG_DIR
+    sudo chattr -R +i $TOOL_DIR
+}
+
+# Unlock the important files for configuration
+function do_unlock
+{
+    sudo chattr -R -i $CONFIG_DIR
+    sudo chattr -R -i $TOOL_DIR
 }

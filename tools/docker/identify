@@ -14,6 +14,7 @@ ACCOUNT=$2
 [ -n "$1" -a "$CURRENT" == "$1" ] && IDENTIFY=$2 && ACCOUNT=$3
 [ -z "$ACCOUNT" ] && ACCOUNT=vnc
 
+do_unlock
 LAB_IDENTIFY=$CONFIG_DOCKER_DIR/.${ACCOUNT}_identify
 [ -z "$IDENTIFY" -a ! -f $LAB_IDENTIFY ] && IDENTIFY=1 && set_var IDENTIFY
 
@@ -28,6 +29,7 @@ if [ -z "$IDENTIFY" ]; then
 fi
 
 set_var IDENTIFY
+do_lock
 
 OP="Disable" && [ -n "$IDENTIFY" -a "$IDENTIFY" == "1" ] && OP="Enable"
 echo "LOG: ${OP} password of $ACCOUNT"

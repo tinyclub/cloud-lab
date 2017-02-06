@@ -54,6 +54,12 @@ container="--name $CONTAINER_NAME"
 # Remove the old one if exist
 (docker ps -a | grep -q $CONTAINER_NAME) && docker rm -f $CONTAINER_NAME
 
+# Sync UID before running
+UNIX_UID=`id -u $HOST_USER`
+
+do_unlock
+set_var UNIX_UID
+
 CONTAINER_ID=$(docker run -d --privileged $container $portmap $caps $devices $limits $volumemap $IMAGE)
 
 CONTAINER_ID=${CONTAINER_ID:0:12}
@@ -74,6 +80,8 @@ VNC_PWD=`echo $password | sed -e "s/.* VNC Password: \(.*\)$/\1/g"`
 # Save the lab's information
 vars="CONTAINER_ID CONTAINER_NAME LOCAL_PORT UNIX_PWD VNC_PWD"
 for var in $vars; do set_var $var; done
+
+do_lock
 
 # Open the lab
 $DOCKER_OPEN_CMD $*
