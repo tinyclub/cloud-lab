@@ -11,7 +11,9 @@ RUN apt-get install -y --force-yes --no-install-recommends \
     && apt-get autoremove -y \
     && rm -rf /var/cache/apt/archives/*.deb
 
-RUN gem install iconv jekyll jekyll-paginate
+RUN gem install --clear-sources iconv jekyll jekyll-paginate \
+    && gem cleanup \
+    && rm -rf /home/ubuntu/.gem
 
 #### For linux-0.11-lab/cs630-qemu-lab
 
