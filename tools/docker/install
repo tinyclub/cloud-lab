@@ -23,7 +23,7 @@ sudo bash -c 'cat <<EOF >> /etc/default/docker
 DOCKER_OPTS="\$DOCKER_OPTS --registry-mirror=https://docker.mirrors.ustc.edu.cn"
 DOCKER_OPTS="\$DOCKER_OPTS --dns 8.8.8.8 --dns 8.8.4.4"
 DOCKER_OPTS="\$DOCKER_OPTS --bip=10.66.33.10/24"
-DOCKER_OPTS="\$DOCKER_OPTS --storage-opt dm.basesize=2G"
+DOCKER_OPTS="\$DOCKER_OPTS --storage-opt dm.basesize=3G"
 # DOCKER HACK END 789527394722
 EOF'
 # Restart to make sure the above opts work
