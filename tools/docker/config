@@ -9,6 +9,7 @@ TOP_DIR=$(cd $(dirname $TOP_DIR/null) && pwd)
 
 HOST_USER=$USER
 [ "$HOST_USER" == "root" ] && HOST_USER=$SUDO_USER
+[ -z "$TPROXY" ] && TPROXY=0
 
 VARS="UNIX_USER UNIX_PWD VNC_PWD TPROXY"
 
