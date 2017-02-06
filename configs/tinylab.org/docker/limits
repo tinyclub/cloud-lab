@@ -1,4 +1,4 @@
---cpuset-cpus=0-1
+#--cpuset-cpus=0-1
 --cpu-shares=512
 --memory=2048M
 --memory-swap=2048M
