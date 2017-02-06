@@ -100,6 +100,9 @@ fi
 rm -rf /tmp/*
 mount -t tmpfs none /tmp
 
+# Start ssh service
+service ssh start
+
 # Start web service
 cd /web && ./run.py > /var/log/web.log 2>&1 &
 nginx -c /etc/nginx/nginx.conf
