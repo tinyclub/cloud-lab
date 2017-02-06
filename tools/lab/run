@@ -54,13 +54,16 @@ DESKTOP_WALLPAPER_CONF=/usr/share/doro-lxde-wallpapers/desktop-items-0.conf
   && sudo -u $UNIX_USER -i bash -c "mkdir -p $HOME/.config/pcmanfm/LXDE/ \
     && cp $DESKTOP_WALLPAPER_CONF $HOME/.config/pcmanfm/LXDE/"
 
-# Create password
+# Create password, ENV > CONF > PWGEN
 
-get_var UNIX_PWD
-get_var VNC_PWD
+[ -z "$UNIX_PWD" ] && get_var UNIX_PWD
+[ -z "$VNC_PWD" ] && get_var VNC_PWD
 
-[ -z "$UNIX_PWD" ] && UNIX_PWD=`pwgen -c -n -s -1 15` && set_var UNIX_PWD
-[ -z "$VNC_PWD" ] && VNC_PWD=`pwgen -c -n -s -1 15` && set_var VNC_PWD
+[ -z "$UNIX_PWD" ] && UNIX_PWD=`pwgen -c -n -s -1 15`
+[ -z "$VNC_PWD" ] && VNC_PWD=`pwgen -c -n -s -1 15`
+
+[ -z "$UNIX_PWD" ] && set_var UNIX_PWD
+[ -z "$VNC_PWD" ] && set_var VNC_PWD
 
 # Sync UID between host and container
 sudo chown $UNIX_USER:$UNIX_USER $LAB_UNIX_PWD $LAB_VNC_PWD $LAB_UNIX_UID

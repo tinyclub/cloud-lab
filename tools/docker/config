@@ -10,6 +10,8 @@ TOP_DIR=$(cd $(dirname $TOP_DIR/null) && pwd)
 HOST_USER=$USER
 [ "$HOST_USER" == "root" ] && HOST_USER=$SUDO_USER
 
+VARS="UNIX_USER UNIX_PWD VNC_PWD"
+
 LAB_HOST=$TOP_DIR/.host_name
 LAB_OUTPUT=$TOP_DIR/output
 
@@ -126,11 +128,14 @@ do_unlock
 for VAR in $LAB_VARS
 do
     var_file=`eval echo \\${LAB_$VAR}`
+    # Accesspt ENV
+    var=`eval echo \\$${VAR}`
 
-    #echo "LOG: Get $VAR from $var_file"
+    # echo $VAR $var
+    # echo "LOG: Get $VAR from $var_file"
 
     var_value=""
-    [ -n "$var_file" -a -f "$var_file" ] && var_value='$(< $var_file)' && eval `eval echo \\$VAR='$var_value'`
+    [ -n "$var_file" -a -f "$var_file" -a -z "$var" ] && var_value='$(< $var_file)' && eval `eval echo \\$VAR='$var_value'`
 
     echo `eval echo "LOG: $VAR=\\$${VAR}"`
 done

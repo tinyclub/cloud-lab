@@ -21,7 +21,7 @@ do
     [ -z "$LOCAL_VNC_PORT" -o $RETRY_COUNT -ne 0 ] && LOCAL_VNC_PORT=`get_vnc_port`
     echo "LOG: OUR PORT: $LOCAL_VNC_PORT"
 
-    ports=`docker ps -a --format='{{.Names}}' | grep "\-" | sed -e "s%.*-\([0-9]*\)%\1%g"`
+    ports=`docker ps -a --format='{{.Names}}' | grep "\-" | sed -e "s%.*-\([0-9]*\)%\1%g" | tr '\n' ' '`
     [ -n "$ports" ] && echo "LOG: OLD PORTS: $ports"
 
     RETRY_COUNT=1
@@ -40,6 +40,7 @@ LOCAL_WEB_PORT=`get_web_port $LOCAL_VNC_PORT`
 # Run the lab via start a lab container
 caps=""
 devs=""
+vars=""
 portmap="-p $LOCAL_VNC_PORT:$REMOTE_VNC_PORT"
 portmap="$portmap -p $LOCAL_SSH_PORT:$REMOTE_SSH_PORT"
 portmap="$portmap -p $LOCAL_WEB_PORT:$REMOTE_WEB_PORT"
@@ -49,6 +50,7 @@ volumemap="$volumemap -v $TOOL_DIR:$TOOL_WORKDIR"
 volumemap="$volumemap -v $CONFIG_DIR:$CONFIG_WORKDIR"
 limits=$LIMITS
 
+for var in $VARS; do vars="$vars -e $var=$(eval echo \$${var})"; done
 for cap in $CAPS; do caps="$caps --cap-add $cap"; done
 for dev in $DEVICES; do devs="$devs --device $dev"; done
 for map in $PORTMAP; do portmap="$portmap -p $map"; done
@@ -66,7 +68,7 @@ do_unlock
 set_var UNIX_UID
 do_lock
 
-CONTAINER_ID=$(docker run -d --privileged $container $portmap $caps $devices $limits $volumemap $IMAGE)
+CONTAINER_ID=$(docker run -d --privileged $container $portmap $caps $devices $limits $volumemap $vars $IMAGE)
 
 CONTAINER_ID=${CONTAINER_ID:0:12}
 
