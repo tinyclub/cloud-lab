@@ -5,6 +5,8 @@ RUN sed -i -e "s%/archive.ubuntu.com%/cn.archive.ubuntu.com%g" /etc/apt/sources.
 
 RUN apt-get -y update
 
+RUN apt-get install -y rsyslog
+RUN apt-get install -y fail2ban
 RUN apt-get install -y chromium-browser
 
 RUN apt-get install -y ruby
@@ -31,9 +33,9 @@ RUN gem install iconv
 RUN gem install jekyll
 RUN gem install jekyll-paginate
 
-# Chinese support
-RUN apt-get install -y ibus ibus-sunpinyin dbus-x11
-RUN apt-get install -y terminator
+# Chinese support for noVNC connect
+# RUN apt-get install -y ibus ibus-sunpinyin dbus-x11
+# RUN apt-get install -y terminator
 # RUN apt-get install -y fonts-arphic-bkai00mp fonts-arphic-bsmi00lp
 # RUN apt-get install -y fonts-arphic-gbsn00lp fonts-arphic-gkai00mp
 # RUN apt-get install -y fonts-arphic-ukai fonts-arphic-uming

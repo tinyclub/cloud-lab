@@ -5,6 +5,8 @@ RUN sed -i -e "s%/archive.ubuntu.com%/cn.archive.ubuntu.com%g" /etc/apt/sources.
 
 RUN apt-get -y update
 
+RUN apt-get install -y rsyslog
+RUN apt-get install -y fail2ban
 RUN apt-get install -y chromium-browser
 
 RUN apt-get install -y ruby

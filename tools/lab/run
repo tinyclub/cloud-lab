@@ -104,8 +104,13 @@ fi
 rm -rf /tmp/*
 mount -t tmpfs none /tmp
 
-# Start ssh service
+# Start some services
+service rsyslog start
 service ssh start
+
+FAIL2BAN_SOCK=/var/run/fail2ban/fail2ban.sock
+[ -f $FAIL2BAN_SOCK ] && rm -rf $FAIL2BAN_SOCK
+service fail2ban start
 
 # Start web service
 cd /web && ./run.py > /var/log/web.log 2>&1 &

@@ -3,4 +3,4 @@
 # stop-all -- stop all docker labs
 #
 
-docker ps -a | grep -v CONTAINER | tr -s ' ' | cut -d ' ' -f1 | xargs -i docker stop {} 2>&1
+docker ps -a --format='{{.ID}}' | xargs -i docker stop {} 2>&1
