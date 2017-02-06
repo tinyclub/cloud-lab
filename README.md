@@ -35,10 +35,7 @@ science courses and provides a Docker based experiment environment as-is.
 
     $ tools/docker/build         # Build from source code
 
-
 ### Run the Lab
-
-    $ tools/docker/identify 0    # Disable vnc password
 
     $ tools/docker/run
 
