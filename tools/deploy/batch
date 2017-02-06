@@ -1,0 +1,41 @@
+#!/bin/bash
+#
+# batch -- create multiple containers in one script
+#
+# usage:
+#
+#    users="a b c d e f g" lab="linux-lab" host="myhost" cleanup=1 tools/deploy/batch
+#
+
+TOP_DIR=$(cd $(dirname $0) && pwd)/../../
+
+[ -z "$users" ] && users="falcon taotao bobo cee1 heiher taozi"
+[ -z "$lab" ] && lab=tinylab.org
+[ -z "$host" ] && host=139.162.52.212
+[ -z "$cleanup" ] && cleanup=0
+
+export LAB_SECURITY=1
+export LAB_BATCH=1
+
+${TOP_DIR}/tools/docker/choose $lab
+
+if [ $cleanup -eq 1 ]; then
+    ${TOP_DIR}/tools/deploy/rm $lab
+    ${TOP_DIR}/tools/deploy/clean $lab
+fi
+
+${TOP_DIR}/tools/docker/unlock $lab
+
+cat <<EOF > ${TOP_DIR}/configs/$lab/docker/limits
+--cpuset-cpus=0-1
+--cpu-shares=512
+--memory=2048M
+--memory-swap=2048M
+EOF
+
+echo $host > ${TOP_DIR}/.host_name
+
+for user in $users
+do
+    ${TOP_DIR}/tools/deploy/run $lab 1 1 $user
+done

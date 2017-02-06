@@ -106,4 +106,4 @@ WEBSSH=`is_webssh_exposed`
 VNC=`is_vnc_exposed`
 [ $VNC -eq 0 ] && $DOCKER_VNC_CMD $*
 
-$DOCKER_SSH_CMD $*
+[ -z "$LAB_BATCH" -o "$LAB_BATCH" == "0" ] && $DOCKER_SSH_CMD $*
