@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# lock -- Lock configs and tools
+# unlock -- unlock configs and tools
 #
 
 TOP_DIR=$(cd $(dirname $0) && pwd)/../../

@@ -1,0 +1,12 @@
+#!/bin/bash
+#
+# unlock-all -- unlock all configs and tools
+#
+
+TOP_DIR=$(cd $(dirname $0) && pwd)/../../
+source $TOP_DIR/tools/docker/config $* >/dev/null
+
+for lab in `ls $CONFIGS_DIR | tr -s ' '`
+do
+    $DOCKER_UNLOCK_CMD $lab
+done
