@@ -1,0 +1,20 @@
+#!/bin/bash
+#
+# pull-all -- pull the docker images from docker hub
+#
+
+TOP_DIR=$(cd $(dirname $0) && pwd)/../../
+source $TOP_DIR/tools/docker/config $* >/dev/null
+
+# Make sure docker is installed
+which docker 2>&1 > /dev/null || $DOCKER_INSTALL_CMD
+
+(docker search $LAB_USER | grep -q $LAB_NAME) || (echo "LOG: No $IMAGE found in docker hub" && exit 1)
+
+for IMAGE in $IMAGES
+do
+    do_op "docker pull" IMAGE
+done
+
+# Note: Let docker without sudo
+(groups $HOST_USER | grep -q docker) || sudo usermod -aG docker $HOST_USER
