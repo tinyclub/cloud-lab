@@ -11,7 +11,7 @@ source $TOP_DIR/tools/docker/config $* >/dev/null
 IDENTIFY=$1
 ACCOUNT=$2
 
-[ -n "$1" -a "$CURRENT_LAB" == "$1" ] && IDENTIFY=$2 && ACCOUNT=$3
+[ -n "$1" -a "$CURRENT" == "$1" ] && IDENTIFY=$2 && ACCOUNT=$3
 [ -z "$ACCOUNT" ] && ACCOUNT=vnc
 
 LAB_IDENTIFY=$CONFIG_DOCKER_DIR/.${ACCOUNT}_identify
