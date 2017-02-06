@@ -1,7 +1,7 @@
 FROM tinylab/cloud-ubuntu-vm_embedded
 MAINTAINER Wu Zhangjin <wuzhangjin@gmail.com>
 
-EXPOSE 6080 443 22
+EXPOSE 5900 22
 
 WORKDIR /labs/
 

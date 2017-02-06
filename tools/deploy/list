@@ -5,6 +5,8 @@ source $TOP_DIR/tools/docker/config $* 2>&1>/dev/null
 
 [ ! -d $LAB_OUTPUT ] && exit 0
 
+[ -z "$ENCRYPT_CMD" ] && ENCRYPT_CMD=md5sum
+
 labs=`find $LAB_OUTPUT -maxdepth 1 -mindepth 1 | sort`
 
 get_var HOST localhost
@@ -21,17 +23,15 @@ do
     lab_start=${lab_attr_arr[3]}${lab_attr_arr[4]}
 
     TOP_DIR=$lab
-    unset LOCAL_VNC_PORT LOCAL_SSH_PORT LOCAL_WEB_PORT LOCAL_WEBSSH_PORT
-    unset UNIX_USER UNIX_PWD VNC_PWD CONTAINER_ID
+    unset UNIX_USER UNIX_PWD VNC_PWD CONTAINER_NAME CONTAINER_IP CONTAINER_TOKEN
     source $TOP_DIR/tools/docker/config $lab_name 2>&1>/dev/null
 
-    LOCAL_SSH_PORT=`get_ssh_port $LOCAL_VNC_PORT`
-    LOCAL_WEB_PORT=`get_web_port $LOCAL_VNC_PORT`
-    LOCAL_WEBSSH_PORT=`get_webssh_port $LOCAL_VNC_PORT`
+    CONTAINER_IP=`docker inspect --format '{{ .NetworkSettings.IPAddress }}' $CONTAINER_NAME`
+    CONTAINER_TOKEN=`echo -n $HOST | $ENCRYPT_CMD | cut -d' ' -f1`
 
     do_unlock
     get_var UNIX_USER ubuntu
     do_lock
 
-    echo $HOST $LOCAL_VNC_PORT $LOCAL_SSH_PORT $LOCAL_WEB_PORT $LOCAL_WEBSSH_PORT $lab_name $UNIX_PWD $VNC_PWD $lab_user $CONTAINER_ID $lab_life $lab_start $UNIX_USER
+    echo $lab_name $lab_user $HOST $LOCAL_VNC_PORT $CONTAINER_TOKEN $VNC_PWD $CONTAINER_IP $LOCAL_WEBSSH_PORT $UNIX_PWD $CONTAINER_NAME $lab_life $lab_start
 done

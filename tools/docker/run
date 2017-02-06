@@ -13,31 +13,13 @@ source $TOP_DIR/tools/docker/config $* >/dev/null
     && echo "LOG: $LAB_CONTAINER_ID" \
     && exit 1
 
-# Generate an unique local port
-RETRY_COUNT=0
-
+# Generate an unique container name
 while :;
 do
-    [ -z "$LOCAL_VNC_PORT" -o $RETRY_COUNT -ne 0 ] && LOCAL_VNC_PORT=`get_vnc_port`
-    echo "LOG: OUR PORT: $LOCAL_VNC_PORT"
-
-    LOCAL_SSH_PORT=`get_ssh_port $LOCAL_VNC_PORT`
-    LOCAL_WEB_PORT=`get_web_port $LOCAL_VNC_PORT`
-    LOCAL_WEBSSH_PORT=`get_webssh_port $LOCAL_VNC_PORT`
-
-    ports=`docker ps -a --format="{{.Ports}}" | tr ',' '\n' | grep ":" | cut -d':' -f2 | cut -d'-' -f1 | sort -u | tr '\n' ' '`
-    [ -n "$ports" ] && echo "LOG: OLD PORTS: $ports"
-
-    RETRY_COUNT=1
-    for port in $ports; do [ $LOCAL_VNC_PORT -eq $port -o $LOCAL_SSH_PORT -eq $port -o $LOCAL_WEB_PORT -eq $port -o $LOCAL_WEBSSH_PORT -eq $port ] && RETRY_COUNT=2 && break; done
-
-    [ $RETRY_COUNT -eq 1 ] && break
-    echo "LOG: Retry $RETRY_COUNT to get a unique port"
+    CONTAINER_NAME=${LAB_NAME}-$RANDOM
+    exist=`docker ps -q --filter=name=$CONTAINER_NAME | wc -l`
+    [ $exist -eq 0 ] && break
 done
-
-LOCAL_SSH_PORT=`get_ssh_port $LOCAL_VNC_PORT`
-LOCAL_WEB_PORT=`get_web_port $LOCAL_VNC_PORT`
-LOCAL_WEBSSH_PORT=`get_webssh_port $LOCAL_VNC_PORT`
 
 # Require to prepare some environment for docker containers in host
 [ -f $LAB_HOST_RUN ] && $LAB_HOST_RUN
@@ -47,10 +29,6 @@ caps=""
 devs=""
 vars="-e LAB_SECURITY=$LAB_SECURITY"
 envs=""
-portmap="-p $LOCAL_VNC_PORT:$REMOTE_VNC_PORT"
-portmap="$portmap -p $LOCAL_SSH_PORT:$REMOTE_SSH_PORT"
-portmap="$portmap -p $LOCAL_WEB_PORT:$REMOTE_WEB_PORT"
-portmap="$portmap -p $LOCAL_WEBSSH_PORT:$REMOTE_WEBSSH_PORT"
 volumemap="-v $GIT_DIR:$GIT_WORKDIR"
 volumemap="$volumemap -v $LAB_DIR:$LAB_WORKDIR"
 volumemap="$volumemap -v $TOOL_DIR:$TOOL_WORKDIR"
@@ -71,10 +49,7 @@ for dev in $DEVICES; do devs="$devs --device $dev"; done
 for map in $PORTMAP; do portmap="$portmap -p $map"; done
 for map in $VOLUMEMAP; do volumemap="$volumemap -v $map"; done
 
-CONTAINER_NAME=${LAB_NAME}-${LOCAL_VNC_PORT}
 container="--name $CONTAINER_NAME"
-# Remove the old one if exist
-(docker ps -a | grep -q $CONTAINER_NAME) && docker rm -f $CONTAINER_NAME
 
 # Sync UID before running
 UNIX_UID=`id -u $HOST_USER`
@@ -104,19 +79,11 @@ VNC_PWD=`echo $password | sed -e "s/.* VNC Password: \(.*\)$/\1/g"`
 do_unlock
 
 # Save the lab's information
-vars="CONTAINER_ID CONTAINER_NAME LOCAL_VNC_PORT UNIX_PWD VNC_PWD"
+vars="CONTAINER_ID CONTAINER_NAME UNIX_PWD VNC_PWD"
 for var in $vars; do set_var $var; done
 
 do_lock
 
-# Login the lab: issue all available login methods
-WEB=`is_web_exposed`
-[ $WEB -eq 0 ] && $DOCKER_WEB_CMD $*
+$DOCKER_WEBSSH_CMD $*
 
-# WEBSSH=`is_webssh_exposed`
-# [ $WEBSSH -eq 0 ] && $DOCKER_WEBSSH_CMD $*
-
-VNC=`is_vnc_exposed`
-[ $VNC -eq 0 ] && $DOCKER_VNC_CMD $*
-
-# [ -z "$LAB_BATCH" -o "$LAB_BATCH" == "0" ] && $DOCKER_SSH_CMD $*
+$DOCKER_VNC_CMD $*

@@ -3,6 +3,6 @@ MAINTAINER Wu Zhangjin <wuzhangjin@gmail.com>
 
 WORKDIR /labs/
 
-EXPOSE 8080 6080 433 22
+EXPOSE 5900 22
 
 ENTRYPOINT ["/tools/lab/run"]

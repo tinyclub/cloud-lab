@@ -11,7 +11,6 @@ get_var WEB_BROWSER firefox
 get_var HOST_NAME localhost
 get_var UNIX_USER ubuntu
 get_var UNIX_PWD ubuntu
-get_var LOCAL_VNC_PORT 6080
 do_lock
 
 which $WEB_BROWSER 2>&1>/dev/null
@@ -20,10 +19,9 @@ if [ $? -eq 1 ]; then
     WEB_BROWSER=firefox
 fi
 
-LOCAL_WEBSSH_PORT=`get_webssh_port $LOCAL_VNC_PORT`
+CONTAINER_IP=`docker inspect --format '{{ .NetworkSettings.IPAddress }}' $CONTAINER_NAME`
+WEBSSH_CMD="$WEB_BROWSER https://${HOST_NAME}:${LOCAL_WEBSSH_PORT}?ip=$CONTAINER_IP&port=$REMOTE_SSH_PORT&user=$UNIX_USER&password=$UNIX_PWD"
 
-WEBSSH_CMD="$WEB_BROWSER https://${HOST_NAME}:${LOCAL_WEBSSH_PORT}"
-
-echo -e "LOG: Please login with '$WEBSSH_CMD' with 'user=$UNIX_USER, password=$UNIX_PWD' and enter workdir: $LAB_WORKDIR\n"
+echo -e "LOG: Please login with 'ip=$CONTAINER_IP, port=$REMOTE_SSH_PORT, user=$UNIX_USER, password=$UNIX_PWD' and enter workdir: $LAB_WORKDIR\n"
 
 ($WEBSSH_CMD 2>&1>/dev/null &) 2>&1>/dev/null

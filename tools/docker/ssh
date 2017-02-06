@@ -7,15 +7,12 @@ TOP_DIR=$(cd $(dirname $0) && pwd)/../../
 source $TOP_DIR/tools/docker/config $* >/dev/null
 
 do_unlock
-get_var HOST_NAME localhost
 get_var UNIX_USER ubuntu
 get_var UNIX_PWD ubuntu
-get_var LOCAL_VNC_PORT 6080
 do_lock
 
-LOCAL_SSH_PORT=`get_ssh_port $LOCAL_VNC_PORT`
-
-SSH_CMD="ssh ${UNIX_USER}@${HOST_NAME} -p ${LOCAL_SSH_PORT}"
+CONTAINER_IP=`docker inspect --format '{{ .NetworkSettings.IPAddress }}' $CONTAINER_NAME`
+SSH_CMD="ssh ${UNIX_USER}@${CONTAINER_IP} -p ${REMOTE_SSH_PORT}"
 
 cat <<EOF
 LOG: Upload public ssh key with following steps:
