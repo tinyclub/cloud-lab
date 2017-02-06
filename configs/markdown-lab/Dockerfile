@@ -55,12 +55,12 @@ RUN npm install gitbook-plugin-multipart -g
 # ...
 
 # Chinese support
-RUN apt-get install -y --force-yes \
-	ibus ibus-sunpinyin dbus-x11\
-	terminator \
-    && apt-get autoclean -y \
-    && apt-get autoremove -y \
-    && rm -rf /var/cache/apt/archives/*.deb
+# RUN apt-get install -y --force-yes \
+#	ibus ibus-sunpinyin dbus-x11\
+#	terminator \
+#    && apt-get autoclean -y \
+#    && apt-get autoremove -y \
+#    && rm -rf /var/cache/apt/archives/*.deb
 
 RUN rm -rf /var/lib/apt/lists/*
 
