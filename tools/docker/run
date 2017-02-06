@@ -75,11 +75,5 @@ VNC_PWD=`echo $password | sed -e "s/.* VNC Password: \(.*\)$/\1/g"`
 vars="CONTAINER_ID CONTAINER_NAME LOCAL_PORT UNIX_PWD VNC_PWD"
 for var in $vars; do set_var $var; done
 
-# For web portmapping
-[ -f $LAB_PORTMAP ] && grep -q ":8" $LAB_PORTMAP \
-    && (docker logs $CONTAINER_ID 2>/dev/null | grep Jekyll) \
-    && for port in $(grep ":8" $LAB_PORTMAP | cut -d':' -f1); \
-       do echo "LOG: Local Web Address: http://$HOST_NAME:$port/"; done
-
 # Open the lab
 $DOCKER_OPEN_CMD $*

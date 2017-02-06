@@ -84,7 +84,7 @@ if [ $local_shortcut_count -ne 0 ]; then
     sed -i -e "s% -H HOST_IP% -H $container_ip%g" $SYSTEM_SUPERVISORD_CONF
 
     find $DESKTOP -name local.desktop | xargs -i sudo -u ubuntu sed -i -e "s%localhost%$container_ip%g" {}
-    echo "LOG: Local Web Site Address: http://$container_ip/"
+    echo "LOG: Jekyll Local Web Site Address: http://$container_ip/"
 fi
 
 # Prepare some services
