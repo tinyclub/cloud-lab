@@ -83,7 +83,7 @@ do_lock
 # Don't touch me: otherwise, need to modify tools/docker/run
 echo "User: $UNIX_USER Password: $UNIX_PWD VNC Password: $VNC_PWD"
 
-SYSTEM_SUPERVISORD_CONF=/etc/supervisor/supervisord.conf
+SYSTEM_SUPERVISORD_CONF=/etc/supervisor/conf.d/x11vnc.conf
 if [ "$UNIX_USER" != "$DEF_USER" ]; then
     sed -i -e "s%$DEF_HOME%$HOME%g" $SYSTEM_SUPERVISORD_CONF
     sed -i -e "s%user=$DEF_USER%user=$UNIX_USER%g" $SYSTEM_SUPERVISORD_CONF
@@ -123,4 +123,5 @@ done
 
 # Launch supervisor tasks
 
+SYSTEM_SUPERVISORD_CONF=/etc/supervisor/supervisord.conf
 /usr/bin/supervisord -n -c $SYSTEM_SUPERVISORD_CONF
