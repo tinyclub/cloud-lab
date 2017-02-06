@@ -67,8 +67,9 @@ chown $UNIX_USER:$UNIX_USER -R $HOME/
 [ -n "$VNC_PWD" ] && set_var VNC_PWD
 
 # Sync UID between host and container
-sudo chown $UNIX_USER:$UNIX_USER $LAB_UNIX_PWD $LAB_VNC_PWD $LAB_UNIX_UID
-sudo chmod a+w $LAB_UNIX_PWD $LAB_VNC_PWD $LAB_UNIX_UID
+FILES_TO_SYN_PERM="$LAB_UNIX_PWD $LAB_VNC_PWD $LAB_UNIX_UID $LAB_UNIX_USER"
+sudo chown $UNIX_USER:$UNIX_USER $FILES_TO_SYN_PERM
+sudo chmod a+w $FILES_TO_SYN_PERM
 
 do_lock
 

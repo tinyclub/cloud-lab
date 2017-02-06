@@ -41,7 +41,7 @@ LOCAL_WEBSSH_PORT=`get_webssh_port $LOCAL_VNC_PORT`
 # Run the lab via start a lab container
 caps=""
 devs=""
-vars=""
+vars="-e LAB_SECURITY=$LAB_SECURITY"
 portmap="-p $LOCAL_VNC_PORT:$REMOTE_VNC_PORT"
 portmap="$portmap -p $LOCAL_SSH_PORT:$REMOTE_SSH_PORT"
 portmap="$portmap -p $LOCAL_WEB_PORT:$REMOTE_WEB_PORT"
