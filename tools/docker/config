@@ -141,7 +141,7 @@ do
     # echo "LOG: Get $VAR from $var_file"
 
     var_value=""
-    [ -n "$var_file" -a -f "$var_file" -a -z "$var" ] && var_value='$(< $var_file)' && eval `eval echo \\$VAR='$var_value'`
+    [ -n "$var_file" -a -f "$var_file" -a -z "$var" ] && var_value='$(grep -v "#" $var_file)' && eval `eval echo \\$VAR='$var_value'`
 
     echo `eval echo "LOG: $VAR=\\$${VAR}"`
 done
