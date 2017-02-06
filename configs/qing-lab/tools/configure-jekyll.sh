@@ -1,6 +1,7 @@
 #!/bin/bash
 
-container_ip=$(ip addr show eth0 | head -3 | tail -1 | sed -e "s%.*inet \(.*\)/.*%\1%g")
+container_ip=$(ifconfig eth0 | grep "inet addr" | sed -e "s/ *inet addr:\([0-9\.]*\) .*/\1/g")
+[ -z "$container_ip" ] && container_ip=$(ifconfig br0 | grep "inet addr" | sed -e "s/ *inet addr:\([0-9\.]*\) .*/\1/g")
 
 DESKTOP=/home/$UNIX_USER/Desktop/
 local_shortcut_count=`find $DESKTOP -name local.desktop | wc -l`
