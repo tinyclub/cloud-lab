@@ -42,6 +42,7 @@ LOCAL_WEBSSH_PORT=`get_webssh_port $LOCAL_VNC_PORT`
 caps=""
 devs=""
 vars="-e LAB_SECURITY=$LAB_SECURITY"
+envs=""
 portmap="-p $LOCAL_VNC_PORT:$REMOTE_VNC_PORT"
 portmap="$portmap -p $LOCAL_SSH_PORT:$REMOTE_SSH_PORT"
 portmap="$portmap -p $LOCAL_WEB_PORT:$REMOTE_WEB_PORT"
@@ -53,6 +54,7 @@ volumemap="$volumemap -v $CONFIG_DIR:$CONFIG_WORKDIR"
 limits=$LIMITS
 
 for var in $VARS; do vars="$vars -e $var=$(eval echo \$${var})"; done
+for env in $ENVS; do vars="$vars -e $env"; done
 for cap in $CAPS; do caps="$caps --cap-add $cap"; done
 for dev in $DEVICES; do devs="$devs --device $dev"; done
 for map in $PORTMAP; do portmap="$portmap -p $map"; done
