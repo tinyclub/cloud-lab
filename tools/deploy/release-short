@@ -1,7 +1,0 @@
-#!/bin/bash
-
-TOP_DIR=$(cd $(dirname $0) && pwd)/../../
-source $TOP_DIR/tools/docker/config $* >/dev/null
-
-$TOP_DIR/tools/deploy/list $* | grep -v "LOG:" | sort -t ' ' -k 5 | \
-awk 'BEGIN{FS=" "}{ printf("http://%s:%s/vnc.html?name=%s&pwd=%s&user=%s\n", $1, $2, $3, $4, $5); }'
