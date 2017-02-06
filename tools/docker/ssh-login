@@ -1,0 +1,42 @@
+#!/bin/bash
+#
+# ssh-login -- login the docker lab via ssh
+#
+
+TOP_DIR=$(cd $(dirname $0) && pwd)/../../
+source $TOP_DIR/tools/docker/config $* >/dev/null
+
+do_unlock
+get_var HOST_NAME localhost
+get_var UNIX_USER ubuntu
+get_var LOCAL_VNC_PORT 6080
+do_lock
+
+LOCAL_SSH_PORT=`get_ssh_port $LOCAL_VNC_PORT`
+
+SSH_CMD="ssh ${UNIX_USER}@${HOST_NAME} -p ${LOCAL_SSH_PORT}"
+
+cat <<EOF
+LOG: Upload public ssh key with following steps:
+
+     1. Login noVNC page, open a terminal
+
+        $ mkdir ~/.ssh/
+        $ touch ~/.ssh/authorized_keys
+        $ chmod 700 ~/.ssh/
+        $ chmod 644 ~/.ssh/authorized_keys
+        $ vim ~/.ssh/authorized_keys
+
+     2. Copy your public ssh key from host to noVNC
+
+        Generate a public ssh key with 'ssh-keygen'
+        Copy your public ssh key
+        Click the 'Clipboard' on the right-top of the noVNC page.
+        Paste your public ssh key into the 'Clipboard'
+        Copy it and paste it into the ~/.ssh/authorized_key
+
+EOF
+
+echo -e "LOG: Please login with '$SSH_CMD' and enter workdir: $LAB_WORKDIR\n"
+
+eval $SSH_CMD

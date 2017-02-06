@@ -33,7 +33,10 @@ OLD_LAB_OUTPUT=$LAB_OUTPUT
 for i in `seq 1 $lab_total`
 do
     LAB_SRC=$OLD_TOP_DIR
-    LAB_DST=$OLD_LAB_OUTPUT/${lab_name}+${RANDOM}-${lab_user}-${lab_life}-`date +"%Y%m%d-%H%M%S"`/
+    LAB_PATH=${lab_name}+${RANDOM}-${lab_user}-${lab_life}-`date +"%Y%m%d-%H%M%S"`
+    LAB_DST=$OLD_LAB_OUTPUT/$LAB_PATH/
+
+    echo "LOG: Create $LAB_PATH"
 
     tmpfile=`mktemp`
     __lab_name=$lab_name
