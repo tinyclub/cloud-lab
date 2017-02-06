@@ -23,6 +23,8 @@ sudo sed -i -e "/DOCKER HACK START 578327498237/,/DOCKER HACK END 789527394722/d
 sudo bash -c 'cat <<EOF >> /etc/default/docker
 # DOCKER HACK START 578327498237
 DOCKER_OPTS="\$DOCKER_OPTS --registry-mirror=https://docker.mirrors.ustc.edu.cn"
+DOCKER_OPTS="\$DOCKER_OPTS --dns 119.29.29.29 --dns 180.76.76.76"
+DOCKER_OPTS="\$DOCKER_OPTS --dns 223.5.5.5 --dns 114.114.114.114"
 DOCKER_OPTS="\$DOCKER_OPTS --dns 8.8.8.8 --dns 8.8.4.4"
 DOCKER_OPTS="\$DOCKER_OPTS --bip=10.66.33.10/24"
 DOCKER_OPTS="\$DOCKER_OPTS --storage-opt dm.basesize=3G"
