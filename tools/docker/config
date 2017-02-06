@@ -85,14 +85,14 @@ LAB_SUDO_IDENTIFY=$CONFIG_DOCKER_DIR/.sudo_identify
 function do_lock
 {
     chmod -f -R a-rw $CONFIG_DOCKER_DIR/.[^.]*
-    sudo chattr -R +i $CONFIG_DIR
+    sudo chattr -R +i $CONFIGS_DIR
     sudo chattr -R +i $TOOL_DIR
 }
 
 # Unlock the important files for configuration
 function do_unlock
 {
-    sudo chattr -R -i $CONFIG_DIR
+    sudo chattr -R -i $CONFIGS_DIR
     sudo chattr -R -i $TOOL_DIR
     chmod -f -R 664 $CONFIG_DOCKER_DIR/.[^.]*
 }
