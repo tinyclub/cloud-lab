@@ -1,0 +1,9 @@
+#!/bin/bash
+
+TOP_DIR=$(cd $(dirname $0) && pwd)/../../
+source $TOP_DIR/tools/docker/config $* >/dev/null
+
+$TOP_DIR/tools/deploy/list $* | grep -v "LOG:" | \
+while read host id name port user life start pwd; do
+   echo "http://$host:$port/vnc.html?name=$name&pwd=$pwd"
+done
