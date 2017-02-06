@@ -57,7 +57,14 @@ volumemap="$volumemap -v $TOOL_DIR:$TOOL_WORKDIR"
 volumemap="$volumemap -v $CONFIG_DIR:$CONFIG_WORKDIR"
 limits=$LIMITS
 
-for var in $VARS; do vars="$vars -e $var=$(eval echo \$${var})"; done
+__ENCRYPT_CMD="cat"
+for var in $VARS; do
+    # Available encrypt cmds: sha1sum, sha224sum, cksum, sha256sum, sha512sum, md5sum, sha384sum, sum
+    value=$(eval echo \$${var})
+    echo "$var" | grep -q "_PWD"
+    [ $? -eq 0 -a -n "$value" ] && __ENCRYPT_CMD=$ENCRYPT_CMD
+    vars="$vars -e $var=$(echo $value | $__ENCRYPT_CMD | cut -d' ' -f1)";
+done
 for env in $ENVS; do vars="$vars -e $env"; done
 for cap in $CAPS; do caps="$caps --cap-add $cap"; done
 for dev in $DEVICES; do devs="$devs --device $dev"; done
@@ -106,10 +113,10 @@ do_lock
 WEB=`is_web_exposed`
 [ $WEB -eq 0 ] && $DOCKER_WEB_CMD $*
 
-WEBSSH=`is_webssh_exposed`
-[ $WEBSSH -eq 0 ] && $DOCKER_WEBSSH_CMD $*
+# WEBSSH=`is_webssh_exposed`
+# [ $WEBSSH -eq 0 ] && $DOCKER_WEBSSH_CMD $*
 
 VNC=`is_vnc_exposed`
 [ $VNC -eq 0 ] && $DOCKER_VNC_CMD $*
 
-[ -z "$LAB_BATCH" -o "$LAB_BATCH" == "0" ] && $DOCKER_SSH_CMD $*
+# [ -z "$LAB_BATCH" -o "$LAB_BATCH" == "0" ] && $DOCKER_SSH_CMD $*
