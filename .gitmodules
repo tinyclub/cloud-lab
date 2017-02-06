@@ -18,7 +18,3 @@
 	path = labs/tinylab.org
 	url = https://github.com/tinyclub/tinylab.org.git
 	branch = master
-[submodule "labs/linux-talents"]
-	path = labs/linux-talents
-	url = https://github.com/linux-talents/linux-talents.github.io.git
-	branch = master
