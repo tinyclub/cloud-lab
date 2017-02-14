@@ -6,3 +6,4 @@
    * Remove noVNC support if possible
    * Integreate noVNC outselvies and install necessary packages
 5. Fix up open files limitation, up to 1000?: /proc/sys/fs/inotify/max_user_instances
+6. Allow vncserver reuse the unix account for login: multi users on one container to save resources? not safety?
