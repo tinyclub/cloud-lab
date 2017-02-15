@@ -37,7 +37,7 @@ EXTRA_ARGS="$EXTRA_ARGS -e PROXY_PORT=$PROXY_PORT"
 which xrandr >/dev/null 2>&1
 [ $? -eq 0 ] && SCREEN_SIZE=`xrandr --current | grep "^ .*\*" | tr -s ' ' | cut -d' ' -f2`
 
-[ -z "$SCREEN_SIZE" ] && SCREEN_SIZE=1024x768
+[ -z "$SCREEN_SIZE" ] && SCREEN_SIZE=1280x720
 
 [ -z "$HOST_NAME" ] && HOST_NAME=localhost
 [ -z "$UNIX_PWD" ] && UNIX_PWD=ubuntu
