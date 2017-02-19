@@ -9,7 +9,7 @@ source $TOP_DIR/tools/docker/config $* >/dev/null
 # Check container conflicts
 [ -n "$CONTAINER_ID" ] \
     && (docker ps -f id=$CONTAINER_ID | grep -v PORTS) \
-    && echo "LOG: $CONTAINER_ID exist, remove it before create new." \
+    && echo "LOG: Please remove the old one with 'docker rm $CONTAINER_ID' before create new." \
     && echo "LOG: $LAB_CONTAINER_ID" \
     && exit 1
 
