@@ -108,7 +108,7 @@ fi
 # UNIX PASS
 echo "$UNIX_USER:$UNIX_PWD" | chpasswd
 
-# Lock UNIX Password?
+# Forbit unix user login(no identify) by locking it, and unlock it for login available(identify)
 [ $UNIX_IDENTIFY -eq 0 ] && passwd -l $UNIX_USER
 [ $UNIX_IDENTIFY -eq 1 ] && passwd -u $UNIX_USER
 

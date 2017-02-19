@@ -87,8 +87,8 @@ VNC_PWD=`echo $password | sed -e "s/.* VNC Password: \(.*\)$/\1/g"`
 
 do_unlock
 
-# Save the lab's information
-vars="CONTAINER_ID CONTAINER_NAME UNIX_PWD VNC_PWD"
+# Save the lab's information (for restore the container for 'docker start')
+vars="$LAB_VARS"
 for var in $vars; do set_var $var; done
 
 do_lock

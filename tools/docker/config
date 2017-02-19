@@ -24,30 +24,8 @@ HOST_USER=$USER
 
 [ -z "$LAB_SECURITY" ] && LAB_SECURITY=0
 
-if [ $LAB_SECURITY -eq 1 ]; then
-    WEB_NOSSL=0
-    WEB_ENCRYPT=1
-    WEB_HTTP=https
-    DEF_UNIX_IDENTIFY=1
-    DEF_SUDO_IDENTIFY=0
-    [ -z "$VNC_SHARED" ] && VNC_SHARED=0
-else
-    WEB_NOSSL=1
-    WEB_ENCRYPT=0
-    WEB_HTTP=http
-    DEF_UNIX_IDENTIFY=0
-    DEF_SUDO_IDENTIFY=1
-    [ -z "$VNC_SHARED" ] && VNC_SHARED=1
-fi
-
-# 16:10: 640x480 800x480 1280x800 1440x900 1680x1050 1920x1200 2560x1600
-# 16:9: 960x540 1280x720 1920x1080 2560x1440
-which xrandr >/dev/null 2>&1
-[ $? -eq 0 -a -z "$SCREEN_SIZE" ] && SCREEN_SIZE=`xrandr --current | grep "^ .*\*" | tr -s ' ' | cut -d' ' -f2`
-
-[ -z "$SCREEN_SIZE" ] && SCREEN_SIZE=1280x720
-
-VARS="UNIX_USER UNIX_PWD VNC_PWD TPROXY LAB_SECURITY VNC_SHARED SCREEN_SIZE"
+# Variables need to pass to the container from our environment variables
+VARS="UNIX_USER UNIX_PWD VNC_PWD TPROXY VNC_SHARED SCREEN_SIZE HOST_NAME UNIX_IDENTIFY VNC_IDENTIFY SUDO_IDENTIFY"
 
 # Basic files/directories
 
@@ -132,6 +110,8 @@ LAB_UNIX_PWD=$CONFIG_DOCKER_DIR/.unix_pwd
 LAB_UNIX_UID=$CONFIG_DOCKER_DIR/.unix_uid
 LAB_VNC_PWD=$CONFIG_DOCKER_DIR/.vnc_pwd
 LAB_TPROXY=$CONFIG_DOCKER_DIR/.tproxy
+LAB_SCREEN_SIZE=$CONFIG_DOCKER_DIR/.screen_size
+LAB_VNC_SHARED=$CONFIG_DOCKER_DIR/.vnc_shared
 LAB_VNC_IDENTIFY=$CONFIG_DOCKER_DIR/.vnc_identify
 LAB_UNIX_IDENTIFY=$CONFIG_DOCKER_DIR/.unix_identify
 LAB_SUDO_IDENTIFY=$CONFIG_DOCKER_DIR/.sudo_identify
@@ -141,7 +121,7 @@ function __do_lock
 {
     # echo "LOG: __do_lock"
 
-    chmod -f -R a-rw $CONFIG_DOCKER_DIR/.[^.]*
+    sudo chmod -f -R a-rw $CONFIG_DOCKER_DIR/.[^.]*
     sudo chattr -R +i $CONFIGS_DIR
     sudo chattr -R +i $TOOL_DIR
 }
@@ -153,7 +133,7 @@ function __do_unlock
 
     sudo chattr -R -i $CONFIGS_DIR
     sudo chattr -R -i $TOOL_DIR
-    chmod -f -R 664 $CONFIG_DOCKER_DIR/.[^.]*
+    sudo chmod -f -R 664 $CONFIG_DOCKER_DIR/.[^.]*
 }
 
 function do_lock
@@ -169,11 +149,15 @@ function do_unlock
 # Variables initialization from config file if exist
 
 LAB_VARS="IMAGE ENVS CAPS DEVICES LIMITS PORTMAP VOLUMEMAP"
+
 LAB_VARS="$LAB_VARS WEB_BROWSER"
 LAB_VARS="$LAB_VARS CONTAINER_NAME CONTAINER_ID HOST_NAME"
 LAB_VARS="$LAB_VARS UNIX_USER UNIX_PWD VNC_PWD TPROXY UNIX_UID UNIX_IDENTIFY VNC_IDENTIFY SUDO_IDENTIFY"
+LAB_VARS="$LAB_VARS VNC_SHARED SCREEN_SIZE"
 
 do_unlock
+
+# Prefer user input to the one saved in config file
 
 for VAR in $LAB_VARS
 do
@@ -191,6 +175,33 @@ do
 done
 
 do_lock
+
+if [ $LAB_SECURITY -eq 1 ]; then
+    WEB_NOSSL=0
+    WEB_ENCRYPT=1
+    WEB_HTTP=https
+    # Account password locked, forbid the identify
+    DEF_UNIX_IDENTIFY=0
+    # No sudo, no way to switch to root in clients
+    DEF_SUDO_IDENTIFY=0
+    [ -z "$VNC_SHARED" ] && VNC_SHARED=0
+else
+    WEB_NOSSL=1
+    WEB_ENCRYPT=0
+    WEB_HTTP=http
+    # Not locked
+    DEF_UNIX_IDENTIFY=1
+    # Can get root simply with sudo
+    DEF_SUDO_IDENTIFY=1
+    [ -z "$VNC_SHARED" ] && VNC_SHARED=1
+fi
+
+# 16:10: 640x480 800x480 1280x800 1440x900 1680x1050 1920x1200 2560x1600
+# 16:9: 960x540 1280x720 1920x1080 2560x1440
+which xrandr >/dev/null 2>&1
+[ $? -eq 0 -a -z "$SCREEN_SIZE" ] && SCREEN_SIZE=`xrandr --current | grep "^ .*\*" | tr -s ' ' | cut -d' ' -f2`
+
+[ -z "$SCREEN_SIZE" ] && SCREEN_SIZE=1280x720
 
 if [ -n "$IMAGE" ]; then
     LAB_USER=`dirname $IMAGE`
@@ -241,12 +252,14 @@ function set_var #VAR
 
     VAR=$1
 
-    var=`eval echo \\$${VAR}`
+    var=`eval echo \\$${VAR} | egrep -v "^$|^ *$"`
     var_file=`eval echo \\${LAB_$VAR}`
 
     #echo "LOG: SET: Save '$var' to $var_file"
 
-    echo $var > $var_file
+    if [ -n "$var" ]; then
+	echo "$var" | tr ' ' '\n' > $var_file
+    fi
 }
 
 function do_op #op $ARG $args
