@@ -2,6 +2,8 @@
 
 # no argument required of config for container
 IN_CONTAINER_CMD=1
+
+# NOTE: for Security, variables should be passed as environment variables
 source /tools/docker/config >/dev/null
 
 # Don't touch me
