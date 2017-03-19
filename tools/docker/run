@@ -53,6 +53,7 @@ container="--name $CONTAINER_NAME"
 
 # Sync UID before running
 UNIX_UID=`id -u $HOST_USER`
+[ "$UNIX_UID" == "0" -o -z "$UNIX_UID" ] && UNIX_UID=1000
 
 do_unlock
 set_var UNIX_UID

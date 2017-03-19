@@ -8,17 +8,16 @@
 
 TOP_DIR=$(cd $(dirname $TOP_DIR/null) && pwd)
 
+# Basic variables
+HOST_USER=$USER
+[ "$HOST_USER" == "root" ] && HOST_USER=$SUDO_USER
+
 # Basic requirement: docker and let docker run without sudo
 if [ ! -n "$IN_CONTAINER_CMD" ]; then
 	DOCKER_INSTALL_CMD=$TOP_DIR/tools/docker/install
 	$DOCKER_INSTALL_CMD >&2 || exit 1
 	(groups $HOST_USER | grep -q docker) || sudo usermod -aG docker $HOST_USER
 fi
-
-# Basic variables
-
-HOST_USER=$USER
-[ "$HOST_USER" == "root" ] && HOST_USER=$SUDO_USER
 
 [ -z "$TPROXY" ] && TPROXY=0
 

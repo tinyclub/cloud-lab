@@ -17,6 +17,7 @@ get_var HOST_NAME localhost
 get_var UNIX_IDENTIFY $DEF_UNIX_IDENTIFY
 get_var SUDO_IDENTIFY $DEF_SUDO_IDENTIFY
 get_var UNIX_UID 1000
+[ "$UNIX_UID" == "0" ] && UNIX_UID=1000
 set_var UNIX_UID
 
 # Update PS1 of the TERM
