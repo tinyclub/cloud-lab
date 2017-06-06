@@ -202,10 +202,13 @@ which xrandr >/dev/null 2>&1
 
 [ -z "$SCREEN_SIZE" ] && SCREEN_SIZE=1280x720
 
-if [ -n "$IMAGE" ]; then
-    LAB_USER=`dirname $IMAGE`
-    LAB_NAME=`basename $IMAGE`
+if [ -z "$IMAGE" ]; then
+    # Fixme: It is not possible to run here.
+    IMAGE=tinylab/$CURRENT
 fi
+
+LAB_USER=`dirname $IMAGE`
+LAB_NAME=`basename $IMAGE`
 
 # More variables
 
