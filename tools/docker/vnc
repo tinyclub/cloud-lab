@@ -9,7 +9,7 @@ source $TOP_DIR/tools/docker/config $* >/dev/null
 do_unlock
 
 get_var WEB_BROWSER chromium-browser
-get_var HOST_NAME localhost
+get_var HOST localhost
 get_var VNC_PWD ubuntu
 get_var CONTAINER_NAME
 
@@ -27,7 +27,7 @@ CONTAINER_IP=`docker inspect --format '{{ .NetworkSettings.IPAddress }}' $CONTAI
 token=`echo -n $CONTAINER_IP | $ENCRYPT_CMD | cut -d' ' -f1`
 
 # Get vnc page
-WEB_URL="$WEB_HTTP://${HOST_NAME}:${LOCAL_VNC_PORT}/vnc.html?token=$token&password=$VNC_PWD&autoconnect=$VNC_AUTOCONNECT&encrypt=$WEB_ENCRYPT"
+WEB_URL="$WEB_HTTP://${HOST}:${LOCAL_VNC_PORT}/vnc.html?token=$token&password=$VNC_PWD&autoconnect=$VNC_AUTOCONNECT&encrypt=$WEB_ENCRYPT"
 
 # Create local shotcut on Desktop
 if [ -d ~/Desktop -a -n "$REMOTE_DESKTOP_SHORTCUT" -a -f "$REMOTE_DESKTOP_SHORTCUT" ]; then
