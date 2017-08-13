@@ -3,4 +3,4 @@
 # start-all -- start all stopped docker lab
 #
 
-docker ps -a --format='{{.ID}}' | xargs -i docker start {} 2>&1
+docker ps -a --format='{{.ID}}' | tac | xargs -i docker start {} 2>&1
