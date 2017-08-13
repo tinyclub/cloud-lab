@@ -72,8 +72,11 @@ chown $UNIX_USER:$UNIX_USER -R $HOME/
 [ -z "$UNIX_PWD" ] && get_var UNIX_PWD
 [ -z "$VNC_PWD" ] && get_var VNC_PWD
 
-[ -z "$UNIX_PWD" ] && UNIX_PWD=`pwgen -c -n -s -1 15`
-[ -z "$VNC_PWD" ] && VNC_PWD=`pwgen -c -n -s -1 15`
+[ -z "$PWD_LENGTH" ] && get_var PWD_LENGTH $DEF_PWD_LENGTH
+
+PWGEN_OPTS="-B -s -n -v $PWD_LENGTH 1"
+[ -z "$UNIX_PWD" ] && UNIX_PWD=`pwgen $PWGEN_OPTS | tr '[A-Z]' '[a-z]'`
+[ -z "$VNC_PWD" ] && VNC_PWD=`pwgen $PWGEN_OPTS | tr '[A-Z]' '[a-z]'`
 
 [ -n "$UNIX_USER" ] && set_var UNIX_USER
 [ -n "$UNIX_PWD" ] && set_var UNIX_PWD

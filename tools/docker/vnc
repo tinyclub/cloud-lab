@@ -23,8 +23,9 @@ fi
 
 [ -z "$VNC_AUTOCONNECT" ] && VNC_AUTOCONNECT=0
 [ -z "$ENCRYPT_CMD" ] && ENCRYPT_CMD=md5sum
+[ -z "$TOKEN_LENGTH" ] && TOKEN_LENGTH=6
 CONTAINER_IP=`docker inspect --format '{{ .NetworkSettings.IPAddress }}' $CONTAINER_NAME`
-token=`echo -n $CONTAINER_IP | $ENCRYPT_CMD | cut -d' ' -f1`
+token=`echo -n $CONTAINER_IP | $ENCRYPT_CMD | cut -d' ' -f1 | cut -c1-$TOKEN_LENGTH`
 
 # Get vnc page
 WEB_URL="$WEB_HTTP://${HOST}:${LOCAL_VNC_PORT}/vnc.html?token=$token&password=$VNC_PWD&autoconnect=$VNC_AUTOCONNECT&encrypt=$WEB_ENCRYPT"
