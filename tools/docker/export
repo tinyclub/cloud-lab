@@ -37,7 +37,15 @@ which xrandr >/dev/null 2>&1
 [ -z "$ENV_ARGS" ] && ENV_ARGS=" -e UNIX_PWD=$UNIX_PWD -e VNC_PWD=$VNC_PWD -e SCREEN_SIZE=$SCREEN_SIZE -e PROXY_SPEED_LIMIT=0 -e NOSSL=$WEB_NOSSL"
 [ -z "$EXTRA_ARGS" ] && EXTRA_ARGS=""
 
+# Mount a directory for storing the noVNC recording sessions
+[ -z "$VNC_RECORDINGS" ] && VNC_RECORDINGS=${TOP_DIR}/recordings/
+REMOTE_RECORD_DIR=/noVNC/recordings/
+LOCAL_RECORD_DIR=$VNC_RECORDINGS
+[ ! -d $LOCAL_RECORD_DIR ] && mkdir -p $LOCAL_RECORD_DIR
+VOLUME_MAP=" -v $LOCAL_RECORD_DIR:$REMOTE_RECORD_DIR "
+echo "LOG: VNC screen recorded in $LOCAL_RECORD_DIR"
+
 docker run \
 	--name $CONTAINER_NAME --privileged -d -t \
-	$PORT_MAP $ENV_ARGS $EXTRA_ARGS \
+	$PORT_MAP $VOLUME_MAP $ENV_ARGS $EXTRA_ARGS \
 	-h $HOST_NAME $IMAGE_NAME
