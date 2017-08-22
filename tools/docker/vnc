@@ -40,7 +40,7 @@ if [ -d ~/Desktop -a -n "$REMOTE_DESKTOP_SHORTCUT" -a -f "$REMOTE_DESKTOP_SHORTC
         icon=firefox.png
     fi
 
-    TMP_URL=`echo $LOCAL_WEB_URL | tr '&' '|'`
+    TMP_URL=`echo $HOST_WEB_URL | tr '&' '|'`
     cat $REMOTE_DESKTOP_SHORTCUT \
         | sed "s%Exec=.*%Exec=$WEB_BROWSER $TMP_URL%g" \
         | sed "s%terminator.png%$icon%g;s%lxterminal.xpm%$icon%g" | tr '|' '&' \
@@ -55,6 +55,6 @@ fi
        do echo "LOG: Local Web Address: http://$HOST:$port/"; done
 
 which $WEB_BROWSER >/dev/null 2>&1 \
-    && ($WEB_BROWSER $LOCAL_WEB_URL >/dev/null 2>&1 &)>/dev/null 2>&1
+    && ($WEB_BROWSER $HOST_WEB_URL >/dev/null 2>&1 &)>/dev/null 2>&1
 
 echo "Please login $REMOTE_WEB_URL"
