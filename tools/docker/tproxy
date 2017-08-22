@@ -5,7 +5,7 @@
 # Note: scripts/proxy-client-transparent.sh of https://github.com/tinyclub/cloud-ubuntu
 #
 
-TOP_DIR=$(cd $(dirname $0) && pwd)/../../
+TOP_DIR=$(cd $(dirname $0)/../../ && pwd)
 source $TOP_DIR/tools/docker/config $* >/dev/null
 
 CONTAINER_NAME=cloud-ubuntu-proxy_client_transparent

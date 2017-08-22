@@ -3,7 +3,7 @@
 # vnc -- open the docker lab's novnc frontend via a browser
 #
 
-TOP_DIR=$(cd $(dirname $0) && pwd)/../../
+TOP_DIR=$(cd $(dirname $0)/../../ && pwd)
 source $TOP_DIR/tools/docker/config $* >/dev/null
 
 do_unlock

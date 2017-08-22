@@ -3,7 +3,7 @@
 # monitor -- monitor a docker lab
 #
 
-TOP_DIR=$(cd $(dirname $0) && pwd)/../../
+TOP_DIR=$(cd $(dirname $0)/../../ && pwd)
 source $TOP_DIR/tools/docker/config $* >/dev/null
 
 do_op "docker logs" CONTAINER_ID

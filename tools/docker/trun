@@ -7,7 +7,7 @@
 #    $ trun lab_name
 #
 
-TOP_DIR=$(cd $(dirname $0) && pwd)/../../
+TOP_DIR=$(cd $(dirname $0)/../../ && pwd)
 
 # Configuration
 

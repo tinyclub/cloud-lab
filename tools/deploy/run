@@ -9,7 +9,7 @@ lab_total=$3
 # In hours
 lab_life=$4
 
-TOP_DIR=$(cd $(dirname $0) && pwd)/../../
+TOP_DIR=$(cd $(dirname $0)/../../ && pwd)
 source $TOP_DIR/tools/docker/config $* >/dev/null
 
 [ -z "$lab_identify" ] && lab_identify=1

@@ -3,7 +3,7 @@
 # cmd -- Start any cmd in a container
 #
 
-TOP_DIR=$(cd $(dirname $0) && pwd)/../../
+TOP_DIR=$(cd $(dirname $0)/../../ && pwd)
 source $TOP_DIR/tools/docker/config $* >/dev/null
 
 [ -z "$1" ] && echo "Usage: $0 [lab-name] cmd" && exit 0

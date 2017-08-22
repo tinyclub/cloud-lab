@@ -7,7 +7,7 @@
 # E.g. LAB_CACHE=0 tools/docer/build
 #
 
-TOP_DIR=$(cd $(dirname $0) && pwd)/../../
+TOP_DIR=$(cd $(dirname $0)/../../ && pwd)
 source $TOP_DIR/tools/docker/config $* >/dev/null
 
 [ -n "$LAB_CACHE" -a "$LAB_CACHE" == "0"  ] && NO_CACHE="--no-cache"

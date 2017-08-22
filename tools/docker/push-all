@@ -3,7 +3,7 @@
 # push -- push a docker image to docker hub
 #
 
-TOP_DIR=$(cd $(dirname $0) && pwd)/../../
+TOP_DIR=$(cd $(dirname $0)/../../ && pwd)
 source $TOP_DIR/tools/docker/config $* >/dev/null
 
 for IMAGE in $IMAGES

@@ -7,7 +7,7 @@
 #    users="a b c d e f g" peruser=3 lab="linux-lab" host="myhost" cleanup=1 security=0 tools/deploy/batch
 #
 
-TOP_DIR=$(cd $(dirname $0) && pwd)/../../
+TOP_DIR=$(cd $(dirname $0)/../../ && pwd)
 
 [ -z "$users" ] && users="falcon cee1 heiher"
 [ -z "$peruser" ] && peruser=1

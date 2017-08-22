@@ -1,6 +1,6 @@
 #!/bin/bash
 
-TOP_DIR=$(cd $(dirname $0) && pwd)/../../
+TOP_DIR=$(cd $(dirname $0)/../../ && pwd)
 source $TOP_DIR/tools/docker/config $* >/dev/null
 
 [ ! -d $LAB_OUTPUT ] && exit 0

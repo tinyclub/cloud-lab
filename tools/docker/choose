@@ -5,7 +5,7 @@
 
 NEW_LAB=$1
 
-TOP_DIR=$(cd $(dirname $0) && pwd)/../../
+TOP_DIR=$(cd $(dirname $0)/../../ && pwd)
 source $TOP_DIR/tools/docker/config $* >/dev/null
 OLD_LAB=$CURRENT
 
