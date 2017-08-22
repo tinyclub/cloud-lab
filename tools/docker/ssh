@@ -12,7 +12,7 @@ get_var UNIX_PWD ubuntu
 do_lock
 
 CONTAINER_IP=`docker inspect --format '{{ .NetworkSettings.IPAddress }}' $CONTAINER_NAME`
-SSH_CMD="ssh ${UNIX_USER}@${CONTAINER_IP} -p ${REMOTE_SSH_PORT}"
+SSH_CMD="ssh ${UNIX_USER}@${CONTAINER_IP} -p ${CONTAINER_SSH_PORT}"
 
 cat <<EOF
 LOG: Upload public ssh key with following steps:

@@ -16,7 +16,7 @@ IMAGE_NAME=tinylab/$CONTAINER_NAME
 docker images | grep -q $IMAGE_NAME
 [ $? -ne 0 -o $PULL -eq 1 ] && docker pull $IMAGE_NAME
 
-DEFAULT_PORT_MAP=" -p $LOCAL_VNC_PORT:$REMOTE_VNC_PORT -p $LOCAL_SSH_PORT:$REMOTE_SSH_PORT -p $LOCAL_WEBSSH_PORT:$REMOTE_WEBSSH_PORT "
+DEFAULT_PORT_MAP=" -p $HOST_VNC_PORT:$CONTAINER_VNC_PORT -p $HOST_SSH_PORT:$CONTAINER_SSH_PORT -p $HOST_WEBSSH_PORT:$CONTAINER_WEBSSH_PORT "
 
 # Available encrypt cmds: sha1sum, sha224sum, cksum, sha256sum, sha512sum, md5sum, sha384sum, sum
 [ -z "$ENCRYPT_CMD" ] && ENCRYPT_CMD="cat"
@@ -39,11 +39,11 @@ which xrandr >/dev/null 2>&1
 
 # Mount a directory for storing the noVNC recording sessions
 [ -z "$VNC_RECORDINGS" ] && VNC_RECORDINGS=${TOP_DIR}/recordings/
-REMOTE_RECORD_DIR=/noVNC/recordings/
-LOCAL_RECORD_DIR=$VNC_RECORDINGS
-[ ! -d $LOCAL_RECORD_DIR ] && mkdir -p $LOCAL_RECORD_DIR
-VOLUME_MAP=" -v $LOCAL_RECORD_DIR:$REMOTE_RECORD_DIR "
-echo "LOG: VNC screen recorded in $LOCAL_RECORD_DIR"
+CONTAINER_RECORD_DIR=/noVNC/recordings/
+HOST_RECORD_DIR=$VNC_RECORDINGS
+[ ! -d $HOST_RECORD_DIR ] && mkdir -p $HOST_RECORD_DIR
+VOLUME_MAP=" -v $HOST_RECORD_DIR:$CONTAINER_RECORD_DIR "
+echo "LOG: VNC screen recorded in $HOST_RECORD_DIR"
 
 docker run \
 	--name $CONTAINER_NAME --privileged -d -t \
