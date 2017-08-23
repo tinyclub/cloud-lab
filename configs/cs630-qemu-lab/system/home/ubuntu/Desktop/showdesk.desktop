@@ -1,0 +1,7 @@
+[Desktop Entry]
+Encoding=UTF-8
+Name=Desktop Demo
+Comment=Demonstrate the usage of http://tinylab.org/cs630-qemu-lab/
+Exec=/usr/bin/chromium-browser http://showdesk.io/1f06d49dfff081e9b54792436590d9f9/
+Icon=/usr/share/pixmaps/chromium-browser.png
+Type=Application

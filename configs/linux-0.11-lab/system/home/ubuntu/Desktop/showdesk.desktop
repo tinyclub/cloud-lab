@@ -1,0 +1,7 @@
+[Desktop Entry]
+Encoding=UTF-8
+Name=Desktop Demo
+Comment=Demonstration page with showdesk.io
+Exec=/usr/bin/chromium-browser http://showdesk.io/50bc346f53a19b4d1f813b428b0b7b49/
+Icon=/usr/share/pixmaps/chromium-browser.png
+Type=Application

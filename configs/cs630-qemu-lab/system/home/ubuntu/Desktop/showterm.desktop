@@ -1,6 +1,6 @@
 [Desktop Entry]
 Encoding=UTF-8
-Name=Demo Page
+Name=Terminal Demo
 Comment=Demonstrate the usage of http://tinylab.org/cs630-qemu-lab/
 Exec=/usr/bin/chromium-browser http://showterm.io/547ccaae139df14c3deec
 Icon=/usr/share/pixmaps/chromium-browser.png

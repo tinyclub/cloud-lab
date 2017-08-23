@@ -1,7 +1,7 @@
 [Desktop Entry]
 Encoding=UTF-8
-Name=Demo Page
+Name=Desktop Demo
 Comment=Demonstrate the usage of Linux Lab: http://tinylab.org/linux-lab/
-Exec=/usr/bin/chromium-browser http://showterm.io/6fb264246580281d372c6
+Exec=/usr/bin/chromium-browser http://showdesk.io/7977891c1d24e38dffbea1b8550ffbb8/
 Icon=/usr/share/pixmaps/chromium-browser.png
 Type=Application

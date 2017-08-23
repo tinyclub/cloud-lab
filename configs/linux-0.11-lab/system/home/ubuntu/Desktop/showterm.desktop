@@ -1,7 +1,7 @@
 [Desktop Entry]
 Encoding=UTF-8
-Name=Demo Page
-Comment=Demonstration page
+Name=Terminal Demo
+Comment=Demonstration page with showterm.io
 Exec=/usr/bin/chromium-browser http://showterm.io/ffb67385a07fd3fcec182
 Icon=/usr/share/pixmaps/chromium-browser.png
 Type=Application
