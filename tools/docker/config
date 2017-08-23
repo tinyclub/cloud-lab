@@ -177,6 +177,7 @@ do_lock
 
 # Control the password complexity
 DEF_PWD_LENGTH=6
+DEF_TOKEN_LENGTH=6
 
 if [ $LAB_SECURITY -eq 1 ]; then
     WEB_NOSSL=0

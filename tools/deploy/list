@@ -6,6 +6,7 @@ source $TOP_DIR/tools/docker/config $* >/dev/null 2>&1
 [ ! -d $LAB_OUTPUT ] && exit 0
 
 [ -z "$ENCRYPT_CMD" ] && ENCRYPT_CMD=md5sum
+[ -z "$TOKEN_LENGTH" ] && TOKEN_LENGTH=$DEF_TOKEN_LENGTH
 
 labs=`find $LAB_OUTPUT -maxdepth 1 -mindepth 1 | sort`
 
@@ -27,11 +28,11 @@ do
     source $TOP_DIR/tools/docker/config $lab_name >/dev/null 2>&1
 
     CONTAINER_IP=`docker inspect --format '{{ .NetworkSettings.IPAddress }}' $CONTAINER_NAME`
-    CONTAINER_TOKEN=`echo -n $CONTAINER_IP | $ENCRYPT_CMD | cut -d' ' -f1`
+    CONTAINER_TOKEN=`echo -n $CONTAINER_IP | $ENCRYPT_CMD | cut -d' ' -f1 | cut -c1-$TOKEN_LENGTH`
 
     do_unlock
     get_var UNIX_USER ubuntu
     do_lock
 
-    echo $lab_name $lab_user $HOST $LOCAL_VNC_PORT $CONTAINER_TOKEN $VNC_PWD $CONTAINER_IP $LOCAL_WEBSSH_PORT $UNIX_PWD $CONTAINER_NAME $lab_life $lab_start
+    echo $lab_name $lab_user $HOST $HOST_VNC_PORT $CONTAINER_TOKEN $VNC_PWD $CONTAINER_IP $HOST_WEBSSH_PORT $UNIX_PWD $CONTAINER_NAME $lab_life $lab_start
 done
