@@ -83,8 +83,9 @@ done
 echo "LOG: Container ID: ${CONTAINER_ID} Container Name: ${CONTAINER_NAME}"
 echo "LOG: $password"
 
-UNIX_PWD=`echo $password | sed -e "s/.* Password: \([^ ]*\) .*/\1/g"`
-VNC_PWD=`echo $password | sed -e "s/.* VNC Password: \(.*\)$/\1/g"`
+UNIX_PWD=`echo $password | sed -e "s/.*,Password: \([^ ]*\) .*/\1/g"`
+VNC_PWD=`echo $password | sed -e "s/.*,VNC Password: \([^ ]*\) .*/\1/g"`
+VNC_PWD_VIEWONLY=`echo $password | sed -e "s/.*,Viewonly Password: \(.*\)$/\1/g"`
 
 do_unlock
 
