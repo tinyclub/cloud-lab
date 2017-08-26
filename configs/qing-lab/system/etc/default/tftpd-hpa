@@ -2,5 +2,5 @@
 
 TFTP_USERNAME="tftp"
 TFTP_DIRECTORY="/labs/linux-lab/tftpboot/"
-TFTP_ADDRESS="[::]:69"
-TFTP_OPTIONS="--secure"
+TFTP_ADDRESS="0.0.0.0:69"
+TFTP_OPTIONS="-c -l -s"
