@@ -33,7 +33,7 @@ token=`echo -n $CONTAINER_IP | $ENCRYPT_CMD | cut -d' ' -f1 | cut -c1-$TOKEN_LEN
 #HOST_WEB_URL="$WEB_HTTP://${HOST}:${HOST_VNC_PORT}/?u=$token&p=$VNC_PWD&autoconnect=$VNC_AUTOCONNECT&encrypt=$WEB_ENCRYPT"
 CONTAINER_WEB_URL="$WEB_HTTP://localhost:${HOST_VNC_PORT}/?u=$token&p=$VNC_PWD"
 HOST_WEB_URL="$WEB_HTTP://${HOST}:${HOST_VNC_PORT}/?u=$token&p=$VNC_PWD"
-HOST_WEB_URL_VIEWONLY="$WEB_HTTP://${HOST}:${HOST_VNC_PORT}/?u=$token&p=$VNC_PWD_VIEWONLY"
+HOST_WEB_URL_VIEWONLY="$WEB_HTTP://${HOST}:${HOST_VNC_PORT}/?r=${token}${VNC_PWD_VIEWONLY}"
 
 # Create local shotcut on Desktop
 if [ -d ~/Desktop -a -n "$REMOTE_DESKTOP_SHORTCUT" -a -f "$REMOTE_DESKTOP_SHORTCUT" ]; then
