@@ -1,8 +1,18 @@
 # nfsd.ko must be inserted to enable nfs kernel server
 
+modules="nfsd 9pnet_virtio"
+
 which lsmod 2>&1 > /dev/null
 
 if [ $? -eq 0 ]; then
-	lsmod | grep -q nfsd
-	[ $? -ne 0 ] && sudo modprobe nfsd
+  for m in $modules
+  do
+    lsmod | grep -q $m
+    [ $? -ne 0 ] && sudo modprobe $m
+  done
+fi
+
+# For qemu-mips64el
+if [ ! -f /proc/sys/fs/binfmt_misc/mips64el -a -f /proc/sys/fs/binfmt_misc/register ]; then
+  sudo bash -c "echo ':mips64el:M::\x7fELF\x02\x01\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00\x02\x00\x08\x00:\xff\xff\xff\xff\xff\xff\xff\x00\xff\xff\xff\xff\xff\xff\xff\xff\xfe\xff\xff\xff:/usr/bin/qemu-mips64el:' > /proc/sys/fs/binfmt_misc/register"
 fi
