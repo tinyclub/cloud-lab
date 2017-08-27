@@ -9,10 +9,12 @@ source $TOP_DIR/tools/docker/config $* >/dev/null
 do_unlock
 get_var UNIX_USER ubuntu
 get_var UNIX_PWD ubuntu
+get_var HOST_NAME localhost
 do_lock
 
 CONTAINER_IP=`docker inspect --format '{{ .NetworkSettings.IPAddress }}' $CONTAINER_NAME`
 SSH_CMD="ssh ${UNIX_USER}@${CONTAINER_IP} -p ${CONTAINER_SSH_PORT}"
+REMOTE_SSH_CMD="ssh ${UNIX_USER}@${HOST_NAME} -p ${HOST_SSH_PORT}"
 
 cat <<EOF
 LOG: Upload public ssh key with following steps:
@@ -28,6 +30,7 @@ LOG: Upload public ssh key with following steps:
 
 EOF
 
-echo -e "LOG: Please login with '$SSH_CMD' with '$UNIX_PWD' and enter workdir: $LAB_WORKDIR\n"
+echo -e "LOG: Remote, Please login with '$REMOTE_SSH_CMD' with '$UNIX_PWD'\n"
+echo -e "LOG: Local, Please login with '$SSH_CMD' with '$UNIX_PWD' and enter workdir: $LAB_WORKDIR\n"
 
 eval $SSH_CMD
