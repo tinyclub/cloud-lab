@@ -10,7 +10,7 @@ TOP_DIR=$(cd $(dirname $TOP_DIR/null) && pwd)
 
 # Basic variables
 HOST_USER=$USER
-[ "$HOST_USER" == "root" ] && HOST_USER=$SUDO_USER
+[ "$HOST_USER" == "root" -a -n "$SUDO_USER" ] && HOST_USER=$SUDO_USER
 
 # Basic requirement: docker and let docker run without sudo
 if [ ! -n "$IN_CONTAINER_CMD" ]; then
