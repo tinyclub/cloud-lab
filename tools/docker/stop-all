@@ -3,4 +3,13 @@
 # stop-all -- stop all docker labs
 #
 
-docker ps -a --format='{{.ID}}' | xargs -i docker stop {} 2>&1
+id_names=`docker ps -a --format='{{.ID}},{{.Names}}' | tac`
+
+for id_name in $id_names
+do
+    id=$(echo $id_name | cut -d ',' -f1)
+    name=$(echo $id_name | cut -d ',' -f2)
+
+    echo "Stopping $name ..."
+    docker stop $id 2>&1
+done
