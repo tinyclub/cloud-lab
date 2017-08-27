@@ -63,3 +63,6 @@ which $WEB_BROWSER >/dev/null 2>&1 \
 
 echo "Please login $HOST_WEB_URL"
 echo "  * Viewonly $HOST_WEB_URL_VIEWONLY"
+echo
+echo "  * User: $token Passwd: $VNC_PWD Passwd(Viweonly): $VNC_PWD_VIEWONLY"
+echo
