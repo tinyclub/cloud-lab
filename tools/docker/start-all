@@ -3,4 +3,19 @@
 # start-all -- start all stopped docker lab
 #
 
-docker ps -a --format='{{.ID}}' | tac | xargs -i docker start {} 2>&1
+TOP_DIR=$(cd $(dirname $0)/../../ && pwd)
+
+id_names=`docker ps -a --format='{{.ID}},{{.Names}}' | tac`
+
+for id_name in $id_names
+do
+    id=$(echo $id_name | cut -d ',' -f1)
+    name=$(echo $id_name | cut -d ',' -f2)
+    lab_name=${name%-*}
+
+    if [ -d ${TOP_DIR}/configs/$lab_name ]; then
+        ${TOP_DIR}/tools/docker/start $lab_name
+    else
+        docker start $id
+    fi
+done
