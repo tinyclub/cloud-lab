@@ -27,14 +27,6 @@ science courses and provides a Docker based experiment environment as-is.
 
     Download the lab...
 
-### Build/Pull it
-
-    $ tools/docker/pull          # Pull from docker hub
-
-    Or
-
-    $ tools/docker/build         # Build from source code
-
 ### Run the Lab
 
     $ tools/docker/run
