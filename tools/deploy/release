@@ -7,5 +7,6 @@ $TOP_DIR/tools/deploy/list $* | grep -v "LOG:" | sort -t ' ' -k 5 | \
 awk 'BEGIN{FS=" "}{ \
 	printf("Lab: %s, User: %s\n", $1, $2); \
 	printf("  * VNC: '$WEB_HTTP'://%s:%s/?u=%s&p=%s\n", $3, $4, $5, $6); \
-	printf("  * Webssh: '$WEB_HTTP'://%s:%s/?ssh=ssh://%s:%s@%s:22\n", $3, $8, $2, $9, $7); \
+	printf("  * VNC_VIEWONLY: '$WEB_HTTP'://%s:%s/?r=%s%s\n", $3, $4, $5, $7); \
+	printf("  * Webssh: '$WEB_HTTP'://%s:%s/?ssh=ssh://%s:%s@%s:22\n", $3, $9, $2, $10, $8); \
 	}'
