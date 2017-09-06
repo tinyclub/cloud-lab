@@ -45,7 +45,7 @@ CONFIG_WORKDIR=/configs
 
 # Some commands not require to specify the lab name
 CMD=`basename $0`
-echo "choose unlock-all build-all pull-all push-all clean-all " | grep "$CMD "
+echo "choose unlock-all build-all pull-all git-pull-all push-all clean-all " | grep "$CMD "
 [ $? -eq 0 ] && IGNORE_LAB_NAME=1
 
 if [ -n "$IN_CONTAINER_CMD" ]; then
@@ -218,6 +218,7 @@ LAB_NAME=`basename $IMAGE`
 # More variables
 
 IMAGES=`find $CONFIGS_DIR -name "name" | xargs -i cat {} | sort -u`
+LABS=`find ${LAB_DIR} -maxdepth 1 -mindepth 1 -type d | xargs -i basename {}`
 
 LOCAL_DESKTOP_SHORTCUT=~/Desktop/${CONTAINER_NAME}.desktop
 [ -d $CONFIG_SYSTEM_DIR ] \

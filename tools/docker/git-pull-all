@@ -1,0 +1,16 @@
+#!/bin/bash
+#
+# git-pull-all -- pull all labs' repositories
+#
+
+TOP_DIR=$(cd $(dirname $0)/../../ && pwd)
+source $TOP_DIR/tools/docker/config $* >/dev/null
+
+for lab in $LABS
+do
+    echo "LOG: pulling repository: $lab"
+
+    pushd ${LAB_DIR}/$lab
+    git pull -v
+    popd
+done

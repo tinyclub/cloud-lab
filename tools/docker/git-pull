@@ -1,0 +1,13 @@
+#!/bin/bash
+#
+# pull -- pull the docker image from docker hub
+#
+
+TOP_DIR=$(cd $(dirname $0)/../../ && pwd)
+source $TOP_DIR/tools/docker/config $* >/dev/null
+
+echo "LOG: pulling repository: $LAB_NAME"
+
+pushd $LAB_DIR/$LAB_NAME
+git pull -v
+popd
