@@ -1,25 +1,25 @@
 [submodule "labs/cs630-qemu-lab"]
 	path = labs/cs630-qemu-lab
-	url = git@github.com:tinyclub/cs630-qemu-lab.git
+	url = https://github.com/tinyclub/cs630-qemu-lab.git
 	branch = master
 	ignore = all
 [submodule "labs/linux-lab"]
 	path = labs/linux-lab
-	url = git@github.com:tinyclub/linux-lab.git
+	url = https://github.com/tinyclub/linux-lab.git
 	branch = master
 	ignore = all
 [submodule "labs/linux-0.11-lab"]
 	path = labs/linux-0.11-lab
-	url = git@github.com:tinyclub/linux-0.11-lab.git
+	url = https://github.com/tinyclub/linux-0.11-lab.git
 	branch = master
 	ignore = all
 [submodule "labs/markdown-lab"]
 	path = labs/markdown-lab
-	url = git@github.com:tinyclub/markdown-lab.git
+	url = https://github.com/tinyclub/markdown-lab.git
 	branch = master
 	ignore = all
 [submodule "labs/tinylab.org"]
 	path = labs/tinylab.org
-	url = git@github.com:tinyclub/tinylab.org.git
+	url = https://github.com/tinyclub/tinylab.org.git
 	branch = master
 	ignore = all
