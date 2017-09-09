@@ -1,0 +1,50 @@
+#!/bin/bash
+#
+# update -- update everything for a target lab
+#
+
+TOP_DIR=$(cd $(dirname $0)/../../ && pwd)
+source $TOP_DIR/tools/docker/config $* >/dev/null
+
+CLOUD_UBUNTU_WEB=$LAB_USER/cloud-ubuntu-web
+CLOUD_UBUNTU_TPROXY=$LAB_USER/cloud-ubuntu-proxy_client_transparent
+DOCKER_IMAGES="$CLOUD_UBUNTU_WEB $CLOUD_UBUNTU_TPROXY"
+DOCKER_TOOL=${TOP_DIR}/tools/docker/
+
+echo "LOG: checking docker image: $LAB_USER/$LAB_NAME"
+(docker search $LAB_USER | grep -q $LAB_NAME) || (echo "LOG: No $IMAGE found in docker hub" && exit 1)
+
+echo "LOG: pulling git repo: cloud-lab"
+cd ${TOP_DIR} && git pull
+
+echo "LOG: pulling docker image: $LAB_NAME"
+${DOCKER_TOOL}/pull $LAB_NAME
+
+echo "LOG: pulling git repo: $LAB_NAME"
+${DOCKER_TOOL}/git-pull $LAB_NAME
+
+# Pull cloud-ubuntu-web and tinylab/cloud-ubuntu-proxy_client_transparent
+for image in $DOCKER_IMAGES
+do
+    echo "LOG: pulling docker image: $image"
+    docker pull $image
+done
+
+echo "LOG: removing deprecated images"
+${DOCKER_TOOL}/rmi-all
+
+echo "LOG: removing old containers"
+echo "LOG: removing docker container: $LAB_NAME"
+${DOCKER_TOOL}/stop $LAB_NAME
+${DOCKER_TOOL}/rm $LAB_NAME
+
+for image in $DOCKER_IMAGES
+do
+    name=`basename $image`
+
+    echo "LOG: removing docker container: $image"
+    docker ps --format="{{.ID}} {{.Names}}" | grep $name | cut -d' ' -f1 | xargs -i docker rm -f {}
+done
+
+echo "LOG: running $LAB_NAME"
+${DOCKER_TOOL}/run $LAB_NAME 

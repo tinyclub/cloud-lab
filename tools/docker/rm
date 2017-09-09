@@ -8,3 +8,6 @@ source $TOP_DIR/tools/docker/config $* >/dev/null
 
 # Remove container
 do_op "docker rm -f" CONTAINER_NAME
+
+# Remove desktop shortcut
+do_op "rm -f" LOCAL_DESKTOP_SHORTCUT
