@@ -73,6 +73,7 @@ chown $UNIX_USER:$UNIX_USER -R $HOME/
 [ -z "$VNC_PWD" ] && get_var VNC_PWD
 
 [ -z "$PWD_LENGTH" ] && get_var PWD_LENGTH $DEF_PWD_LENGTH
+[ -z "$PWD_TOTAL" ] && get_var PWD_TOTAL $DEF_PWD_TOTAL
 
 PWGEN_OPTS="-B -s -n -v $PWD_LENGTH 1"
 [ -z "$UNIX_PWD" ] && UNIX_PWD=`pwgen $PWGEN_OPTS | tr '[A-Z]' '[a-z]'`
@@ -106,7 +107,14 @@ if [ $? -eq 0 ]; then
     VNC_PWD_FILE=$HOME/.vnc/passwdfile
     [ ! -d $HOME/.vnc ] && mkdir -p $HOME/.vnc
     echo $VNC_PWD > $VNC_PWD_FILE
+    echo __BEGIN_VIEWONLY__ >> $VNC_PWD_FILE
     echo $VNC_PWD_VIEWONLY >> $VNC_PWD_FILE
+
+    if [ $PWD_TOTAL -gt 0 ]; then
+       PWGEN_OPTS="-B -s -n -v $PWD_LENGTH $PWD_TOTAL"
+       pwgen $PWGEN_OPTS | tr ' ' '\n' >> $VNC_PWD_FILE
+    fi
+    chmod o-rwx $VNC_PWD_FILE
 
     # Disable the VNC login password
     get_var VNC_IDENTIFY 1
