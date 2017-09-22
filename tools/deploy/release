@@ -3,7 +3,9 @@
 TOP_DIR=$(cd $(dirname $0)/../../ && pwd)
 source $TOP_DIR/tools/docker/config $* >/dev/null
 
-$TOP_DIR/tools/deploy/list $* | grep -v "LOG:" | sort -t ' ' -k 5 | \
+[ -z "$LAB_NAME" ] && LAB_NAME=" "
+
+$TOP_DIR/tools/deploy/list $* | grep "$LAB_NAME" | grep -v "LOG:" | sort -t ' ' -k 5 | \
 awk 'BEGIN{FS=" "}{ \
 	printf("Lab: %s, User: %s\n", $1, $2); \
 	printf("  * VNC: '$WEB_HTTP'://%s:%s/?u=%s&p=%s\n", $3, $4, $5, $6); \
