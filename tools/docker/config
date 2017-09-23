@@ -206,7 +206,7 @@ fi
 which xrandr >/dev/null 2>&1
 [ $? -eq 0 -a -z "$SCREEN_SIZE" ] && SCREEN_SIZE=`xrandr --current | grep "^ .*\*" | tr -s ' ' | cut -d' ' -f2 | head -1`
 
-[ -z "$SCREEN_SIZE" ] && SCREEN_SIZE=1280x720
+[ -z "$SCREEN_SIZE" ] && SCREEN_SIZE=1280x800
 
 if [ -z "$IMAGE" ]; then
     # Fixme: It is not possible to run here.

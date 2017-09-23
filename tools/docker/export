@@ -19,8 +19,8 @@ docker images | grep -q $IMAGE_NAME
 DEFAULT_PORT_MAP=" -p $HOST_VNC_PORT:$CONTAINER_VNC_PORT -p $HOST_SSH_PORT:$CONTAINER_SSH_PORT -p $HOST_WEBSSH_PORT:$CONTAINER_WEBSSH_PORT "
 
 # Available encrypt cmds: sha1sum, sha224sum, cksum, sha256sum, sha512sum, md5sum, sha384sum, sum
-# To disable auto timeout, please pass VNC_TIMEOUT=0
-[ -z "$VNC_TIMEOUT" ] && VNC_TIMEOUT=1
+# To enable auto timeout, please pass VNC_TIMEOUT=1
+[ -z "$VNC_TIMEOUT" ] && VNC_TIMEOUT=0
 [ -z "$PROXY_LIMIT" ] && PROXY_LIMIT=0
 [ -z "$ENCRYPT_CMD" ] && ENCRYPT_CMD="cat"
 [ -n "$UNIX_PWD" ] && UNIX_PWD=`echo -n $UNIX_PWD | $ENCRYPT_CMD | cut -d' ' -f1`
@@ -31,7 +31,7 @@ DEFAULT_PORT_MAP=" -p $HOST_VNC_PORT:$CONTAINER_VNC_PORT -p $HOST_SSH_PORT:$CONT
 which xrandr >/dev/null 2>&1
 [ $? -eq 0 -a -z "$SCREEN_SIZE" ] && SCREEN_SIZE=`xrandr --current | grep "^ .*\*" | tr -s ' ' | cut -d' ' -f2 | head -1`
 
-[ -z "$SCREEN_SIZE" ] && SCREEN_SIZE=1280x720
+[ -z "$SCREEN_SIZE" ] && SCREEN_SIZE=1280x800
 
 [ -z "$HOST_NAME" ] && HOST_NAME=localhost
 [ -z "$UNIX_PWD" ] && UNIX_PWD=ubuntu
