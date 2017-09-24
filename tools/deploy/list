@@ -19,9 +19,9 @@ do
     lab_attr_arr=($lab_attr)
 
     lab_name=$(echo $lab_basename | cut -d'+' -f1)
-    lab_user=${lab_attr_arr[1]}
-    lab_life=${lab_attr_arr[2]}
-    lab_start=${lab_attr_arr[3]}${lab_attr_arr[4]}
+    lab_user=${lab_attr_arr[0]}
+    lab_life=${lab_attr_arr[1]}
+    lab_start=${lab_attr_arr[2]}${lab_attr_arr[3]}
 
     TOP_DIR=$lab
     unset UNIX_USER UNIX_PWD VNC_PWD VNC_PWD_VIEWONLY CONTAINER_NAME CONTAINER_IP CONTAINER_TOKEN
