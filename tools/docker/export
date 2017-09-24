@@ -31,8 +31,9 @@ DEFAULT_PORT_MAP=" -p $HOST_VNC_PORT:$CONTAINER_VNC_PORT -p $HOST_SSH_PORT:$CONT
 which xrandr >/dev/null 2>&1
 [ $? -eq 0 -a -z "$SCREEN_SIZE" ] && SCREEN_SIZE=`xrandr --current | grep "^ .*\*" | tr -s ' ' | cut -d' ' -f2 | head -1`
 
-[ -z "$SCREEN_SIZE" ] && SCREEN_SIZE=1280x800
-
+[ -z "$SCREEN_SIZE" ] && SCREEN_SIZE=$DEF_SCREEN_SIZE
+[ -z "$TOKEN_DIR" ] && TOKEN_DIR=$DEF_TOKEN_DIR
+[ -z "$TOKEN_LENGTH" ] && TOKEN_LENGTH=$DEF_TOKEN_LENGTH
 [ -z "$HOST_NAME" ] && HOST_NAME=localhost
 [ -z "$UNIX_PWD" ] && UNIX_PWD=ubuntu
 [ -z "$VNC_PWD" ] && VNC_PWD=ubuntu
@@ -41,12 +42,16 @@ which xrandr >/dev/null 2>&1
 [ -z "$EXTRA_ARGS" ] && EXTRA_ARGS=""
 
 # Mount a directory for storing the noVNC recording sessions
-[ -z "$VNC_RECORDINGS" ] && VNC_RECORDINGS=${TOP_DIR}/recordings/
-CONTAINER_RECORD_DIR=/noVNC/recordings/
-HOST_RECORD_DIR=$VNC_RECORDINGS
+[ -z "$VNC_RECORDINGS" ] && VNC_RECORDINGS=recordings
+CONTAINER_RECORD_DIR=/noVNC/$VNC_RECORDINGS
+HOST_RECORD_DIR=${TOP_DIR}/$VNC_RECORDINGS
 [ ! -d $HOST_RECORD_DIR ] && mkdir -p $HOST_RECORD_DIR
 VOLUME_MAP=" -v $HOST_RECORD_DIR:$CONTAINER_RECORD_DIR "
 echo "LOG: VNC screen recorded in $HOST_RECORD_DIR"
+
+LOCAL_TOKEN_DIR=${TOP_DIR}/${TOKEN_DIR}
+REMOTE_TOKEN_DIR=/$TOKEN_DIR
+VOLUME_MAP="$VOLUME_MAP -v $LOCAL_TOKEN_DIR:$REMOTE_TOKEN_DIR"
 
 docker run \
 	--name $CONTAINER_NAME --privileged -d -t \
