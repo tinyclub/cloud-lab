@@ -214,7 +214,7 @@ if [ -z "$IMAGE" ]; then
 fi
 
 LAB_USER=`dirname $IMAGE`
-LAB_NAME=`basename $IMAGE`
+LAB_NAME=$CURRENT
 
 # More variables
 
