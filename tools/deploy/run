@@ -30,7 +30,15 @@ OLD_LAB_OUTPUT=$LAB_OUTPUT
 for i in `seq 1 $lab_total`
 do
     LAB_SRC=$OLD_TOP_DIR
-    LAB_PATH=${lab_name}+${RANDOM}-${lab_user}-${lab_life}-`date +"%Y%m%d-%H%M%S"`
+    while :;
+    do
+       lab_name_random=${RANDOM}
+       CONTAINER_NAME=${lab_name}-${lab_name_random}
+       exist=`docker ps -q --filter=name=$CONTAINER_NAME | wc -l`
+       [ $exist -eq 0 ] && break
+    done
+
+    LAB_PATH=${CONTAINER_NAME}-${lab_user}-${lab_life}-`date +"%Y%m%d-%H%M%S"`
     LAB_DST=$OLD_LAB_OUTPUT/$LAB_PATH/
 
     echo "LOG: Create $LAB_PATH"
@@ -59,5 +67,5 @@ do
 
     do_lock
 
-    UNIX_USER=$lab_user $DOCKER_RUN_CMD $lab_name
+    UNIX_USER=$lab_user CONTAINER_NAME=$CONTAINER_NAME $DOCKER_RUN_CMD $lab_name
 done

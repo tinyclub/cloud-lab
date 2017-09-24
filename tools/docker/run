@@ -14,12 +14,14 @@ source $TOP_DIR/tools/docker/config $* >/dev/null
     && exit 1
 
 # Generate an unique container name
-while :;
-do
+if [ -z "$CONTAINER_NAME" ]; then
+  while :;
+  do
     CONTAINER_NAME=${LAB_NAME}-$RANDOM
     exist=`docker ps -q --filter=name=$CONTAINER_NAME | wc -l`
     [ $exist -eq 0 ] && break
-done
+  done
+fi
 
 # Require to prepare some environment for docker containers in host
 [ -f $LAB_HOST_RUN ] && $LAB_HOST_RUN

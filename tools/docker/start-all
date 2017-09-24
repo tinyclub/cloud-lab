@@ -15,7 +15,11 @@ do
 
     echo "Starting $name ..."
 
-    if [ -d ${TOP_DIR}/configs/$lab_name ]; then
+    ls ${TOP_DIR}/output/$name*/ >/dev/null 2>&1
+
+    if [ $? -eq 0 ]; then
+        ${TOP_DIR}/output/$name*/tools/docker/start $lab_name
+    elif [ -d ${TOP_DIR}/configs/$lab_name ]; then
         ${TOP_DIR}/tools/docker/start $lab_name
     else
         docker start $id
