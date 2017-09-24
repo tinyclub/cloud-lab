@@ -1,0 +1,24 @@
+#!/bin/bash
+
+TOP_DIR=$(cd $(dirname $0)/../../ && pwd)
+source $TOP_DIR/tools/docker/config $* >/dev/null
+
+do_unlock
+[ -z "$VNC_IP" ] && get_var VNC_IP
+[ -z "$VNC_TOKEN" ] && get_var VNC_TOKEN
+do_lock
+
+LOCAL_TOKEN_DIR=${TOP_DIR}/$DEF_TOKEN_DIR
+[ ! -d $LOCAL_TOKEN_DIR ] && LOCAL_TOKEN_DIR=$(cd ${TOP_DIR}/../../ && pwd)/$DEF_TOKEN_DIR
+
+LOCAL_MAP=$LOCAL_TOKEN_DIR/local_map
+
+map="${VNC_TOKEN}: ${VNC_IP}:5900"
+[ ! -f $LOCAL_MAP ] && sudo sh -c "echo $map > $LOCAL_MAP" && exit 0
+
+grep -q "$map" $LOCAL_MAP
+if [ $? -ne 0 ]; then
+  grep ${VNC_TOKEN} $LOCAL_MAP
+  [ $? -eq 0 ] && sudo sed -i -e "/${VNC_TOKEN}: /d" $LOCAL_MAP
+  sudo sh -c "echo $map >> $LOCAL_MAP"
+fi

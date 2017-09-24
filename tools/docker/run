@@ -42,7 +42,7 @@ for var in $VARS; do
     # Available encrypt cmds: sha1sum, sha224sum, cksum, sha256sum, sha512sum, md5sum, sha384sum, sum
     value=$(eval echo \$${var})
     echo "$var" | grep -q "_PWD"
-    [ $? -eq 0 -a -n "$ENCRYPT_CMD" -a -n "$value" ] && __ENCRYPT_CMD=$ENCRYPT_CMD
+    [ $? -eq 0 -a -n "$ENCRYPT" -a -n "$ENCRYPT_CMD" -a -n "$value" ] && __ENCRYPT_CMD=$ENCRYPT_CMD
     vars="$vars -e $var=$(echo -n $value | $__ENCRYPT_CMD | cut -d' ' -f1)";
 done
 for env in $ENVS; do vars="$vars -e $env"; done
@@ -85,10 +85,6 @@ done
 echo "LOG: Container ID: ${CONTAINER_ID} Container Name: ${CONTAINER_NAME}"
 echo "LOG: $password"
 
-UNIX_PWD=`echo $password | sed -e "s/.*,Password: \([^ ]*\) .*/\1/g"`
-VNC_PWD=`echo $password | sed -e "s/.*,VNC Password: \([^ ]*\) .*/\1/g"`
-VNC_PWD_VIEWONLY=`echo $password | sed -e "s/.*,Viewonly Password: \(.*\)$/\1/g"`
-
 do_unlock
 
 # Save the lab's information (for restore the container for 'docker start')
@@ -96,6 +92,8 @@ vars="$LAB_VARS"
 for var in $vars; do set_var $var; done
 
 do_lock
+
+$DOCKER_PUBLISH_CMD $*
 
 # $DOCKER_WEBSSH_CMD $*
 

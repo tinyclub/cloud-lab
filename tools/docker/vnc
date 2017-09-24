@@ -13,6 +13,8 @@ get_var HOST localhost
 get_var VNC_PWD ubuntu
 get_var VNC_PWD_VIEWONLY ubuntu
 get_var CONTAINER_NAME
+get_var VNC_IP $(docker inspect --format '{{ .NetworkSettings.IPAddress }}' $CONTAINER_NAME)
+get_var VNC_TOKEN $(echo -n $VNC_IP | $ENCRYPT_CMD | cut -d' ' -f1 | cut -c1-$TOKEN_LENGTH)
 
 do_lock
 
@@ -23,17 +25,13 @@ if [ $? -eq 1 ]; then
 fi
 
 [ -z "$VNC_AUTOCONNECT" ] && VNC_AUTOCONNECT=1
-[ -z "$ENCRYPT_CMD" ] && ENCRYPT_CMD=md5sum
-[ -z "$TOKEN_LENGTH" ] && TOKEN_LENGTH=$DEF_TOKEN_LENGTH
-CONTAINER_IP=`docker inspect --format '{{ .NetworkSettings.IPAddress }}' $CONTAINER_NAME`
-token=`echo -n $CONTAINER_IP | $ENCRYPT_CMD | cut -d' ' -f1 | cut -c1-$TOKEN_LENGTH`
 
 # Get vnc page
-#CONTAINER_WEB_URL="$WEB_HTTP://localhost:${HOST_VNC_PORT}/?u=$token&p=$VNC_PWD&autoconnect=$VNC_AUTOCONNECT&encrypt=$WEB_ENCRYPT"
-#HOST_WEB_URL="$WEB_HTTP://${HOST}:${HOST_VNC_PORT}/?u=$token&p=$VNC_PWD&autoconnect=$VNC_AUTOCONNECT&encrypt=$WEB_ENCRYPT"
-CONTAINER_WEB_URL="$WEB_HTTP://localhost:${HOST_VNC_PORT}/?u=$token&p=$VNC_PWD"
-HOST_WEB_URL="$WEB_HTTP://${HOST}:${HOST_VNC_PORT}/?u=$token&p=$VNC_PWD"
-HOST_WEB_URL_VIEWONLY="$WEB_HTTP://${HOST}:${HOST_VNC_PORT}/?r=${token}${VNC_PWD_VIEWONLY}"
+#CONTAINER_WEB_URL="$WEB_HTTP://localhost:${HOST_VNC_PORT}/?u=$VNC_TOKEN&p=$VNC_PWD&autoconnect=$VNC_AUTOCONNECT&encrypt=$WEB_ENCRYPT"
+#HOST_WEB_URL="$WEB_HTTP://${HOST}:${HOST_VNC_PORT}/?u=$VNC_TOKEN&p=$VNC_PWD&autoconnect=$VNC_AUTOCONNECT&encrypt=$WEB_ENCRYPT"
+CONTAINER_WEB_URL="$WEB_HTTP://localhost:${HOST_VNC_PORT}/?u=$VNC_TOKEN&p=$VNC_PWD"
+HOST_WEB_URL="$WEB_HTTP://${HOST}:${HOST_VNC_PORT}/?u=$VNC_TOKEN&p=$VNC_PWD"
+HOST_WEB_URL_VIEWONLY="$WEB_HTTP://${HOST}:${HOST_VNC_PORT}/?r=${VNC_TOKEN}${VNC_PWD_VIEWONLY}"
 
 [ $VNC_AUTOCONNECT -eq 1 ] && \
   CONTAINER_WEB_URL="$CONTAINER_WEB_URL&autoconnect=1"
@@ -69,7 +67,7 @@ echo
 echo "  *   Normal: $HOST_WEB_URL"
 echo "  * Viewonly: $HOST_WEB_URL_VIEWONLY"
 echo
-echo "        User: $token"
+echo "        User: $VNC_TOKEN"
 echo "    Password: $VNC_PWD"
 echo "    Password: $VNC_PWD_VIEWONLY (Viewonly)"
 echo

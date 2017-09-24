@@ -17,8 +17,23 @@ get_var HOST_NAME localhost
 get_var UNIX_IDENTIFY $DEF_UNIX_IDENTIFY
 get_var SUDO_IDENTIFY $DEF_SUDO_IDENTIFY
 get_var UNIX_UID 1000
+
 [ "$UNIX_UID" == "0" ] && UNIX_UID=1000
 set_var UNIX_UID
+
+[ -z "$VNC_IP" ] && get_var VNC_IP $DEF_VNC_IP
+[ -z "$VNC_TOKEN" ] && get_var VNC_TOKEN ""
+
+IFACE=$(ifconfig | head -1 | cut -d' ' -f1)
+if [ "$VNC_IP" != "$DEF_VNC_IP" ]; then
+  ifconfig $IFACE $VNC_IP up
+else
+  VNC_IP=`ifconfig $IFACE | grep "inet addr" | sed -e "s/ *inet addr:\([0-9\.]*\) .*/\1/g"`
+fi
+
+[ -n "$VNC_IP" -a -z "$VNC_TOKEN" ] && VNC_TOKEN=`echo -n $VNC_IP | $ENCRYPT_CMD | cut -d' ' -f1 | cut -c1-$TOKEN_LENGTH`
+[ -n "$VNC_IP" ] && set_var VNC_IP
+[ -n "$VNC_TOKEN" ] && set_var VNC_TOKEN
 
 # Update PS1 of the TERM
 bash -c "sed -i -e 's%PS1=.*$%PS1=\"$UNIX_USER@$IMAGE\$ \"%g' /etc/skel/.bashrc"
@@ -86,7 +101,7 @@ PWGEN_OPTS="-B -s -n -v $PWD_LENGTH 1"
 [ -n "$VNC_PWD_VIEWONLY" ] && set_var VNC_PWD_VIEWONLY
 
 # Sync UID between host and container
-FILES_TO_SYN_PERM="$LAB_UNIX_PWD $LAB_VNC_PWD $LAB_VNC_PWD_VIEWONLY $LAB_UNIX_UID $LAB_UNIX_USER"
+FILES_TO_SYN_PERM="$LAB_UNIX_PWD $LAB_VNC_PWD $LAB_VNC_PWD_VIEWONLY $LAB_UNIX_UID $LAB_UNIX_USER $LAB_VNC_IP $LAB_VNC_TOKEN"
 sudo chown $UNIX_USER:$UNIX_USER $FILES_TO_SYN_PERM
 sudo chmod a+w $FILES_TO_SYN_PERM
 
