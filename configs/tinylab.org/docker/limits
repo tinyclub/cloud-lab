@@ -1,2 +1,2 @@
 --cpu-shares=512
---memory=2048M
+--memory=1G

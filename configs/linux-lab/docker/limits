@@ -1,2 +1,2 @@
 --cpu-shares=1024
---memory=1024M
+--memory=4G
