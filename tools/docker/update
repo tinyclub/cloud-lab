@@ -15,7 +15,7 @@ echo "LOG: checking docker image: $LAB_USER/$LAB_NAME"
 (docker search $LAB_USER | grep -q $LAB_NAME) || (echo "LOG: No $IMAGE found in docker hub" && exit 1)
 
 echo "LOG: pulling git repo: cloud-lab"
-cd ${TOP_DIR} && git pull
+${DOCKER_TOOL}/choose $LAB_NAME
 
 echo "LOG: pulling docker image: $LAB_NAME"
 ${DOCKER_TOOL}/pull $LAB_NAME
