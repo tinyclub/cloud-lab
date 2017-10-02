@@ -1,4 +1,4 @@
 output
 .host_name
 recordings
-vnc-tokens
+.vnc-tokens
