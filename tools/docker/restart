@@ -1,0 +1,14 @@
+#!/bin/bash
+#
+# restart -- stop a docker lab and restart it
+#
+
+TOP_DIR=$(cd $(dirname $0)/../../ && pwd)
+source $TOP_DIR/tools/docker/config $* >/dev/null
+
+do_op "docker stop" CONTAINER_ID
+
+# Require to prepare some environment for docker containers in host
+[ -f $LAB_HOST_RUN ] && $LAB_HOST_RUN
+
+do_op "docker start" CONTAINER_ID

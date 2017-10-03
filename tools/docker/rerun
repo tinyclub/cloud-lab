@@ -1,0 +1,11 @@
+#!/bin/bash
+#
+# rerun -- remove a docker lab and rerun it
+#
+
+TOP_DIR=$(cd $(dirname $0)/../../ && pwd)
+source $TOP_DIR/tools/docker/config $* >/dev/null
+
+$DOCKER_RM_CMD $LAB_NAME
+
+$DOCKER_RUN_CMD $LAB_NAME

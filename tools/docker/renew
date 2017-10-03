@@ -1,0 +1,11 @@
+#!/bin/bash
+#
+# renew -- clean a docker lab and renew it
+#
+
+TOP_DIR=$(cd $(dirname $0)/../../ && pwd)
+source $TOP_DIR/tools/docker/config $* >/dev/null
+
+$DOCKER_CLEAN_CMD $LAB_NAME
+
+$DOCKER_RUN_CMD $LAB_NAME
