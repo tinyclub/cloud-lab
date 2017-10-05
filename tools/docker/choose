@@ -6,10 +6,10 @@
 NEW_LAB=$1
 
 TOP_DIR=$(cd $(dirname $0)/../../ && pwd)
-source $TOP_DIR/tools/docker/config $* >/dev/null
+. $TOP_DIR/tools/docker/config $* >/dev/null
 OLD_LAB=$CURRENT
 
-function download_submodule
+download_submodule ()
 {
     LAB_CURRENT_DIR=$LAB_DIR/$CURRENT
     LAB_LABS=$CONFIG_DIR/labs
@@ -20,16 +20,14 @@ function download_submodule
       [ ! -f $LAB_CURRENT_DIR/.git ] \
         && git submodule update --init --remote $LAB_CURRENT_DIR
 
-      pushd $LAB_CURRENT_DIR
-      git checkout master && git pull
-      popd
+      cd $LAB_CURRENT_DIR && git checkout master && git pull
 
       echo "LOG: Source code downloaded to $LAB_CURRENT_DIR"
     done
 }
 
 if [ -n "$NEW_LAB" ]; then
-    source $TOP_DIR/tools/docker/config $NEW_LAB >/dev/null
+    . $TOP_DIR/tools/docker/config $NEW_LAB >/dev/null
 
     set_var CURRENT
 

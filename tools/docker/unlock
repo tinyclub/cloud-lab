@@ -6,6 +6,6 @@
 LAB_SECURITY=1
 
 TOP_DIR=$(cd $(dirname $0)/../../ && pwd)
-source $TOP_DIR/tools/docker/config $* >/dev/null
+. $TOP_DIR/tools/docker/config $* >/dev/null
 
 do_unlock

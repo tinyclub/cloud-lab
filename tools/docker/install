@@ -23,7 +23,7 @@ fi
 
 $SUDO apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 58118E89F3A912897C070ADBF76221572C52609D
 version=`sed -n -e "/ main/p" /etc/apt/sources.list | grep -v ^# | head -1 | cut -d' ' -f3`
-$SUDO bash -c 'echo "deb http://mirrors.aliyun.com/docker-engine/apt/repo/ ubuntu-'${version}' main" > /etc/apt/sources.list.d/docker.list'
+$SUDO sh -c 'echo "deb http://mirrors.aliyun.com/docker-engine/apt/repo/ ubuntu-'${version}' main" > /etc/apt/sources.list.d/docker.list'
 $SUDO apt-get -y update
 $SUDO apt-get -y install apt-transport-https ca-certificates
 $SUDO apt-get -y install bridge-utils

@@ -4,7 +4,7 @@
 #
 
 TOP_DIR=$(cd $(dirname $0)/../../ && pwd)
-source $TOP_DIR/tools/docker/config $* >/dev/null
+. $TOP_DIR/tools/docker/config $* >/dev/null
 
 CLOUD_UBUNTU_WEB=$LAB_USER/cloud-ubuntu-web
 CLOUD_UBUNTU_TPROXY=$LAB_USER/cloud-ubuntu-proxy_client_transparent

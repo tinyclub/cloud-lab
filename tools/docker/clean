@@ -4,7 +4,7 @@
 #
 
 TOP_DIR=$(cd $(dirname $0)/../../ && pwd)
-source $TOP_DIR/tools/docker/config $* >/dev/null
+. $TOP_DIR/tools/docker/config $* >/dev/null
 
 do_unlock
 
@@ -14,4 +14,4 @@ do_op "docker rm -f" CONTAINER_NAME
 # Remove desktop shortcut
 do_op "rm -f" LOCAL_DESKTOP_SHORTCUT
 
-rm -rf $CONFIG_DOCKER_DIR/.[^.]*
+find $CONFIG_DOCKER_DIR -iname ".[^.]*" -exec rm -rf {} \;

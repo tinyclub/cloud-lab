@@ -4,7 +4,7 @@
 #
 
 TOP_DIR=$(cd $(dirname $0)/../../ && pwd)
-source $TOP_DIR/tools/docker/config $* >/dev/null
+. $TOP_DIR/tools/docker/config $* >/dev/null
 
 $DOCKER_RM_CMD $LAB_NAME
 

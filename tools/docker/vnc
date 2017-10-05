@@ -4,7 +4,7 @@
 #
 
 TOP_DIR=$(cd $(dirname $0)/../../ && pwd)
-source $TOP_DIR/tools/docker/config $* >/dev/null
+. $TOP_DIR/tools/docker/config $* >/dev/null
 
 do_unlock
 
@@ -39,7 +39,7 @@ HOST_WEB_URL_VIEWONLY="$WEB_HTTP://${HOST}:${HOST_VNC_PORT}/?r=${VNC_TOKEN}${VNC
 # Create local shotcut on Desktop
 if [ -d ~/Desktop -a -n "$REMOTE_DESKTOP_SHORTCUT" -a -f "$REMOTE_DESKTOP_SHORTCUT" ]; then
     echo '#!/usr/bin/env xdg-open' > $LOCAL_DESKTOP_SHORTCUT
-    if [ "$WEB_BROWSER" == "chromium-browser" ]; then
+    if [ "x$WEB_BROWSER" = "xchromium-browser" ]; then
         icon=chromium-browser.png
     else
         icon=firefox.png

@@ -1,7 +1,7 @@
 #!/bin/sh
 
 TOP_DIR=$(cd $(dirname $0)/../../ && pwd)
-source $TOP_DIR/tools/docker/config $* >/dev/null
+. $TOP_DIR/tools/docker/config $* >/dev/null
 
 do_unlock
 [ -z "$VNC_IP" ] && get_var VNC_IP

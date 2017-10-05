@@ -4,7 +4,7 @@
 IN_CONTAINER_CMD=1
 
 # NOTE: for Security, variables should be passed as environment variables
-source /tools/docker/config >/dev/null
+. /tools/docker/config >/dev/null
 
 # Don't touch me
 DEF_USER=ubuntu
@@ -18,7 +18,7 @@ get_var UNIX_IDENTIFY $DEF_UNIX_IDENTIFY
 get_var SUDO_IDENTIFY $DEF_SUDO_IDENTIFY
 get_var UNIX_UID 1000
 
-[ "$UNIX_UID" == "0" ] && UNIX_UID=1000
+[ "x$UNIX_UID" = "x0" ] && UNIX_UID=1000
 set_var UNIX_UID
 
 [ -z "$VNC_IP" ] && get_var VNC_IP $DEF_VNC_IP
@@ -133,7 +133,7 @@ if [ $? -eq 0 ]; then
 
     # Disable the VNC login password
     get_var VNC_IDENTIFY 1
-    [ $VNC_IDENTIFY -eq 0 -a "$HOST_NAME" == "localhost" ] \
+    [ $VNC_IDENTIFY -eq 0 -a "x$HOST_NAME" = "xlocalhost" ] \
         && sed -i -e "s% -usepw$%-nopw%g" $SYSTEM_SUPERVISORD_CONF
 fi
 

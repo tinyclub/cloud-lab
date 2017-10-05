@@ -10,7 +10,7 @@ lab_total=$3
 lab_life=$4
 
 TOP_DIR=$(cd $(dirname $0)/../../ && pwd)
-source $TOP_DIR/tools/docker/config $* >/dev/null
+. $TOP_DIR/tools/docker/config $* >/dev/null
 
 [ -z "$lab_identify" ] && lab_identify=1
 [ -z "$lab_total" ] && lab_total=1
@@ -32,7 +32,7 @@ do
     LAB_SRC=$OLD_TOP_DIR
     while :;
     do
-       lab_name_random=${RANDOM}
+       lab_name_random=`get_random`
        CONTAINER_NAME=${lab_name}-${lab_name_random}
        exist=`docker ps -q --filter=name=$CONTAINER_NAME | wc -l`
        [ $exist -eq 0 ] && break
@@ -45,7 +45,7 @@ do
 
     tmpfile=`mktemp`
     __lab_name=$lab_name
-    [ $lab_name == "qing-lab" ] && __lab_name='*'
+    [ "$lab_name" = "qing-lab" ] && __lab_name='*'
     find $LAB_SRC/configs/$lab_name \
          $LAB_SRC/labs/$__lab_name \
          $LAB_SRC/.git/modules/labs/$__lab_name \
@@ -57,7 +57,7 @@ do
     # Run it
 
     TOP_DIR=$LAB_DST
-    source $TOP_DIR/tools/docker/config $lab_name >/dev/null
+    . $TOP_DIR/tools/docker/config $lab_name >/dev/null
 
     do_unlock
 

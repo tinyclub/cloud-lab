@@ -4,7 +4,7 @@
 #
 
 TOP_DIR=$(cd $(dirname $0)/../../ && pwd)
-source $TOP_DIR/tools/docker/config $* >/dev/null
+. $TOP_DIR/tools/docker/config $* >/dev/null
 
 # Check container conflicts
 [ -n "$CONTAINER_ID" ] \
@@ -17,7 +17,7 @@ source $TOP_DIR/tools/docker/config $* >/dev/null
 if [ -z "$CONTAINER_NAME" ]; then
   while :;
   do
-    CONTAINER_NAME=${LAB_NAME}-$RANDOM
+    CONTAINER_NAME=${LAB_NAME}-`get_random`
     exist=`docker ps -q --filter=name=$CONTAINER_NAME | wc -l`
     [ $exist -eq 0 ] && break
   done
@@ -55,7 +55,7 @@ container="--name $CONTAINER_NAME"
 
 # Sync UID before running
 UNIX_UID=`id -u $HOST_USER`
-[ "$UNIX_UID" == "0" -o -z "$UNIX_UID" ] && UNIX_UID=1000
+[ "x$UNIX_UID" = "x0" -o -z "$UNIX_UID" ] && UNIX_UID=1000
 
 do_unlock
 set_var UNIX_UID
@@ -72,7 +72,7 @@ exist=`docker ps -q --filter=name=cloud-ubuntu-web | wc -l`
 
 CONTAINER_ID=$(docker run -d --privileged $container $portmap $caps $devices $limits $volumemap $vars $EXTRA_ARGS $IMAGE)
 
-CONTAINER_ID=${CONTAINER_ID:0:12}
+CONTAINER_ID=`echo $CONTAINER_ID | cut -c-12`
 
 echo "LOG: Wait for lab launching..."
 while :; do

@@ -6,11 +6,12 @@
 # debug with DEBUG=1
 [ x$DEBUG = x"1" ] && set -x
 
+[ -z "$TOP_DIR" ] && TOP_DIR=$(cd $(dirname $0)/../../ && pwd)
 TOP_DIR=$(cd $(dirname $TOP_DIR/null) && pwd)
 
 # Basic variables
 HOST_USER=$USER
-[ "$HOST_USER" == "root" -a -n "$SUDO_USER" ] && HOST_USER=$SUDO_USER
+[ "x$HOST_USER" = "xroot" -a -n "$SUDO_USER" ] && HOST_USER=$SUDO_USER
 
 # Basic requirement: docker and let docker run without sudo
 if [ ! -n "$IN_CONTAINER_CMD" ]; then
@@ -61,7 +62,7 @@ else
     if [ $? -eq 1 -o -z "$CURRENT" ]; then
         CURRENT=""
         if [ -f $LAB_CURRENT ]; then
-            CURRENT=$(< $LAB_CURRENT)
+            CURRENT=$(cat $LAB_CURRENT)
             LAB_CURRENT_DIR=$LAB_DIR/$CURRENT
         fi
     fi
@@ -124,31 +125,31 @@ LAB_SUDO_IDENTIFY=$CONFIG_DOCKER_DIR/.sudo_identify
 [ `id -u` -ne 0 ] && SUDO=sudo
 
 # Lock the important files for security
-function __do_lock
+__do_lock ()
 {
     # echo "LOG: __do_lock"
 
-    $SUDO chmod -f -R a-rw $CONFIG_DOCKER_DIR/.[^.]*
+    $SUDO find $CONFIG_DOCKER_DIR -iname ".[^.]*" -exec chmod -f -R a-rw {} \;
     $SUDO chattr -R +i $CONFIGS_DIR
     $SUDO chattr -R +i $TOOL_DIR
 }
 
 # Unlock the important files for configuration
-function __do_unlock
+__do_unlock ()
 {
     # echo "LOG: __do_unlock"
 
     $SUDO chattr -R -i $CONFIGS_DIR
     $SUDO chattr -R -i $TOOL_DIR
-    $SUDO chmod -f -R 664 $CONFIG_DOCKER_DIR/.[^.]*
+    $SUDO find $CONFIG_DOCKER_DIR -name ".[^.]*" -exec chmod -f -R 664 {} \;
 }
 
-function do_lock
+do_lock ()
 {
     [ $LAB_SECURITY -eq 1 ] && __do_lock
 }
 
-function do_unlock
+do_unlock ()
 {
     [ $LAB_SECURITY -eq 1 ] && __do_unlock
 }
@@ -252,7 +253,7 @@ LAB_CONTAINER_RUN=$CONFIG_TOOL_DIR/container-run
 
 # Common functions
 
-function get_var #VAR #defval
+get_var () #VAR #defval
 {
     local var_value
     local VAR
@@ -262,14 +263,15 @@ function get_var #VAR #defval
     defval=$2
 
     var_file=`eval echo \\${LAB_$VAR}`
+    var_value=""
 
-    [ -n "$var_file" -a -f "$var_file" ] && var_value='$(< $var_file)' && eval `eval echo \\$VAR='$var_value'`
+    [ -n "$var_file" -a -f "$var_file" ] && var_value='$(cat $var_file)' && eval `eval echo \\$VAR='$var_value'`
     [ -z "$var_value" ] && eval `eval echo \\$VAR=$defval`
 
     #echo `eval echo "LOG: GET: $VAR=\\$${VAR}"`
 }
 
-function set_var #VAR
+set_var () #VAR
 {
     local VAR
     local var
@@ -287,7 +289,7 @@ function set_var #VAR
     fi
 }
 
-function do_op #op $ARG $args
+do_op () #op $ARG $args
 {
     local op
     local ARG
@@ -305,4 +307,15 @@ function do_op #op $ARG $args
     echo "LOG: Running ' $op $arg $args'"
 
     eval $op $arg $args
+}
+
+get_random ()
+{
+    random=$RANDOM
+    if [ -n "$random" ]; then
+        echo $random
+    else
+        random=`date '+%s'`
+        echo $(( random % 32767 ))
+    fi
 }

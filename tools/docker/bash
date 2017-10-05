@@ -4,6 +4,6 @@
 #
 
 TOP_DIR=$(cd $(dirname $0)/../../ && pwd)
-source $TOP_DIR/tools/docker/config $* >/dev/null
+. $TOP_DIR/tools/docker/config $* >/dev/null
 
 do_op "docker exec -t -i " CONTAINER_ID "/bin/bash"

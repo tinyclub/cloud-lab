@@ -8,8 +8,8 @@
 #
 
 TOP_DIR=$(cd $(dirname $0)/../../ && pwd)
-source $TOP_DIR/tools/docker/config $* >/dev/null
+. $TOP_DIR/tools/docker/config $* >/dev/null
 
-[ -n "$LAB_CACHE" -a "$LAB_CACHE" == "0"  ] && NO_CACHE="--no-cache"
+[ -n "$LAB_CACHE" -a "x$LAB_CACHE" = "x0"  ] && NO_CACHE="--no-cache"
 
 do_op "docker build $NO_CACHE -t " IMAGE $CONFIG_DIR
