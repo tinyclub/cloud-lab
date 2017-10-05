@@ -79,7 +79,7 @@ CONFIG_TOOL_DIR=$CONFIG_DIR/tools
 CONFIG_DOCKER_DIR=$CONFIG_DIR/docker
 CONFIG_SYSTEM_DIR=$CONFIG_DIR/system
 
-DOCKER_DIR=$TOOL_DIR/docker/
+DOCKER_DIR=$TOOL_DIR/docker
 DOCKER_IDENTIFY_CMD=$DOCKER_DIR/identify
 DOCKER_VNC_CMD=$DOCKER_DIR/vnc
 DOCKER_SSH_CMD=$DOCKER_DIR/ssh
@@ -121,14 +121,16 @@ LAB_VNC_IDENTIFY=$CONFIG_DOCKER_DIR/.vnc_identify
 LAB_UNIX_IDENTIFY=$CONFIG_DOCKER_DIR/.unix_identify
 LAB_SUDO_IDENTIFY=$CONFIG_DOCKER_DIR/.sudo_identify
 
+[ `id -u` -ne 0 ] && SUDO=sudo
+
 # Lock the important files for security
 function __do_lock
 {
     # echo "LOG: __do_lock"
 
-    sudo chmod -f -R a-rw $CONFIG_DOCKER_DIR/.[^.]*
-    sudo chattr -R +i $CONFIGS_DIR
-    sudo chattr -R +i $TOOL_DIR
+    $SUDO chmod -f -R a-rw $CONFIG_DOCKER_DIR/.[^.]*
+    $SUDO chattr -R +i $CONFIGS_DIR
+    $SUDO chattr -R +i $TOOL_DIR
 }
 
 # Unlock the important files for configuration
@@ -136,9 +138,9 @@ function __do_unlock
 {
     # echo "LOG: __do_unlock"
 
-    sudo chattr -R -i $CONFIGS_DIR
-    sudo chattr -R -i $TOOL_DIR
-    sudo chmod -f -R 664 $CONFIG_DOCKER_DIR/.[^.]*
+    $SUDO chattr -R -i $CONFIGS_DIR
+    $SUDO chattr -R -i $TOOL_DIR
+    $SUDO chmod -f -R 664 $CONFIG_DOCKER_DIR/.[^.]*
 }
 
 function do_lock

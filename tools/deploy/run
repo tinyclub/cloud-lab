@@ -50,7 +50,7 @@ do
          $LAB_SRC/labs/$__lab_name \
          $LAB_SRC/.git/modules/labs/$__lab_name \
          $LAB_SRC/tools -type f | sed -e "s%$LAB_SRC%./%g" | grep -v "/docker/\." > $tmpfile
-    sudo -u $HOST_USER rsync -arz $LAB_SRC $LAB_DST/ \
+    $SUDO -u $HOST_USER rsync -arz $LAB_SRC $LAB_DST/ \
         --files-from=$tmpfile
     rm $tmpfile
 

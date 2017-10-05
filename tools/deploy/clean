@@ -12,7 +12,7 @@ do
     $clean_cmd $lab_name
 done
 
-sudo rm -rf $LAB_OUTPUT/${CURRENT}*
+$SUDO rm -rf $LAB_OUTPUT/${CURRENT}*
 
 do_unlock
 git clean -fdX >/dev/null 2>&1

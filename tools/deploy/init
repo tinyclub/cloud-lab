@@ -3,5 +3,7 @@
 # Enhance security: protect private data
 export LAB_SECURITY=1
 
+[ `id -u` -ne 0 ] && SUDO=sudo
+
 # Increase the files open limit
-sudo bash -c 'echo 1024 > /proc/sys/fs/inotify/max_user_instances'
+$SUDO sh -c 'echo 1024 > /proc/sys/fs/inotify/max_user_instances'
