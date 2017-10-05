@@ -10,3 +10,4 @@
 7. Load variables for container via environment variables, not mount the configs/ into it, require to modify tools/docker/start.
 8. Add support for Docker Toolbox (Busybox environment)
    Need chroot to a Busybox rootfs and make cloud lab work in it.
+   ref: https://github.com/boot2docker/boot2docker/releases
