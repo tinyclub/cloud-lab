@@ -40,7 +40,7 @@ DOCKER_OPTS="\$DOCKER_OPTS --insecure-registry registry.mirrors.aliyuncs.com"
 # DOCKER_OPTS="\$DOCKER_OPTS --dns 119.29.29.29 --dns 180.76.76.76"
 # DOCKER_OPTS="\$DOCKER_OPTS --dns 223.5.5.5 --dns 114.114.114.114"
 # DOCKER_OPTS="\$DOCKER_OPTS --dns 8.8.8.8 --dns 8.8.4.4"
-DOCKER_OPTS="\$DOCKER_OPTS --bip=10.66.33.10/16"
+DOCKER_OPTS="\$DOCKER_OPTS --bip=10.66.0.10/16"
 DOCKER_OPTS="\$DOCKER_OPTS --storage-opt dm.basesize=5G"
 # CLOUD LAB: DOCKER HACK END 789527394722
 EOF'
