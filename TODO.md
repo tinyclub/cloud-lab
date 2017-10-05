@@ -8,3 +8,5 @@
 5. Fix up open files limitation, up to 1000?: /proc/sys/fs/inotify/max_user_instances
 6. Allow vncserver reuse the unix account for login: multi users on one container to save resources? not safety?
 7. Load variables for container via environment variables, not mount the configs/ into it, require to modify tools/docker/start.
+8. Add support for Docker Toolbox (Busybox environment)
+   Need chroot to a Busybox rootfs and make cloud lab work in it.
