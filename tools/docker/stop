@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 #
 # stop -- stop a docker lab
 #

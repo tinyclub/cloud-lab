@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 #
 # build -- Build the docker image for the lab
 #

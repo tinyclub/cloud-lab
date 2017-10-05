@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 #
 # monitor -- monitor a docker lab
 #

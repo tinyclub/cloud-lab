@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 #
 # git-pull-all -- pull all labs' repositories
 #

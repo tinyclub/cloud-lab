@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 #
 # update -- update everything for a target lab
 #

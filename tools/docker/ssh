@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 #
 # ssh -- login the docker lab via ssh
 #

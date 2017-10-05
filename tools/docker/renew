@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 #
 # renew -- clean a docker lab and renew it
 #

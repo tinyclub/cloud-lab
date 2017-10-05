@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 #
 # webssh -- login the docker lab via web ssh
 #

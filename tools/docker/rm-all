@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 #
 # rm-all -- remove all docker labs
 #

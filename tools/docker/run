@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 #
 # run -- Run the docker image of the lab
 #

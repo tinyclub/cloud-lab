@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 #
 # IDENTIFY -- control the password of VNC/Unix/sudo login
 #

@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 #
 # unlock-all -- unlock all configs and tools
 #

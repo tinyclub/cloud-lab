@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 #
 # rmi-all -- remove all of the none images
 #

@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 #
 # tproxy -- start the transparent proxy client
 #

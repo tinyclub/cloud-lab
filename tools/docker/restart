@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 #
 # restart -- stop a docker lab and restart it
 #

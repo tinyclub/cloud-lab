@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 #
 # batch -- create multiple containers in one script
 #

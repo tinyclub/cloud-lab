@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 #
 # export -- export the vnc/ssh/webssh ports to internet
 #

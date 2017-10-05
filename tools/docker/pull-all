@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 #
 # pull-all -- pull the docker images from docker hub
 #

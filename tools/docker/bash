@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 #
 # bash -- Start shell in a container with root for debugging
 #

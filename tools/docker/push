@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 #
 # push -- push a docker image to docker hub
 #

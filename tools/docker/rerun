@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 #
 # rerun -- remove a docker lab and rerun it
 #

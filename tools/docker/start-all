@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 #
 # start-all -- start all stopped docker lab
 #
