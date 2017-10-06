@@ -6,6 +6,13 @@ science courses and provides a Docker based experiment environment as-is.
 
 ## Quickstart
 
+### Install docker
+
+Cload Lab is docker based, please make sure docker environment is installed:
+
+* Linux: [Docker CE](https://store.docker.com/search?type=edition&offering=community)
+* Windows or Mac OS: [Docker Toolbox](https://www.docker.com/docker-toolbox)
+
 ### Choose a Lab
 
     $ tools/docker/choose
