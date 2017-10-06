@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# rm -- remove a docker lab
+# clean -- clean a docker lab
 #
 
 TOP_DIR=$(cd $(dirname $0)/../../ && pwd)

@@ -1,0 +1,19 @@
+#!/bin/sh
+#
+# clean-all -- clean all docker labs
+#
+
+TOP_DIR=$(cd $(dirname $0)/../../ && pwd)
+. $TOP_DIR/tools/docker/config $* >/dev/null
+
+for name in `docker ps -a --format='{{.Names}}'`
+do
+    LOCAL_DESKTOP_SHORTCUT=~/Desktop/${name}.desktop
+    [ -f $LOCAL_DESKTOP_SHORTCUT ] && rm -f $LOCAL_DESKTOP_SHORTCUT
+done
+
+docker ps -a --format='{{.ID}}' | xargs -i docker rm -f {} 2>&1
+
+do_unlock
+
+sudo git clean -fdx
