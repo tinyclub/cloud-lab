@@ -8,7 +8,7 @@ clean_cmds=`find $LAB_OUTPUT/${CURRENT}*/ -name "clean" | grep -v deploy`
 for clean_cmd in $clean_cmds
 do
     lab_name=$(echo $clean_cmd | sed -e 's%$LAB_OUTPUT%%g' | cut -d'+' -f1)
-    lab_name=$(basename $lab_name)
+    lab_name=$(basename $lab_name | sed -e "s%-[0-9]*$%%g")
     $clean_cmd $lab_name
 done
 
