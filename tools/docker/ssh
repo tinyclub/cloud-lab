@@ -31,7 +31,7 @@ LOG: Upload public ssh key with following steps:
 
 EOF
 
-echo -e "LOG: Remote, Please login with '$REMOTE_SSH_CMD' with '$UNIX_PWD'\n"
-echo -e "LOG: Local, Please login with '$SSH_CMD' with '$UNIX_PWD' and enter workdir: $LAB_WORKDIR\n"
+echo "LOG: Remote, Please login with '$REMOTE_SSH_CMD' with '$UNIX_PWD'\n"
+echo "LOG: Local, Please login with '$SSH_CMD' with '$UNIX_PWD' and enter workdir: $LAB_WORKDIR\n"
 
 eval $SSH_CMD

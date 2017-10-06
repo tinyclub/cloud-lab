@@ -35,7 +35,7 @@ if [ -n "$NEW_LAB" ]; then
     download_submodule && exit 0
 fi
 
-echo -e "LOG: Available Labs:\n"
+echo "LOG: Available Labs:\n"
 ls $CONFIGS_DIR | tr -s ' ' | tr ' ' '\n' | cat -n
 echo ""
 
@@ -43,11 +43,11 @@ read -p 'LOG: Choose the lab number: ' number
 
 CURRENT=`ls $CONFIGS_DIR | tr -s ' ' | tr ' ' '\n' | head -$number | tail -1`
 
-echo -e "\n     $number\t$CURRENT\n"
+echo "\n     $number\t$CURRENT\n"
 
 set_var CURRENT
 
-echo -e "\nLOG: Download the lab...\n"
+echo "\nLOG: Download the lab...\n"
 
 # Clone the submodule
 download_submodule

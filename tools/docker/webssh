@@ -24,8 +24,8 @@ fi
 WEBSSH_URL="$WEB_HTTP://${HOST}:${HOST_WEBSSH_PORT}?ssh=ssh://$UNIX_USER:$UNIX_PWD@$VNC_IP:$CONTAINER_SSH_PORT"
 WEBSSH_CMD="$WEB_BROWSER $WEBSSH_URL"
 
-echo -e "LOG: Please login with 'ip=$VNC_IP, port=$CONTAINER_SSH_PORT, user=$UNIX_USER, password=$UNIX_PWD' and enter workdir: $LAB_WORKDIR\n"
+echo "LOG: Please login with 'ip=$VNC_IP, port=$CONTAINER_SSH_PORT, user=$UNIX_USER, password=$UNIX_PWD' and enter workdir: $LAB_WORKDIR\n"
 
 ($WEBSSH_CMD >/dev/null 2>&1 &) >/dev/null 2>&1
 
-echo -e "LOG: Or access via web browser:\n  $WEBSSH_URL"
+echo "LOG: Or access via web browser:\n  $WEBSSH_URL"
