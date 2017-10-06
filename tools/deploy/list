@@ -16,7 +16,7 @@ get_lab_attr () # lab_attr
 {
   lab_user=$1
   lab_life=$2
-  lab_start=$3
+  lab_start=$3$4
 }
 
 for lab in $labs
