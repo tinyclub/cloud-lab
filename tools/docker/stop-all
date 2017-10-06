@@ -3,7 +3,7 @@
 # stop-all -- stop all docker labs
 #
 
-id_names=`docker ps -a --format='{{.ID}},{{.Names}}' | tac`
+id_names=`docker ps -a --format='{{.ID}},{{.Names}}' | sed '1!G;h;$!d'`
 
 for id_name in $id_names
 do
