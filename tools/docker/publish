@@ -9,7 +9,7 @@ do_unlock
 do_lock
 
 LOCAL_TOKEN_DIR=${TOP_DIR}/$DEF_TOKEN_DIR
-[ ! -d $LOCAL_TOKEN_DIR ] && LOCAL_TOKEN_DIR=$(cd ${TOP_DIR}/../../ && pwd)/$DEF_TOKEN_DIR
+[ ! -d $LOCAL_TOKEN_DIR ] && LOCAL_TOKEN_DIR=$(cd ${TOP_DIR}/../../ && pwd)/$DEF_TOKEN_DIR && mkdir -p $LOCAL_TOKEN_DIR
 
 LOCAL_MAP=$LOCAL_TOKEN_DIR/local_map
 
