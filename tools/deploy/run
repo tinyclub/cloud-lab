@@ -25,6 +25,15 @@ do_unlock
 get_var HOST localhost
 do_lock
 
+# Start the transparent proxy via tinylab/cloud-ubuntu-proxy_client_transparent container
+exist=`docker ps -q --filter=name=cloud-ubuntu-proxy_client_transparent | wc -l`
+[ $exist -eq 0 -a $TPROXY -eq 1 -a -n "$PROXY_SERVER" -a -n "$PROXY_PWD" -a -n "$ENCRYPT_CMD" ] \
+    && PROXY_SERVER=$PROXY_SERVER PROXY_PWD=$PROXY_PWD ENCRYPT_CMD=$ENCRYPT_CMD PROXY_LIMIT=$PROXY_LIMIT $DOCKER_TPROXY_CMD $*
+
+# Start the ssh/vnc proxy via tinylab/cloud-ubuntu-web container
+exist=`docker ps -q --filter=name=cloud-ubuntu-web | wc -l`
+[ $exist -eq 0 ] && $DOCKER_EXPORT_CMD $*
+
 OLD_TOP_DIR=$TOP_DIR
 OLD_LAB_OUTPUT=$LAB_OUTPUT
 for i in `seq 1 $lab_total`
