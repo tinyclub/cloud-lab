@@ -16,4 +16,4 @@ docker ps -a --format='{{.ID}}' | xargs -i docker rm -f {} 2>&1
 
 do_unlock
 
-sudo git clean -fdx
+$SUDO git clean -fdx

@@ -12,7 +12,8 @@ do
     $clean_cmd $lab_name
 done
 
+do_unlock
+
 $SUDO rm -rf $LAB_OUTPUT/${CURRENT}*
 
-do_unlock
-git clean -fdX >/dev/null 2>&1
+$SUDO git clean -fdx >/dev/null 2>&1
