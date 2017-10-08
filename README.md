@@ -27,8 +27,8 @@ The old install method for Windows and Mac OSX is [Docker Toolbox](https://www.d
          5	qing-lab
          6	tinylab.org
 
-    Choose the lab number:
-         4	markdown-lab
+    Choose the lab number: 2
+         2	linux-0.11-lab
 
 
     Download the lab...
