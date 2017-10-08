@@ -17,7 +17,8 @@ HOST_USER=$USER
 if [ ! -n "$IN_CONTAINER_CMD" ]; then
 	DOCKER_INSTALL_CMD=$TOP_DIR/tools/docker/install
 	$DOCKER_INSTALL_CMD >&2 || exit 1
-	which groups >/dev/null 2>&1 && ((groups $HOST_USER | grep -q docker) || sudo usermod -aG docker $HOST_USER)
+	which groups >/dev/null 2>&1 && which usermod >/dev/null 2>&1 \
+	 && ((groups $HOST_USER | grep -q docker) || sudo usermod -aG docker $HOST_USER)
 fi
 
 [ -z "$TPROXY" ] && TPROXY=0
