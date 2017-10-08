@@ -193,7 +193,10 @@ DEF_PWD_TOTAL=100
 
 DEF_TOKEN_DIR=.vnc-tokens
 DEF_VNC_IP="0.0.0.0"
-DEF_ENCRYPT_CMD=md5sum
+
+# default encrypt command: use shasum instead of md5sum
+which shasum >/dev/null 2>&1 && DEF_ENCRYPT_CMD=shasum
+which sha1sum >/dev/null 2>&1 && DEF_ENCRYPT_CMD=sha1sum
 [ -z "$ENCRYPT_CMD" ] && ENCRYPT_CMD=$DEF_ENCRYPT_CMD
 
 DEF_SCREEN_SIZE=1280x800

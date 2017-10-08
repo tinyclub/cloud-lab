@@ -5,7 +5,7 @@ TOP_DIR=$(cd $(dirname $0)/../../ && pwd)
 
 [ ! -d $LAB_OUTPUT ] && exit 0
 
-[ -z "$ENCRYPT_CMD" ] && ENCRYPT_CMD=md5sum
+[ -z "$ENCRYPT_CMD" ] && ENCRYPT_CMD=$DEF_ENCRYPT_CMD
 [ -z "$TOKEN_LENGTH" ] && TOKEN_LENGTH=$DEF_TOKEN_LENGTH
 
 labs=`find $LAB_OUTPUT -maxdepth 1 -mindepth 1 | sort`
