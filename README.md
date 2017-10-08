@@ -8,7 +8,9 @@ science courses and provides a Docker based experiment environment as-is.
 
 ### Install docker
 
-Cload Lab is docker based, please make sure docker environment is installed with [Docker CE](https://store.docker.com/search?type=edition&offering=community), the old install method for Windows and Mac OSX is [Docker Toolbox](https://www.docker.com/docker-toolbox).
+Cload Lab is docker based, please make sure docker environment is installed with [Docker CE](https://store.docker.com/search?type=edition&offering=community), Docker CE support Mac, Windows, Ubuntu, Debian, Fedora, CentOS, Azure and AWS, we have tested Cloud Lab with Docker CE in Ubuntu and Mac.
+
+The old install method for Windows and Mac OSX is [Docker Toolbox](https://www.docker.com/docker-toolbox).
 
 ### Choose a Lab
 
