@@ -43,7 +43,7 @@ for var in $VARS; do
     value=$(eval echo \$${var})
     echo "$var" | grep -q "_PWD"
     [ $? -eq 0 -a -n "$ENCRYPT" -a -n "$ENCRYPT_CMD" -a -n "$value" ] && __ENCRYPT_CMD=$ENCRYPT_CMD
-    vars="$vars -e $var=$(echo -n $value | $__ENCRYPT_CMD | cut -d' ' -f1)";
+    vars="$vars -e $var=$(echo $value | tr -d '\n' | $__ENCRYPT_CMD | cut -d' ' -f1)";
 done
 for env in $ENVS; do vars="$vars -e $env"; done
 for cap in $CAPS; do caps="$caps --cap-add $cap"; done

@@ -33,7 +33,7 @@ do
     . $TOP_DIR/tools/docker/config $lab_name >/dev/null 2>&1
 
     CONTAINER_IP=`docker inspect --format '{{ .NetworkSettings.IPAddress }}' $CONTAINER_NAME`
-    CONTAINER_TOKEN=`echo -n $CONTAINER_IP | $ENCRYPT_CMD | cut -d' ' -f1 | cut -c1-$TOKEN_LENGTH`
+    CONTAINER_TOKEN=`echo $CONTAINER_IP | tr -d '\n' | $ENCRYPT_CMD | cut -d' ' -f1 | cut -c1-$TOKEN_LENGTH`
 
     do_unlock
     get_var UNIX_USER ubuntu

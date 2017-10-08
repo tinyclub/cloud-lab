@@ -14,7 +14,7 @@ get_var VNC_PWD ubuntu
 get_var VNC_PWD_VIEWONLY ubuntu
 get_var CONTAINER_NAME
 get_var VNC_IP $(docker inspect --format '{{ .NetworkSettings.IPAddress }}' $CONTAINER_NAME)
-get_var VNC_TOKEN $(echo -n $VNC_IP | $ENCRYPT_CMD | cut -d' ' -f1 | cut -c1-$TOKEN_LENGTH)
+get_var VNC_TOKEN $(echo $VNC_IP | tr -d '\n' | $ENCRYPT_CMD | cut -d' ' -f1 | cut -c1-$TOKEN_LENGTH)
 
 do_lock
 

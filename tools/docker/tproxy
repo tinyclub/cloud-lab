@@ -30,7 +30,7 @@ EXTRA_ARGS="$EXTRA_ARGS -e PROXY_PORT=$PROXY_PORT"
 
 # Available encrypt cmds: sha1sum, sha224sum, cksum, sha256sum, sha512sum, md5sum, sha384sum, sum
 [ -z "$ENCRYPT_CMD" ] && ENCRYPT_CMD="cat"
-[ -n "$PROXY_PWD" ] && PROXY_PWD=`echo -n $PROXY_PWD | $ENCRYPT_CMD | cut -d' ' -f1`
+[ -n "$PROXY_PWD" ] && PROXY_PWD=`echo $PROXY_PWD | tr -d '\n' | $ENCRYPT_CMD | cut -d' ' -f1`
 
 # 16:10: 640x480 800x480 1280x800 1440x900 1680x1050 1920x1200 2560x1600
 # 16:9: 960x540 1280x720 1920x1080 2560x1440

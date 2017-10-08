@@ -31,7 +31,7 @@ else
   VNC_IP=`ifconfig $IFACE | grep "inet addr" | sed -e "s/ *inet addr:\([0-9\.]*\) .*/\1/g"`
 fi
 
-[ -n "$VNC_IP" -a -z "$VNC_TOKEN" ] && VNC_TOKEN=`echo -n $VNC_IP | $ENCRYPT_CMD | cut -d' ' -f1 | cut -c1-$TOKEN_LENGTH`
+[ -n "$VNC_IP" -a -z "$VNC_TOKEN" ] && VNC_TOKEN=`echo -n $VNC_IP | tr -d '\n' | $ENCRYPT_CMD | cut -d' ' -f1 | cut -c1-$TOKEN_LENGTH`
 [ -n "$VNC_IP" ] && set_var VNC_IP
 [ -n "$VNC_TOKEN" ] && set_var VNC_TOKEN
 

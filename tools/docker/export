@@ -23,8 +23,8 @@ DEFAULT_PORT_MAP=" -p $HOST_VNC_PORT:$CONTAINER_VNC_PORT -p $HOST_SSH_PORT:$CONT
 [ -z "$VNC_TIMEOUT" ] && VNC_TIMEOUT=0
 [ -z "$PROXY_LIMIT" ] && PROXY_LIMIT=0
 [ -z "$ENCRYPT_CMD" ] && ENCRYPT_CMD="cat"
-[ -n "$UNIX_PWD" ] && UNIX_PWD=`echo -n $UNIX_PWD | $ENCRYPT_CMD | cut -d' ' -f1`
-[ -n "$VNC_PWD" ] && VNC_PWD=`echo -n $VNC_PWD | $ENCRYPT_CMD | cut -d' ' -f1`
+[ -n "$UNIX_PWD" ] && UNIX_PWD=`echo $UNIX_PWD | tr -d '\n' | $ENCRYPT_CMD | cut -d' ' -f1`
+[ -n "$VNC_PWD" ] && VNC_PWD=`echo $VNC_PWD | tr -d '\n' | $ENCRYPT_CMD | cut -d' ' -f1`
 
 # 16:10: 640x480 800x480 1280x800 1440x900 1680x1050 1920x1200 2560x1600
 # 16:9: 960x540 1280x720 1920x1080 2560x1440
