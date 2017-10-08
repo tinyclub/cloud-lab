@@ -6,9 +6,25 @@
 TOP_DIR=$(cd $(dirname $0)/../../ && pwd)
 . $TOP_DIR/tools/docker/config $* >/dev/null
 
+# Get the best web browser for different system
+macos_chrome='/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'
+macos_safari=/Applications/Safari.app/Contents/MacOS/Safari
+linux_chrome=chromium-browser
+linux_firefox=firefox
+
+DEF_WEB_BROWSER=firefox
+if [ "x$HOST_OS" = "xDarwin" ]; then
+    [ -f "$macos_safari" ] && DEF_WEB_BROWSER="$macos_safari"
+    [ -f "$macos_chrome" ] && DEF_WEB_BROWSER="$(echo $macos_chrome | tr ' ' '-')"
+else
+    which $linux_firefox >/dev/null 2>&1 && DEF_WEB_BROWSER=$linux_firefox
+    which $linux_chrome >/dev/null 2>&1 && DEF_WEB_BROWSER=$linux_chrome
+fi
+
+
 do_unlock
 
-get_var WEB_BROWSER chromium-browser
+get_var WEB_BROWSER $DEF_WEB_BROWSER
 get_var HOST localhost
 get_var VNC_PWD ubuntu
 get_var VNC_PWD_VIEWONLY ubuntu
@@ -18,17 +34,20 @@ get_var VNC_TOKEN $(echo $VNC_IP | tr -d '\n' | $ENCRYPT_CMD | cut -d' ' -f1 | c
 
 do_lock
 
-which $WEB_BROWSER >/dev/null 2>&1
-if [ $? -eq 1 ]; then
-    echo "LOG: No $WEB_BROWSER found, use firefox instead."
-    WEB_BROWSER=firefox
+if [ "x$HOST_OS" = "xDarwin" ]; then
+    WEB_BROWSER="$(echo $WEB_BROWSER | tr '-' ' ')"
+    [ ! -f "$WEB_BROWSER" ] && echo "LOG: No $WEB_BROWSER found, use safari instead." && WEB_BROWSER=$macos_safari
+else
+    which $WEB_BROWSER >/dev/null 2>&1
+    if [ $? -eq 1 ]; then
+        echo "LOG: No $WEB_BROWSER found, use firefox instead."
+        WEB_BROWSER=firefox
+    fi
 fi
 
 [ -z "$VNC_AUTOCONNECT" ] && VNC_AUTOCONNECT=1
 
 # Get vnc page
-#CONTAINER_WEB_URL="$WEB_HTTP://localhost:${HOST_VNC_PORT}/?u=$VNC_TOKEN&p=$VNC_PWD&autoconnect=$VNC_AUTOCONNECT&encrypt=$WEB_ENCRYPT"
-#HOST_WEB_URL="$WEB_HTTP://${HOST}:${HOST_VNC_PORT}/?u=$VNC_TOKEN&p=$VNC_PWD&autoconnect=$VNC_AUTOCONNECT&encrypt=$WEB_ENCRYPT"
 CONTAINER_WEB_URL="$WEB_HTTP://localhost:${HOST_VNC_PORT}/?u=$VNC_TOKEN&p=$VNC_PWD"
 HOST_WEB_URL="$WEB_HTTP://${HOST}:${HOST_VNC_PORT}/?u=$VNC_TOKEN&p=$VNC_PWD"
 HOST_WEB_URL_VIEWONLY="$WEB_HTTP://${HOST}:${HOST_VNC_PORT}/?r=${VNC_TOKEN}${VNC_PWD_VIEWONLY}"
@@ -38,6 +57,12 @@ HOST_WEB_URL_VIEWONLY="$WEB_HTTP://${HOST}:${HOST_VNC_PORT}/?r=${VNC_TOKEN}${VNC
 
 # Create local shotcut on Desktop
 if [ -d ~/Desktop -a -n "$REMOTE_DESKTOP_SHORTCUT" -a -f "$REMOTE_DESKTOP_SHORTCUT" ]; then
+
+  if [ "x$HOST_OS" = "xDarwin" ]; then
+    LOCAL_DESKTOP_SHORTCUT=$(echo $LOCAL_DESKTOP_SHORTCUT | sed -e "s%.desktop$%.command%g")
+    echo "/usr/bin/open -a '$WEB_BROWSER' '$CONTAINER_WEB_URL' &" > $LOCAL_DESKTOP_SHORTCUT
+    echo "pkill Terminal &" >> $LOCAL_DESKTOP_SHORTCUT
+  else
     echo '#!/usr/bin/env xdg-open' > $LOCAL_DESKTOP_SHORTCUT
     if [ "x$WEB_BROWSER" = "xchromium-browser" ]; then
         icon=chromium-browser.png
@@ -50,7 +75,9 @@ if [ -d ~/Desktop -a -n "$REMOTE_DESKTOP_SHORTCUT" -a -f "$REMOTE_DESKTOP_SHORTC
         | sed "s%Exec=.*%Exec=$WEB_BROWSER $TMP_URL%g" \
         | sed "s%terminator.png%$icon%g;s%lxterminal.xpm%$icon%g" | tr '|' '&' \
 	  >> $LOCAL_DESKTOP_SHORTCUT
-    chmod a+x $LOCAL_DESKTOP_SHORTCUT
+  fi
+
+  chmod a+x $LOCAL_DESKTOP_SHORTCUT
 fi
 
 # For web portmapping
@@ -59,8 +86,14 @@ fi
     && for port in $(grep ":8" $LAB_PORTMAP | cut -d':' -f1); \
        do echo "LOG: Local Web Address: http://$HOST:$port/"; done
 
-which $WEB_BROWSER >/dev/null 2>&1 \
-    && ($WEB_BROWSER $CONTAINER_WEB_URL >/dev/null 2>&1 &)>/dev/null 2>&1
+__WEB_BROWSER=$WEB_BROWSER
+
+if [ "x$HOST_OS" = "xDarwin" ]; then
+    __WEB_BROWSER="/usr/bin/open -a '$WEB_BROWSER'"
+fi
+
+which "$WEB_BROWSER" >/dev/null 2>&1 \
+    && (eval $__WEB_BROWSER '$CONTAINER_WEB_URL' >/dev/null 2>&1 &)>/dev/null 2>&1
 
 echo "Please login:"
 echo

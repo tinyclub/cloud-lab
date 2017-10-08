@@ -13,6 +13,8 @@ TOP_DIR=$(cd $(dirname $TOP_DIR/null) && pwd)
 HOST_USER=$USER
 [ "x$HOST_USER" = "xroot" -a -n "$SUDO_USER" ] && HOST_USER=$SUDO_USER
 
+HOST_OS=$(uname)
+
 # Basic requirement: docker and let docker run without sudo
 if [ ! -n "$IN_CONTAINER_CMD" ]; then
 	DOCKER_INSTALL_CMD=$TOP_DIR/tools/docker/install
