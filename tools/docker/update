@@ -43,7 +43,7 @@ do
     name=`basename $image`
 
     echo "LOG: removing docker container: $image"
-    docker ps --format="{{.ID}} {{.Names}}" | grep $name | cut -d' ' -f1 | xargs -i docker rm -f {}
+    docker ps --format="{{.ID}} {{.Names}}" | grep $name | cut -d' ' -f1 | xargs -I{} docker rm -f {}
 done
 
 echo "LOG: running $LAB_NAME"

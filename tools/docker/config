@@ -234,8 +234,8 @@ LAB_NAME=$CURRENT
 
 # More variables
 
-IMAGES=`find $CONFIGS_DIR -name "name" | xargs -i cat {} | sort -u`
-LABS=`find ${LAB_DIR} -maxdepth 1 -mindepth 1 -type d | xargs -i basename {}`
+IMAGES=`find $CONFIGS_DIR -name "name" | xargs -I{} cat {} | sort -u`
+LABS=`find ${LAB_DIR} -maxdepth 1 -mindepth 1 -type d | xargs -I{} basename {}`
 
 LOCAL_DESKTOP_SHORTCUT=~/Desktop/${CONTAINER_NAME}.desktop
 [ -d $CONFIG_SYSTEM_DIR ] \

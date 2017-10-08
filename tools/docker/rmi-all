@@ -3,4 +3,4 @@
 # rmi-all -- remove all of the none images
 #
 
-docker images | grep "<none>"  | tr -s ' ' | cut -d' ' -f3 | xargs -i docker rmi -f {}
+docker images | grep "<none>"  | tr -s ' ' | cut -d' ' -f3 | xargs -I{} docker rmi -f {}

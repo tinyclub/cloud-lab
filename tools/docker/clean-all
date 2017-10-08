@@ -12,7 +12,7 @@ do
     [ -f $LOCAL_DESKTOP_SHORTCUT ] && rm -f $LOCAL_DESKTOP_SHORTCUT
 done
 
-docker ps -a --format='{{.ID}}' | xargs -i docker rm -f {} 2>&1
+docker ps -a --format='{{.ID}}' | xargs -I{} docker rm -f {} 2>&1
 
 do_unlock
 
