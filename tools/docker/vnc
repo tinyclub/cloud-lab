@@ -61,7 +61,10 @@ if [ -d ~/Desktop -a -n "$REMOTE_DESKTOP_SHORTCUT" -a -f "$REMOTE_DESKTOP_SHORTC
   if [ "x$HOST_OS" = "xDarwin" ]; then
     LOCAL_DESKTOP_SHORTCUT=$(echo $LOCAL_DESKTOP_SHORTCUT | sed -e "s%.desktop$%.command%g")
     echo "$DOCKER_RUN_CMD $LAB_NAME" > $LOCAL_DESKTOP_SHORTCUT
-    echo "pkill Terminal &" >> $LOCAL_DESKTOP_SHORTCUT
+
+    # ref: https://superuser.com/questions/479411/close-all-mac-terminal-windows-but-the-one-running-a-script
+    echo 'osascript -e "do shell script \"osascript -e \\\\\"tell application \\\\\\\\\\\\\\"Terminal\\\\\\\\\\\\\\" \\\\\\" -e \\\\\\"set mainID to id of front window\\\\\\" -e \\\\\\" close (every window whose id = mainID)\\\\\\"  -e \\\\\\"end tell\\\\\\"   &> /dev/null &\""; exit' >> $LOCAL_DESKTOP_SHORTCUT
+
   else
     echo '#!/usr/bin/env xdg-open' > $LOCAL_DESKTOP_SHORTCUT
     if [ "x$WEB_BROWSER" = "xchromium-browser" ]; then
