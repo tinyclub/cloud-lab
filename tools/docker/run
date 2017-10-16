@@ -6,10 +6,20 @@
 TOP_DIR=$(cd $(dirname $0)/../../ && pwd)
 . $TOP_DIR/tools/docker/config $* >/dev/null
 
-# If already there, open it
+# If already there and running, open it
 [ -n "$CONTAINER_ID" ] \
     && (docker ps -f id=$CONTAINER_ID | grep -q -v PORTS) \
     && echo "LOG: Open the running $LAB_NAME" \
+    && $DOCKER_VNC_CMD $* \
+    && exit 0
+
+# If already there and stopped, start and open it
+[ -n "$CONTAINER_ID" ] \
+    && (docker ps -f id=$CONTAINER_ID -f status=exited | grep -q -v PORTS) \
+    && echo "LOG: Start the exited $LAB_NAME" \
+    && $DOCKER_START_CMD $LAB_NAME \
+    && echo "LOG: Wait for lab starting..." \
+    && sleep 5 \
     && $DOCKER_VNC_CMD $* \
     && exit 0
 
