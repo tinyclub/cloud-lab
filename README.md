@@ -53,7 +53,9 @@ The old install method for Windows and Mac OSX is [Docker Toolbox](https://www.d
 
     $ tools/docker/update
 
-### Run without password
+### Run as root without password
+
+If get syntax error under `/etc/sudoers*`, please use `pkexec visudo` to fix up it.
 
     $ sudo -s
     $ echo "$SUDO_USER ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/$SUDO_USER
