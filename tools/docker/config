@@ -17,14 +17,13 @@ HOST_OS=$(uname)
 
 # Basic requirement: docker and let docker run without sudo
 if [ ! -n "$IN_CONTAINER_CMD" ]; then
-	DOCKER_INSTALL_CMD=$TOP_DIR/tools/docker/install
-	$DOCKER_INSTALL_CMD >&2 || exit 1
-	which groups >/dev/null 2>&1 && which usermod >/dev/null 2>&1 \
-	 && ((groups $HOST_USER | grep -q docker) || sudo usermod -aG docker $HOST_USER)
+  DOCKER_INSTALL_CMD=$TOP_DIR/tools/docker/install
+  $DOCKER_INSTALL_CMD >&2 || exit 1
+  which groups >/dev/null 2>&1 && which usermod >/dev/null 2>&1 \
+    && ((groups $HOST_USER | grep -q docker) || sudo usermod -aG docker $HOST_USER)
 fi
 
 [ -z "$TPROXY" ] && TPROXY=0
-
 [ -z "$LAB_SECURITY" ] && LAB_SECURITY=0
 
 # Variables need to pass to the container from our environment variables
@@ -189,22 +188,24 @@ done
 
 do_lock
 
-# Control the password complexity
-DEF_PWD_LENGTH=6
-DEF_TOKEN_LENGTH=6
-DEF_PWD_TOTAL=100
-[ -z "$TOKEN_LENGTH" ] && TOKEN_LENGTH=$DEF_TOKEN_LENGTH
+# Default variables
 
+## password
+DEF_PWD_LENGTH=6
+DEF_PWD_TOTAL=100
+
+## tokens/ip
+DEF_TOKEN_LENGTH=6
+[ -z "$TOKEN_LENGTH" ] && TOKEN_LENGTH=$DEF_TOKEN_LENGTH
 DEF_TOKEN_DIR=.vnc-tokens
 DEF_VNC_IP="0.0.0.0"
 
-# default encrypt command: use shasum instead of md5sum
+## default encrypt command: use shasum instead of md5sum
 which shasum >/dev/null 2>&1 && DEF_ENCRYPT_CMD=shasum
 which sha1sum >/dev/null 2>&1 && DEF_ENCRYPT_CMD=sha1sum
 [ -z "$ENCRYPT_CMD" ] && ENCRYPT_CMD=$DEF_ENCRYPT_CMD
 
-DEF_SCREEN_SIZE=1280x800
-
+## Security related
 if [ $LAB_SECURITY -eq 1 ]; then
     WEB_NOSSL=0
     WEB_ENCRYPT=1
@@ -225,18 +226,21 @@ else
     [ -z "$VNC_SHARED" ] && VNC_SHARED=1
 fi
 
+## screen size
+DEF_SCREEN_SIZE=1280x800
+
 # 16:10: 640x480 800x480 1280x800 1440x900 1680x1050 1920x1200 2560x1600
 # 16:9: 960x540 1280x720 1920x1080 2560x1440
 which xrandr >/dev/null 2>&1
 [ $? -eq 0 -a -z "$SCREEN_SIZE" ] && SCREEN_SIZE=`xrandr --current | grep "^ .*\*" | tr -s ' ' | cut -d' ' -f2 | head -1`
-
 [ -z "$SCREEN_SIZE" ] && SCREEN_SIZE=$DEF_SCREEN_SIZE
 
-if [ -z "$IMAGE" ]; then
-    # Fixme: It is not possible to run here.
-    IMAGE=tinylab/$CURRENT
-fi
+## Image names
+TPROXY_NAME=cloud-ubuntu-proxy_client_transparent
+WPROXY_NAME=cloud-ubuntu-web
 
+## Fixme: It is not possible to run here.
+[ -z "$IMAGE" ] && IMAGE=tinylab/$CURRENT
 LAB_USER=`dirname $IMAGE`
 LAB_NAME=$CURRENT
 

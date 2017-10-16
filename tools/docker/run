@@ -7,7 +7,6 @@ TOP_DIR=$(cd $(dirname $0)/../../ && pwd)
 . $TOP_DIR/tools/docker/config $* >/dev/null
 
 # Start the transparent proxy via tinylab/cloud-ubuntu-proxy_client_transparent container
-TPROXY_NAME=cloud-ubuntu-proxy_client_transparent
 (docker ps -f name=$TPROXY_NAME -f status=exited | grep -q -v PORTS) \
   && echo "LOG: Resume the stopped $TPROXY_NAME" \
   && docker start `docker ps -f name=$TPROXY_NAME -f status=exited -q`
@@ -18,13 +17,12 @@ TPROXY_NAME=cloud-ubuntu-proxy_client_transparent
   && PROXY_SERVER=$PROXY_SERVER PROXY_PWD=$PROXY_PWD ENCRYPT_CMD=$ENCRYPT_CMD PROXY_LIMIT=$PROXY_LIMIT $DOCKER_TPROXY_CMD $*
 
 # Start the ssh/vnc proxy via tinylab/cloud-ubuntu-web container
-WEB_NAME=cloud-ubuntu-web
-(docker ps -f name=$WEB_NAME -f status=exited | grep -q -v PORTS) \
-  && echo "LOG: Resume the stopped $WEB_NAME" \
-  && docker start `docker ps -f name=$WEB_NAME -f status=exited -q`
+(docker ps -f name=$WPROXY_NAME -f status=exited | grep -q -v PORTS) \
+  && echo "LOG: Resume the stopped $WPROXY_NAME" \
+  && docker start `docker ps -f name=$WPROXY_NAME -f status=exited -q`
 
-(docker ps -f name=$WEB_NAME | grep -q -v PORTS) || \
-  (echo "LOG: Start $WEB_NAME" \
+(docker ps -f name=$WPROXY_NAME | grep -q -v PORTS) || \
+  (echo "LOG: Start $WPROXY_NAME" \
   && $DOCKER_EXPORT_CMD $*)
 
 if [ -n "$CONTAINER_ID" ]; then

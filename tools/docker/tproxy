@@ -8,8 +8,7 @@
 TOP_DIR=$(cd $(dirname $0)/../../ && pwd)
 . $TOP_DIR/tools/docker/config $* >/dev/null
 
-CONTAINER_NAME=cloud-ubuntu-proxy_client_transparent
-IMAGE_NAME=tinylab/$CONTAINER_NAME
+IMAGE_NAME=tinylab/$TPROXY_NAME
 
 [ -z "$PULL" ] && PULL=0
 
@@ -32,13 +31,6 @@ EXTRA_ARGS="$EXTRA_ARGS -e PROXY_PORT=$PROXY_PORT"
 [ -z "$ENCRYPT_CMD" ] && ENCRYPT_CMD="cat"
 [ -n "$PROXY_PWD" ] && PROXY_PWD=`echo $PROXY_PWD | tr -d '\n' | $ENCRYPT_CMD | cut -d' ' -f1`
 
-# 16:10: 640x480 800x480 1280x800 1440x900 1680x1050 1920x1200 2560x1600
-# 16:9: 960x540 1280x720 1920x1080 2560x1440
-which xrandr >/dev/null 2>&1
-[ $? -eq 0 -a -z "$SCREEN_SIZE" ] && SCREEN_SIZE=`xrandr --current | grep "^ .*\*" | tr -s ' ' | cut -d' ' -f2 | head -1`
-
-[ -z "$SCREEN_SIZE" ] && SCREEN_SIZE=$DEF_SCREEN_SIZE
-
 [ -z "$HOST_NAME" ] && HOST_NAME=localhost
 [ -z "$UNIX_PWD" ] && UNIX_PWD=ubuntu
 [ -z "$VNC_PWD" ] && VNC_PWD=ubuntu
@@ -47,6 +39,6 @@ which xrandr >/dev/null 2>&1
 [ -z "$EXTRA_ARGS" ] && EXTRA_ARGS=""
 
 docker run --dns 127.0.0.1 \
-	--name $CONTAINER_NAME --privileged -d -t \
+	--name $TPROXY_NAME --privileged -d -t \
 	$PORT_MAP $ENV_ARGS $EXTRA_ARGS \
 	-h $HOST_NAME $IMAGE_NAME

@@ -8,8 +8,7 @@
 TOP_DIR=$(cd $(dirname $0)/../../ && pwd)
 . $TOP_DIR/tools/docker/config $* >/dev/null
 
-CONTAINER_NAME=cloud-ubuntu-web
-IMAGE_NAME=tinylab/$CONTAINER_NAME
+IMAGE_NAME=tinylab/$WPROXY_NAME
 
 [ -z "$PULL" ] && PULL=0
 
@@ -26,12 +25,6 @@ DEFAULT_PORT_MAP=" -p $HOST_VNC_PORT:$CONTAINER_VNC_PORT -p $HOST_SSH_PORT:$CONT
 [ -n "$UNIX_PWD" ] && UNIX_PWD=`echo $UNIX_PWD | tr -d '\n' | $ENCRYPT_CMD | cut -d' ' -f1`
 [ -n "$VNC_PWD" ] && VNC_PWD=`echo $VNC_PWD | tr -d '\n' | $ENCRYPT_CMD | cut -d' ' -f1`
 
-# 16:10: 640x480 800x480 1280x800 1440x900 1680x1050 1920x1200 2560x1600
-# 16:9: 960x540 1280x720 1920x1080 2560x1440
-which xrandr >/dev/null 2>&1
-[ $? -eq 0 -a -z "$SCREEN_SIZE" ] && SCREEN_SIZE=`xrandr --current | grep "^ .*\*" | tr -s ' ' | cut -d' ' -f2 | head -1`
-
-[ -z "$SCREEN_SIZE" ] && SCREEN_SIZE=$DEF_SCREEN_SIZE
 [ -z "$TOKEN_DIR" ] && TOKEN_DIR=$DEF_TOKEN_DIR
 [ -z "$TOKEN_LENGTH" ] && TOKEN_LENGTH=$DEF_TOKEN_LENGTH
 [ -z "$HOST_NAME" ] && HOST_NAME=localhost
@@ -54,6 +47,6 @@ REMOTE_TOKEN_DIR=/$TOKEN_DIR
 VOLUME_MAP="$VOLUME_MAP -v $LOCAL_TOKEN_DIR:$REMOTE_TOKEN_DIR"
 
 docker run \
-	--name $CONTAINER_NAME --privileged -d -t \
+	--name $WPROXY_NAME --privileged -d -t \
 	$PORT_MAP $VOLUME_MAP $ENV_ARGS $EXTRA_ARGS \
 	-h $HOST_NAME $IMAGE_NAME
