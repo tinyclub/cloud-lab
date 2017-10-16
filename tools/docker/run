@@ -6,12 +6,12 @@
 TOP_DIR=$(cd $(dirname $0)/../../ && pwd)
 . $TOP_DIR/tools/docker/config $* >/dev/null
 
-# Check container conflicts
+# If already there, open it
 [ -n "$CONTAINER_ID" ] \
-    && (docker ps -f id=$CONTAINER_ID | grep -v PORTS) \
-    && echo "LOG: Please remove the old one with 'docker rm $CONTAINER_ID' before create new." \
-    && echo "LOG: $LAB_CONTAINER_ID" \
-    && exit 1
+    && (docker ps -f id=$CONTAINER_ID | grep -q -v PORTS) \
+    && echo "LOG: Open the running $LAB_NAME" \
+    && $DOCKER_VNC_CMD $* \
+    && exit 0
 
 # Generate an unique container name
 if [ -z "$CONTAINER_NAME" ]; then
