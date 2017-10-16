@@ -60,7 +60,8 @@ if [ -d ~/Desktop -a -n "$REMOTE_DESKTOP_SHORTCUT" -a -f "$REMOTE_DESKTOP_SHORTC
 
   if [ "x$HOST_OS" = "xDarwin" ]; then
     LOCAL_DESKTOP_SHORTCUT=$(echo $LOCAL_DESKTOP_SHORTCUT | sed -e "s%.desktop$%.command%g")
-    echo "/usr/bin/open -a '$WEB_BROWSER' '$CONTAINER_WEB_URL' &" > $LOCAL_DESKTOP_SHORTCUT
+    echo "$DOCKER_RUN_CMD $LAB_NAME && /usr/bin/open -a '$WEB_BROWSER' '$CONTAINER_WEB_URL' &" \
+	> $LOCAL_DESKTOP_SHORTCUT
     echo "pkill Terminal &" >> $LOCAL_DESKTOP_SHORTCUT
   else
     echo '#!/usr/bin/env xdg-open' > $LOCAL_DESKTOP_SHORTCUT
@@ -72,7 +73,7 @@ if [ -d ~/Desktop -a -n "$REMOTE_DESKTOP_SHORTCUT" -a -f "$REMOTE_DESKTOP_SHORTC
 
     TMP_URL=`echo $CONTAINER_WEB_URL | tr '&' '|'`
     cat $REMOTE_DESKTOP_SHORTCUT \
-        | sed "s%Exec=.*%Exec=$WEB_BROWSER $TMP_URL%g" \
+        | sed "s%Exec=.*%Exec=$DOCKER_RUN_CMD $LAB_NAME \&\& $WEB_BROWSER $TMP_URL%g" \
         | sed "s%terminator.png%$icon%g;s%lxterminal.xpm%$icon%g" | tr '|' '&' \
 	  >> $LOCAL_DESKTOP_SHORTCUT
   fi
