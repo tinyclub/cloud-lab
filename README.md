@@ -1,7 +1,7 @@
 
 # Cloud Lab
 
-Cloud Lab is a Docker based online lab center, it integrates many popular computer
+[Cloud Lab](http://tinylab.org/cloud-lab) is a Docker based online lab center, it integrates many popular computer
 science courses and provides a Docker based experiment environment as-is.
 
 ## Quickstart
@@ -48,3 +48,12 @@ The old install method for Windows and Mac OSX is [Docker Toolbox](https://www.d
 ### Start the Lab
 
     $ tools/docker/start
+
+### Update everything
+
+    $ tools/docker/update
+
+### Run without password
+
+    $ sudo -s
+    $ echo "$SUDO_USER ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/$SUDO_USER
