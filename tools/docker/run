@@ -6,22 +6,46 @@
 TOP_DIR=$(cd $(dirname $0)/../../ && pwd)
 . $TOP_DIR/tools/docker/config $* >/dev/null
 
-# If already there and running, open it
-[ -n "$CONTAINER_ID" ] \
-    && (docker ps -f id=$CONTAINER_ID | grep -q -v PORTS) \
+# Start the transparent proxy via tinylab/cloud-ubuntu-proxy_client_transparent container
+TPROXY_NAME=cloud-ubuntu-proxy_client_transparent
+(docker ps -f name=$TPROXY_NAME -f status=exited | grep -q -v PORTS) \
+  && echo "LOG: Resume the stopped $TPROXY_NAME" \
+  && docker start `docker ps -f name=$TPROXY_NAME -f status=exited -q`
+
+(docker ps -f name=$TPROXY_NAME | grep -q -v PORTS)
+  [ $? -ne 0 -a $TPROXY -eq 1 -a -n "$PROXY_SERVER" -a -n "$PROXY_PWD" -a -n "$ENCRYPT_CMD" ] \
+  && echo "LOG: Start $TPROXY_NAME" \
+  && PROXY_SERVER=$PROXY_SERVER PROXY_PWD=$PROXY_PWD ENCRYPT_CMD=$ENCRYPT_CMD PROXY_LIMIT=$PROXY_LIMIT $DOCKER_TPROXY_CMD $*
+
+# Start the ssh/vnc proxy via tinylab/cloud-ubuntu-web container
+WEB_NAME=cloud-ubuntu-web
+(docker ps -f name=$WEB_NAME -f status=exited | grep -q -v PORTS) \
+  && echo "LOG: Resume the stopped $WEB_NAME" \
+  && docker start `docker ps -f name=$WEB_NAME -f status=exited -q`
+
+(docker ps -f name=$WEB_NAME | grep -q -v PORTS) || \
+  (echo "LOG: Start $WEB_NAME" \
+  && $DOCKER_EXPORT_CMD $*)
+
+if [ -n "$CONTAINER_ID" ]; then
+  # If already there and running, open it
+  (docker ps -f id=$CONTAINER_ID | grep -q -v PORTS) \
     && echo "LOG: Open the running $LAB_NAME" \
     && $DOCKER_VNC_CMD $* \
     && exit 0
 
-# If already there and stopped, start and open it
-[ -n "$CONTAINER_ID" ] \
-    && (docker ps -f id=$CONTAINER_ID -f status=exited | grep -q -v PORTS) \
-    && echo "LOG: Start the exited $LAB_NAME" \
+  # If already there and stopped, start and open it
+  (docker ps -f id=$CONTAINER_ID -f status=exited | grep -q -v PORTS) \
+    && echo "LOG: Resume the stopped $LAB_NAME" \
     && $DOCKER_START_CMD $LAB_NAME \
-    && echo "LOG: Wait for lab starting..." \
-    && sleep 5 \
+    && echo "LOG: Wait for lab resuming..." \
+    && while :; do \
+       pass=`docker logs $CONTAINER_ID 2>/dev/null | grep Password`; \
+       sleep 2; \
+       [ -n "$pass" ] && break; done \
     && $DOCKER_VNC_CMD $* \
     && exit 0
+fi
 
 # Generate an unique container name
 if [ -z "$CONTAINER_NAME" ]; then
@@ -70,15 +94,6 @@ UNIX_UID=`id -u $HOST_USER`
 do_unlock
 set_var UNIX_UID
 do_lock
-
-# Start the transparent proxy via tinylab/cloud-ubuntu-proxy_client_transparent container
-exist=`docker ps -q --filter=name=cloud-ubuntu-proxy_client_transparent | wc -l`
-[ $exist -eq 0 -a $TPROXY -eq 1 -a -n "$PROXY_SERVER" -a -n "$PROXY_PWD" -a -n "$ENCRYPT_CMD" ] \
-    && PROXY_SERVER=$PROXY_SERVER PROXY_PWD=$PROXY_PWD ENCRYPT_CMD=$ENCRYPT_CMD PROXY_LIMIT=$PROXY_LIMIT $DOCKER_TPROXY_CMD $*
-
-# Start the ssh/vnc proxy via tinylab/cloud-ubuntu-web container
-exist=`docker ps -q --filter=name=cloud-ubuntu-web | wc -l`
-[ $exist -eq 0 ] && $DOCKER_EXPORT_CMD $*
 
 CONTAINER_ID=$(docker run -d --privileged $container $portmap $caps $devices $limits $volumemap $vars $EXTRA_ARGS $IMAGE)
 
