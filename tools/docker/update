@@ -6,15 +6,18 @@
 TOP_DIR=$(cd $(dirname $0)/../../ && pwd)
 . $TOP_DIR/tools/docker/config $* >/dev/null
 
-CLOUD_UBUNTU_WEB=$LAB_USER/cloud-ubuntu-web
-CLOUD_UBUNTU_TPROXY=$LAB_USER/cloud-ubuntu-proxy_client_transparent
+CLOUD_UBUNTU_WEB=$LAB_USER/$WPROXY_NAME
+CLOUD_UBUNTU_TPROXY=$LAB_USER/$TPROXY_NAME
 DOCKER_IMAGES="$CLOUD_UBUNTU_WEB $CLOUD_UBUNTU_TPROXY"
 DOCKER_TOOL=${TOP_DIR}/tools/docker/
+
+echo "LOG: pulling cloud lab"
+cd $TOP_DIR && git pull
 
 echo "LOG: checking docker image: $LAB_USER/$LAB_NAME"
 (docker search $LAB_USER | grep -q $LAB_NAME) || (echo "LOG: No $IMAGE found in docker hub" && exit 1)
 
-echo "LOG: pulling git repo: cloud-lab"
+echo "LOG: pulling git repo: $LAB_NAME"
 ${DOCKER_TOOL}/choose $LAB_NAME
 
 echo "LOG: pulling docker image: $LAB_NAME"
