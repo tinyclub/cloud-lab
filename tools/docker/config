@@ -190,6 +190,9 @@ do_lock
 
 # Default variables
 
+## default terminal, lxterminal, terminator
+XTERM=lxterminal
+
 ## password
 DEF_PWD_LENGTH=6
 DEF_PWD_TOTAL=100
@@ -331,3 +334,6 @@ get_random ()
         echo $(( random % 32767 ))
     fi
 }
+
+ppid () { ps -p ${1:-$$} -o ppid=; }
+pcom () { ps -p ${1:-$$} -o comm=; }
