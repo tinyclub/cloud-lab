@@ -11,7 +11,7 @@ CLOUD_UBUNTU_TPROXY=$LAB_USER/$TPROXY_NAME
 DOCKER_IMAGES="$CLOUD_UBUNTU_WEB $CLOUD_UBUNTU_TPROXY"
 DOCKER_TOOL=${TOP_DIR}/tools/docker/
 
-echo "LOG: pulling cloud lab"
+echo "LOG: pulling cloud-lab"
 cd $TOP_DIR && git pull
 
 echo "LOG: checking docker image: $LAB_USER/$LAB_NAME"
