@@ -87,9 +87,16 @@ if [ -d ~/Desktop -a -n "$REMOTE_DESKTOP_SHORTCUT" -a -f "$REMOTE_DESKTOP_SHORTC
 
     # For cloud lab
     MANAGE_DESKTOP_SHORTCUT=~/Desktop/cloud-lab.desktop
-    cat $REMOTE_DESKTOP_SHORTCUT \
-        | sed "s%Exec=.*%Exec=$XTERM --working-directory=$TOP_DIR -T 'Cloud Lab' %g" \
-          >> $MANAGE_DESKTOP_SHORTCUT
+    cat <<EOF > $MANAGE_DESKTOP_SHORTCUT
+#!/usr/bin/env xdg-open
+[Desktop Entry]
+Encoding=UTF-8
+Name=Cloud Lab
+Comment=Cloud Lab Working Directory
+Exec=$XTERM --working-directory=$TOP_DIR -T 'Cloud Lab'
+Icon=/usr/share/pixmaps/${XTERM}.png
+Type=Application
+EOF
 
   fi
 

@@ -337,3 +337,10 @@ get_random ()
 
 ppid () { ps -p ${1:-$$} -o ppid=; }
 pcom () { ps -p ${1:-$$} -o comm=; }
+pppid () { ppid `ppid ${1:-$$}`; }
+ppcom () { pcom `pppid ${1:-$$}`; }
+
+# Override XTERM
+_XTERM=`ppcom`
+echo $_XTERM | grep -q 'term'
+[ $? -eq 0 ] && XTERM=$_XTERM
