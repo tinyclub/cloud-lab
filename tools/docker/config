@@ -336,11 +336,11 @@ get_random ()
 }
 
 ppid () { ps -p ${1:-$$} -o ppid=; }
-pcom () { ps -p ${1:-$$} -o comm=; }
+pcmd () { ps -p ${1:-$$} -o cmd=; }
 pppid () { ppid `ppid ${1:-$$}`; }
-ppcom () { pcom `pppid ${1:-$$}`; }
+ppcmd () { pcmd `pppid ${1:-$$}`; }
 
 # Override XTERM
-_XTERM=`ppcom`
+_XTERM=`ppcmd`
 echo $_XTERM | grep -q 'term'
-[ $? -eq 0 ] && XTERM=$_XTERM
+[ $? -eq 0 ] && XTERM=$(basename `echo $_XTERM | tr ' ' '\n' | grep 'term'`)
