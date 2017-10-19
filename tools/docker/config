@@ -196,7 +196,7 @@ for eth in en0 eth1
 do
     ifconfig $eth >/dev/null 2>&1
     [ $? -ne 0 ] && continue
-    LOCALHOST=`ifconfig $eth | grep 'inet addr' | tr -s ' ' | tr ':' ' ' | cut -d' ' -f4`
+    LOCALHOST=`ifconfig $eth | grep 'inet ' | tr ':' ' ' | tr -s ' ' | tr ' ' '\n' | grep "[0-9\.]\{7,\}" | head -1`
     break
 done
 
