@@ -12,6 +12,18 @@ Cload Lab is docker based, please make sure docker environment is installed with
 
 The old install method for Windows and Mac OSX is [Docker Toolbox](https://www.docker.com/docker-toolbox).
 
+### Configure docker
+
+In order to speedup docker images downloading, please configure a local docker mirror in `/etc/default/docker`, for example:
+
+    $ grep registry-mirror /etc/default/docker
+    DOCKER_OPTS="$DOCKER_OPTS --registry-mirror=https://docker.mirrors.ustc.edu.cn"
+    $ service docker restart
+
+In order to run docker without password, please make sure your user is added in the docker group:
+
+    $ sudo usermod -aG docker $USER
+
 ### Choose a Lab
 
     $ tools/docker/choose
