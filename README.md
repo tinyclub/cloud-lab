@@ -43,6 +43,20 @@ If installed via Docker Toolbox, to access the Lab page, we must get and use the
 
 If the Linux system is installed on Virtualbox by ourselves, to access the Lab page outside, we must add the eth1 network device at first via setting: 'Network -> Adapter2 -> Host-only Adapter'.
 
+### Choose a working directory
+
+If installed via Docker Toolbox, please enter into the `/mnt/sda1` directory of the `default` system on Virtualbox, otherwise, after poweroff, the data will be lost for the default `/root` directory is only mounted in DRAM.
+
+    $ cd /mnt/sda1
+
+For Linux or Mac OSX, please simply choose one directory in `~/Downloads` or `~/Documents`.
+
+    $ cd ~/Documents
+
+### Download cloud-lab
+
+    $ git clone https://github.com/tinyclub/cloud-lab.git
+
 ### Choose a Lab
 
     $ tools/docker/choose
