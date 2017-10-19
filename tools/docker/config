@@ -190,6 +190,16 @@ do_lock
 
 # Default variables
 
+## Get localhost address, for virtualbox, please enable: Network -> Adapter2 -> Host-only Adapter
+
+for eth in en0 eth1
+do
+    ifconfig $eth >/dev/null 2>&1
+    [ $? -ne 0 ] && continue
+    LOCALHOST=`ifconfig $eth | grep 'inet addr' | tr -s ' ' | tr ':' ' ' | cut -d' ' -f4`
+    break
+done
+
 ## default terminal, lxterminal, terminator
 XTERM=lxterminal
 

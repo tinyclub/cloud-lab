@@ -29,3 +29,10 @@ echo "LOG: Please login with 'ip=$VNC_IP, port=$CONTAINER_SSH_PORT, user=$UNIX_U
 ($WEBSSH_CMD >/dev/null 2>&1 &) >/dev/null 2>&1
 
 echo "LOG: Or access via web browser:\n  $WEBSSH_URL"
+echo
+
+if [ -n "$LOCALHOST" ]; then
+    _WEBSSH_URL=$(echo $WEBSSH_URL | sed -e "s%localhost%$LOCALHOST%g" )
+    echo "LOG: Or access it outside via:\n  $_WEBSSH_URL"
+    echo
+fi

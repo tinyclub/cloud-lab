@@ -119,12 +119,34 @@ fi
 which "$WEB_BROWSER" >/dev/null 2>&1 \
     && (eval $__WEB_BROWSER '$CONTAINER_WEB_URL' >/dev/null 2>&1 &)>/dev/null 2>&1
 
-echo "Please login:"
+echo "Please login with:"
+echo
+echo "        User: $VNC_TOKEN"
+echo "    Password: $VNC_PWD (Normal)"
+echo "    Password: $VNC_PWD_VIEWONLY (Viewonly)"
+echo
+echo "Localhost URL:"
 echo
 echo "  *   Normal: $HOST_WEB_URL"
 echo "  * Viewonly: $HOST_WEB_URL_VIEWONLY"
 echo
-echo "        User: $VNC_TOKEN"
-echo "    Password: $VNC_PWD"
-echo "    Password: $VNC_PWD_VIEWONLY (Viewonly)"
+
+if [ -n "$LOCALHOST" ]; then
+    # Get external access address
+    _HOST_WEB_URL=$(echo $HOST_WEB_URL | sed -e "s%localhost%$LOCALHOST%g")
+    _HOST_WEB_URL_VIEWONLY=$(echo $HOST_WEB_URL_VIEWONLY | sed -e "s%localhost%$LOCALHOST%g")
+
+    echo "External URL:"
+    echo
+    echo "  *   Normal: $_HOST_WEB_URL"
+    echo "  * Viewonly: $_HOST_WEB_URL_VIEWONLY"
+    echo
+else
+    echo "Note: Please ensure network available outside and then replace 'localhost' with the external ip or domain name."
+    echo "      E.g. Virtualbox setting 'Network->Adapter2->Host-only Adapter' adds eth1. 'ifconfig eth1' give us the ip."
+    echo "      Then 'echo \$ip > .host_name' or 'echo \$domain_name > .host_name'"
+fi
+
+echo
+echo "Note: both firefox and safari work, but google chrome web browser is preferable."
 echo
