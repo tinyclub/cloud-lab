@@ -36,6 +36,13 @@ If the above changes not work, try something as following:
     ExecStart=/usr/bin/dockerd -H fd:// --bip=10.66.0.10/16 --registry-mirror=https://docker.mirrors.ustc.edu.cn
     $ service docker restart
 
+If installed via Docker Toolbox, to access the Lab page, we must get and use the `eth1` ip address, just replace 'localhost' with this ip in the Lab page url:
+
+    $ ifconfig eth1 | grep 'inet addr' | tr -s ' ' | tr ':' ' ' | cut -d' ' -f4
+    192.168.99.100
+
+If the Linux system is installed on Virtualbox by ourselves, to access the Lab page outside, we must add the eth1 network device at first via setting: 'Network -> Adapter2 -> Host-only Adapter'.
+
 ### Choose a Lab
 
     $ tools/docker/choose
