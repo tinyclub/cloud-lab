@@ -96,6 +96,7 @@ DOCKER_RUN_CMD=$DOCKER_DIR/run
 DOCKER_STOP_CMD=$DOCKER_DIR/stop
 DOCKER_START_CMD=$DOCKER_DIR/start
 DOCKER_UNLOCK_CMD=$DOCKER_DIR/unlock
+DOCKER_XTERM_CMD=$DOCKER_DIR/xterm
 DOCKER_FILE=$CONFIG_DIR/Dockerfile
 
 # Common variables
@@ -201,7 +202,7 @@ do
 done
 
 ## default terminal, lxterminal, terminator
-XTERM=lxterminal
+XTERM=`$DOCKER_XTERM_CMD lxterminal`
 
 ## password
 DEF_PWD_LENGTH=6
@@ -344,13 +345,3 @@ get_random ()
         echo $(( random % 32767 ))
     fi
 }
-
-ppid () { ps -p ${1:-$$} -o ppid=; }
-pcmd () { ps -p ${1:-$$} -o command=; }
-pppid () { ppid `ppid ${1:-$$}`; }
-ppcmd () { pcmd `pppid ${1:-$$}`; }
-
-# Override XTERM
-_XTERM=`ppcmd`
-echo $_XTERM | grep -q 'term'
-[ $? -eq 0 ] && XTERM=$(basename `echo $_XTERM | tr ' ' '\n' | grep 'term'`)
