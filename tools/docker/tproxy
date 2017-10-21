@@ -6,7 +6,7 @@
 #
 
 TOP_DIR=$(cd $(dirname $0)/../../ && pwd)
-. $TOP_DIR/tools/docker/config $* >/dev/null
+. $TOP_DIR/tools/docker/config $* >/dev/null 2>&1
 
 IMAGE_NAME=tinylab/$TPROXY_NAME
 

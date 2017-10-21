@@ -6,6 +6,9 @@
 TOP_DIR=$(cd $(dirname $0)/../../ && pwd)
 . $TOP_DIR/tools/docker/config $* >/dev/null
 
+# Publish vnc port
+$DOCKER_PUBLISH_CMD $*
+
 # Get the best web browser for different system
 macos_chrome='/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'
 macos_safari=/Applications/Safari.app/Contents/MacOS/Safari
