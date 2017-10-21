@@ -36,10 +36,16 @@ done
 echo "LOG: removing deprecated images"
 ${DOCKER_TOOL}/rmi-all
 
-echo "LOG: removing old containers"
-echo "LOG: removing docker container: $LAB_NAME"
+echo "LOG: stopping docker container: $LAB_NAME"
 ${DOCKER_TOOL}/stop $LAB_NAME
+
+echo "LOG: removing docker container: $LAB_NAME"
 ${DOCKER_TOOL}/rm $LAB_NAME
+
+if [ "x$CLEAN" = "x1" ]; then
+  echo "LOG: cleaning lab: $LAB_NAME"
+  ${DOCKER_TOOL}/clean $LAB_NAME
+fi
 
 for image in $DOCKER_IMAGES
 do
