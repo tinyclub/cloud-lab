@@ -263,7 +263,12 @@ LAB_NAME=$CURRENT
 IMAGES=`find $CONFIGS_DIR -name "name" | xargs -I{} cat {} | sort -u`
 LABS=`find ${LAB_DIR} -maxdepth 1 -mindepth 1 -type d | xargs -I{} basename {}`
 
-LOCAL_DESKTOP_SHORTCUT=~/Desktop/${CONTAINER_NAME}.desktop
+if [ "x$HOST_OS" = "xDarwin" ]; then
+  LOCAL_DESKTOP_SHORTCUT=~/Desktop/${CONTAINER_NAME}.command
+else
+  LOCAL_DESKTOP_SHORTCUT=~/Desktop/${CONTAINER_NAME}.desktop
+fi
+
 [ -d $CONFIG_SYSTEM_DIR ] \
   && REMOTE_DESKTOP_SHORTCUT=`find $CONFIG_SYSTEM_DIR -maxdepth 4 -name "lab.desktop"`
 

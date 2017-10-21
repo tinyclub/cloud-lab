@@ -62,8 +62,6 @@ HOST_WEB_URL_VIEWONLY="$WEB_HTTP://${HOST}:${HOST_VNC_PORT}/?r=${VNC_TOKEN}${VNC
 if [ -d ~/Desktop -a -n "$REMOTE_DESKTOP_SHORTCUT" -a -f "$REMOTE_DESKTOP_SHORTCUT" ]; then
 
   if [ "x$HOST_OS" = "xDarwin" ]; then
-    LOCAL_DESKTOP_SHORTCUT=$(echo $LOCAL_DESKTOP_SHORTCUT | sed -e "s%.desktop$%.command%g")
-
     echo "$DOCKER_RUN_CMD $LAB_NAME" > $LOCAL_DESKTOP_SHORTCUT
 
     # ref: https://superuser.com/questions/479411/close-all-mac-terminal-windows-but-the-one-running-a-script
