@@ -125,7 +125,7 @@ echo "        User: $VNC_TOKEN"
 echo "    Password: $VNC_PWD (Normal)"
 echo "    Password: $VNC_PWD_VIEWONLY (Viewonly)"
 echo
-echo "Localhost URL:"
+echo "Local URL:"
 echo
 echo "  *   Normal: $HOST_WEB_URL"
 echo "  * Viewonly: $HOST_WEB_URL_VIEWONLY"
@@ -136,7 +136,7 @@ if [ -n "$LOCALHOST" ]; then
     _HOST_WEB_URL=$(echo $HOST_WEB_URL | sed -e "s%localhost%$LOCALHOST%g")
     _HOST_WEB_URL_VIEWONLY=$(echo $HOST_WEB_URL_VIEWONLY | sed -e "s%localhost%$LOCALHOST%g")
 
-    echo "External URL:"
+    echo "Remote URL:"
     echo
     echo "  *   Normal: $_HOST_WEB_URL"
     echo "  * Viewonly: $_HOST_WEB_URL_VIEWONLY"
