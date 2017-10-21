@@ -24,7 +24,7 @@ fi
 
 do_unlock
 
-get_var WEB_BROWSER $DEF_WEB_BROWSER
+[ -z "$WEB_BROWSER" ] && get_var WEB_BROWSER $DEF_WEB_BROWSER
 get_var HOST localhost
 get_var VNC_PWD ubuntu
 get_var VNC_PWD_VIEWONLY ubuntu
