@@ -3,6 +3,10 @@
 # rm-all -- remove all docker labs
 #
 
+read -p 'This command is dangerous, are you sure? (yes/no) ' sure
+
+[ "x$sure" != 'xyes' ] && exit 0
+
 for name in `docker ps -a --format='{{.Names}}'`
 do
     LOCAL_DESKTOP_SHORTCUT=~/Desktop/${name}.desktop

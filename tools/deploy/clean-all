@@ -1,5 +1,9 @@
 #!/bin/sh
 
+read -p 'This command is dangerous, are you sure? (yes/no) ' sure
+
+[ "x$sure" != 'xyes' ] && exit 0
+
 TOP_DIR=$(cd $(dirname $0)/../../ && pwd)
 . $TOP_DIR/tools/docker/config $* >/dev/null
 
