@@ -43,8 +43,8 @@ echo "LOG: removing docker container: $LAB_NAME"
 ${DOCKER_TOOL}/rm $LAB_NAME
 
 if [ "x$CLEAN" = "x1" ]; then
-  echo "LOG: cleaning lab: $LAB_NAME"
-  ${DOCKER_TOOL}/clean $LAB_NAME
+    echo "LOG: cleaning lab: $LAB_NAME"
+    ${DOCKER_TOOL}/clean $LAB_NAME
 fi
 
 for image in $DOCKER_IMAGES
@@ -55,5 +55,7 @@ do
     docker ps --format="{{.ID}} {{.Names}}" | grep $name | cut -d' ' -f1 | xargs -I{} docker rm -f {}
 done
 
-echo "LOG: running $LAB_NAME"
-${DOCKER_TOOL}/run $LAB_NAME 
+if [ "x$RUN" != "x0" ]; then
+    echo "LOG: running $LAB_NAME"
+    ${DOCKER_TOOL}/run $LAB_NAME
+fi
