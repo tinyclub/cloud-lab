@@ -29,7 +29,7 @@ EXTRA_ARGS="$EXTRA_ARGS -e PROXY_PORT=$PROXY_PORT"
 
 # Available encrypt cmds: sha1sum, sha224sum, cksum, sha256sum, sha512sum, md5sum, sha384sum, sum
 [ -z "$ENCRYPT_CMD" ] && ENCRYPT_CMD="cat"
-[ -n "$PROXY_PWD" ] && PROXY_PWD=`echo $PROXY_PWD | tr -d '\n' | $ENCRYPT_CMD | cut -d' ' -f1`
+[ -n "$PROXY_PWD" ] && PROXY_PWD=`echo $PROXY_PWD | tr -d '\n' | $ENCRYPT_CMD | cut -d' ' -f1 | cut -c1-30`
 
 [ -z "$HOST_NAME" ] && HOST_NAME=localhost
 [ -z "$UNIX_PWD" ] && UNIX_PWD=ubuntu
