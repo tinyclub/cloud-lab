@@ -12,12 +12,14 @@ $DOCKER_PUBLISH_CMD $*
 # Get the best web browser for different system
 macos_chrome='/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'
 macos_safari=/Applications/Safari.app/Contents/MacOS/Safari
+macos_firefox=/Applications/Firefox.app/Contents/MacOS/firefox
 linux_chrome=chromium-browser
 linux_firefox=firefox
 
 DEF_WEB_BROWSER=firefox
 if [ "x$HOST_OS" = "xDarwin" ]; then
     [ -f "$macos_safari" ] && DEF_WEB_BROWSER="$macos_safari"
+    [ -f "$macos_firefox" ] && DEF_WEB_BROWSER="$macos_firefox"
     [ -f "$macos_chrome" ] && DEF_WEB_BROWSER="$(echo $macos_chrome | tr ' ' '-')"
 else
     which $linux_firefox >/dev/null 2>&1 && DEF_WEB_BROWSER=$linux_firefox
@@ -39,7 +41,14 @@ do_lock
 
 if [ "x$HOST_OS" = "xDarwin" ]; then
     WEB_BROWSER="$(echo $WEB_BROWSER | tr '-' ' ')"
-    [ ! -f "$WEB_BROWSER" ] && echo "LOG: No $WEB_BROWSER found, use safari instead." && WEB_BROWSER=$macos_safari
+    if [ ! -f "$WEB_BROWSER" ]; then
+        web_browser=`ls /Applications/*/Contents/MacOS/* | grep -i "$WEB_BROWSER$"`
+        if [ $? -eq 0 ]; then
+            WEB_BROWSER="$web_browser"
+        else
+            echo "LOG: No $WEB_BROWSER found, use safari instead." && WEB_BROWSER=$macos_safari
+        fi
+    fi
 else
     which $WEB_BROWSER >/dev/null 2>&1
     if [ $? -eq 1 ]; then
