@@ -11,3 +11,5 @@
 8. Add support for Docker Toolbox (Busybox environment)
    Need chroot to a Busybox rootfs and make cloud lab work in it.
    ref: https://github.com/boot2docker/boot2docker/releases
+9. Add notify feature for LXDE: libnotify-bin notify-osd
+   $ DISPLAY=:1 notify-send 'The system will be turned off in 5 minutes' --urgency=critical -t 0
