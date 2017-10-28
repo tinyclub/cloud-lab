@@ -11,9 +11,9 @@ which docker > /dev/null 2>&1 && exit 0
 
 [ -f /etc/issue ] && grep -qi ubuntu /etc/issue
 if [ $? -eq 0 ]; then
-    echo "LOG: Install docker-engine with $0"
+    echo "LOG: Install docker-ce with $0"
 else
-    echo "LOG: Please install docker-engine with doc: https://docs.docker.com/engine/installation/linux/ubuntulinux/"
+    echo "LOG: Please install docker-ce with doc: https://docs.docker.com/engine/installation/linux/docker-ce/ubuntu/"
     exit 1
 fi
 
@@ -21,13 +21,14 @@ fi
 
 [ `id -u` -ne 0 ] && SUDO=sudo
 
-$SUDO apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 58118E89F3A912897C070ADBF76221572C52609D
-version=`sed -n -e "/ main/p" /etc/apt/sources.list | grep -v ^# | head -1 | cut -d' ' -f3`
-$SUDO sh -c 'echo "deb http://mirrors.aliyun.com/docker-engine/apt/repo/ ubuntu-'${version}' main" > /etc/apt/sources.list.d/docker.list'
+$SUDO curl -fsSL http://mirrors.aliyun.com/docker-ce/linux/ubuntu/gpg | sudo apt-key add -
+ubuntu_version=$(lsb_release -cs)
+$SUDO add-apt-repository "deb [arch=amd64] http://mirrors.aliyun.com/docker-ce/linux/ubuntu $ubuntu_version stable"
 $SUDO apt-get -y update
 $SUDO apt-get -y install apt-transport-https ca-certificates
 $SUDO apt-get -y install bridge-utils
-$SUDO apt-get -y --force-yes install docker-engine
+[ "$ubuntu_version" = "trusty" ] && $SUDO apt-get -y install linux-image-extra-$(uname -r) linux-image-extra-virtual
+$SUDO apt-get -y --force-yes install docker-ce
 $SUDO usermod -aG docker $USER
 
 # The --bip works like https://gist.github.com/ismell/6689836
