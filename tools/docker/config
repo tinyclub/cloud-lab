@@ -136,8 +136,8 @@ __do_lock ()
     # echo "LOG: __do_lock"
 
     $SUDO find $CONFIG_DOCKER_DIR -iname ".[^.]*" -exec chmod -f -R a-rw {} \;
-    $SUDO chattr -R +i $CONFIGS_DIR
-    $SUDO chattr -R +i $TOOL_DIR
+    which chattr && $SUDO chattr -R +i $CONFIGS_DIR
+    which chattr && $SUDO chattr -R +i $TOOL_DIR
 }
 
 # Unlock the important files for configuration
@@ -145,8 +145,8 @@ __do_unlock ()
 {
     # echo "LOG: __do_unlock"
 
-    $SUDO chattr -R -i $CONFIGS_DIR
-    $SUDO chattr -R -i $TOOL_DIR
+    which chattr && $SUDO chattr -R -i $CONFIGS_DIR
+    which chattr && $SUDO chattr -R -i $TOOL_DIR
     $SUDO find $CONFIG_DOCKER_DIR -iname ".[^.]*" -exec chmod -f -R 664 {} \;
 }
 
