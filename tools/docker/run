@@ -16,6 +16,13 @@ TOP_DIR=$(cd $(dirname $0)/../../ && pwd)
   && echo "LOG: Start $TPROXY_NAME" \
   && PROXY_SERVER=$PROXY_SERVER PROXY_PWD=$PROXY_PWD ENCRYPT_CMD=$ENCRYPT_CMD PROXY_LIMIT=$PROXY_LIMIT $DOCKER_TPROXY_CMD $*
 
+if [ $TPROXY -eq 1 ]; then
+  TPROXY_IP=`docker inspect --format '{{ .NetworkSettings.IPAddress }}' $TPROXY_NAME`
+  do_unlock
+  set_var TPROXY_IP
+  do_lock
+fi
+
 # Start the ssh/vnc proxy via tinylab/cloud-ubuntu-web container
 (docker ps -f name=$WPROXY_NAME -f status=exited | grep -q -v PORTS) \
   && echo "LOG: Resume the stopped $WPROXY_NAME" \
