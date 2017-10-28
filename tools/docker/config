@@ -350,3 +350,51 @@ get_random ()
         echo $(( random % 32767 ))
     fi
 }
+
+get_browser ()
+{
+    # Get the best web browser for different system
+    macos_chrome='/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'
+    macos_safari=/Applications/Safari.app/Contents/MacOS/Safari
+    macos_firefox=/Applications/Firefox.app/Contents/MacOS/firefox
+    linux_chrome=chromium-browser
+    linux_firefox=firefox
+
+    DEF_WEB_BROWSER=firefox
+    if [ "x$HOST_OS" = "xDarwin" ]; then
+        [ -f "$macos_safari" ] && DEF_WEB_BROWSER="$macos_safari"
+        [ -f "$macos_firefox" ] && DEF_WEB_BROWSER="$macos_firefox"
+        [ -f "$macos_chrome" ] && DEF_WEB_BROWSER="$(echo $macos_chrome | tr ' ' '-')"
+    else
+        which $linux_firefox >/dev/null 2>&1 && DEF_WEB_BROWSER=$linux_firefox
+        which $linux_chrome >/dev/null 2>&1 && DEF_WEB_BROWSER=$linux_chrome
+    fi
+
+    do_unlock
+    [ -z "$WEB_BROWSER" ] && get_var WEB_BROWSER $DEF_WEB_BROWSER
+    do_lock
+
+    if [ "x$HOST_OS" = "xDarwin" ]; then
+        WEB_BROWSER="$(echo $WEB_BROWSER | tr '-' ' ')"
+        if [ ! -f "$WEB_BROWSER" ]; then
+            web_browser=`ls /Applications/*/Contents/MacOS/* | grep -i "$WEB_BROWSER$"`
+            if [ $? -eq 0 ]; then
+                WEB_BROWSER="$web_browser"
+            else
+                echo "LOG: No $WEB_BROWSER found, use safari instead." && WEB_BROWSER=$macos_safari
+            fi
+        fi
+    else
+        which $WEB_BROWSER >/dev/null 2>&1
+        if [ $? -eq 1 ]; then
+            echo "LOG: No $WEB_BROWSER found, use firefox instead."
+            WEB_BROWSER=firefox
+        fi
+    fi
+
+    __WEB_BROWSER=$WEB_BROWSER
+
+    if [ "x$HOST_OS" = "xDarwin" ]; then
+        __WEB_BROWSER="/usr/bin/open -a '$WEB_BROWSER'"
+    fi
+}
