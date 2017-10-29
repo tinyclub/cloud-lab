@@ -35,9 +35,9 @@ $SUDO usermod -aG docker $USER
 $SUDO sed -i -e "/DOCKER HACK START 578327498237/,/DOCKER HACK END 789527394722/d" /etc/default/docker
 $SUDO bash -c 'cat <<EOF >> /etc/default/docker
 # CLOUD LAB: DOCKER HACK START 578327498237
-DOCKER_OPTS="\$DOCKER_OPTS --insecure-registry registry.mirrors.aliyuncs.com"
+# DOCKER_OPTS="\$DOCKER_OPTS --insecure-registry registry.mirrors.aliyuncs.com"
 #DOCKER_OPTS="\$DOCKER_OPTS --registry-mirror https://xxx.mirror.aliyuncs.com"
-# DOCKER_OPTS="\$DOCKER_OPTS --registry-mirror=https://docker.mirrors.ustc.edu.cn"
+DOCKER_OPTS="\$DOCKER_OPTS --registry-mirror=https://docker.mirrors.ustc.edu.cn"
 # DOCKER_OPTS="\$DOCKER_OPTS --dns 119.29.29.29 --dns 180.76.76.76"
 # DOCKER_OPTS="\$DOCKER_OPTS --dns 223.5.5.5 --dns 114.114.114.114"
 # DOCKER_OPTS="\$DOCKER_OPTS --dns 8.8.8.8 --dns 8.8.4.4"
