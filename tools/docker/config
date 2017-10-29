@@ -152,12 +152,12 @@ __do_unlock ()
 
 do_lock ()
 {
-    [ $LAB_SECURITY -eq 1 ] && __do_lock
+    [ $LAB_SECURITY -ge 1 ] && __do_lock
 }
 
 do_unlock ()
 {
-    [ $LAB_SECURITY -eq 1 ] && __do_unlock
+    [ $LAB_SECURITY -ge 1 ] && __do_unlock
 }
 
 # Variables initialization from config file if exist

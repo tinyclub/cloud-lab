@@ -104,13 +104,7 @@ CONTAINER_ID=$(docker run -d --privileged $container $portmap $caps $devices $li
 
 CONTAINER_ID=`echo $CONTAINER_ID | cut -c-12`
 
-do_unlock
-
-# Save the lab's information (for restore the container for 'docker start')
-vars="$LAB_VARS"
-for var in $vars; do set_var $var; done
-
-do_lock
+trap 'echo "  Please wait for a while, to really stop me, please fire: kill -9 $$"' 2
 
 echo "LOG: Wait for lab launching..."
 while :; do
@@ -119,6 +113,15 @@ while :; do
     [ -n "$password" ] && break
 done
 
+do_unlock
+
+# Save the lab's information (for restore the container for 'docker start')
+vars="$LAB_VARS"
+for var in $vars; do set_var $var; done
+
+do_lock
+
+trap 'exit 0' 2
 
 echo "LOG: Container ID: ${CONTAINER_ID} Container Name: ${CONTAINER_NAME}"
 echo "LOG: $password"
