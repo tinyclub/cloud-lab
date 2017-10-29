@@ -13,3 +13,5 @@
    ref: https://github.com/boot2docker/boot2docker/releases
 9. Add notify feature for LXDE: libnotify-bin notify-osd
    $ DISPLAY=:1 notify-send 'The system will be turned off in 5 minutes' --urgency=critical -t 0
+10. Update the password in 5 minutes
+   $ tools/docker/cmd linux-0.11-lab 'sh -c "echo ffffff > ~/.vnc/passwdfile; pkill x11vnc"'
