@@ -147,7 +147,7 @@ __do_unlock ()
 
     $SUDO chattr -R -i $CONFIGS_DIR
     $SUDO chattr -R -i $TOOL_DIR
-    $SUDO find $CONFIG_DOCKER_DIR -name ".[^.]*" -exec chmod -f -R 664 {} \;
+    $SUDO find $CONFIG_DOCKER_DIR -iname ".[^.]*" -exec chmod -f -R 664 {} \;
 }
 
 do_lock ()
