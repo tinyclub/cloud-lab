@@ -45,7 +45,7 @@ DEF_HOME=/home/$DEF_USER
 DEF_SYSTEM_SUDOERS_USER=/etc/sudoers.d/$DEF_USER
 DESKTOP=$HOME/Desktop/
 
-[ $SUDO_IDENTIFY -eq 1 ] && UNIX_USER_GROUPS="--groups adm,sudo"
+[ $SUDO_IDENTIFY -ge 1 ] && UNIX_USER_GROUPS="--groups adm,sudo"
 [ $SUDO_IDENTIFY -eq 0 ] && UNIX_USER_GROUPS=""
 
 # The old one should be removed before create a new one
@@ -69,7 +69,7 @@ do
 done
 
 SYSTEM_SUDOERS_USER=/etc/sudoers.d/$UNIX_USER
-[ $LAB_SECURITY -eq 0 ] && echo "$UNIX_USER ALL=(ALL) NOPASSWD: ALL" > $SYSTEM_SUDOERS_USER \
+[ $SUDO_IDENTIFY -eq 2 ] && echo "$UNIX_USER ALL=(ALL) NOPASSWD: ALL" > $SYSTEM_SUDOERS_USER \
 			&& chmod 440 $SYSTEM_SUDOERS_USER
 
 [ -f "$DEF_SYSTEM_SUDOERS_USER" -a $LAB_SECURITY -eq 1 ] \

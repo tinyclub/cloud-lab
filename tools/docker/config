@@ -221,6 +221,11 @@ which sha1sum >/dev/null 2>&1 && DEF_ENCRYPT_CMD=sha1sum
 [ -z "$ENCRYPT_CMD" ] && ENCRYPT_CMD=$DEF_ENCRYPT_CMD
 
 ## Security related
+### 0: with root permission by default, sharable, for private usage
+### 1: highest security level, ssl, encrypted, https, no root, no sudo, not sharable, for security product
+### 2: second security level, nossl, not encrypted, http, no root, no sudo, not sharable, for normal product
+### 3: third security leve, nossl, not encrypted, http, root available with sudo and password, sharable
+
 if [ $LAB_SECURITY -eq 1 ]; then
     WEB_NOSSL=0
     WEB_ENCRYPT=1
@@ -230,14 +235,32 @@ if [ $LAB_SECURITY -eq 1 ]; then
     # No sudo, no way to switch to root in clients
     DEF_SUDO_IDENTIFY=0
     [ -z "$VNC_SHARED" ] && VNC_SHARED=0
+elif [ $LAB_SECURITY -eq 2 ]; then
+    WEB_NOSSL=1
+    WEB_ENCRYPT=0
+    WEB_HTTP=http
+    # Account password locked, forbid the identify
+    DEF_UNIX_IDENTIFY=0
+    # No sudo, no way to switch to root in clients
+    DEF_SUDO_IDENTIFY=0
+    [ -z "$VNC_SHARED" ] && VNC_SHARED=0
+elif [ $LAB_SECURITY -eq 3 ]; then
+    WEB_NOSSL=1
+    WEB_ENCRYPT=0
+    WEB_HTTP=http
+    # Not locked
+    DEF_UNIX_IDENTIFY=1
+    # Can get root simply with sudo and password
+    DEF_SUDO_IDENTIFY=1
+    [ -z "$VNC_SHARED" ] && VNC_SHARED=1
 else
     WEB_NOSSL=1
     WEB_ENCRYPT=0
     WEB_HTTP=http
     # Not locked
     DEF_UNIX_IDENTIFY=1
-    # Can get root simply with sudo
-    DEF_SUDO_IDENTIFY=1
+    # Can get root simply with sudo and no password
+    DEF_SUDO_IDENTIFY=2
     [ -z "$VNC_SHARED" ] && VNC_SHARED=1
 fi
 
