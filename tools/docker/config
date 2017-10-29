@@ -371,8 +371,18 @@ get_random ()
         echo $random
     else
         random=`date '+%s'`
-        echo $(( random % 32767 ))
+        echo $(( random % 65535 ))
     fi
+}
+
+get_random_pwd ()
+{
+    which pwgen && pwgen -c -n -s -1 50 && exit 0
+
+    random=$RANDOM
+    [ -z "$random" ] && random=`date '+%s'`
+
+    echo $((random % 89273831 * 513793917553423 / 3)) | bc
 }
 
 get_browser ()

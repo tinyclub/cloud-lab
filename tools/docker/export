@@ -22,14 +22,14 @@ DEFAULT_PORT_MAP=" -p $HOST_VNC_PORT:$CONTAINER_VNC_PORT -p $HOST_SSH_PORT:$CONT
 [ -z "$VNC_TIMEOUT" ] && VNC_TIMEOUT=0
 [ -z "$PROXY_LIMIT" ] && PROXY_LIMIT=0
 [ -z "$ENCRYPT_CMD" ] && ENCRYPT_CMD="cat"
+[ -z "$UNIX_PWD" ] && UNIX_PWD=`get_random_pwd`
+[ -z "$VNC_PWD" ] && VNC_PWD=`get_random_pwd`
 [ -n "$UNIX_PWD" ] && UNIX_PWD=`echo $UNIX_PWD | tr -d '\n' | $ENCRYPT_CMD | cut -d' ' -f1`
 [ -n "$VNC_PWD" ] && VNC_PWD=`echo $VNC_PWD | tr -d '\n' | $ENCRYPT_CMD | cut -d' ' -f1`
 
 [ -z "$TOKEN_DIR" ] && TOKEN_DIR=$DEF_TOKEN_DIR
 [ -z "$TOKEN_LENGTH" ] && TOKEN_LENGTH=$DEF_TOKEN_LENGTH
 [ -z "$HOST_NAME" ] && HOST_NAME=localhost
-[ -z "$UNIX_PWD" ] && UNIX_PWD=ubuntu
-[ -z "$VNC_PWD" ] && VNC_PWD=ubuntu
 [ -z "$PORT_MAP" ] && PORT_MAP="$DEFAULT_PORT_MAP"
 [ -z "$ENV_ARGS" ] && ENV_ARGS=" -e VNC_TIMEOUT=$VNC_TIMEOUT -e UNIX_PWD=$UNIX_PWD -e VNC_PWD=$VNC_PWD -e SCREEN_SIZE=$SCREEN_SIZE -e PROXY_LIMIT=$PROXY_LIMIT -e NOSSL=$WEB_NOSSL"
 [ -z "$EXTRA_ARGS" ] && EXTRA_ARGS=""
