@@ -136,8 +136,8 @@ __do_lock ()
     # echo "LOG: __do_lock"
 
     $SUDO find $CONFIG_DOCKER_DIR -iname ".[^.]*" -exec chmod -f -R a-rw {} \;
-    which chattr && $SUDO chattr -R +i $CONFIGS_DIR
-    which chattr && $SUDO chattr -R +i $TOOL_DIR
+    which chattr >/dev/null 2>&1 && $SUDO chattr -R +i $CONFIGS_DIR
+    which chattr >/dev/null 2>&1 && $SUDO chattr -R +i $TOOL_DIR
 }
 
 # Unlock the important files for configuration
@@ -145,8 +145,8 @@ __do_unlock ()
 {
     # echo "LOG: __do_unlock"
 
-    which chattr && $SUDO chattr -R -i $CONFIGS_DIR
-    which chattr && $SUDO chattr -R -i $TOOL_DIR
+    which chattr >/dev/null 2>&1 && $SUDO chattr -R -i $CONFIGS_DIR
+    which chattr >/dev/null 2>&1 && $SUDO chattr -R -i $TOOL_DIR
     $SUDO find $CONFIG_DOCKER_DIR -iname ".[^.]*" -exec chmod -f -R 664 {} \;
 }
 
@@ -377,7 +377,7 @@ get_random ()
 
 get_random_pwd ()
 {
-    which pwgen && pwgen -c -n -s -1 50 && exit 0
+    which pwgen >/dev/null 2>&1 && pwgen -c -n -s -1 50 && exit 0
 
     random=$RANDOM
     [ -z "$random" ] && random=`date '+%s'`
