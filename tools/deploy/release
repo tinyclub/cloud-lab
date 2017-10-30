@@ -3,7 +3,7 @@
 TOP_DIR=$(cd $(dirname $0)/../../ && pwd)
 . $TOP_DIR/tools/docker/config $* >/dev/null
 
-[ -z "$LAB_NAME" ] && LAB_NAME=" "
+[ -z "$LAB_NAME" -o "$1" = "all" ] && LAB_NAME=" "
 
 $TOP_DIR/tools/deploy/list $* | grep "$LAB_NAME" | grep -v "LOG:" | sort -t ' ' -k 5 | \
 awk 'BEGIN{FS=" "}{ \

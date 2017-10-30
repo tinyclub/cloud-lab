@@ -3,41 +3,45 @@
 # batch -- create multiple containers in one script
 #
 # usage:
+#
 # E.x.:
-#    users="a b c d e f g" peruser=3 lab="linux-lab" host="myhost" cleanup=1 security=0 tools/deploy/batch
+#    users="a b c d e f g" peruser=3 labs="linux-0.11-lab cs630-qemu-lab" \
+#          host="myhost" cleanup=1 security=0 tools/deploy/batch
 #
 
 TOP_DIR=$(cd $(dirname $0)/../../ && pwd)
 
-[ -z "$users" ] && users="falcon cee1 heiher"
+[ -z "$users" ] && users="falcon"
 [ -z "$peruser" ] && peruser=1
-[ -z "$lab" ] && lab=tinylab.org
-[ -z "$host" ] && host=tinylab.org
+[ -z "$labs" ] && labs=linux-0.11-lab
+[ -z "$host" ] && host=tinylab.cloud
 [ -z "$cleanup" ] && cleanup=0
-[ -z "$security" ] && security=1
+[ -z "$security" ] && security=2
+
+LAB_SECURITY=$security
 
 . ${TOP_DIR}/tools/deploy/init
 
-${TOP_DIR}/tools/docker/choose $lab
+for lab in $labs
+do
+  ${TOP_DIR}/tools/docker/choose $lab
 
-if [ $cleanup -eq 1 ]; then
+  if [ $cleanup -eq 1 ]; then
     ${TOP_DIR}/tools/deploy/rm $lab
     ${TOP_DIR}/tools/deploy/clean $lab
     ${TOP_DIR}/tools/docker/choose $lab
-fi
+  fi
 
-${TOP_DIR}/tools/docker/unlock $lab
+  ${TOP_DIR}/tools/docker/unlock $lab
 
-cat <<EOF > ${TOP_DIR}/configs/$lab/docker/limits
---cpuset-cpus=0-1
---cpu-shares=512
---memory=2048M
---memory-swap=2048M
-EOF
+  echo "--memory=4G" > ${TOP_DIR}/configs/$lab/docker/limits
 
-echo $host > ${TOP_DIR}/.host_name
+  echo $host > ${TOP_DIR}/.host_name
 
-for user in $users
-do
+  for user in $users
+  do
     ${TOP_DIR}/tools/deploy/run $lab $user $peruser
+  done
+
+  ${TOP_DIR}/tools/deploy/release all
 done

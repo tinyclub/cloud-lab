@@ -1,7 +1,9 @@
 # For Lab initialization
 
 # Enhance security: protect private data
-export LAB_SECURITY=2
+
+[ -z "$LAB_SECURITY" ] && LAB_SECURITY=2
+export LAB_SECURITY
 
 [ `id -u` -ne 0 ] && SUDO=sudo
 
