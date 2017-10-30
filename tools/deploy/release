@@ -3,7 +3,7 @@
 TOP_DIR=$(cd $(dirname $0)/../../ && pwd)
 . $TOP_DIR/tools/docker/config $* >/dev/null
 
-[ -z "$RELEASE_DIR" ] && RELEASE_DIR=${TOP_DIR}/demo && mkdir -p $RELEASE_DIR
+[ -z "$RELEASE_DIR" ] && RELEASE_DIR=${TOP_DIR}/labs && mkdir -p $RELEASE_DIR
 [ -z "$RELEASE_PAGE" ] && RELEASE_PAGE=${RELEASE_DIR}/index.html
 
 [ -z "$LAB_NAME" -o "$1" = "all" ] && LAB_NAME=" "
