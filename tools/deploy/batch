@@ -10,13 +10,21 @@
 #
 
 TOP_DIR=$(cd $(dirname $0)/../../ && pwd)
+. $TOP_DIR/tools/docker/config $* >/dev/null 2>&1
 
-[ -z "$users" ] && users="falcon"
+[ -z "$users" ] && users="ubuntu"
 [ -z "$peruser" ] && peruser=1
 [ -z "$labs" ] && labs=linux-0.11-lab
-[ -z "$host" ] && host=tinylab.cloud
 [ -z "$cleanup" ] && cleanup=0
 [ -z "$security" ] && security=2
+
+if [ -z "$host" ]; then
+    do_unlock
+    get_var HOST localhost
+    host=$HOST
+    do_lock
+fi
+
 
 LAB_SECURITY=$security
 

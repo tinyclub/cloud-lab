@@ -48,7 +48,7 @@ CONFIG_WORKDIR=/configs
 
 # Some commands not require to specify the lab name
 CMD=`basename $0`
-echo "tproxy export choose unlock-all build-all pull-all git-pull-all push-all clean-all list release " | grep "$CMD "
+echo "tproxy export choose unlock-all build-all pull-all git-pull-all push-all clean-all list release batch " | grep "$CMD "
 [ $? -eq 0 ] && IGNORE_LAB_NAME=1
 
 if [ -n "$IN_CONTAINER_CMD" ]; then
