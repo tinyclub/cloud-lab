@@ -241,8 +241,8 @@ elif [ $LAB_SECURITY -eq 2 ]; then
     WEB_NOSSL=1
     WEB_ENCRYPT=0
     WEB_HTTP=http
-    # Account password locked, forbid the identify
-    DEF_UNIX_IDENTIFY=0
+    # Not locked
+    DEF_UNIX_IDENTIFY=1
     # No sudo, no way to switch to root in clients
     DEF_SUDO_IDENTIFY=0
     [ -z "$VNC_SHARED" ] && VNC_SHARED=0
