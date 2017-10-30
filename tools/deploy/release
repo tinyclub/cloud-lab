@@ -3,12 +3,63 @@
 TOP_DIR=$(cd $(dirname $0)/../../ && pwd)
 . $TOP_DIR/tools/docker/config $* >/dev/null
 
+[ -z "$RELEASE_DIR" ] && RELEASE_DIR=${TOP_DIR}/demo && mkdir -p $RELEASE_DIR
+[ -z "$RELEASE_PAGE" ] && RELEASE_PAGE=${RELEASE_DIR}/index.html
+
 [ -z "$LAB_NAME" -o "$1" = "all" ] && LAB_NAME=" "
 
 $TOP_DIR/tools/deploy/list $* | grep "$LAB_NAME" | grep -v "LOG:" | sort -t ' ' -k 5 | \
 awk 'BEGIN{FS=" "}{ \
-	printf("Lab: %s, User: %s\n", $1, $2); \
+	printf("Lab: %s, User: %s\n", $11, $2); \
 	printf("  * VNC: '$WEB_HTTP'://%s:%s/?u=%s&p=%s\n", $3, $4, $5, $6); \
 	printf("  * VNC_VIEWONLY: '$WEB_HTTP'://%s:%s/?r=%s%s\n", $3, $4, $5, $7); \
 	printf("  * Webssh: '$WEB_HTTP'://%s:%s/?ssh=ssh://%s:%s@%s:22\n", $3, $9, $2, $10, $8); \
 	}'
+
+do_unlock
+get_var HOST localhost
+do_lock
+
+$TOP_DIR/tools/deploy/list $* | grep "$LAB_NAME" | grep -v "LOG:" | sort -t ' ' -k 5 | \
+awk 'BEGIN {FS=" "; 	\
+	printf("<html> 	\
+		<body> 	\
+		<head> 	\
+		<style type=\"text/css\">body { width: 100%; height: 500px; margin-bottom: 16px; overflow: auto; } \
+		a { text-decoration: none; outline: none; }	\
+		p { text-align: center; font-size: 100%; } \
+		table { border: 1px solid #333; border-spacing: 0; border-collapse: collapse; width: 100%; }	\
+		th, td { padding-left: 2px; padding-right: 2px; padding-top: 10px; padding-bottom: 10px;	\
+		     border: 1px solid #aaa; display: table-cell;	\
+		     text-align: center; max-width: 100px; }		\
+		td { font-size: 80%; overflow: hidden; text-overflow: ellipsis }	\
+		tr.head { background-color: #ccc; }	\
+		tr.odd { background-color: #eee; }	\
+		tr.even { background-color: #fff; }	\
+		tr:hover { background-color: #aaa; }</style>	\
+		<meta charset=\"UTF-8\"> 	\
+		<title>Cloud Lab | 泰晓实验云台</title> 	\
+		</head> 	\
+		<h1><a target=\"_blank\" href=\"'$WEB_HTTP'://'$HOST':6080\">Cloud Lab | 泰晓实验云台<a/></h1> 	\
+		<br>	\
+		<table>		\
+		<tr class=\"head\"><td>Lab</td><td>VNC (Normal)</td><td>VNC (Viewonly)</td><td>Web SSH</td></tr>"); \
+     }{ 			\
+	printf("<tr class=\"%s\">\n", (FNR%2 == 0) ? "odd" : "even"); \
+	printf("<td>%s</td>\n", $1); \
+	printf("  <td><a target=\"_blank\" href=\"'$WEB_HTTP'://%s:%s/?u=%s&p=%s\">Login</a></td>\n", \
+		$3, $4, $5, $6); \
+	printf("  <td><a target=\"_blank\" href=\"'$WEB_HTTP'://%s:%s/?r=%s%s\">Login</a></td>\n", \
+		$3, $4, $5, $7); \
+	printf("  <td><a target=\"_blank\" href=\"'$WEB_HTTP'://%s:%s/?ssh=ssh://%s:%s@%s:22\">Login</a></td>\n", \
+		$3, $9, $2, $10, $8); \
+	printf("</tr>\n"); \
+     }		\
+     END {	\
+	printf("</table>	\
+		<p>感谢 <a target=\"_blank\" href=\"http://tinylab.org\">泰晓科技</a> 提供技术支持；		\
+		感谢 <a target=\"_blank\" href=\"https://www.qingcloud.com/\">青云QingCloud</a> 赞助服务器。</p>\
+		<p>Powered by <a target=\"_blank\" href=\"http://tinylab.org/cloud-lab\">Cloud Lab</a></p>	\
+		</body>		\
+		</html>");	\
+     }' > $RELEASE_PAGE
