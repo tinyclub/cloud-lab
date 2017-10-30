@@ -135,7 +135,8 @@ __do_lock ()
 {
     # echo "LOG: __do_lock"
 
-    $SUDO find $CONFIG_DOCKER_DIR -iname ".[^.]*" -exec chmod -f -R a-rw {} \;
+    [ -d $CONFIG_DOCKER_DIR ] && \
+	$SUDO find $CONFIG_DOCKER_DIR -iname ".[^.]*" -exec chmod -f -R a-rw {} \;
     which chattr >/dev/null 2>&1 && $SUDO chattr -R +i $CONFIGS_DIR
     which chattr >/dev/null 2>&1 && $SUDO chattr -R +i $TOOL_DIR
 }
@@ -147,7 +148,8 @@ __do_unlock ()
 
     which chattr >/dev/null 2>&1 && $SUDO chattr -R -i $CONFIGS_DIR
     which chattr >/dev/null 2>&1 && $SUDO chattr -R -i $TOOL_DIR
-    $SUDO find $CONFIG_DOCKER_DIR -iname ".[^.]*" -exec chmod -f -R 664 {} \;
+    [ -d $CONFIG_DOCKER_DIR ] && \
+	$SUDO find $CONFIG_DOCKER_DIR -iname ".[^.]*" -exec chmod -f -R 664 {} \;
 }
 
 do_lock ()
