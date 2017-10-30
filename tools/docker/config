@@ -222,6 +222,9 @@ which shasum >/dev/null 2>&1 && DEF_ENCRYPT_CMD=shasum
 which sha1sum >/dev/null 2>&1 && DEF_ENCRYPT_CMD=sha1sum
 [ -z "$ENCRYPT_CMD" ] && ENCRYPT_CMD=$DEF_ENCRYPT_CMD
 
+[ -z "$RELEASE_DIR" ] && RELEASE_DIR=${TOP_DIR}/labs && mkdir -p $RELEASE_DIR
+[ -z "$RELEASE_PAGE" ] && RELEASE_PAGE=${RELEASE_DIR}/index.html
+
 ## Security related
 ### 0: with root permission by default, sharable, for private usage
 ### 1: highest security level, ssl, encrypted, https, no root, no sudo, not sharable, for security product

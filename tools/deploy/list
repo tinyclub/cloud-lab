@@ -5,16 +5,13 @@ TOP_DIR=$(cd $(dirname $0)/../../ && pwd)
 
 [ ! -d $LAB_OUTPUT ] && exit 0
 
-[ -z "$ENCRYPT_CMD" ] && ENCRYPT_CMD=$DEF_ENCRYPT_CMD
-[ -z "$TOKEN_LENGTH" ] && TOKEN_LENGTH=$DEF_TOKEN_LENGTH
-
 labs=`find $LAB_OUTPUT -maxdepth 1 -mindepth 1 | sort`
 
 do_unlock
 get_var HOST localhost
 do_lock
 
-get_lab_attr () # lab_attr
+get_lab_attrs () # lab_attr
 {
   lab_user=$1
   lab_life=$2
@@ -24,27 +21,18 @@ get_lab_attr () # lab_attr
 for lab in $labs
 do
     lab_basename=$(basename $lab)
-    lab_attr=$(echo $lab_basename | cut -d'+' -f2 | tr '-' ' ')
-
-    get_lab_attr $lab_attr
-
     lab_name=$(echo $lab_basename | cut -d'+' -f1)
-
-    # Ignore the containers not running
-    docker ps -f name=$lab_name | grep -qv PORTS
-    [ $? -ne 0 ] && continue
-
+    lab_attr=$(echo $lab_basename | cut -d'+' -f2 | tr '-' ' ')
+    get_lab_attrs $lab_attr
     lab_name=${lab_name%-*}
 
     TOP_DIR=$lab
-    unset UNIX_USER UNIX_PWD VNC_PWD VNC_PWD_VIEWONLY CONTAINER_NAME CONTAINER_IP CONTAINER_TOKEN
+    unset UNIX_PWD VNC_PWD VNC_PWD_VIEWONLY CONTAINER_NAME VNC_IP VNC_TOKEN
     . $TOP_DIR/tools/docker/config $lab_name >/dev/null 2>&1
 
-    do_unlock
-    get_var UNIX_USER ubuntu
-    get_var VNC_IP $(docker inspect --format '{{ .NetworkSettings.IPAddress }}' $CONTAINER_NAME)
-    get_var VNC_TOKEN $(echo $VNC_IP | tr -d '\n' | $ENCRYPT_CMD | cut -d' ' -f1 | cut -c1-$TOKEN_LENGTH)
-    do_lock
+    # Ignore the containers not running
+    docker ps -f name=$CONTAINER_NAME | grep -qv PORTS
+    [ $? -ne 0 ] && continue
 
     echo $lab_name $lab_user $HOST $HOST_VNC_PORT $VNC_TOKEN $VNC_PWD $VNC_PWD_VIEWONLY $VNC_IP $HOST_WEBSSH_PORT $UNIX_PWD $CONTAINER_NAME $lab_life $lab_start
 done
