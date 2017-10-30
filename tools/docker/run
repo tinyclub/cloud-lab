@@ -127,3 +127,4 @@ echo "LOG: Container ID: ${CONTAINER_ID} Container Name: ${CONTAINER_NAME}"
 echo "LOG: $password"
 
 $DOCKER_VNC_CMD $*
+$DOCKER_RELEASE_CMD all >/dev/null 2>&1

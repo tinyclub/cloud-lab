@@ -57,7 +57,7 @@ if [ -n "$IN_CONTAINER_CMD" ]; then
     CONFIG_DIR=$CONFIG_WORKDIR
 else
     # Allow to pass lab name
-    CURRENT=$1
+    [ -z $CURRENT ] && CURRENT=$1
     LAB_CURRENT=$LAB_DIR/.current_lab
 
     [ -n "$CURRENT" ] && ls $CONFIGS_DIR | tr -s ' ' | tr ' ' '\n' | grep -q ^$CURRENT$
@@ -85,6 +85,7 @@ CONFIG_SYSTEM_DIR=$CONFIG_DIR/system
 DOCKER_DIR=$TOOL_DIR/docker
 DOCKER_IDENTIFY_CMD=$DOCKER_DIR/identify
 DOCKER_VNC_CMD=$DOCKER_DIR/vnc
+DOCKER_RELEASE_CMD=$DOCKER_DIR/release
 DOCKER_SSH_CMD=$DOCKER_DIR/ssh
 DOCKER_WEBSSH_CMD=$DOCKER_DIR/webssh
 DOCKER_EXPORT_CMD=$DOCKER_DIR/export

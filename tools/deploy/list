@@ -21,16 +21,20 @@ get_lab_attrs () # lab_attr
 for lab in $labs
 do
     lab_basename=$(basename $lab)
-    lab_name=$(echo $lab_basename | cut -d'+' -f1)
-    lab_attr=$(echo $lab_basename | cut -d'+' -f2 | tr '-' ' ')
-    get_lab_attrs $lab_attr
-    lab_name=${lab_name%-*}
+    _lab_name=$(echo $lab_basename | cut -d'+' -f1)
+    lab_name=${_lab_name%-*}
+
+    lab_attrs=$(echo $lab_basename | cut -d'+' -f2 | tr '-' ' ')
+    get_lab_attrs $lab_attrs
 
     TOP_DIR=$lab
+    CURRENT=$lab_name
     unset UNIX_PWD VNC_PWD VNC_PWD_VIEWONLY CONTAINER_NAME VNC_IP VNC_TOKEN
-    . $TOP_DIR/tools/docker/config $lab_name >/dev/null 2>&1
+    . $TOP_DIR/tools/docker/config >/dev/null 2>&1
 
     # Ignore the containers not running
+    [ -z "$CONTAINER_NAME" ] && continue
+
     docker ps -f name=$CONTAINER_NAME | grep -qv PORTS
     [ $? -ne 0 ] && continue
 
