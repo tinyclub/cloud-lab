@@ -20,6 +20,7 @@ DEFAULT_PORT_MAP=" -p $HOST_VNC_PORT:$CONTAINER_VNC_PORT -p $HOST_SSH_PORT:$CONT
 # Available encrypt cmds: sha1sum, sha224sum, cksum, sha256sum, sha512sum, md5sum, sha384sum, sum
 # To enable auto timeout, please pass VNC_TIMEOUT=1
 [ -z "$VNC_TIMEOUT" ] && VNC_TIMEOUT=0
+[ -z "$VNC_AUTH" ] && VNC_AUTH=""
 [ -z "$PROXY_LIMIT" ] && PROXY_LIMIT=0
 [ -z "$ENCRYPT_CMD" ] && ENCRYPT_CMD="cat"
 [ -z "$UNIX_PWD" ] && UNIX_PWD=`get_random_pwd`
@@ -31,7 +32,7 @@ DEFAULT_PORT_MAP=" -p $HOST_VNC_PORT:$CONTAINER_VNC_PORT -p $HOST_SSH_PORT:$CONT
 [ -z "$TOKEN_LENGTH" ] && TOKEN_LENGTH=$DEF_TOKEN_LENGTH
 [ -z "$HOST_NAME" ] && HOST_NAME=localhost
 [ -z "$PORT_MAP" ] && PORT_MAP="$DEFAULT_PORT_MAP"
-[ -z "$ENV_ARGS" ] && ENV_ARGS=" -e VNC_TIMEOUT=$VNC_TIMEOUT -e UNIX_PWD=$UNIX_PWD -e VNC_PWD=$VNC_PWD -e SCREEN_SIZE=$SCREEN_SIZE -e PROXY_LIMIT=$PROXY_LIMIT -e NOSSL=$WEB_NOSSL -e ENCRYPT_CMD=$ENCRYPT_CMD"
+[ -z "$ENV_ARGS" ] && ENV_ARGS=" -e VNC_TIMEOUT=$VNC_TIMEOUT -e VNC_AUTH=$VNC_AUTH -e UNIX_PWD=$UNIX_PWD -e VNC_PWD=$VNC_PWD -e SCREEN_SIZE=$SCREEN_SIZE -e PROXY_LIMIT=$PROXY_LIMIT -e NOSSL=$WEB_NOSSL -e ENCRYPT_CMD=$ENCRYPT_CMD"
 [ -z "$EXTRA_ARGS" ] && EXTRA_ARGS=""
 
 # Mount a directory for storing the noVNC recording sessions
