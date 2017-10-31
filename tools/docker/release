@@ -31,7 +31,7 @@ awk 'BEGIN {FS=" "; 	\
 		tr.head { background-color: #ccc; }	\
 		tr.odd { background-color: #eee; }	\
 		tr.even { background-color: #fff; }	\
-		tr:hover { background-color: #aaa; }</style>	\
+		</style> 	\
 		<meta charset=\"UTF-8\"> 	\
 		<title>Cloud Lab | 泰晓实验云台</title> 	\
 		</head> 	\
