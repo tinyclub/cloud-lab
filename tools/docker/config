@@ -16,7 +16,7 @@ HOST_USER=$USER
 HOST_OS=$(uname)
 
 # Basic requirement: docker and let docker run without sudo
-if [ ! -n "$IN_CONTAINER_CMD" ]; then
+if [ ! -n "$IN_CONTAINER" ]; then
   DOCKER_INSTALL_CMD=$TOP_DIR/tools/docker/install
   $DOCKER_INSTALL_CMD >&2 || exit 1
   which groups >/dev/null 2>&1 && which usermod >/dev/null 2>&1 \
@@ -51,29 +51,29 @@ CMD=`basename $0`
 echo "tproxy export choose unlock-all build-all pull-all git-pull-all push-all clean-all rm-all list release batch " | grep "$CMD "
 [ $? -eq 0 ] && IGNORE_LAB_NAME=1
 
-if [ -n "$IN_CONTAINER_CMD" ]; then
-    LAB_DIR=$LAB_WORKDIR
-    TOOL_DIR=$TOOL_WORKDIR
-    CONFIG_DIR=$CONFIG_WORKDIR
+if [ -n "$IN_CONTAINER" ]; then
+  LAB_DIR=$LAB_WORKDIR
+  TOOL_DIR=$TOOL_WORKDIR
+  CONFIG_DIR=$CONFIG_WORKDIR
 else
-    # Allow to pass lab name
-    [ -z $CURRENT ] && CURRENT=$1
-    LAB_CURRENT=$LAB_DIR/.current_lab
+  # Allow to pass lab name
+  [ -z $CURRENT ] && CURRENT=$1
+  LAB_CURRENT=$LAB_DIR/.current_lab
 
-    [ -n "$CURRENT" ] && ls $CONFIGS_DIR | tr -s ' ' | tr ' ' '\n' | grep -q ^$CURRENT$
-    if [ $? -eq 1 -o -z "$CURRENT" ]; then
-        CURRENT=""
-        if [ -f $LAB_CURRENT ]; then
-            CURRENT=$(cat $LAB_CURRENT)
-            LAB_CURRENT_DIR=$LAB_DIR/$CURRENT
-        fi
+  [ -n "$CURRENT" ] && ls $CONFIGS_DIR | tr -s ' ' | tr ' ' '\n' | grep -q ^$CURRENT$
+  if [ $? -eq 1 -o -z "$CURRENT" ]; then
+    CURRENT=""
+    if [ -f $LAB_CURRENT ]; then
+      CURRENT=$(cat $LAB_CURRENT)
+      LAB_CURRENT_DIR=$LAB_DIR/$CURRENT
     fi
+  fi
 
-    # Container don't need this CURRENT
-    [ -z "$CURRENT" -a -z "$IGNORE_LAB_NAME" ] && echo "LOG: Current lab not specified" >&2 && exit 1
-    [ -n "$CURRENT" ] && echo "LOG: Current Lab is $CURRENT" >&2
+  # Container don't need this CURRENT
+  [ -z "$CURRENT" -a -z "$IGNORE_LAB_NAME" ] && echo "LOG: Current lab not specified" >&2 && exit 1
+  [ -n "$CURRENT" ] && echo "LOG: Current Lab is $CURRENT" >&2
 
-    CONFIG_DIR=$TOP_DIR/configs/$CURRENT
+  CONFIG_DIR=$TOP_DIR/configs/$CURRENT
 fi
 
 CORE_SYSTEM_DIR=$TOOL_DIR/system
@@ -134,33 +134,33 @@ LAB_SUDO_IDENTIFY=$CONFIG_DOCKER_DIR/.sudo_identify
 # Lock the important files for security
 __do_lock ()
 {
-    # echo "LOG: __do_lock"
+  # echo "LOG: __do_lock"
 
-    [ -d $CONFIG_DOCKER_DIR ] && \
-	$SUDO find $CONFIG_DOCKER_DIR -iname ".[^.]*" -exec chmod -f -R a-rw {} \;
-    which chattr >/dev/null 2>&1 && $SUDO chattr -R +i $CONFIGS_DIR
-    which chattr >/dev/null 2>&1 && $SUDO chattr -R +i $TOOL_DIR
+  [ -d $CONFIG_DOCKER_DIR ] && \
+    $SUDO find $CONFIG_DOCKER_DIR -iname ".[^.]*" -exec chmod -f -R a-rw {} \;
+  which chattr >/dev/null 2>&1 && $SUDO chattr -R +i $CONFIGS_DIR
+  which chattr >/dev/null 2>&1 && $SUDO chattr -R +i $TOOL_DIR
 }
 
 # Unlock the important files for configuration
 __do_unlock ()
 {
-    # echo "LOG: __do_unlock"
+  # echo "LOG: __do_unlock"
 
-    which chattr >/dev/null 2>&1 && $SUDO chattr -R -i $CONFIGS_DIR
-    which chattr >/dev/null 2>&1 && $SUDO chattr -R -i $TOOL_DIR
-    [ -d $CONFIG_DOCKER_DIR ] && \
-	$SUDO find $CONFIG_DOCKER_DIR -iname ".[^.]*" -exec chmod -f -R 664 {} \;
+  which chattr >/dev/null 2>&1 && $SUDO chattr -R -i $CONFIGS_DIR
+  which chattr >/dev/null 2>&1 && $SUDO chattr -R -i $TOOL_DIR
+  [ -d $CONFIG_DOCKER_DIR ] && \
+    $SUDO find $CONFIG_DOCKER_DIR -iname ".[^.]*" -exec chmod -f -R 664 {} \;
 }
 
 do_lock ()
 {
-    [ $LAB_SECURITY -ge 1 ] && __do_lock
+  [ $LAB_SECURITY -ge 1 ] && __do_lock
 }
 
 do_unlock ()
 {
-    [ $LAB_SECURITY -ge 1 ] && __do_unlock
+  [ $LAB_SECURITY -ge 1 ] && __do_unlock
 }
 
 # Variables initialization from config file if exist
@@ -178,17 +178,17 @@ do_unlock
 
 for VAR in $LAB_VARS
 do
-    var_file=`eval echo \\${LAB_$VAR}`
-    # Accesspt ENV
-    var=`eval echo \\$${VAR}`
+  var_file=`eval echo \\${LAB_$VAR}`
+  # Accesspt ENV
+  var=`eval echo \\$${VAR}`
 
-    # echo $VAR $var
-    # echo "LOG: Get $VAR from $var_file"
+  # echo $VAR $var
+  # echo "LOG: Get $VAR from $var_file"
 
-    var_value=""
-    [ -n "$var_file" -a -f "$var_file" -a -z "$var" ] && var_value='$(grep -v "#" $var_file)' && eval `eval echo \\$VAR='$var_value'`
+  var_value=""
+  [ -n "$var_file" -a -f "$var_file" -a -z "$var" ] && var_value='$(grep -v "#" $var_file)' && eval `eval echo \\$VAR='$var_value'`
 
-    echo `eval echo "LOG: $VAR=\\$${VAR}"`
+  echo `eval echo "LOG: $VAR=\\$${VAR}"`
 done
 
 do_lock
@@ -200,14 +200,16 @@ do_lock
 
 for eth in en0 eth1
 do
-    ifconfig $eth >/dev/null 2>&1
-    [ $? -ne 0 ] && continue
-    LOCALHOST=`ifconfig $eth | grep 'inet ' | tr ':' ' ' | tr -s ' ' | tr ' ' '\n' | grep "[0-9\.]\{7,\}" | head -1`
-    break
+  ifconfig $eth >/dev/null 2>&1
+  [ $? -ne 0 ] && continue
+  LOCALHOST=`ifconfig $eth | grep 'inet ' | tr ':' ' ' | tr -s ' ' | tr ' ' '\n' | grep "[0-9\.]\{7,\}" | head -1`
+  break
 done
 
 ## default terminal, lxterminal, terminator
-XTERM=`$DOCKER_XTERM_CMD lxterminal`
+if [ ! -n "$IN_CONTAINER" ]; then
+  XTERM=`$DOCKER_XTERM_CMD lxterminal`
+fi
 
 ## password
 DEF_PWD_LENGTH=6
@@ -234,41 +236,41 @@ which sha1sum >/dev/null 2>&1 && DEF_ENCRYPT_CMD=sha1sum
 ### 3: third security leve, nossl, not encrypted, http, root available with sudo and password, sharable
 
 if [ $LAB_SECURITY -eq 1 ]; then
-    WEB_NOSSL=0
-    WEB_ENCRYPT=1
-    WEB_HTTP=https
-    # Account password locked, forbid the identify
-    DEF_UNIX_IDENTIFY=0
-    # No sudo, no way to switch to root in clients
-    DEF_SUDO_IDENTIFY=0
-    [ -z "$VNC_SHARED" ] && VNC_SHARED=0
+  WEB_NOSSL=0
+  WEB_ENCRYPT=1
+  WEB_HTTP=https
+  # Account password locked, forbid the identify
+  DEF_UNIX_IDENTIFY=0
+  # No sudo, no way to switch to root in clients
+  DEF_SUDO_IDENTIFY=0
+  [ -z "$VNC_SHARED" ] && VNC_SHARED=0
 elif [ $LAB_SECURITY -eq 2 ]; then
-    WEB_NOSSL=1
-    WEB_ENCRYPT=0
-    WEB_HTTP=http
-    # Not locked
-    DEF_UNIX_IDENTIFY=1
-    # No sudo, no way to switch to root in clients
-    DEF_SUDO_IDENTIFY=0
-    [ -z "$VNC_SHARED" ] && VNC_SHARED=0
+  WEB_NOSSL=1
+  WEB_ENCRYPT=0
+  WEB_HTTP=http
+  # Not locked
+  DEF_UNIX_IDENTIFY=1
+  # No sudo, no way to switch to root in clients
+  DEF_SUDO_IDENTIFY=0
+  [ -z "$VNC_SHARED" ] && VNC_SHARED=0
 elif [ $LAB_SECURITY -eq 3 ]; then
-    WEB_NOSSL=1
-    WEB_ENCRYPT=0
-    WEB_HTTP=http
-    # Not locked
-    DEF_UNIX_IDENTIFY=1
-    # Can get root simply with sudo and password
-    DEF_SUDO_IDENTIFY=1
-    [ -z "$VNC_SHARED" ] && VNC_SHARED=1
+  WEB_NOSSL=1
+  WEB_ENCRYPT=0
+  WEB_HTTP=http
+  # Not locked
+  DEF_UNIX_IDENTIFY=1
+  # Can get root simply with sudo and password
+  DEF_SUDO_IDENTIFY=1
+  [ -z "$VNC_SHARED" ] && VNC_SHARED=1
 else
-    WEB_NOSSL=1
-    WEB_ENCRYPT=0
-    WEB_HTTP=http
-    # Not locked
-    DEF_UNIX_IDENTIFY=1
-    # Can get root simply with sudo and no password
-    DEF_SUDO_IDENTIFY=2
-    [ -z "$VNC_SHARED" ] && VNC_SHARED=1
+  WEB_NOSSL=1
+  WEB_ENCRYPT=0
+  WEB_HTTP=http
+  # Not locked
+  DEF_UNIX_IDENTIFY=1
+  # Can get root simply with sudo and no password
+  DEF_SUDO_IDENTIFY=2
+  [ -z "$VNC_SHARED" ] && VNC_SHARED=1
 fi
 
 ## screen size
@@ -317,125 +319,125 @@ LAB_CONTAINER_RUN=$CONFIG_TOOL_DIR/container-run
 
 get_var () #VAR #defval
 {
-    local var_value
-    local VAR
-    local defval
+  local var_value
+  local VAR
+  local defval
 
-    VAR=$1
-    defval=$2
+  VAR=$1
+  defval=$2
 
-    var_file=`eval echo \\${LAB_$VAR}`
-    var_value=""
+  var_file=`eval echo \\${LAB_$VAR}`
+  var_value=""
 
-    [ -n "$var_file" -a -f "$var_file" ] && var_value='$(cat $var_file)' && eval `eval echo \\$VAR='$var_value'`
-    [ -z "$var_value" ] && eval `eval echo \\$VAR=$defval`
+  [ -n "$var_file" -a -f "$var_file" ] && var_value='$(cat $var_file)' && eval `eval echo \\$VAR='$var_value'`
+  [ -z "$var_value" ] && eval `eval echo \\$VAR=$defval`
 
-    #echo `eval echo "LOG: GET: $VAR=\\$${VAR}"`
+  #echo `eval echo "LOG: GET: $VAR=\\$${VAR}"`
 }
 
 set_var () #VAR
 {
-    local VAR
-    local var
-    local var_file
+  local VAR
+  local var
+  local var_file
 
-    VAR=$1
+  VAR=$1
 
-    var=`eval echo \\$${VAR} | egrep -v "^$|^ *$"`
-    var_file=`eval echo \\${LAB_$VAR}`
+  var=`eval echo \\$${VAR} | egrep -v "^$|^ *$"`
+  var_file=`eval echo \\${LAB_$VAR}`
 
-    #echo "LOG: SET: Save '$var' to $var_file"
+  #echo "LOG: SET: Save '$var' to $var_file"
 
-    if [ -n "$var" ]; then
-	echo "$var" | tr ' ' '\n' > $var_file
-    fi
+  if [ -n "$var" ]; then
+    echo "$var" | tr ' ' '\n' > $var_file
+  fi
 }
 
 do_op () #op $ARG $args
 {
-    local op
-    local ARG
-    local arg
-    local args
+  local op
+  local ARG
+  local arg
+  local args
 
-    op=$1
-    ARG=$2
-    args=$3
+  op=$1
+  ARG=$2
+  args=$3
 
-    arg=`eval echo \\$${ARG}`
+  arg=`eval echo \\$${ARG}`
 
-    [ -z "$arg" ] && echo "LOG: '$ARG' required for '$op'" && exit 1
+  [ -z "$arg" ] && echo "LOG: '$ARG' required for '$op'" && exit 1
 
-    echo "LOG: Running ' $op $arg $args'"
+  echo "LOG: Running ' $op $arg $args'"
 
-    eval $op $arg $args
+  eval $op $arg $args
 }
 
 get_random ()
 {
-    random=$RANDOM
-    if [ -n "$random" ]; then
-        echo $random
-    else
-        random=`date '+%s'`
-        echo $(( random % 65535 ))
-    fi
+  random=$RANDOM
+  if [ -n "$random" ]; then
+      echo $random
+  else
+      random=`date '+%s'`
+      echo $(( random % 65535 ))
+  fi
 }
 
 get_random_pwd ()
 {
-    which pwgen >/dev/null 2>&1 && pwgen -c -n -s -1 50 && exit 0
+  which pwgen >/dev/null 2>&1 && pwgen -c -n -s -1 50 && exit 0
 
-    random=$RANDOM
-    [ -z "$random" ] && random=`date '+%s'`
+  random=$RANDOM
+  [ -z "$random" ] && random=`date '+%s'`
 
-    echo $((random % 89273831 * 513793917553423 / 3)) | bc
+  echo $((random % 89273831 * 513793917553423 / 3)) | bc
 }
 
 get_browser ()
 {
-    # Get the best web browser for different system
-    macos_chrome='/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'
-    macos_safari=/Applications/Safari.app/Contents/MacOS/Safari
-    macos_firefox=/Applications/Firefox.app/Contents/MacOS/firefox
-    linux_chrome=chromium-browser
-    linux_firefox=firefox
+  # Get the best web browser for different system
+  macos_chrome='/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'
+  macos_safari=/Applications/Safari.app/Contents/MacOS/Safari
+  macos_firefox=/Applications/Firefox.app/Contents/MacOS/firefox
+  linux_chrome=chromium-browser
+  linux_firefox=firefox
 
-    DEF_WEB_BROWSER=firefox
-    if [ "x$HOST_OS" = "xDarwin" ]; then
-        [ -f "$macos_safari" ] && DEF_WEB_BROWSER="$macos_safari"
-        [ -f "$macos_firefox" ] && DEF_WEB_BROWSER="$macos_firefox"
-        [ -f "$macos_chrome" ] && DEF_WEB_BROWSER="$(echo $macos_chrome | tr ' ' '-')"
-    else
-        which $linux_firefox >/dev/null 2>&1 && DEF_WEB_BROWSER=$linux_firefox
-        which $linux_chrome >/dev/null 2>&1 && DEF_WEB_BROWSER=$linux_chrome
+  DEF_WEB_BROWSER=firefox
+  if [ "x$HOST_OS" = "xDarwin" ]; then
+    [ -f "$macos_safari" ] && DEF_WEB_BROWSER="$macos_safari"
+    [ -f "$macos_firefox" ] && DEF_WEB_BROWSER="$macos_firefox"
+    [ -f "$macos_chrome" ] && DEF_WEB_BROWSER="$(echo $macos_chrome | tr ' ' '-')"
+  else
+    which $linux_firefox >/dev/null 2>&1 && DEF_WEB_BROWSER=$linux_firefox
+    which $linux_chrome >/dev/null 2>&1 && DEF_WEB_BROWSER=$linux_chrome
+  fi
+
+  do_unlock
+  [ -z "$WEB_BROWSER" ] && get_var WEB_BROWSER $DEF_WEB_BROWSER
+  do_lock
+
+  if [ "x$HOST_OS" = "xDarwin" ]; then
+    WEB_BROWSER="$(echo $WEB_BROWSER | tr '-' ' ')"
+    if [ ! -f "$WEB_BROWSER" ]; then
+      web_browser=`ls /Applications/*/Contents/MacOS/* | grep -i "$WEB_BROWSER$"`
+      if [ $? -eq 0 ]; then
+        WEB_BROWSER="$web_browser"
+      else
+        echo "LOG: No $WEB_BROWSER found, use safari instead." && WEB_BROWSER=$macos_safari
+      fi
     fi
-
-    do_unlock
-    [ -z "$WEB_BROWSER" ] && get_var WEB_BROWSER $DEF_WEB_BROWSER
-    do_lock
-
-    if [ "x$HOST_OS" = "xDarwin" ]; then
-        WEB_BROWSER="$(echo $WEB_BROWSER | tr '-' ' ')"
-        if [ ! -f "$WEB_BROWSER" ]; then
-            web_browser=`ls /Applications/*/Contents/MacOS/* | grep -i "$WEB_BROWSER$"`
-            if [ $? -eq 0 ]; then
-                WEB_BROWSER="$web_browser"
-            else
-                echo "LOG: No $WEB_BROWSER found, use safari instead." && WEB_BROWSER=$macos_safari
-            fi
-        fi
-    else
-        which $WEB_BROWSER >/dev/null 2>&1
-        if [ $? -eq 1 ]; then
-            echo "LOG: No $WEB_BROWSER found, use firefox instead."
-            WEB_BROWSER=firefox
-        fi
+  else
+    which $WEB_BROWSER >/dev/null 2>&1
+    if [ $? -eq 1 ]; then
+      echo "LOG: No $WEB_BROWSER found, use firefox instead."
+      WEB_BROWSER=firefox
     fi
+  fi
 
-    __WEB_BROWSER=$WEB_BROWSER
+  __WEB_BROWSER=$WEB_BROWSER
 
-    if [ "x$HOST_OS" = "xDarwin" ]; then
-        __WEB_BROWSER="/usr/bin/open -a '$WEB_BROWSER'"
-    fi
+  if [ "x$HOST_OS" = "xDarwin" ]; then
+    __WEB_BROWSER="/usr/bin/open -a '$WEB_BROWSER'"
+  fi
 }
