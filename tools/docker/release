@@ -7,16 +7,17 @@ TOP_DIR=$(cd $(dirname $0)/../../ && pwd)
 
 [ -z "$LAB_NAME" -o "$1" = "all" ] && LAB_NAME=" "
 
-$TOP_DIR/tools/docker/list $* | grep "$LAB_NAME" | grep -v "LOG:" | sort -t ' ' -k 5 | \
-awk 'BEGIN{FS=" "}{ \
+tmp=`mktemp`
+$TOP_DIR/tools/docker/list $* | grep "$LAB_NAME" | grep -v "LOG:" | sort -t ' ' -k 5 > $tmp
+
+cat $tmp | awk 'BEGIN{FS=" "}{ \
 	printf("Lab: %s, User: %s\n", $11, $2); \
 	printf("  * VNC (Normal): '$WEB_HTTP'://%s:%s/?u=%s&p=%s\n", $3, $4, $5, $6); \
 	printf("  * VNC   (View): '$WEB_HTTP'://%s:%s/?r=%s%s\n", $3, $4, $5, $7); \
 	printf("  * SSH    (Web): '$WEB_HTTP'://%s:%s/?ssh=ssh://%s:%s@%s:22\n", $3, $9, $2, $10, $8); \
 	}'
 
-$TOP_DIR/tools/docker/list $* | grep "$LAB_NAME" | grep -v "LOG:" | sort -t ' ' -k 5 | \
-awk 'BEGIN {FS=" "; 	\
+cat $tmp | awk 'BEGIN {FS=" "; 	\
 	printf("<html> 	\
 		<body> 	\
 		<head> 	\
@@ -55,4 +56,6 @@ awk 'BEGIN {FS=" "; 	\
 		<p>Powered by <a target=\"_blank\" href=\"http://tinylab.org/cloud-lab\">Cloud Lab</a></p>	\
 		</body>		\
 		</html>");	\
-     }' | tr '\t' ' ' | tr -s ' ' > $RELEASE_PAGE
+     }' | tr '\t' ' ' | tr -s ' ' > $RELEASE_PAGE &
+
+rm $tmp

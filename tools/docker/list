@@ -3,19 +3,19 @@
 TOP_DIR=$(cd $(dirname $0)/../../ && pwd)
 . $TOP_DIR/tools/docker/config $* >/dev/null 2>&1
 
-labs=`find $LAB_DIR -maxdepth 1 -mindepth 1 -type d | sort | xargs -i{} basename {}`
+labs=`ls $LAB_DIR`
 
 for lab in $labs
 do
-    CURRENT=$lab
-    unset UNIX_USER UNIX_PWD VNC_PWD VNC_PWD_VIEWONLY CONTAINER_NAME VNC_IP VNC_TOKEN
-    . $TOP_DIR/tools/docker/config >/dev/null 2>&1
+  CURRENT=$lab
+  unset UNIX_USER UNIX_PWD VNC_PWD VNC_PWD_VIEWONLY CONTAINER_NAME VNC_IP VNC_TOKEN
+  . $TOP_DIR/tools/docker/config >/dev/null 2>&1
 
-    # Ignore the containers not running
-    [ -z "$CONTAINER_NAME" ] && continue
+  # Ignore the containers not running
+  [ -z "$CONTAINER_NAME" ] && continue
 
-    docker ps -f name=$CONTAINER_NAME | grep -qv PORTS
-    [ $? -ne 0 ] && continue
+  docker ps -f name=$CONTAINER_NAME | grep -qv PORTS
+  [ $? -ne 0 ] && continue
 
-    echo $lab $UNIX_USER $HOST $HOST_VNC_PORT $VNC_TOKEN $VNC_PWD $VNC_PWD_VIEWONLY $VNC_IP $HOST_WEBSSH_PORT $UNIX_PWD $CONTAINER_NAME
+  echo $lab $UNIX_USER $HOST $HOST_VNC_PORT $VNC_TOKEN $VNC_PWD $VNC_PWD_VIEWONLY $VNC_IP $HOST_WEBSSH_PORT $UNIX_PWD $CONTAINER_NAME
 done

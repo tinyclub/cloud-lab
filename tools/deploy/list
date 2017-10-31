@@ -5,7 +5,8 @@ TOP_DIR=$(cd $(dirname $0)/../../ && pwd)
 
 [ ! -d $LAB_OUTPUT ] && exit 0
 
-labs=`find $LAB_OUTPUT -maxdepth 1 -mindepth 1 | sort`
+_LAB_OUTPUT=$LAB_OUTPUT
+labs=`ls $_LAB_OUTPUT`
 
 get_lab_attrs () # lab_attr
 {
@@ -16,23 +17,24 @@ get_lab_attrs () # lab_attr
 
 for lab in $labs
 do
-    lab_basename=$(basename $lab)
-    _lab_name=$(echo $lab_basename | cut -d'+' -f1)
-    lab_name=${_lab_name%-*}
+  lab_basename=$lab
+  _lab_name=$(echo $lab_basename | cut -d'+' -f1)
+  lab_name=${_lab_name%-*}
 
-    lab_attrs=$(echo $lab_basename | cut -d'+' -f2 | tr '-' ' ')
-    get_lab_attrs $lab_attrs
+  lab_attrs=$(echo $lab_basename | cut -d'+' -f2 | tr '-' ' ')
+  get_lab_attrs $lab_attrs
 
-    TOP_DIR=$lab
-    CURRENT=$lab_name
-    unset UNIX_PWD VNC_PWD VNC_PWD_VIEWONLY CONTAINER_NAME VNC_IP VNC_TOKEN
-    . $TOP_DIR/tools/docker/config >/dev/null 2>&1
+  TOP_DIR=$_LAB_OUTPUT/$lab
+  CURRENT=$lab_name
+  unset UNIX_PWD VNC_PWD VNC_PWD_VIEWONLY CONTAINER_NAME VNC_IP VNC_TOKEN
+  . $TOP_DIR/tools/docker/config >/dev/null 2>&1
 
-    # Ignore the containers not running
-    [ -z "$CONTAINER_NAME" ] && continue
+  # Ignore the containers not running
+  [ -z "$CONTAINER_NAME" ] && continue
 
-    docker ps -f name=$CONTAINER_NAME | grep -qv PORTS
-    [ $? -ne 0 ] && continue
+  docker ps -f name=$CONTAINER_NAME | grep -qv PORTS
+  [ $? -ne 0 ] && continue
 
-    echo $lab_name $lab_user $HOST $HOST_VNC_PORT $VNC_TOKEN $VNC_PWD $VNC_PWD_VIEWONLY $VNC_IP $HOST_WEBSSH_PORT $UNIX_PWD $CONTAINER_NAME $lab_life $lab_start
+  echo $lab_name $lab_user $HOST $HOST_VNC_PORT $VNC_TOKEN $VNC_PWD $VNC_PWD_VIEWONLY $VNC_IP \
+	$HOST_WEBSSH_PORT $UNIX_PWD $CONTAINER_NAME $lab_life $lab_start
 done
