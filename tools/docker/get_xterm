@@ -9,8 +9,8 @@ THIS_SCRIPT=`basename $0`
 DEPTH=${2:-5}
 
 # Functions
-ppid () { ps -p ${1:-$$} -o ppid=; }
-pcmd () { ps -p ${1:-$$} -o command=; }
+ppid () { ps -p ${1:-$$} -o ppid= 2>/dev/null; }
+pcmd () { ps -p ${1:-$$} -o command= 2>/dev/null; }
 
 # Find the terminal
 found=0
