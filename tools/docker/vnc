@@ -72,12 +72,12 @@ echo "Please login with:"
 echo
 echo "        User: $VNC_TOKEN"
 echo "    Password: $VNC_PWD (Normal)"
-echo "    Password: $VNC_PWD_VIEWONLY (Viewonly)"
+echo "    Password: $VNC_PWD_VIEWONLY (View)"
 echo
 echo "Local URL:"
 echo
-echo "  *   Normal: $HOST_WEB_URL"
-echo "  * Viewonly: $HOST_WEB_URL_VIEWONLY"
+echo "  * Normal: $HOST_WEB_URL"
+echo "  *   View: $HOST_WEB_URL_VIEWONLY"
 echo
 
 if [ -n "$LOCALHOST" ]; then
@@ -87,8 +87,8 @@ if [ -n "$LOCALHOST" ]; then
 
     echo "Remote URL:"
     echo
-    echo "  *   Normal: $_HOST_WEB_URL"
-    echo "  * Viewonly: $_HOST_WEB_URL_VIEWONLY"
+    echo "  * Normal: $_HOST_WEB_URL"
+    echo "  *   View: $_HOST_WEB_URL_VIEWONLY"
     echo
 else
     echo "Note: Please ensure network available outside and then replace 'localhost' with the external ip or domain name."

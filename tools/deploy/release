@@ -8,9 +8,9 @@ TOP_DIR=$(cd $(dirname $0)/../../ && pwd)
 $TOP_DIR/tools/deploy/list $* | grep "$LAB_NAME" | grep -v "LOG:" | sort -t ' ' -k 5 | \
 awk 'BEGIN{FS=" "}{ \
 	printf("Lab: %s, User: %s\n", $11, $2); \
-	printf("  * VNC  (Normal): '$WEB_HTTP'://%s:%s/?u=%s&p=%s\n", $3, $4, $5, $6); \
-	printf("  * VNC(Viewonly): '$WEB_HTTP'://%s:%s/?r=%s%s\n", $3, $4, $5, $7); \
-	printf("  * SSH     (Web): '$WEB_HTTP'://%s:%s/?ssh=ssh://%s:%s@%s:22\n", $3, $9, $2, $10, $8); \
+	printf("  * VNC (Normal): '$WEB_HTTP'://%s:%s/?u=%s&p=%s\n", $3, $4, $5, $6); \
+	printf("  * VNC   (View): '$WEB_HTTP'://%s:%s/?r=%s%s\n", $3, $4, $5, $7); \
+	printf("  * SSH    (Web): '$WEB_HTTP'://%s:%s/?ssh=ssh://%s:%s@%s:22\n", $3, $9, $2, $10, $8); \
 	}'
 
 $TOP_DIR/tools/deploy/list $* | grep "$LAB_NAME" | grep -v "LOG:" | sort -t ' ' -k 5 | \
@@ -36,7 +36,7 @@ awk 'BEGIN {FS=" "; 	\
 		<h1><a target=\"_blank\" href=\"'$WEB_HTTP'://'$HOST':6080\">Cloud Lab | 泰晓实验云台<a/></h1> 	\
 		<br>	\
 		<table>		\
-		<tr class=\"head\"><td>Lab</td><td>VNC (Normal)</td><td>VNC (Viewonly)</td><td>Web SSH</td></tr>"); \
+		<tr class=\"head\"><td>Lab</td><td>VNC (Normal)</td><td>VNC (View)</td><td>SSH (Web)</td></tr>"); \
      }{ 			\
 	printf("<tr class=\"%s\">\n", (FNR%2 == 0) ? "odd" : "even"); \
 	printf("<td>%s</td>\n", $1); \
