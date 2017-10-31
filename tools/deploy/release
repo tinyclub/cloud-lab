@@ -27,7 +27,7 @@ awk 'BEGIN {FS=" "; 	\
 		<head> 	\
 		<style type=\"text/css\">body { width: 100%; height: 500px; margin-bottom: 16px; overflow: auto; } \
 		a { text-decoration: none; outline: none; }	\
-		p { text-align: center; font-size: 100%; } \
+		p { text-align: center; font-size: 90%; } \
 		table { border: 1px solid #333; border-spacing: 0; border-collapse: collapse; width: 100%; }	\
 		th, td { padding-left: 2px; padding-right: 2px; padding-top: 10px; padding-bottom: 10px;	\
 		     border: 1px solid #aaa; display: table-cell;	\
