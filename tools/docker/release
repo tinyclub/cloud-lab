@@ -3,6 +3,8 @@
 TOP_DIR=$(cd $(dirname $0)/../../ && pwd)
 . $TOP_DIR/tools/docker/config $* >/dev/null
 
+[ ! -f $TOP_DIR/README.md ] && exit 0
+
 [ -z "$LAB_NAME" -o "$1" = "all" ] && LAB_NAME=" "
 
 $TOP_DIR/tools/docker/list $* | grep "$LAB_NAME" | grep -v "LOG:" | sort -t ' ' -k 5 | \
