@@ -7,10 +7,6 @@ TOP_DIR=$(cd $(dirname $0)/../../ && pwd)
 
 labs=`find $LAB_OUTPUT -maxdepth 1 -mindepth 1 | sort`
 
-do_unlock
-get_var HOST localhost
-do_lock
-
 get_lab_attrs () # lab_attr
 {
   lab_user=$1

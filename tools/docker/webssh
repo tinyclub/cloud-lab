@@ -9,10 +9,6 @@ TOP_DIR=$(cd $(dirname $0)/../../ && pwd)
 # Get web browser
 get_browser
 
-do_unlock
-get_var HOST localhost
-do_lock
-
 WEBSSH_URL="$WEB_HTTP://${HOST}:${HOST_WEBSSH_PORT}?ssh=ssh://$UNIX_USER:$UNIX_PWD@$VNC_IP:$CONTAINER_SSH_PORT"
 
 echo "LOG: Please login with 'ip=$VNC_IP, port=$CONTAINER_SSH_PORT, user=$UNIX_USER, password=$UNIX_PWD' and enter workdir: $LAB_WORKDIR\n"

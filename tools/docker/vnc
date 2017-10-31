@@ -9,10 +9,6 @@ TOP_DIR=$(cd $(dirname $0)/../../ && pwd)
 # Get web browser
 get_browser
 
-do_unlock
-get_var HOST localhost
-do_lock
-
 [ -z "$VNC_AUTOCONNECT" ] && VNC_AUTOCONNECT=1
 
 # Get vnc page

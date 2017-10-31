@@ -21,10 +21,6 @@ TOP_DIR=$(cd $(dirname $0)/../../ && pwd)
 [ ! -d $LAB_OUTPUT ] && mkdir -p $LAB_OUTPUT
 VNC_IDENTIFY=1; [ $lab_identify -eq 0 ] && VNC_IDENTIFY=0
 
-do_unlock
-get_var HOST localhost
-do_lock
-
 # Start the transparent proxy via tinylab/cloud-ubuntu-proxy_client_transparent container
 (docker ps -f name=$TPROXY_NAME -f status=exited | grep -q -v PORTS) \
   && echo "LOG: Resume the stopped $TPROXY_NAME" \

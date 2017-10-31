@@ -17,14 +17,7 @@ TOP_DIR=$(cd $(dirname $0)/../../ && pwd)
 [ -z "$labs" ] && labs=linux-0.11-lab
 [ -z "$cleanup" ] && cleanup=0
 [ -z "$security" ] && security=2
-
-if [ -z "$host" ]; then
-    do_unlock
-    get_var HOST localhost
-    host=$HOST
-    do_lock
-fi
-
+[ -z "$host" ] && host=$HOST
 
 LAB_SECURITY=$security
 

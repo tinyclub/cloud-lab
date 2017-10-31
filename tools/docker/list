@@ -5,10 +5,6 @@ TOP_DIR=$(cd $(dirname $0)/../../ && pwd)
 
 labs=`find $LAB_DIR -maxdepth 1 -mindepth 1 -type d | sort | xargs -i{} basename {}`
 
-do_unlock
-get_var HOST localhost
-do_lock
-
 for lab in $labs
 do
     CURRENT=$lab

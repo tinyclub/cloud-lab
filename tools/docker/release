@@ -13,10 +13,6 @@ awk 'BEGIN{FS=" "}{ \
 	printf("  * SSH     (Web): '$WEB_HTTP'://%s:%s/?ssh=ssh://%s:%s@%s:22\n", $3, $9, $2, $10, $8); \
 	}'
 
-do_unlock
-get_var HOST localhost
-do_lock
-
 $TOP_DIR/tools/docker/list $* | grep "$LAB_NAME" | grep -v "LOG:" | sort -t ' ' -k 5 | \
 awk 'BEGIN {FS=" "; 	\
 	printf("<html> 	\
