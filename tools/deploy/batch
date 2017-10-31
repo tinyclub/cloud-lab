@@ -42,8 +42,6 @@ do
 
   ${TOP_DIR}/tools/docker/unlock $lab
 
-  echo "--memory=4G" > ${TOP_DIR}/configs/$lab/docker/limits
-
   echo $host > ${TOP_DIR}/.host_name
 
   for user in $users
