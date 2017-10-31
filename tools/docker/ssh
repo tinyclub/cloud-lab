@@ -6,14 +6,6 @@
 TOP_DIR=$(cd $(dirname $0)/../../ && pwd)
 . $TOP_DIR/tools/docker/config $* >/dev/null
 
-do_unlock
-get_var UNIX_USER ubuntu
-get_var UNIX_PWD ubuntu
-get_var HOST localhost
-get_var VNC_IP $(docker inspect --format '{{ .NetworkSettings.IPAddress }}' $CONTAINER_NAME)
-
-do_lock
-
 SSH_CMD="ssh ${UNIX_USER}@${VNC_IP} -p ${CONTAINER_SSH_PORT}"
 REMOTE_SSH_CMD="ssh ${UNIX_USER}@${HOST} -p ${HOST_SSH_PORT}"
 

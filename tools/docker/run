@@ -126,5 +126,9 @@ trap 'exit 0' 2
 echo "LOG: Container ID: ${CONTAINER_ID} Container Name: ${CONTAINER_NAME}"
 echo "LOG: $password"
 
+# Publish vnc port
+$DOCKER_PUBLISH_CMD $*
+
 $DOCKER_VNC_CMD $*
+
 $DOCKER_RELEASE_CMD all >/dev/null 2>&1

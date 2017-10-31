@@ -11,10 +11,6 @@ get_browser
 
 do_unlock
 get_var HOST localhost
-get_var UNIX_USER ubuntu
-get_var UNIX_PWD ubuntu
-get_var VNC_IP $(docker inspect --format '{{ .NetworkSettings.IPAddress }}' $CONTAINER_NAME)
-
 do_lock
 
 WEBSSH_URL="$WEB_HTTP://${HOST}:${HOST_WEBSSH_PORT}?ssh=ssh://$UNIX_USER:$UNIX_PWD@$VNC_IP:$CONTAINER_SSH_PORT"

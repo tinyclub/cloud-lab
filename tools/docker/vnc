@@ -6,21 +6,11 @@
 TOP_DIR=$(cd $(dirname $0)/../../ && pwd)
 . $TOP_DIR/tools/docker/config $* >/dev/null
 
-# Publish vnc port
-$DOCKER_PUBLISH_CMD $*
-
 # Get web browser
 get_browser
 
 do_unlock
-
 get_var HOST localhost
-get_var VNC_PWD ubuntu
-get_var VNC_PWD_VIEWONLY ubuntu
-get_var CONTAINER_NAME
-get_var VNC_IP $(docker inspect --format '{{ .NetworkSettings.IPAddress }}' $CONTAINER_NAME)
-get_var VNC_TOKEN $(echo $VNC_IP | tr -d '\n' | $ENCRYPT_CMD | cut -d' ' -f1 | cut -c1-$TOKEN_LENGTH)
-
 do_lock
 
 [ -z "$VNC_AUTOCONNECT" ] && VNC_AUTOCONNECT=1
