@@ -227,7 +227,8 @@ which sha1sum >/dev/null 2>&1 && DEF_ENCRYPT_CMD=sha1sum
 [ -z "$ENCRYPT_CMD" ] && ENCRYPT_CMD=$DEF_ENCRYPT_CMD
 
 [ -z "$RELEASE_DIR" ] && RELEASE_DIR=${TOP_DIR}/labs && mkdir -p $RELEASE_DIR
-[ -z "$RELEASE_PAGE" ] && RELEASE_PAGE=${RELEASE_DIR}/index.html
+[ -z "$RELEASE_HTML" ] && RELEASE_HTML=index.html
+[ -z "$RELEASE_FILE" ] && RELEASE_FILE=${RELEASE_DIR}/$RELEASE_HTML
 
 ## Security related
 ### 0: with root permission by default, sharable, for private usage
@@ -456,7 +457,7 @@ get_labs ()
 	printf("  * SSH    (Web): '$WEB_HTTP'://%s:%s/?ssh=ssh://%s:%s@%s:22\n", $3, $9, $2, $10, $8); \
 	}'
 
-  cat << EOF > $RELEASE_PAGE
+  cat << EOF > $RELEASE_FILE
 <html>
 <body>
 <head>
@@ -492,9 +493,9 @@ EOF
 	printf("  <td><a target=\"_blank\" href=\"'$WEB_HTTP'://%s:%s/?ssh=ssh://%s:%s@%s:22\">Login</a></td>\n", \
 		$3, $9, $2, $10, $8); \
 	printf("</tr>\n"); \
-     }' >> $RELEASE_PAGE
+     }' >> $RELEASE_FILE
 
-  cat <<EOF >> $RELEASE_PAGE
+  cat <<EOF >> $RELEASE_FILE
 </table>
 <p>Powered by <a target="_blank" href="http://tinylab.org/cloud-lab">Cloud Lab</a>,<br>
 © 2017 <a target="_blank" href="http://tinylab.org">泰晓科技</a>, All Rights Reserved.</p>
