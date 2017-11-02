@@ -462,7 +462,7 @@ get_labs ()
 <body>
 <head>
 <style type="text/css">
-  body { width: 100%; height: 500px; margin-bottom: 16px; overflow: auto; }
+  body { width: 100%; height: 500px; margin-bottom: 16px; overflow: auto; text-align: center; }
   a { text-decoration: none; outline: none; }
   p { text-align: center; font-size: 90%; }
   table { border: 1px solid #333; border-spacing: 0; border-collapse: collapse; width: 100%; }
@@ -497,6 +497,7 @@ EOF
 
   cat <<EOF >> $RELEASE_FILE
 </table>
+<br>
 <p>Powered by <a target="_blank" href="http://tinylab.org/cloud-lab">Cloud Lab</a>,<br>
 © 2017 <a target="_blank" href="http://tinylab.org">泰晓科技</a>, All Rights Reserved.</p>
 </body>
