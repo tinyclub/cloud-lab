@@ -480,12 +480,13 @@ get_labs ()
 <h1><a target="_blank" href="${WEB_HTTP}://${HOST}:6080">Cloud Lab | 泰晓实验云台<a/></h1>
 <br>
 <table>
-<tr class="head"><td>Lab</td><td>VNC (Normal)</td><td>VNC (View)</td><td>SSH (Web)</td></tr>
+<tr class="head"><td>Lab</td><td>User</td><td>VNC (Normal)</td><td>VNC (View)</td><td>SSH (Web)</td></tr>
 EOF
 
   cat $tmp | awk 'BEGIN {FS=" "; }{ 			\
 	printf("<tr class=\"%s\">\n", (FNR%2 == 0) ? "odd" : "even"); \
 	printf("<td>%s</td>\n", $1); \
+	printf("<td>%s</td>\n", $2); \
 	printf("  <td><a target=\"_blank\" href=\"'$WEB_HTTP'://%s:%s/?u=%s&p=%s\">Login</a></td>\n", \
 		$3, $4, $5, $6); \
 	printf("  <td><a target=\"_blank\" href=\"'$WEB_HTTP'://%s:%s/?r=%s%s\">Login</a></td>\n", \
