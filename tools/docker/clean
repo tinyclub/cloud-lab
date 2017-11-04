@@ -6,9 +6,9 @@
 TOP_DIR=$(cd $(dirname $0)/../../ && pwd)
 . $TOP_DIR/tools/docker/config $* >/dev/null
 
-do_unlock
-
 notify_user 2 "Container will be removed"
+
+do_unlock
 
 # Remove container
 do_op "docker rm -f" CONTAINER_NAME
