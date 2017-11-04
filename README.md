@@ -98,6 +98,10 @@ For Linux or Mac OSX, please simply choose one directory in `~/Downloads` or `~/
 
     $ tools/docker/update
 
+### Autostart everything
+
+    $ tools/docker/autostart
+
 ### Run as root without password
 
 If get syntax error under `/etc/sudoers*`, please use `pkexec visudo` to fix up it.
