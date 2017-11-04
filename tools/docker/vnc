@@ -9,6 +9,9 @@ TOP_DIR=$(cd $(dirname $0)/../../ && pwd)
 # Get web browser
 get_browser
 
+# Get xterm
+get_xterm
+
 [ -z "$VNC_AUTOCONNECT" ] && VNC_AUTOCONNECT=1
 
 # Get vnc page
