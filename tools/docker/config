@@ -451,7 +451,7 @@ get_labs ()
   local tmp=`mktemp`
   local list=$1
 
-  $list | grep "$LAB_NAME" | grep -v "LOG:" | sort -t ' ' -k 5 > $tmp
+  [ -n "$list" ] && $list | grep "$LAB_NAME" | grep -v "LOG:" | sort -t ' ' -k 5 > $tmp
 
   cat $tmp | awk 'BEGIN{FS=" "}{ \
 	printf("Lab: %s, User: %s\n", $11, $2); \

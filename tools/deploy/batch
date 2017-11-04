@@ -81,8 +81,8 @@ do
     unset NOTIFY_WAIT
     unset NOTIFY_MSG
 
-    echo "LOG: Release $lab"
-    sleep 10 && ${TOP_DIR}/tools/deploy/release all
+    echo "LOG: Empty release page" && get_labs
+    sleep 10
   fi
 
   if [ $interval -ge 0 -a $i -ne $loop ]; then
