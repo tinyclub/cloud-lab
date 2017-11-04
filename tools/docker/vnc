@@ -12,6 +12,10 @@ get_browser
 # Get xterm
 get_xterm
 
+# Check status
+docker ps -f name=$CONTAINER_NAME | grep -qv PORTS
+[ $? -ne 0 ] && echo "LOG: $LAB_NAME is not running." && exit 1
+
 [ -z "$VNC_AUTOCONNECT" ] && VNC_AUTOCONNECT=1
 
 # Get vnc page

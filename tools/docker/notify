@@ -15,4 +15,7 @@ cmd="/bin/bash -c 'export DISPLAY=:1 && notify-send -u critical -t 0 "
 cmd="$cmd \"$msg\""
 cmd="$cmd '"
 
+docker ps -f name=$CONTAINER_NAME | grep -qv PORTS
+[ $? -ne 0 ] && echo "LOG: $LAB_NAME is not running." && exit 1
+
 do_op "docker exec " CONTAINER_ID "$cmd"

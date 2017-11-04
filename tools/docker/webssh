@@ -9,6 +9,9 @@ TOP_DIR=$(cd $(dirname $0)/../../ && pwd)
 # Get web browser
 get_browser
 
+docker ps -f name=$CONTAINER_NAME | grep -qv PORTS
+[ $? -ne 0 ] && echo "LOG: $LAB_NAME is not running." && exit 1
+
 WEBSSH_URL="$WEB_HTTP://${HOST}:${HOST_WEBSSH_PORT}?ssh=ssh://$UNIX_USER:$UNIX_PWD@$VNC_IP:$CONTAINER_SSH_PORT"
 
 echo "LOG: Please login with 'ip=$VNC_IP, port=$CONTAINER_SSH_PORT, user=$UNIX_USER, password=$UNIX_PWD' and enter workdir: $LAB_WORKDIR\n"
