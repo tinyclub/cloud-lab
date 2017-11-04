@@ -6,6 +6,11 @@
 TOP_DIR=$(cd $(dirname $0)/../../ && pwd)
 . $TOP_DIR/tools/docker/config $* >/dev/null
 
+# Notify users
+[ -z "$NOTIFY_WAIT" ] && NOTIFY_WAIT=2
+[ -z "$NOTIFY_MSG" ] && NOTIFY_MSG="Container will be removed in $NOTIFY_WAIT seconds"
+$DOCKER_NOTIFY_CMD $LAB_NAME "$NOTIFY_MSG" && sleep $NOTIFY_WAIT
+
 # Remove container
 do_op "docker rm -f" CONTAINER_NAME
 

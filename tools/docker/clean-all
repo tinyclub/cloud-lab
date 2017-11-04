@@ -10,8 +10,13 @@ read -p 'This command is dangerous, are you sure? (yes/no) ' sure
 TOP_DIR=$(cd $(dirname $0)/../../ && pwd)
 . $TOP_DIR/tools/docker/config $* >/dev/null
 
-for name in `docker ps -a --format='{{.Names}}'`
+for name in `docker ps -a --format='{{.Names}}' | grep "\-lab\-[0-9]*$"`
 do
+    # Notify users
+    [ -z "$NOTIFY_WAIT" ] && NOTIFY_WAIT=2
+    [ -z "$NOTIFY_MSG" ] && NOTIFY_MSG="Container will be cleaned up in $NOTIFY_WAIT seconds"
+    $DOCKER_NOTIFY_CMD ${name%-*} "$NOTIFY_MSG" && sleep $NOTIFY_WAIT
+
     LOCAL_DESKTOP_SHORTCUT=~/Desktop/${name}.desktop
     [ -f $LOCAL_DESKTOP_SHORTCUT ] && rm -f $LOCAL_DESKTOP_SHORTCUT
 done

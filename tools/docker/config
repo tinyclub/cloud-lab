@@ -98,6 +98,8 @@ DOCKER_STOP_CMD=$DOCKER_DIR/stop
 DOCKER_START_CMD=$DOCKER_DIR/start
 DOCKER_UNLOCK_CMD=$DOCKER_DIR/unlock
 DOCKER_XTERM_CMD=$DOCKER_DIR/get_xterm
+DOCKER_CMD_CMD=$DOCKER_DIR/cmd
+DOCKER_NOTIFY_CMD=$DOCKER_DIR/notify
 DOCKER_FILE=$CONFIG_DIR/Dockerfile
 
 # Common variables
@@ -514,4 +516,13 @@ EOF
 get_xterm ()
 {
    [ -z "$XTERM" ] && XTERM=`$DOCKER_XTERM_CMD lxterminal`
+}
+
+notify_user ()
+{
+    # Notify users
+    [ -z "$NOTIFY_WAIT" ] && NOTIFY_WAIT=$1
+    [ -z "$NOTIFY_MSG" ] && NOTIFY_MSG="$2 in $NOTIFY_WAIT seconds"
+    [ -z "$LAB_NAME" ] && LAB_NAME=$3
+    $DOCKER_NOTIFY_CMD $LAB_NAME "$NOTIFY_MSG" && sleep $NOTIFY_WAIT
 }
