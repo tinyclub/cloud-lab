@@ -15,4 +15,4 @@ cmd="/bin/bash -c 'export DISPLAY=:1 && notify-send -u critical -t 0 "
 cmd="$cmd \"$msg\""
 cmd="$cmd '"
 
-do_op "docker exec -t -i " CONTAINER_ID "$cmd"
+do_op "docker exec " CONTAINER_ID "$cmd"

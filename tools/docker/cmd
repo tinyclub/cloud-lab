@@ -11,4 +11,4 @@ TOP_DIR=$(cd $(dirname $0)/../../ && pwd)
 cmd=$1
 [ -n "$2" ] && cmd=$2
 
-do_op "docker exec -t -i " CONTAINER_ID "$cmd"
+do_op "docker exec " CONTAINER_ID "$cmd"
