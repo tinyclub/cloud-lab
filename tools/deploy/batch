@@ -82,7 +82,7 @@ do
     unset NOTIFY_MSG
 
     echo "LOG: Release $lab"
-    sleep 5 && ${TOP_DIR}/tools/deploy/release all
+    sleep 10 && ${TOP_DIR}/tools/deploy/release all
   fi
 
   if [ $interval -ge 0 -a $i -ne $loop ]; then
