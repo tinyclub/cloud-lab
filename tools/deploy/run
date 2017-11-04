@@ -95,5 +95,5 @@ do
     do_lock
 
     UNIX_USER=$lab_user CONTAINER_NAME=$CONTAINER_NAME $DOCKER_RUN_CMD $lab_name
-    [ $lab_alive -ge 0 ] && notify_user 0 "Note: Lab is only free for $alive seconds." $lab_name
+    [ $lab_alive -gt 0 ] && notify_user 0 "Note: Lab is only free for $alive seconds." $lab_name
 done
