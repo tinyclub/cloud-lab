@@ -206,9 +206,6 @@ if [ ! -n "$IN_CONTAINER" ]; then
     LOCALHOST=`ifconfig $eth | grep 'inet ' | tr ':' ' ' | tr -s ' ' | tr ' ' '\n' | grep "[0-9\.]\{7,\}" | head -1`
     break
   done
-
-  ## default terminal, lxterminal, terminator
-  XTERM=`$DOCKER_XTERM_CMD lxterminal`
 fi
 
 ## password
@@ -508,4 +505,9 @@ EOF
   sync
 
   rm $tmp
+}
+
+get_xterm ()
+{
+   [ -z "$XTERM" ] && XTERM=`$DOCKER_XTERM_CMD lxterminal`
 }
