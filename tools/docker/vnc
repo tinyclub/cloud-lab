@@ -26,41 +26,60 @@ HOST_WEB_URL_VIEWONLY="$WEB_HTTP://${HOST}:${HOST_VNC_PORT}/?r=${VNC_TOKEN}${VNC
 if [ -d ~/Desktop -a -n "$REMOTE_DESKTOP_SHORTCUT" -a -f "$REMOTE_DESKTOP_SHORTCUT" ]; then
 
   if [ "x$HOST_OS" = "xDarwin" ]; then
-    echo "$DOCKER_RUN_CMD $LAB_NAME" > $LOCAL_DESKTOP_SHORTCUT
 
-    # ref: https://superuser.com/questions/479411/close-all-mac-terminal-windows-but-the-one-running-a-script
-    echo 'osascript -e "do shell script \"osascript -e \\\\\"tell application \\\\\\\\\\\\\\"Terminal\\\\\\\\\\\\\\" \\\\\\" -e \\\\\\"set mainID to id of front window\\\\\\" -e \\\\\\" close (every window whose id = mainID)\\\\\\"  -e \\\\\\"end tell\\\\\\"   &> /dev/null &\""; exit' >> $LOCAL_DESKTOP_SHORTCUT
+    if [ "x$LAB_DESKTOP_SHORTCUT" = "x1" ]; then
+      echo "$DOCKER_RUN_CMD $LAB_NAME" > $LOCAL_DESKTOP_SHORTCUT
+
+      # ref: https://superuser.com/questions/479411/close-all-mac-terminal-windows-but-the-one-running-a-script
+      echo 'osascript -e "do shell script \"osascript -e \\\\\"tell application \\\\\\\\\\\\\\"Terminal\\\\\\\\\\\\\\" \\\\\\" -e \\\\\\"set mainID to id of front window\\\\\\" -e \\\\\\" close (every window whose id = mainID)\\\\\\"  -e \\\\\\"end tell\\\\\\"   &> /dev/null &\""; exit' >> $LOCAL_DESKTOP_SHORTCUT
+    fi
 
     # For cloud lab
-    MANAGE_DESKTOP_SHORTCUT=~/Desktop/cloud-lab.command
     echo "/usr/bin/open -a 'Terminal' '"$TOP_DIR"'" > $MANAGE_DESKTOP_SHORTCUT
     echo 'osascript -e "do shell script \"osascript -e \\\\\"tell application \\\\\\\\\\\\\\"Terminal\\\\\\\\\\\\\\" \\\\\\" -e \\\\\\"set mainID to id of second window\\\\\\" -e \\\\\\" close (every window whose id = mainID)\\\\\\"  -e \\\\\\"end tell\\\\\\"   &> /dev/null &\""; exit' >> $MANAGE_DESKTOP_SHORTCUT
 
+    echo "/usr/bin/open -a '"$WEB_BROWSER"' '"$WEB_HTTP://localhost:${HOST_VNC_PORT}/"'" > $BROWSE_DESKTOP_SHORTCUT
+    echo 'osascript -e "do shell script \"osascript -e \\\\\"tell application \\\\\\\\\\\\\\"Terminal\\\\\\\\\\\\\\" \\\\\\" -e \\\\\\"set mainID to id of first window\\\\\\" -e \\\\\\" close (every window whose id = mainID)\\\\\\"  -e \\\\\\"end tell\\\\\\"   &> /dev/null &\""; exit' >> $BROWSE_DESKTOP_SHORTCUT
+
+
   else
-    echo '#!/usr/bin/env xdg-open' > $LOCAL_DESKTOP_SHORTCUT
-    TMP_URL=`echo $CONTAINER_WEB_URL | tr '&' '|'`
-    cat $REMOTE_DESKTOP_SHORTCUT \
+
+    if [ "x$LAB_DESKTOP_SHORTCUT" = "x1" ]; then
+      echo '#!/usr/bin/env xdg-open' > $LOCAL_DESKTOP_SHORTCUT
+      TMP_URL=`echo $CONTAINER_WEB_URL | tr '&' '|'`
+      cat $REMOTE_DESKTOP_SHORTCUT \
         | sed "s%Exec=.*%Exec=$DOCKER_RUN_CMD $LAB_NAME%g" \
         | sed "s%terminator.png%$icon%g;s%lxterminal.xpm%${WEB_BROWSER}.png%g" | tr '|' '&' \
 	  >> $LOCAL_DESKTOP_SHORTCUT
+    fi
 
     # For cloud lab
-    MANAGE_DESKTOP_SHORTCUT=~/Desktop/cloud-lab.desktop
     cat <<EOF > $MANAGE_DESKTOP_SHORTCUT
 #!/usr/bin/env xdg-open
 [Desktop Entry]
 Encoding=UTF-8
-Name=Cloud Lab
-Comment=Cloud Lab Working Directory
+Name=Cloud Lab Manager
+Comment=Cloud Lab Manage Center
 Exec=$XTERM --working-directory=$TOP_DIR -T 'Cloud Lab'
 Icon=/usr/share/pixmaps/${XTERM}.png
 Type=Application
 EOF
 
+    cat <<EOF > $BROWSE_DESKTOP_SHORTCUT
+#!/usr/bin/env xdg-open
+[Desktop Entry]
+Encoding=UTF-8
+Name=Cloud Lab Browser
+Comment=Cloud Lab Web Center
+Exec=$WEB_BROWSER $WEB_HTTP://localhost:${HOST_VNC_PORT}/
+Icon=/usr/share/pixmaps/${WEB_BROWSER}.png
+Type=Application
+EOF
   fi
 
-  chmod a+x $LOCAL_DESKTOP_SHORTCUT
+  [ -f $LOCAL_DESKTOP_SHORTCUT ] && chmod a+x $LOCAL_DESKTOP_SHORTCUT
   chmod a+x $MANAGE_DESKTOP_SHORTCUT
+  chmod a+x $BROWSE_DESKTOP_SHORTCUT
 fi
 
 # For web portmapping
