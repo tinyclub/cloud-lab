@@ -11,7 +11,7 @@ TOP_DIR=$(cd $(dirname $0)/../../ && pwd)
 msg=$1
 [ -n "$2" ] && msg=$2
 
-cmd="sh -c 'export DISPLAY=:1 && notify-send -u critical -t 0 "
+cmd="/bin/bash -c 'export DISPLAY=:1 && notify-send -u critical -t 0 "
 cmd="$cmd \"$msg\""
 cmd="$cmd '"
 
