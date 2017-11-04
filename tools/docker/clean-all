@@ -14,7 +14,7 @@ TOP_DIR=$(cd $(dirname $0)/../../ && pwd)
 
 for name in `docker ps -a --format='{{.Names}}' | grep "\-lab\-[0-9]*$"`
 do
-    notify_user 2 "Container will be cleaned up " ${name%-*}
+    notify_user 2 "Lab will be cleaned up " ${name%-*}
 
     LOCAL_DESKTOP_SHORTCUT=~/Desktop/${name}.desktop
     [ -f $LOCAL_DESKTOP_SHORTCUT ] && rm -f $LOCAL_DESKTOP_SHORTCUT

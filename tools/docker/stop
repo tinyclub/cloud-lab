@@ -6,7 +6,7 @@
 TOP_DIR=$(cd $(dirname $0)/../../ && pwd)
 . $TOP_DIR/tools/docker/config $* >/dev/null
 
-notify_user 2 "Container will be stopped"
+notify_user 2 "Lab will be stopped"
 
 do_op "docker stop" CONTAINER_ID
 
