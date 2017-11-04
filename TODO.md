@@ -18,3 +18,4 @@
 11. Notify and update the system
    $ tools/docker/cmd linux-0.11-lab 'sh -c "DISPLAY=:1 notify-send \"System will be turned off in 5 seconds\" -t 0;  sleep 5; echo ffffff > ~/.vnc/passwdfile; pkill x11vnc"'
 12. Add multiple security levels
+13. Verify the auto start logic, /etc/rc.local?
