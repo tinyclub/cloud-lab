@@ -18,6 +18,7 @@ get_xterm
 CONTAINER_WEB_URL="$WEB_HTTP://localhost:${HOST_VNC_PORT}/?u=$VNC_TOKEN&p=$VNC_PWD"
 HOST_WEB_URL="$WEB_HTTP://${HOST}:${HOST_VNC_PORT}/?u=$VNC_TOKEN&p=$VNC_PWD"
 HOST_WEB_URL_VIEWONLY="$WEB_HTTP://${HOST}:${HOST_VNC_PORT}/?r=${VNC_TOKEN}${VNC_PWD_VIEWONLY}"
+LABS_WEB_URL="$WEB_HTTP://localhost:${HOST_VNC_PORT}/labs/$RELEASE_HTML"
 
 [ $VNC_AUTOCONNECT -eq 1 ] && \
   CONTAINER_WEB_URL="$CONTAINER_WEB_URL&autoconnect=1"
@@ -38,7 +39,7 @@ if [ -d ~/Desktop -a -n "$REMOTE_DESKTOP_SHORTCUT" -a -f "$REMOTE_DESKTOP_SHORTC
     echo "/usr/bin/open -a 'Terminal' '"$TOP_DIR"'" > $MANAGE_DESKTOP_SHORTCUT
     echo 'osascript -e "do shell script \"osascript -e \\\\\"tell application \\\\\\\\\\\\\\"Terminal\\\\\\\\\\\\\\" \\\\\\" -e \\\\\\"set mainID to id of second window\\\\\\" -e \\\\\\" close (every window whose id = mainID)\\\\\\"  -e \\\\\\"end tell\\\\\\"   &> /dev/null &\""; exit' >> $MANAGE_DESKTOP_SHORTCUT
 
-    echo "/usr/bin/open -a '"$WEB_BROWSER"' '"$WEB_HTTP://localhost:${HOST_VNC_PORT}/"'" > $BROWSE_DESKTOP_SHORTCUT
+    echo "/usr/bin/open -a '"$WEB_BROWSER"' '"$LABS_WEB_URL"'" > $BROWSE_DESKTOP_SHORTCUT
     echo 'osascript -e "do shell script \"osascript -e \\\\\"tell application \\\\\\\\\\\\\\"Terminal\\\\\\\\\\\\\\" \\\\\\" -e \\\\\\"set mainID to id of first window\\\\\\" -e \\\\\\" close (every window whose id = mainID)\\\\\\"  -e \\\\\\"end tell\\\\\\"   &> /dev/null &\""; exit' >> $BROWSE_DESKTOP_SHORTCUT
 
 
@@ -71,7 +72,7 @@ EOF
 Encoding=UTF-8
 Name=Cloud Lab Browser
 Comment=Cloud Lab Web Center
-Exec=$WEB_BROWSER $WEB_HTTP://localhost:${HOST_VNC_PORT}/
+Exec=$WEB_BROWSER $LABS_WEB_URL
 Icon=/usr/share/pixmaps/${WEB_BROWSER}.png
 Type=Application
 EOF
