@@ -6,7 +6,7 @@ TOP_DIR=$(cd $(dirname $0)/../../ && pwd)
 [ ! -d $LAB_OUTPUT ] && exit 0
 
 _LAB_OUTPUT=$LAB_OUTPUT
-labs=`find $_LAB_OUTPUT -maxdepth 1 -mindepth 1 -type d | xargs -i{} basename {}`
+labs=`find $_LAB_OUTPUT -maxdepth 1 -mindepth 1 -type d | xargs -I{} basename {}`
 
 get_lab_attrs () # lab_attr
 {
