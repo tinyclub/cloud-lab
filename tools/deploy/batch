@@ -25,22 +25,27 @@ LAB_SECURITY=$security
 
 for lab in $labs
 do
+  echo "LOG: Choose $lab"
   ${TOP_DIR}/tools/docker/choose $lab
 
   if [ $cleanup -eq 1 ]; then
+    echo "LOG: Clean up $lab"
     yes yes | ${TOP_DIR}/tools/deploy/rm $lab
     yes yes | ${TOP_DIR}/tools/deploy/clean $lab
     ${TOP_DIR}/tools/docker/choose $lab
   fi
 
+  echo "LOG: Unlock $lab"
   ${TOP_DIR}/tools/docker/unlock $lab
 
   echo $host > ${TOP_DIR}/.host_name
 
   for user in $users
   do
+    echo "LOG: Run $lab for $user"
     ${TOP_DIR}/tools/deploy/run $lab $user $peruser
   done
 
+  echo "LOG: Release $lab"
   ${TOP_DIR}/tools/deploy/release all
 done
