@@ -78,6 +78,9 @@ do
 
     sleep $NOTIFY_WAIT
 
+    unset NOTIFY_WAIT
+    unset NOTIFY_MSG
+
     echo "LOG: Release $lab"
     sleep 5 && ${TOP_DIR}/tools/deploy/release al
   fi
