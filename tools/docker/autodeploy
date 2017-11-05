@@ -13,8 +13,8 @@ SRC=$TOP_DIR/tools/deploy/batch
 CRON=/etc/cron.hourly/0cloud-lab
 LOG=/var/log/cloud-lab.autodeploy.log
 
-[ -z "$loop" ] && loop=1
-[ -z "$interval" ] && interval="30m"
+[ -z "$loop" ] && loop=2
+[ -z "$interval" ] && interval="30s"
 [ -z "$alive" ] && alive="30m"
 [ -z "$cleanup" ] && cleanup=1
 [ -z "$labs" ] && labs="linux-0.11-lab cs630-qemu-lab"
