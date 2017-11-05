@@ -24,8 +24,9 @@ LOG=/var/log/cloud-lab.autodeploy.log
 echo "LOG: create cron tasks"
 
 $SUDO touch $LOG
+$SUDO chown $HOST_USER:$HOST_USER $LOG
 
-$SUDO /bin/bash -c "echo -e \"#!/bin/bash\nloop=$loop interval=$interval alive=$alive cleanup=$cleanup labs='$labs' $SRC > $LOG\" > $DST"
+$SUDO /bin/bash -c "echo -e \"#!/bin/bash\nsudo -u $HOST_USER loop=$loop interval=$interval alive=$alive cleanup=$cleanup labs='$labs' $SRC > $LOG\" > $DST"
 $SUDO /bin/bash -c "echo -e \"#!/bin/bash\n$DST\" > $CRON"
 
 $SUDO chmod a+x $DST $CRON
