@@ -86,6 +86,6 @@ do
   fi
 
   echo "LOG: sleep for $interval"
-  [ $interval -ge 0 ] && sleep $interval
+  [ $interval -ge 0 -a $i -ne $loop ] && sleep $interval
 
 done
