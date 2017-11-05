@@ -28,8 +28,8 @@ do
   ${TOP_DIR}/tools/docker/choose $lab
 
   if [ $cleanup -eq 1 ]; then
-    ${TOP_DIR}/tools/deploy/rm $lab
-    ${TOP_DIR}/tools/deploy/clean $lab
+    yes yes | ${TOP_DIR}/tools/deploy/rm $lab
+    yes yes | ${TOP_DIR}/tools/deploy/clean $lab
     ${TOP_DIR}/tools/docker/choose $lab
   fi
 
