@@ -10,3 +10,5 @@ TOP_DIR=$(cd $(dirname $0)/../../ && pwd)
 [ -f $LAB_HOST_RUN ] && $LAB_HOST_RUN
 
 do_op "docker start" CONTAINER_ID
+
+[ "$RELEASE" != '0' ] &&  $DOCKER_RELEASE_CMD all >/dev/null 2>&1

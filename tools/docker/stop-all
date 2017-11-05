@@ -3,6 +3,8 @@
 # stop-all -- stop all docker labs
 #
 
+export RELEASE=0
+
 id_names=`docker ps -a --format='{{.ID}},{{.Names}}' | sed '1!G;h;$!d'`
 
 for id_name in $id_names
@@ -13,3 +15,5 @@ do
     echo "Stopping $name ..."
     docker stop $id 2>&1
 done
+
+$DOCKER_RELEASE_CMD all >/dev/null 2>&1

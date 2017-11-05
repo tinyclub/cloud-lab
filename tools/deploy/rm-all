@@ -10,3 +10,5 @@ TOP_DIR=$(cd $(dirname $0)/../../ && pwd)
 do_unlock
 
 $SUDO rm -rf $LAB_OUTPUT/${CURRENT}*
+
+rm -rf $RELEASE_FILE

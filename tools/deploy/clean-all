@@ -12,3 +12,5 @@ do_unlock
 $SUDO rm -rf $LAB_OUTPUT/${CURRENT}*
 
 $SUDO git clean -fdx >/dev/null 2>&1
+
+rm -rf $RELEASE_FILE

@@ -9,3 +9,5 @@ TOP_DIR=$(cd $(dirname $0)/../../ && pwd)
 notify_user 2 "Container will be stopped"
 
 do_op "docker stop" CONTAINER_ID
+
+[ "$RELEASE" != '0' ] &&  $DOCKER_RELEASE_CMD all >/dev/null 2>&1

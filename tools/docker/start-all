@@ -3,6 +3,8 @@
 # start-all -- start all stopped docker lab
 #
 
+export RELEASE=0
+
 TOP_DIR=$(cd $(dirname $0)/../../ && pwd)
 
 id_names=`docker ps -a --format='{{.ID}},{{.Names}}' | sed '1!G;h;$!d'`
@@ -25,3 +27,5 @@ do
         docker start $id
     fi
 done
+
+$DOCKER_RELEASE_CMD all >/dev/null 2>&1

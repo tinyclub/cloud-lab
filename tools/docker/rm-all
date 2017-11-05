@@ -16,3 +16,7 @@ do
 done
 
 docker ps -a --format='{{.ID}}' | xargs -I{} docker rm -f {} 2>&1
+
+$DOCKER_RELEASE_CMD all >/dev/null 2>&1
+
+rm -rf $RELEASE_FILE
