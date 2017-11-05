@@ -13,3 +13,6 @@ do_op "docker rm -f" CONTAINER_NAME
 
 # Remove desktop shortcut
 do_op "rm -f" LOCAL_DESKTOP_SHORTCUT
+
+# Update lab list
+$DOCKER_RELEASE_CMD all >/dev/null 2>&1
