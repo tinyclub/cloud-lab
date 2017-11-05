@@ -17,7 +17,7 @@ TOP_DIR=$(cd $(dirname $0)/../../ && pwd)
 [ -z "$lab_user" ] && lab_user=ubuntu
 [ -z "$lab_life" ] && lab_life=24H
 [ -z "$lab_name" ] && lab_name=$CURRENT
-[ -z "$lab_alive" ] && lab_alive=0
+[ -n "$lab_alive" ] && lab_life=$lab_alive
 
 [ ! -d $LAB_OUTPUT ] && mkdir -p $LAB_OUTPUT
 VNC_IDENTIFY=1; [ $lab_identify -eq 0 ] && VNC_IDENTIFY=0
@@ -95,5 +95,5 @@ do
     do_lock
 
     UNIX_USER=$lab_user CONTAINER_NAME=$CONTAINER_NAME $DOCKER_RUN_CMD $lab_name
-    [ $lab_alive -gt 0 ] && notify_user 0 "Note: Lab is only free for $alive seconds." $lab_name
+    [ -n "$lab_alive" ] && notify_user 0 "Note: Lab is only free for $lab_life." $lab_name
 done

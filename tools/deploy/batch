@@ -21,8 +21,8 @@ TOP_DIR=$(cd $(dirname $0)/../../ && pwd)
 [ -z "$cleanup" ] && cleanup=0
 [ -z "$security" ] && security=2
 [ -z "$host" ] && host=$HOST
-[ -z "$alive" ] && alive=0
-[ -z "$interval" ] && interval=1800
+[ -z "$alive" ] && alive=""
+[ -z "$interval" ] && interval=""
 [ -z "$loop" ] && loop=1
 
 LAB_SECURITY=$security
@@ -63,9 +63,9 @@ do
 
   done
 
-  if [ $alive -ge 0 ]; then
-    echo "LOG: Allow $lab running for $alive seconds"
-    sleep $alive
+  if [ -n "$alive" ]; then
+    echo "LOG: Allow $lab running for ${alive}."
+    sleep `time_to_seconds $alive`
 
     export NOTIFY_WAIT=30
     export NOTIFY_MSG="Lab will be removed"
@@ -85,9 +85,9 @@ do
     sleep 10
   fi
 
-  if [ $interval -ge 0 -a $i -ne $loop ]; then
-    echo "LOG: sleep for $interval seconds"
-    sleep $interval
+  if [ -n "$interval" -a $i -ne $loop ]; then
+    echo "LOG: sleep for ${interval}."
+    sleep `time_to_seconds $interval`
   fi
 
 done
