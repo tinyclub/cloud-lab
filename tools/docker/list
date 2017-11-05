@@ -5,6 +5,8 @@ TOP_DIR=$(cd $(dirname $0)/../../ && pwd)
 
 labs=`find $LAB_DIR -maxdepth 1 -mindepth 1 -type d | xargs -I{} basename {}`
 
+[ -z "$lab_life" ] && lab_life=0
+
 for lab in $labs
 do
   CURRENT=$lab
@@ -17,5 +19,8 @@ do
   docker ps -f name=$CONTAINER_NAME | grep -qv PORTS
   [ $? -ne 0 ] && continue
 
-  echo $lab $UNIX_USER $HOST $HOST_VNC_PORT $VNC_TOKEN $VNC_PWD $VNC_PWD_VIEWONLY $VNC_IP $HOST_WEBSSH_PORT $UNIX_PWD $CONTAINER_NAME
+  lab_start="$(date +'%Y%m%d %H:%M:%S' --date `docker inspect $CONTAINER_NAME --format '{{.Created}}'`)"
+  lab_end=`get_endtime "$lab_start" $lab_life`
+  echo $lab $UNIX_USER $HOST $HOST_VNC_PORT $VNC_TOKEN $VNC_PWD $VNC_PWD_VIEWONLY $VNC_IP $HOST_WEBSSH_PORT $UNIX_PWD $CONTAINER_NAME \
+	$lab_life $lab_start $lab_end
 done

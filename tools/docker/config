@@ -467,7 +467,7 @@ get_labs ()
 <body>
 <head>
 <style type="text/css">
-  body { width: 100%; height: 500px; margin-bottom: 16px; overflow: auto; text-align: center; }
+  body { margin-bottom: 16px; overflow: auto; text-align: center; }
   a { text-decoration: none; outline: none; }
   p { text-align: center; font-size: 90%; }
   table { border: 1px solid #333; border-spacing: 0; border-collapse: collapse; width: 100%; }
@@ -485,7 +485,7 @@ get_labs ()
 <h1><a target="_blank" href="${WEB_HTTP}://${HOST}:6080">Cloud Lab | 泰晓实验云台<a/></h1>
 <br>
 <table>
-<tr class="head"><td>Lab</td><td>User</td><td>VNC (Normal)</td><td>VNC (View)</td><td>SSH (Web)</td></tr>
+<tr class="head"><td>Lab</td><td>User</td><td>VNC (Normal)</td><td>VNC (View)</td><td>SSH (Web)</td><td>START</td><td>END</td></tr>
 EOF
 
   cat $tmp | awk 'BEGIN {FS=" "; }{ 			\
@@ -498,6 +498,8 @@ EOF
 		$3, $4, $5, $7); \
 	printf("  <td><a target=\"_blank\" href=\"'$WEB_HTTP'://%s:%s/?ssh=ssh://%s:%s@%s:22\">Login</a></td>\n", \
 		$3, $9, $2, $10, $8); \
+	printf("<td>%s %s</td>\n", $13, $14); \
+	printf("<td>%s %s</td>\n", $15, $16); \
 	printf("</tr>\n"); \
      }' >> $RELEASE_FILE
 
@@ -530,4 +532,64 @@ notify_user ()
 
     $DOCKER_NOTIFY_CMD $LAB_NAME "$NOTIFY_MSG"
     [ $NOTIFY_WAIT -gt 0 ] && sleep $NOTIFY_WAIT
+}
+
+# time_to_seconds "10D"
+time_to_seconds ()
+{
+  local time=$1
+  local format=`echo $time | tr -d '[0-9]'`
+
+  time=`echo $time | tr -c -d '[0-9]'`
+  case $format in
+    "Y" | "y")
+      echo "$time * 360 * 24 * 60 * 60" | bc
+      ;;
+    "D" | "d")
+      echo "$time * 24 * 60 * 60" | bc
+      ;;
+    "H" | "h")
+      echo "$time * 60 * 60" | bc
+      ;;
+    "M" | "m")
+      echo "$time * 60" | bc
+      ;;
+    *)
+      echo $time
+      ;;
+  esac
+}
+
+
+# get_starttime "20170633092133" -> "20170633 09:21:33"
+get_starttime()
+{
+  local lab_start="$1"
+
+  echo $lab_start | sed -e "s/\([0-9]\{8\}\)\([0-9]\{2\}\)\([0-9]\{2\}\)\([0-9]\{2\}\)/\1 \2:\3:\4/g"
+}
+
+# get_endtime "20171120 09:23:20" "1D" -> "20171121 09:23:20"
+get_endtime ()
+{
+  # "20171120 09:23:20"
+  local lab_start="$1"
+  # 30D, 24H, 1Y, 12H, 10M
+  local lab_life="$2"
+
+  [ "$lab_life" = "0" ] && echo && exit 0
+
+  lab_start_seconds=`date --date="$lab_start" +"%s"`
+
+  #echo "start_seconds: "$lab_start_seconds
+
+  lab_life_seconds=`time_to_seconds $lab_life`
+
+  #echo "life_seconds:" $lab_life_seconds
+
+  lab_seconds=`echo "$lab_start_seconds+$lab_life_seconds" | bc`
+
+  #echo "seconds: " $seconds
+
+  date +"%Y%m%d %H:%M:%S" --date="@$lab_seconds"
 }

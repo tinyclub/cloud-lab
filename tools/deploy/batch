@@ -59,7 +59,7 @@ do
     done
 
     echo "LOG: Release $lab"
-    ${TOP_DIR}/tools/deploy/release all
+    lab_life=$alive ${TOP_DIR}/tools/deploy/release all
 
   done
 

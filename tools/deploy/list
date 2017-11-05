@@ -35,6 +35,8 @@ do
   docker ps -f name=$CONTAINER_NAME | grep -qv PORTS
   [ $? -ne 0 ] && continue
 
+  lab_start=`get_starttime $lab_start`
+  lab_end=`get_endtime "$lab_start" $lab_life`
   echo $lab_name $lab_user $HOST $HOST_VNC_PORT $VNC_TOKEN $VNC_PWD $VNC_PWD_VIEWONLY $VNC_IP \
-	$HOST_WEBSSH_PORT $UNIX_PWD $CONTAINER_NAME $lab_life $lab_start
+	$HOST_WEBSSH_PORT $UNIX_PWD $CONTAINER_NAME $lab_life $lab_start $lab_end
 done
