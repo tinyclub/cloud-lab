@@ -56,7 +56,7 @@ if [ -d ~/Desktop -a -n "$REMOTE_DESKTOP_SHORTCUT" -a -f "$REMOTE_DESKTOP_SHORTC
       TMP_URL=`echo $CONTAINER_WEB_URL | tr '&' '|'`
       cat $REMOTE_DESKTOP_SHORTCUT \
         | sed "s%Exec=.*%Exec=$DOCKER_RUN_CMD $LAB_NAME%g" \
-        | sed "s%terminator.png%$icon%g;s%lxterminal.xpm%${WEB_BROWSER}.png%g" | tr '|' '&' \
+        | sed "s%terminator.png%${WEB_BROWSER}.png%g;s%lxterminal.xpm%${WEB_BROWSER}.png%g" | tr '|' '&' \
 	  >> $LOCAL_DESKTOP_SHORTCUT
     fi
 
