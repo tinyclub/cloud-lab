@@ -8,6 +8,8 @@
 TOP_DIR=$(cd $(dirname $0)/../../ && pwd)
 . $TOP_DIR/tools/docker/config $* >/dev/null
 
+[ "x$HOST_OS" != "xLinux" ] && echo "LOG: Only available for Linux currently." && exit 1
+
 RC=/etc/rc.local
 #DST=/etc/init.d/cloud-lab
 LOG=/var/log/cloud-lab.log
