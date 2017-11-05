@@ -10,7 +10,7 @@
 TOP_DIR=$(cd $(dirname $TOP_DIR/null) && pwd)
 
 # Basic variables
-HOST_USER=$USER
+HOST_USER=`whoami`
 [ "x$HOST_USER" = "xroot" -a -n "$SUDO_USER" ] && HOST_USER=$SUDO_USER
 
 HOST_OS=$(uname)
