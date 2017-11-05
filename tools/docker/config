@@ -459,6 +459,7 @@ get_labs ()
 	printf("  * VNC   (View): '$WEB_HTTP'://%s:%s/?r=%s%s\n", $3, $4, $5, $7); \
 	printf("  * SSH    (Web): '$WEB_HTTP'://%s:%s/?ssh=ssh://%s:%s@%s:22\n", $3, $9, $2, $10, $8); \
 	}'
+  echo
 
   cat << EOF > $RELEASE_FILE
 <html>
