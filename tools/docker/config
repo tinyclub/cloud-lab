@@ -523,7 +523,10 @@ notify_user ()
 {
     # Notify users
     [ -z "$NOTIFY_WAIT" ] && NOTIFY_WAIT=$1
-    [ -z "$NOTIFY_MSG" ] && NOTIFY_MSG="$2 in $NOTIFY_WAIT seconds"
+    [ -z "$NOTIFY_MSG" ] && NOTIFY_MSG="$2"
+    [ $NOTIFY_WAIT -gt 0 ] && NOTIFY_MSG="$NOTIFY_MSG in $NOTIFY_WAIT seconds."
     [ -z "$LAB_NAME" ] && LAB_NAME=$3
-    $DOCKER_NOTIFY_CMD $LAB_NAME "$NOTIFY_MSG" && sleep $NOTIFY_WAIT
+
+    $DOCKER_NOTIFY_CMD $LAB_NAME "$NOTIFY_MSG"
+    [ $NOTIFY_WAIT -gt 0 ] && sleep $NOTIFY_WAIT
 }

@@ -18,6 +18,8 @@ TOP_DIR=$(cd $(dirname $0)/../../ && pwd)
 [ -z "$cleanup" ] && cleanup=0
 [ -z "$security" ] && security=2
 [ -z "$host" ] && host=$HOST
+[ -z "$alive" ] && alive=0
+[ -z "$interval" ] && interval=1800
 
 LAB_SECURITY=$security
 
@@ -30,7 +32,6 @@ do
 
   if [ $cleanup -eq 1 ]; then
     echo "LOG: Clean up $lab"
-    yes yes | ${TOP_DIR}/tools/deploy/rm $lab
     yes yes | ${TOP_DIR}/tools/deploy/clean $lab
     ${TOP_DIR}/tools/docker/choose $lab
   fi
@@ -43,9 +44,32 @@ do
   for user in $users
   do
     echo "LOG: Run $lab for $user"
-    ${TOP_DIR}/tools/deploy/run $lab $user $peruser
+    lab_alive=$alive ${TOP_DIR}/tools/deploy/run $lab $user $peruser
   done
 
   echo "LOG: Release $lab"
   ${TOP_DIR}/tools/deploy/release all
+
 done
+
+if [ $alive -ge 0 ]; then
+  echo "LOG: Allow $lab running for $alive seconds"
+  sleep $alive
+
+  export NOTIFY_WAIT=30
+  export NOTIFY_MSG="Lab will be removed"
+
+  for lab in $labs
+  do
+    echo "LOG: Clean up $lab"
+    (yes yes | ${TOP_DIR}/tools/deploy/clean $lab) &
+  done
+
+  sleep $NOTIFY_WAIT
+
+  echo "LOG: Release $lab"
+  sleep 5 && ${TOP_DIR}/tools/deploy/release al
+fi
+
+echo "LOG: sleep for $interval"
+[ $interval -ge 0 ] && sleep $interval
