@@ -5,8 +5,11 @@
 # usage:
 #
 # E.x.:
+# 1.
 #    users="a b c d e f g" peruser=3 labs="linux-0.11-lab cs630-qemu-lab" \
 #          host="myhost" cleanup=1 security=0 tools/deploy/batch
+# 2.
+#    loop=2 interval=20 alive=20 cleanup=1 labs="linux-0.11-lab cs630-qemu-lab" tools/deploy/batch
 #
 
 TOP_DIR=$(cd $(dirname $0)/../../ && pwd)
@@ -20,56 +23,66 @@ TOP_DIR=$(cd $(dirname $0)/../../ && pwd)
 [ -z "$host" ] && host=$HOST
 [ -z "$alive" ] && alive=0
 [ -z "$interval" ] && interval=1800
+[ -z "$loop" ] && loop=1
 
 LAB_SECURITY=$security
 
 . ${TOP_DIR}/tools/deploy/init
 
-for lab in $labs
+
+echo "LOG: Start batch running"
+
+for i in `seq 1 $loop`
 do
-  echo "LOG: Choose $lab"
-  ${TOP_DIR}/tools/docker/choose $lab
-
-  if [ $cleanup -eq 1 ]; then
-    echo "LOG: Clean up $lab"
-    yes yes | ${TOP_DIR}/tools/deploy/clean $lab
-    ${TOP_DIR}/tools/docker/choose $lab
-  fi
-
-  echo "LOG: Unlock $lab"
-  ${TOP_DIR}/tools/docker/unlock $lab
-
-  echo $host > ${TOP_DIR}/.host_name
-
-  for user in $users
-  do
-    echo "LOG: Run $lab for $user"
-    lab_alive=$alive ${TOP_DIR}/tools/deploy/run $lab $user $peruser
-  done
-
-  echo "LOG: Release $lab"
-  ${TOP_DIR}/tools/deploy/release all
-
-done
-
-if [ $alive -ge 0 ]; then
-  echo "LOG: Allow $lab running for $alive seconds"
-  sleep $alive
-
-  export NOTIFY_WAIT=30
-  export NOTIFY_MSG="Lab will be removed"
+  echo "LOG: Current Count: $i"
 
   for lab in $labs
   do
-    echo "LOG: Clean up $lab"
-    (yes yes | ${TOP_DIR}/tools/deploy/clean $lab) &
+    echo "LOG: Choose $lab"
+    ${TOP_DIR}/tools/docker/choose $lab
+
+    if [ $cleanup -eq 1 ]; then
+      echo "LOG: Clean up $lab"
+      yes yes | ${TOP_DIR}/tools/deploy/clean $lab
+      ${TOP_DIR}/tools/docker/choose $lab
+    fi
+
+    echo "LOG: Unlock $lab"
+    ${TOP_DIR}/tools/docker/unlock $lab
+
+    echo $host > ${TOP_DIR}/.host_name
+
+    for user in $users
+    do
+      echo "LOG: Run $lab for $user"
+      lab_alive=$alive ${TOP_DIR}/tools/deploy/run $lab $user $peruser
+    done
+
+    echo "LOG: Release $lab"
+    ${TOP_DIR}/tools/deploy/release all
+
   done
 
-  sleep $NOTIFY_WAIT
+  if [ $alive -ge 0 ]; then
+    echo "LOG: Allow $lab running for $alive seconds"
+    sleep $alive
 
-  echo "LOG: Release $lab"
-  sleep 5 && ${TOP_DIR}/tools/deploy/release al
-fi
+    export NOTIFY_WAIT=30
+    export NOTIFY_MSG="Lab will be removed"
 
-echo "LOG: sleep for $interval"
-[ $interval -ge 0 ] && sleep $interval
+    for lab in $labs
+    do
+      echo "LOG: Clean up $lab"
+      (yes yes | ${TOP_DIR}/tools/deploy/clean $lab) &
+    done
+
+    sleep $NOTIFY_WAIT
+
+    echo "LOG: Release $lab"
+    sleep 5 && ${TOP_DIR}/tools/deploy/release al
+  fi
+
+  echo "LOG: sleep for $interval"
+  [ $interval -ge 0 ] && sleep $interval
+
+done
