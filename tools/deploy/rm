@@ -20,5 +20,3 @@ do
     $rm_cmd $lab_name
     $unlock_cmd $lab_name
 done
-
-$SUDO rm -rf $LAB_OUTPUT/${CURRENT}*

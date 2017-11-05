@@ -5,3 +5,7 @@ TOP_DIR=$(cd $(dirname $0)/../../ && pwd)
 . $TOP_DIR/tools/docker/config $* >/dev/null
 
 . ${TOP_DIR}/tools/deploy/rm
+
+do_unlock
+
+$SUDO rm -rf $LAB_OUTPUT/${CURRENT}*

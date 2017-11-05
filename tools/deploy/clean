@@ -15,9 +15,3 @@ do
     lab_name=$(basename $lab_name | sed -e "s%-[0-9]*$%%g")
     $clean_cmd $lab_name
 done
-
-do_unlock
-
-$SUDO rm -rf $LAB_OUTPUT/${CURRENT}*
-
-$SUDO git clean -fdx >/dev/null 2>&1
