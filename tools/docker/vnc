@@ -27,6 +27,8 @@ LABS_WEB_URL="$WEB_HTTP://localhost:${HOST_VNC_PORT}/labs/$RELEASE_HTML"
 [ $VNC_AUTOCONNECT -eq 1 ] && \
   CONTAINER_WEB_URL="$CONTAINER_WEB_URL&autoconnect=1"
 
+CLOUD_LAB_TOP_DIR=$(echo $TOP_DIR | sed -e "s%/cloud-lab/output/.*%/cloud-lab/%g")
+
 # Create local shotcut on Desktop
 if [ -d ~/Desktop -a -n "$REMOTE_DESKTOP_SHORTCUT" -a -f "$REMOTE_DESKTOP_SHORTCUT" ]; then
 
@@ -40,7 +42,7 @@ if [ -d ~/Desktop -a -n "$REMOTE_DESKTOP_SHORTCUT" -a -f "$REMOTE_DESKTOP_SHORTC
     fi
 
     # For cloud lab
-    echo "/usr/bin/open -a 'Terminal' '"$TOP_DIR"'" > $MANAGE_DESKTOP_SHORTCUT
+    echo "/usr/bin/open -a 'Terminal' '"$CLOUD_LAB_TOP_DIR"'" > $MANAGE_DESKTOP_SHORTCUT
     echo 'osascript -e "do shell script \"osascript -e \\\\\"tell application \\\\\\\\\\\\\\"Terminal\\\\\\\\\\\\\\" \\\\\\" -e \\\\\\"set mainID to id of second window\\\\\\" -e \\\\\\" close (every window whose id = mainID)\\\\\\"  -e \\\\\\"end tell\\\\\\"   &> /dev/null &\""; exit' >> $MANAGE_DESKTOP_SHORTCUT
 
     echo "/usr/bin/open -a '"$WEB_BROWSER"' '"$LABS_WEB_URL"'" > $BROWSE_DESKTOP_SHORTCUT
@@ -65,7 +67,7 @@ if [ -d ~/Desktop -a -n "$REMOTE_DESKTOP_SHORTCUT" -a -f "$REMOTE_DESKTOP_SHORTC
 Encoding=UTF-8
 Name=Cloud Lab Manager
 Comment=Cloud Lab Manage Center
-Exec=$XTERM --working-directory=$TOP_DIR -T 'Cloud Lab'
+Exec=$XTERM --working-directory=$CLOUD_LAB_TOP_DIR -T 'Cloud Lab'
 Icon=/usr/share/pixmaps/${XTERM}.png
 Type=Application
 EOF
