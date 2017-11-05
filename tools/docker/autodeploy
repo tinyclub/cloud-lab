@@ -1,0 +1,33 @@
+#!/bin/sh
+#
+# autodeploy -- deploy some labs automatically
+#
+
+TOP_DIR=$(cd $(dirname $0)/../../ && pwd)
+. $TOP_DIR/tools/docker/config $* >/dev/null
+
+[ "x$HOST_OS" != "xLinux" ] && echo "LOG: Only available for Linux currently." && exit 1
+
+DST=/usr/local/bin/cloud-lab-autodeploy
+SRC=$TOP_DIR/tools/deploy/batch
+CRON=/etc/cron.hourly/0cloud-lab
+LOG=/var/log/cloud-lab.autodeploy.log
+
+[ -z "$loop" ] && loop=1
+[ -z "$interval" ] && interval="30m"
+[ -z "$alive" ] && alive="30m"
+[ -z "$cleanup" ] && cleanup=1
+[ -z "$labs" ] && labs="linux-0.11-lab cs630-qemu-lab"
+
+[ `id -u` -ne 0 ] && SUDO=sudo
+
+echo "LOG: create cron tasks"
+
+$SUDO touch $LOG
+
+$SUDO /bin/bash -c "echo -e \"#!/bin/bash\nloop=$loop interval=$interval alive=$alive cleanup=$cleanup labs='$labs' $SRC > $LOG\" > $DST"
+$SUDO /bin/bash -c "echo -e \"#!/bin/bash\n$DST\" > $CRON"
+
+$SUDO chmod a+x $DST $CRON
+$SUDO chmod o-r $LOG
+$SUDO service cron restart

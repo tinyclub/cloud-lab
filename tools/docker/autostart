@@ -12,8 +12,8 @@ TOP_DIR=$(cd $(dirname $0)/../../ && pwd)
 
 RC=/etc/rc.local
 #DST=/etc/init.d/cloud-lab
-LOG=/var/log/cloud-lab.log
-DST=/usr/local/bin/cloud-lab
+LOG=/var/log/cloud-lab.autostart.log
+DST=/usr/local/bin/cloud-lab-autostart
 SRC=$DOCKER_START_ALL_CMD
 RELEASE=$DOCKER_RELEASE_CMD
 
@@ -42,6 +42,8 @@ EOF
 
 $SUDO mv $tmp $DST
 $SUDO chmod a+x $DST
+$SUDO touch $LOG
+$SUDO chmod o-r $LOG
 
 echo "LOG: Put $DST in $RC for autostart"
 #$SUDO update-rc.d cloud-lab defaults 100
