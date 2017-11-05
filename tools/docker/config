@@ -491,7 +491,7 @@ EOF
 	printf("<tr class=\"%s\">\n", (FNR%2 == 0) ? "odd" : "even"); \
 	printf("<td>%s</td>\n", $1); \
 	printf("<td>%s</td>\n", $2); \
-	printf("  <td><a target=\"_blank\" href=\"'$WEB_HTTP'://%s:%s/?u=%s&p=%s\">Login</a></td>\n", \
+	printf("  <td><a target=\"_blank\" href=\"'$WEB_HTTP'://%s:%s/?u=%s&p=%s&autoconnect=1\">Login</a></td>\n", \
 		$3, $4, $5, $6); \
 	printf("  <td><a target=\"_blank\" href=\"'$WEB_HTTP'://%s:%s/?r=%s%s\">Login</a></td>\n", \
 		$3, $4, $5, $7); \
