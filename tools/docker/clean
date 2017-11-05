@@ -19,4 +19,4 @@ do_op "rm -f" LOCAL_DESKTOP_SHORTCUT
 find $CONFIG_DOCKER_DIR -iname ".[^.]*" -exec rm -rf {} \;
 
 # Update lab list
-$DOCKER_RELEASE_CMD all >/dev/null 2>&1
+[ "$RELEASE" != '0' ] && $DOCKER_RELEASE_CMD all >/dev/null 2>&1

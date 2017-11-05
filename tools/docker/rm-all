@@ -3,6 +3,8 @@
 # rm-all -- remove all docker labs
 #
 
+export RELEASE=0
+
 read -p 'This command is dangerous, are you sure? (yes/no) ' sure
 
 [ "x$sure" != 'xyes' ] && exit 0
