@@ -82,10 +82,12 @@ do
     unset NOTIFY_MSG
 
     echo "LOG: Release $lab"
-    sleep 5 && ${TOP_DIR}/tools/deploy/release al
+    sleep 5 && ${TOP_DIR}/tools/deploy/release all
   fi
 
-  echo "LOG: sleep for $interval"
-  [ $interval -ge 0 -a $i -ne $loop ] && sleep $interval
+  if [ $interval -ge 0 -a $i -ne $loop ]; then
+    echo "LOG: sleep for $interval seconds"
+    sleep $interval
+  fi
 
 done
