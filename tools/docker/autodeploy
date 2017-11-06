@@ -12,6 +12,7 @@ DST=/usr/local/bin/cloud-lab-autodeploy
 SRC=$TOP_DIR/tools/deploy/batch
 CRON=/etc/cron.hourly/0cloud-lab
 LOG=/var/log/cloud-lab.autodeploy.log
+LOCK=/var/lock/cloud-lab.autodeploy.lock
 
 [ -z "$loop" ] && loop=2
 [ -z "$interval" ] && interval="30s"
@@ -28,8 +29,8 @@ echo "LOG: create cron tasks"
 $SUDO touch $LOG
 $SUDO chown $HOST_USER:$HOST_USER $LOG
 
-$SUDO /bin/bash -c "echo -e \"#!/bin/bash\n\nmyself=\\$\\$\nps -ef | grep cloud-lab | tr -s ' ' | cut -d' ' -f2 | tr -d $\"myself\" | xargs -I{} sudo kill -9 {}\n\nsudo -u $HOST_USER peruser=$peruser loop=$loop interval=$interval alive=$alive cleanup=$cleanup labs='$labs' prompt='$prompt' $SRC | tee $LOG\" > $DST"
-$SUDO /bin/bash -c "echo -e \"#!/bin/bash\n$DST\" > $CRON"
+$SUDO /bin/bash -c "echo -e \"#!/bin/bash\n\nsudo -u $HOST_USER peruser=$peruser loop=$loop interval=$interval alive=$alive cleanup=$cleanup labs='$labs' prompt='$prompt' $SRC | tee $LOG\" > $DST"
+$SUDO /bin/bash -c "echo -e \"#!/bin/bash\n\nflock -x $LOCK -c $DST\" > $CRON"
 
 $SUDO chmod a+x $DST $CRON
 $SUDO chmod o-r $LOG
