@@ -492,7 +492,7 @@ $prompt
 EOF
 
 
-  if [ `stat -c "%s" $tmp` -eq 0 ]; then
+  if [ `cat $tmp | wc -c | tr -d ' '` -eq 0 ]; then
     cat <<EOF >> $RELEASE_FILE
 <p>下一组免费实验帐号即将放出，请稍等一分钟后再刷新页面……</p>
 EOF
