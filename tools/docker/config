@@ -469,7 +469,7 @@ get_labs ()
 <head>
 <style type="text/css">
   body { margin-bottom: 16px; overflow: auto; text-align: center; }
-  a { text-decoration: none; outline: none; }
+  a { text-decoration: none; outline: none; font-size: 92%; }
   p { text-align: center; font-size: 90%; }
   table { border: 1px solid #333; border-spacing: 0; border-collapse: collapse; width: 100%; }
   th, td { padding-left: 2px; padding-right: 2px; padding-top: 10px; padding-bottom: 10px;
