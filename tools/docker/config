@@ -470,7 +470,7 @@ get_labs ()
 <body>
 <head>
 <style type="text/css">
-  body { margin: auto; overflow: auto; text-align: center; max-width: 666px; font-family: 'Lucida Grande', 'Helvetica Neue', Arial, 'Hiragino Sans GB', 'Microsoft YaHei', '微软雅黑', 'WenQuanYi Micro Hei', sans-serif, 'SimSun', "宋体", 'Heiti', "黑体"; font-size: 13.34px; }
+  body { margin: auto; overflow: auto; text-align: center; max-width: 960px; font-family: 'Lucida Grande', 'Helvetica Neue', Arial, 'Hiragino Sans GB', 'Microsoft YaHei', '微软雅黑', 'WenQuanYi Micro Hei', sans-serif, 'SimSun', "宋体", 'Heiti', "黑体"; font-size: 13.34px; }
   a { text-decoration: none; outline: none; }
   p { text-align: center; }
   table { border: 1px solid #333; border-spacing: 0; border-collapse: collapse; width: 100%; }
@@ -521,6 +521,7 @@ EOF
   cat <<EOF >> $RELEASE_FILE
 </table>
 <p>Powered by <a target="_blank" href="http://tinylab.org/cloud-lab">Cloud Lab</a>,<br>
+Work on Chrome, Firefox and Safari.<br>
 © 2017 <a target="_blank" href="http://tinylab.org">泰晓科技</a>, All Rights Reserved.</p>
 </body>
 </html>
