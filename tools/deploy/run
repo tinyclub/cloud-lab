@@ -75,9 +75,9 @@ do
          $LAB_SRC/.git/modules/labs/$__lab_name \
          $LAB_SRC/tools -type f | sed -e "s%$LAB_SRC%./%g" | grep -v "/docker/\." > $tmpfile
     if [ -z "$SUDO" ]; then
-      rsync -arz $LAB_SRC $LAB_DST/ --files-from=$tmpfile
+      rsync -ar $LAB_SRC $LAB_DST/ --files-from=$tmpfile
     else
-      $SUDO -u $HOST_USER rsync -arz $LAB_SRC $LAB_DST/ --files-from=$tmpfile
+      $SUDO -u $HOST_USER rsync -ar $LAB_SRC $LAB_DST/ --files-from=$tmpfile
     fi
     rm $tmpfile
 
