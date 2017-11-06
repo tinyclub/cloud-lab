@@ -7,7 +7,7 @@ read -p 'This command is dangerous, are you sure? (yes/no) ' sure
 TOP_DIR=$(cd $(dirname $0)/../../ && pwd)
 . $TOP_DIR/tools/docker/config $* >/dev/null
 
-clean_cmds=`find $LAB_OUTPUT/${CURRENT}*/ -name "clean" | grep -v deploy`
+clean_cmds=`find $LAB_OUTPUT/${CURRENT}*/ -name "clean" | grep -v deploy | grep "docker/clean"`
 
 for clean_cmd in $clean_cmds
 do

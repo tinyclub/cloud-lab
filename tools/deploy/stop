@@ -5,7 +5,7 @@ TOP_DIR=$(cd $(dirname $0)/../../ && pwd)
 
 [ ! -d $LAB_OUTPUT ] && exit 0
 
-stop_cmds=`find $LAB_OUTPUT/${CURRENT}*/ -name "stop" | grep -v deploy`
+stop_cmds=`find $LAB_OUTPUT/${CURRENT}*/ -name "stop" | grep -v deploy | grep "docker/stop"`
 
 for stop_cmd in $stop_cmds
 do

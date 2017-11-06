@@ -5,7 +5,7 @@ TOP_DIR=$(cd $(dirname $0)/../../ && pwd)
 
 [ ! -d $LAB_OUTPUT ] && exit 0
 
-start_cmds=`find $LAB_OUTPUT/${CURRENT}*/ -name "start" | grep -v deploy`
+start_cmds=`find $LAB_OUTPUT/${CURRENT}*/ -name "start" | grep -v deploy | grep "docker/start"`
 
 for start_cmd in $start_cmds
 do
