@@ -486,7 +486,7 @@ get_labs ()
 <title>Cloud Lab | 泰晓实验云台</title>
 </head>
 <h1><a target="_blank" href="${WEB_HTTP}://${HOST}:6080">Cloud Lab | 泰晓实验云台<a/></h1>
-（欢迎通过 <a target="_blank" href='http://weidian.com/?userid=335178200'>泰晓开源小店</a> 购买帐号或赞助我们）<br><br>
+<p>（欢迎通过 <a target="_blank" href='http://weidian.com/?userid=335178200'>泰晓开源小店</a> 购买帐号或赞助我们）</p>
 EOF
 
     cat <<EOF >> $RELEASE_FILE
