@@ -46,6 +46,9 @@ do
     if [ $cleanup -eq 1 ]; then
       echo "LOG: Clean up $lab"
       yes yes | ${TOP_DIR}/tools/deploy/clean $lab
+
+      echo "LOG: Update release page for $lab"
+      lab_life=$alive prompt="$prompt" ${TOP_DIR}/tools/deploy/release all
       echo $lab > $LAB_CURRENT
     fi
 
@@ -57,11 +60,11 @@ do
     for user in $users
     do
       echo "LOG: Run $lab for $user"
-      lab_alive=$alive ${TOP_DIR}/tools/deploy/run $lab $user $peruser
-    done
+      lab_alive=$alive prompt="$prompt" ${TOP_DIR}/tools/deploy/run $lab $user $peruser
 
-    echo "LOG: Release $lab"
-    lab_life=$alive prompt="$prompt" ${TOP_DIR}/tools/deploy/release all
+      echo "LOG: Release $lab"
+      lab_life=$alive prompt="$prompt" ${TOP_DIR}/tools/deploy/release all
+    done
   done
 
   if [ -n "$alive" ]; then

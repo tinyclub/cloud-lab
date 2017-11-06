@@ -131,4 +131,4 @@ $DOCKER_PUBLISH_CMD $*
 
 $DOCKER_VNC_CMD $*
 
-$DOCKER_RELEASE_CMD all >/dev/null 2>&1
+prompt="$prompt" $DOCKER_RELEASE_CMD all >/dev/null 2>&1
