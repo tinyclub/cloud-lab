@@ -612,7 +612,7 @@ get_endtime ()
   #echo "seconds: " $lab_seconds
 
   if [ "x$HOST_OS" = "xDarwin" ]; then
-    date "+%Y%m%d %H:%M:%S" -j -f "%s" "$lab_seconds"
+    date -j -f "%s" "$lab_seconds" "+%Y%m%d %H:%M:%S"
   else
     date "+%Y%m%d %H:%M:%S" --date="@$lab_seconds"
   fi
