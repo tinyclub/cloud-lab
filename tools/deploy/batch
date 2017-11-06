@@ -68,11 +68,11 @@ do
   done
 
   if [ -n "$alive" ]; then
-    echo "LOG: Allow $lab running for ${alive}."
     alive_seconds=`time_to_seconds $alive`
-    for i in `seq 1 5 $alive_seconds`
+    echo "LOG: Allow $lab running for ${alive} (${alive_seconds} seconds)."
+    for i in `seq 1 30 $alive_seconds`
     do
-      sleep 5
+      sleep 30
       echo "LOG: Check alive $i of $alive_seconds"
     done
 
@@ -82,7 +82,7 @@ do
     for lab in $labs
     do
       echo "LOG: Clean up $lab"
-      (yes yes | ${TOP_DIR}/tools/deploy/clean $lab) &
+      yes yes | ${TOP_DIR}/tools/deploy/clean $lab
     done
 
     sleep $NOTIFY_WAIT
@@ -95,8 +95,9 @@ do
   fi
 
   if [ -n "$interval" -a $i -ne $loop ]; then
-    echo "LOG: sleep for ${interval}."
-    sleep `time_to_seconds $interval`
+    interval_seconds=`time_to_seconds $interval`
+    echo "LOG: sleep for ${interval} (${interval_seconds} seconds)."
+    sleep $interval_seconds
   fi
 
 done
