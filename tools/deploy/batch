@@ -23,6 +23,7 @@ TOP_DIR=$(cd $(dirname $0)/../../ && pwd)
 [ -z "$host" ] && host=$HOST
 [ -z "$alive" ] && alive=""
 [ -z "$interval" ] && interval=""
+# loop =1 for always, 0 means 1 time, 2 means 2 times...
 [ -z "$loop" ] && loop=1
 [ -z "$prompt" ] && prompt='<p>Hello, Cloud Lab!</p>'
 
@@ -32,11 +33,14 @@ export RELEASE=1
 . ${TOP_DIR}/tools/deploy/init
 
 
-echo "LOG: Start batch running"
+echo "LOG: Start batch running @ `date`"
 
-for i in `seq 1 $loop`
+count=0
+
+while :;
 do
-  echo "LOG: Current Count: $i"
+  let count+=1
+  echo "LOG: Start $count"
 
   for lab in $labs
   do
@@ -91,13 +95,18 @@ do
     unset NOTIFY_MSG
 
     echo "LOG: Empty release page" && prompt="$prompt" get_labs
-    sleep 10
   fi
 
-  if [ -n "$interval" -a $i -ne $loop ]; then
+  echo "LOG: End $count"
+  [ $loop -eq 0 ] && break
+  [ $loop -ne 1 -a $count -ge $loop ] && echo "LOG: Reached $loop times" && break
+
+  if [ -n "$interval" ]; then
     interval_seconds=`time_to_seconds $interval`
     echo "LOG: sleep for ${interval} (${interval_seconds} seconds)."
     sleep $interval_seconds
   fi
 
 done
+
+echo "LOG: End batch running @ `date`"
