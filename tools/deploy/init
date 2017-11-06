@@ -2,7 +2,7 @@
 
 # Enhance security: protect private data
 
-[ -z "$LAB_SECURITY" ] && LAB_SECURITY=2
+[ -z "$LAB_SECURITY" ] && LAB_SECURITY=0
 export LAB_SECURITY
 
 [ `id -u` -ne 0 ] && SUDO=sudo

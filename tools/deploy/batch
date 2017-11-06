@@ -9,7 +9,7 @@
 #    users="a b c d e f g" peruser=3 labs="linux-0.11-lab cs630-qemu-lab" \
 #          host="myhost" cleanup=1 security=0 tools/deploy/batch
 # 2.
-#    loop=2 interval=20 alive=20 cleanup=1 labs="linux-0.11-lab cs630-qemu-lab" tools/deploy/batch
+#    prompt="" loop=2 interval=20 alive=20 cleanup=1 labs="linux-0.11-lab cs630-qemu-lab" tools/deploy/batch
 #
 
 TOP_DIR=$(cd $(dirname $0)/../../ && pwd)
@@ -24,6 +24,7 @@ TOP_DIR=$(cd $(dirname $0)/../../ && pwd)
 [ -z "$alive" ] && alive=""
 [ -z "$interval" ] && interval=""
 [ -z "$loop" ] && loop=1
+[ -z "$prompt" ] && prompt='<p>Hello, Cloud Lab!</p>'
 
 LAB_SECURITY=$security
 
@@ -59,7 +60,7 @@ do
     done
 
     echo "LOG: Release $lab"
-    lab_life=$alive ${TOP_DIR}/tools/deploy/release all
+    lab_life=$alive prompt="$prompt" ${TOP_DIR}/tools/deploy/release all
 
   done
 
@@ -81,7 +82,7 @@ do
     unset NOTIFY_WAIT
     unset NOTIFY_MSG
 
-    echo "LOG: Empty release page" && get_labs
+    echo "LOG: Empty release page" && prompt="$prompt" get_labs
     sleep 10
   fi
 

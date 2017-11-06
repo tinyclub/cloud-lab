@@ -450,7 +450,8 @@ get_browser ()
 get_labs ()
 {
   local tmp=`mktemp`
-  local list=$1
+  local list="$1"
+  local prompt="$2"
 
   [ -n "$list" ] && $list | grep "$LAB_NAME" | grep -v "LOG:" | sort -t ' ' -k 5 > $tmp
 
@@ -483,7 +484,22 @@ get_labs ()
 <title>Cloud Lab | 泰晓实验云台</title>
 </head>
 <h1><a target="_blank" href="${WEB_HTTP}://${HOST}:6080">Cloud Lab | 泰晓实验云台<a/></h1>
-<br>
+（通过 <a href='http://weidian.com/?userid=335178200'>泰晓开源小店</a> 购买帐号）<br><br>
+EOF
+
+    cat <<EOF >> $RELEASE_FILE
+$prompt
+EOF
+
+
+  if [ `stat -c "%s" $tmp` -eq 0 ]; then
+    cat <<EOF >> $RELEASE_FILE
+<p>下一组免费实验帐号即将放出，请稍等一分钟后再刷新页面……</p>
+EOF
+
+  fi
+
+  cat << EOF >> $RELEASE_FILE
 <table>
 <tr class="head"><td>Lab</td><td>User</td><td>VNC (Normal)</td><td>VNC (View)</td><td>SSH (Web)</td><td>START</td><td>END</td></tr>
 EOF

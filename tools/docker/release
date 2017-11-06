@@ -7,4 +7,4 @@ TOP_DIR=$(cd $(dirname $0)/../../ && pwd)
 
 [ -z "$LAB_NAME" -o "$1" = "all" ] && LAB_NAME=" "
 
-get_labs $TOP_DIR/tools/docker/list
+get_labs $TOP_DIR/tools/docker/list "$prompt"
