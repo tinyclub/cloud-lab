@@ -9,14 +9,12 @@ TOP_DIR=$(cd $(dirname $0)/../../ && pwd)
 
 [ ! -d $LAB_OUTPUT ] && exit 0
 
-rm_cmds=`find $LAB_OUTPUT/${CURRENT}*/ -name "rm" | grep -v deploy`
+start_cmds=`find $LAB_OUTPUT/${CURRENT}*/ -name "start" | grep -v deploy`
 
-for rm_cmd in $rm_cmds
+for start_cmd in $start_cmds
 do
-    lab_name=$(echo $rm_cmd | sed -e 's%$LAB_OUTPUT%%g' | cut -d'+' -f1)
+    lab_name=$(echo $start_cmd | sed -e 's%$LAB_OUTPUT%%g' | cut -d'+' -f1)
     lab_name=$(basename $lab_name)
 
-    unlock_cmd=$(echo $rm_cmd | sed -e "s/rm$/unlock/g")
-    $rm_cmd $lab_name
-    $unlock_cmd $lab_name
+    $start_cmd $lab_name
 done
