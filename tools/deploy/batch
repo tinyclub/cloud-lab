@@ -56,16 +56,12 @@ do
     for user in $users
     do
       echo "LOG: Run $lab for $user"
-      export RELEASE=1 && lab_alive=$alive ${TOP_DIR}/tools/deploy/run $lab $user $peruser &
+      export RELEASE=1 && lab_alive=$alive ${TOP_DIR}/tools/deploy/run $lab $user $peruser
     done
   done
 
   echo "LOG: Release all labs"
-  for i in `seq 1 5`
-  do
-    sleep 2
-    lab_life=$alive prompt="$prompt" ${TOP_DIR}/tools/deploy/release all >/dev/null
-  done
+  lab_life=$alive prompt="$prompt" ${TOP_DIR}/tools/deploy/release all >/dev/null
 
   if [ -n "$alive" ]; then
     echo "LOG: Allow $lab running for ${alive}."

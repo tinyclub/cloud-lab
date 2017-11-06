@@ -17,8 +17,8 @@ LOG=/var/log/cloud-lab.autodeploy.log
 [ -z "$interval" ] && interval="30s"
 [ -z "$alive" ] && alive="30m"
 [ -z "$cleanup" ] && cleanup=1
-[ -z "$peruser" ] && peruser=3
-[ -z "$labs" ] && labs=`echo $LABS | tr '\n' ' '`
+[ -z "$peruser" ] && peruser=2
+[ -z "$labs" ] && labs="linux-0.11-lab cs630-qemu-lab markdown-lab tinylab.org linux-lab"
 [ -z "$prompt" ] && prompt="<p><em>说明</em>：以下帐号仅供免费体验，半小时更新一组，每个帐号限一人使用，感谢 青云QingCloud 赞助服务器。</p>"
 
 [ `id -u` -ne 0 ] && SUDO=sudo
@@ -28,7 +28,7 @@ echo "LOG: create cron tasks"
 $SUDO touch $LOG
 $SUDO chown $HOST_USER:$HOST_USER $LOG
 
-$SUDO /bin/bash -c "echo -e \"#!/bin/bash\nsudo -u $HOST_USER prompt='$prompt' peruser=$peruser loop=$loop interval=$interval alive=$alive cleanup=$cleanup labs='$labs' $SRC | tee $LOG\" > $DST"
+$SUDO /bin/bash -c "echo -e \"#!/bin/bash\n\nmyself=\\$\\$\nps -ef | grep cloud-lab | tr -s ' ' | cut -d' ' -f2 | tr -d $\"myself\" | xargs -I{} sudo kill -9 {}\n\nsudo -u $HOST_USER peruser=$peruser loop=$loop interval=$interval alive=$alive cleanup=$cleanup labs='$labs' prompt='$prompt' $SRC | tee $LOG\" > $DST"
 $SUDO /bin/bash -c "echo -e \"#!/bin/bash\n$DST\" > $CRON"
 
 $SUDO chmod a+x $DST $CRON
