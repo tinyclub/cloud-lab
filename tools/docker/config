@@ -470,13 +470,13 @@ get_labs ()
 <body>
 <head>
 <style type="text/css">
-  body { margin-bottom: 16px; overflow: auto; text-align: center; font-family: 'Lucida Grande', 'Helvetica Neue', Arial, 'Hiragino Sans GB', 'Microsoft YaHei', '微软雅黑', 'WenQuanYi Micro Hei', sans-serif, 'SimSun', "宋体", 'Heiti', "黑体"; font-size: 13.34px; }
+  body { margin: auto; overflow: auto; text-align: center; max-width: 666px; font-family: 'Lucida Grande', 'Helvetica Neue', Arial, 'Hiragino Sans GB', 'Microsoft YaHei', '微软雅黑', 'WenQuanYi Micro Hei', sans-serif, 'SimSun', "宋体", 'Heiti', "黑体"; font-size: 13.34px; }
   a { text-decoration: none; outline: none; }
   p { text-align: center; }
   table { border: 1px solid #333; border-spacing: 0; border-collapse: collapse; width: 100%; }
-  th, td { padding-left: 2px; padding-right: 2px; padding-top: 10px; padding-bottom: 10px;
+  th, td { padding-left: 2px; padding-right: 2px; padding-top: 6px; padding-bottom: 6px;
      border: 1px solid #aaa; display: table-cell;
-     text-align: center; max-width: 100px; }
+     text-align: center; max-width: 60px; }
   td { font-size: 80%; overflow: hidden; text-overflow: ellipsis }
   tr.head { background-color: #ccc; }
   tr.odd { background-color: #eee; }
@@ -503,21 +503,18 @@ EOF
 
   cat << EOF >> $RELEASE_FILE
 <table>
-<tr class="head"><td>Lab</td><td>User</td><td>VNC (Normal)</td><td>VNC (View)</td><td>SSH (Web)</td><td>START</td><td>END</td></tr>
+<tr class="head"><td>Lab</td><td>VNC</td><td>SSH</td><td>Start</td><td>End</td></tr>
 EOF
 
   cat $tmp | awk 'BEGIN {FS=" "; }{ 			\
 	printf("<tr class=\"%s\">\n", (FNR%2 == 0) ? "odd" : "even"); \
-	printf("<td>%s</td>\n", $1); \
-	printf("<td>%s</td>\n", $2); \
+	printf("<td><a title=\"Project Homepage and Usage\" target=\"_blank\" href=\"http://tinylab.org/%s\">%s</a></td>\n", $1, $1); \
 	printf("  <td><a target=\"_blank\" href=\"'$WEB_HTTP'://%s:%s/?u=%s&p=%s&autoconnect=1\">Login</a></td>\n", \
 		$3, $4, $5, $6); \
-	printf("  <td><a target=\"_blank\" href=\"'$WEB_HTTP'://%s:%s/?r=%s%s\">Login</a></td>\n", \
-		$3, $4, $5, $7); \
 	printf("  <td><a target=\"_blank\" href=\"'$WEB_HTTP'://%s:%s/?ssh=ssh://%s:%s@%s:22\">Login</a></td>\n", \
 		$3, $9, $2, $10, $8); \
-	printf("<td>%s %s</td>\n", $13, $14); \
-	printf("<td>%s %s</td>\n", $15, $16); \
+	printf("<td>%s<br>%s</td>\n", $13, $14); \
+	printf("<td>%s<br>%s</td>\n", $15, $16); \
 	printf("</tr>\n"); \
      }' >> $RELEASE_FILE
 
