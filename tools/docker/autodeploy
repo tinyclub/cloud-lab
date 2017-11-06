@@ -19,7 +19,7 @@ LOG=/var/log/cloud-lab.autodeploy.log
 [ -z "$cleanup" ] && cleanup=1
 [ -z "$peruser" ] && peruser=3
 [ -z "$labs" ] && labs=`echo $LABS | tr '\n' ' '`
-[ -z "$prompt" ] && prompt="<p><em>说明：该网页提供临时免费体验帐号，每个帐号限一人使用，每次仅限半小时，感谢青云QingCloud赞助服务器。</em></p>"
+[ -z "$prompt" ] && prompt="<p><em>说明</em>：以下帐号仅供免费体验，半小时更新一组，每个帐号限一人使用，感谢 青云QingCloud 赞助服务器。</p>"
 
 [ `id -u` -ne 0 ] && SUDO=sudo
 

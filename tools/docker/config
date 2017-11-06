@@ -470,9 +470,9 @@ get_labs ()
 <body>
 <head>
 <style type="text/css">
-  body { margin-bottom: 16px; overflow: auto; text-align: center; }
-  a { text-decoration: none; outline: none; font-size: 92%; }
-  p { text-align: center; font-size: 90%; }
+  body { margin-bottom: 16px; overflow: auto; text-align: center; font-family: 'Lucida Grande', 'Helvetica Neue', Arial, 'Hiragino Sans GB', 'Microsoft YaHei', '微软雅黑', 'WenQuanYi Micro Hei', sans-serif, 'SimSun', "宋体", 'Heiti', "黑体"; font-size: 13.34px; }
+  a { text-decoration: none; outline: none; }
+  p { text-align: center; }
   table { border: 1px solid #333; border-spacing: 0; border-collapse: collapse; width: 100%; }
   th, td { padding-left: 2px; padding-right: 2px; padding-top: 10px; padding-bottom: 10px;
      border: 1px solid #aaa; display: table-cell;
@@ -485,7 +485,7 @@ get_labs ()
 <meta charset="UTF-8"> 	\
 <title>Cloud Lab | 泰晓实验云台</title>
 </head>
-<h1><a target="_blank" href="${WEB_HTTP}://${HOST}:6080">Cloud Lab | 泰晓实验云台<a/></h1>
+<h1><a target="_blank" href="${WEB_HTTP}://${HOST}:6080">Cloud Lab | 泰晓实验云台</a></h1>
 <p>（欢迎通过 <a target="_blank" href='http://weidian.com/?userid=335178200'>泰晓开源小店</a> 购买帐号或赞助我们）</p>
 EOF
 
