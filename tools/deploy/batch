@@ -73,6 +73,7 @@ do
     for i in `seq 1 5 $alive_seconds`
     do
       sleep 5
+      echo "LOG: Check alive $i of $alive_seconds"
       lab_life=$alive prompt="$prompt" ${TOP_DIR}/tools/deploy/release all >/dev/null
     done
 
