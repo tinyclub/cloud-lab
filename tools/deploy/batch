@@ -40,7 +40,7 @@ do
   for lab in $labs
   do
     echo "LOG: Choose $lab"
-    ${TOP_DIR}/tools/docker/choose $lab
+    PULL=0 ${TOP_DIR}/tools/docker/choose $lab
 
     if [ $cleanup -eq 1 ]; then
       echo "LOG: Clean up $lab"
@@ -56,17 +56,25 @@ do
     for user in $users
     do
       echo "LOG: Run $lab for $user"
-      lab_alive=$alive ${TOP_DIR}/tools/deploy/run $lab $user $peruser
+      export RELEASE=1 && lab_alive=$alive ${TOP_DIR}/tools/deploy/run $lab $user $peruser &
     done
+  done
 
-    echo "LOG: Release $lab"
-    lab_life=$alive prompt="$prompt" ${TOP_DIR}/tools/deploy/release all
-
+  echo "LOG: Release all labs"
+  for i in `seq 1 5`
+  do
+    sleep 2
+    lab_life=$alive prompt="$prompt" ${TOP_DIR}/tools/deploy/release all >/dev/null
   done
 
   if [ -n "$alive" ]; then
     echo "LOG: Allow $lab running for ${alive}."
-    sleep `time_to_seconds $alive`
+    alive_seconds=`time_to_seconds $alive`
+    for i in `seq 1 5 $alive_seconds`
+    do
+      sleep 5
+      lab_life=$alive prompt="$prompt" ${TOP_DIR}/tools/deploy/release all >/dev/null
+    done
 
     export NOTIFY_WAIT=30
     export NOTIFY_MSG="Lab will be removed"

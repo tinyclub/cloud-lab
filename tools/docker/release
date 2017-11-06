@@ -3,7 +3,9 @@
 TOP_DIR=$(cd $(dirname $0)/../../ && pwd)
 . $TOP_DIR/tools/docker/config $* >/dev/null
 
-[ ! -f $TOP_DIR/README.md ] && exit 0
+[ -z $RELEASE ] && RELEASE=0
+
+[ ! -f $TOP_DIR/README.md -a $RELEASE -eq 0 ] && exit 0
 
 [ -z "$LAB_NAME" -o "$1" = "all" ] && LAB_NAME=" "
 

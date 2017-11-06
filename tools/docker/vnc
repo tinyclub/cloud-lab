@@ -27,8 +27,6 @@ LABS_WEB_URL="$WEB_HTTP://localhost:${HOST_VNC_PORT}/labs/$RELEASE_HTML"
 [ $VNC_AUTOCONNECT -eq 1 ] && \
   CONTAINER_WEB_URL="$CONTAINER_WEB_URL&autoconnect=1"
 
-CLOUD_LAB_TOP_DIR=$(echo $TOP_DIR | sed -e "s%/cloud-lab/output/.*%/cloud-lab/%g")
-
 # Create local shotcut on Desktop
 if [ -d ~/Desktop -a -n "$REMOTE_DESKTOP_SHORTCUT" -a -f "$REMOTE_DESKTOP_SHORTCUT" ]; then
 
