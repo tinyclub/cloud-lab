@@ -1,9 +1,5 @@
 #!/bin/sh
 
-read -p 'This command is dangerous, are you sure? (yes/no) ' sure
-
-[ "x$sure" != 'xyes' ] && exit 0
-
 TOP_DIR=$(cd $(dirname $0)/../../ && pwd)
 . $TOP_DIR/tools/docker/config $* >/dev/null
 
@@ -16,7 +12,5 @@ do
     lab_name=$(echo $rm_cmd | sed -e 's%$LAB_OUTPUT%%g' | cut -d'+' -f1)
     lab_name=$(basename $lab_name)
 
-    unlock_cmd=$(echo $rm_cmd | sed -e "s/rm$/unlock/g")
     $rm_cmd $lab_name
-    $unlock_cmd $lab_name
 done

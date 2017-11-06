@@ -7,4 +7,6 @@ TOP_DIR=$(cd $(dirname $0)/../../ && pwd)
 
 . ${TOP_DIR}/tools/deploy/rm
 
+docker ps -a --format='{{.ID}}' | xargs -I{} docker rm -f {} 2>&1
+
 rm -rf $RELEASE_FILE
