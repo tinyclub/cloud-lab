@@ -51,6 +51,9 @@ fi
 
 OLD_TOP_DIR=$TOP_DIR
 OLD_LAB_OUTPUT=$LAB_OUTPUT
+
+tmpfile=`mktemp`
+
 for i in `seq 1 $lab_total`
 do
     LAB_SRC=$OLD_TOP_DIR
@@ -67,10 +70,9 @@ do
 
     echo "LOG: Create $LAB_PATH"
 
-    tmpfile=`mktemp`
     __lab_name=$lab_name
     [ "$lab_name" = "qing-lab" ] && __lab_name='*'
-    find $LAB_SRC/configs/$lab_name \
+    [ `cat $tmpfile | wc -c | tr -d ' '` -eq 0 ] && find $LAB_SRC/configs/$lab_name \
          $LAB_SRC/labs/$__lab_name \
          $LAB_SRC/.git/modules/labs/$__lab_name \
          $LAB_SRC/tools -type f | sed -e "s%$LAB_SRC%./%g" | grep -v "/docker/\." > $tmpfile
@@ -79,7 +81,6 @@ do
     else
       $SUDO -u $HOST_USER rsync -ar $LAB_SRC $LAB_DST/ --files-from=$tmpfile
     fi
-    rm $tmpfile
 
     # Run it
 
@@ -97,3 +98,5 @@ do
     UNIX_USER=$lab_user CONTAINER_NAME=$CONTAINER_NAME $DOCKER_RUN_CMD $lab_name
     [ -n "$lab_alive" ] && notify_user 0 "Note: Lab is only free for $lab_life." $lab_name
 done
+
+rm $tmpfile
