@@ -71,7 +71,6 @@ do
     do
       sleep 5
       echo "LOG: Check alive $i of $alive_seconds"
-      lab_life=$alive prompt="$prompt" ${TOP_DIR}/tools/deploy/release all >/dev/null &
     done
 
     export NOTIFY_WAIT=30
