@@ -595,7 +595,11 @@ get_endtime ()
 
   [ "$lab_life" = "0" ] && echo && exit 0
 
-  lab_start_seconds=`date --date="$lab_start" +"%s"`
+  if [ "x$HOST_OS" = "xDarwin" ]; then
+    lab_start_seconds=`date -j -f "%Y%m%d %H:%M:%S" "$lab_start" "+%s"`
+  else
+    lab_start_seconds=`date --date="$lab_start" "+%s"`
+  fi
 
   #echo "start_seconds: "$lab_start_seconds
 
@@ -605,7 +609,11 @@ get_endtime ()
 
   lab_seconds=`echo "$lab_start_seconds+$lab_life_seconds" | bc`
 
-  #echo "seconds: " $seconds
+  #echo "seconds: " $lab_seconds
 
-  date +"%Y%m%d %H:%M:%S" --date="@$lab_seconds"
+  if [ "x$HOST_OS" = "xDarwin" ]; then
+    date "+%Y%m%d %H:%M:%S" -j -f "%s" "$lab_seconds"
+  else
+    date "+%Y%m%d %H:%M:%S" --date="@$lab_seconds"
+  fi
 }
