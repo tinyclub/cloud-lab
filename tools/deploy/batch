@@ -27,6 +27,7 @@ TOP_DIR=$(cd $(dirname $0)/../../ && pwd)
 [ -z "$prompt" ] && prompt='<p>Hello, Cloud Lab!</p>'
 
 LAB_SECURITY=$security
+export RELEASE=1
 
 . ${TOP_DIR}/tools/deploy/init
 
@@ -56,7 +57,7 @@ do
     for user in $users
     do
       echo "LOG: Run $lab for $user"
-      export RELEASE=1 && lab_alive=$alive ${TOP_DIR}/tools/deploy/run $lab $user $peruser
+      lab_alive=$alive ${TOP_DIR}/tools/deploy/run $lab $user $peruser
     done
   done
 
