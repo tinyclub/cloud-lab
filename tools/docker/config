@@ -470,14 +470,14 @@ get_labs ()
 <body>
 <head>
 <style type="text/css">
-  body { margin: auto; overflow: auto; text-align: center; max-width: 960px; font-family: 'Lucida Grande', 'Helvetica Neue', Arial, 'Hiragino Sans GB', 'Microsoft YaHei', '微软雅黑', 'WenQuanYi Micro Hei', sans-serif, 'SimSun', "宋体", 'Heiti', "黑体"; font-size: 13.34px; }
+  body { margin: auto; padding-top: 10px; overflow: auto; text-align: center; max-width: 960px; font-family: 'Lucida Grande', 'Helvetica Neue', Arial, 'Hiragino Sans GB', 'Microsoft YaHei', '微软雅黑', 'WenQuanYi Micro Hei', sans-serif, 'SimSun', "宋体", 'Heiti', "黑体"; }
   a { text-decoration: none; outline: none; }
   p { text-align: center; }
   table { border: 1px solid #333; border-spacing: 0; border-collapse: collapse; width: 100%; }
-  th, td { padding-left: 2px; padding-right: 2px; padding-top: 6px; padding-bottom: 6px;
+  th, td { font-size: 95%; padding-left: 2px; padding-right: 2px; padding-top: 6px; padding-bottom: 6px;
      border: 1px solid #aaa; display: table-cell;
      text-align: center; max-width: 60px; }
-  td { font-size: 80%; overflow: hidden; text-overflow: ellipsis }
+  td { overflow: hidden; text-overflow: ellipsis }
   tr.head { background-color: #ccc; }
   tr.odd { background-color: #eee; }
   tr.even { background-color: #fff; }
@@ -486,7 +486,6 @@ get_labs ()
 <title>Cloud Lab | 泰晓实验云台</title>
 </head>
 <h1><a target="_blank" href="${WEB_HTTP}://${HOST}:6080">Cloud Lab | 泰晓实验云台</a></h1>
-<p>（欢迎通过 <a target="_blank" href='http://weidian.com/?userid=335178200'>泰晓开源小店</a> 购买帐号或赞助我们）</p>
 EOF
 
     cat <<EOF >> $RELEASE_FILE
@@ -520,9 +519,9 @@ EOF
 
   cat <<EOF >> $RELEASE_FILE
 </table>
-<p>Powered by <a target="_blank" href="http://tinylab.org/cloud-lab">Cloud Lab</a>,<br>
-Work on Chrome, Firefox and Safari.<br>
-© 2017 <a target="_blank" href="http://tinylab.org">泰晓科技</a>, All Rights Reserved.</p>
+<p>Powered by <a target="_blank" href="http://tinylab.org/cloud-lab">Cloud Lab</a>!</p>
+<p>感谢 青云QingCloud 赞助服务器！</p>
+</p>
 </body>
 </html>
 EOF

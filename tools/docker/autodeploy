@@ -20,7 +20,7 @@ LOCK=/var/lock/cloud-lab.autodeploy.lock
 [ -z "$cleanup" ] && cleanup=1
 [ -z "$peruser" ] && peruser=2
 [ -z "$labs" ] && labs="linux-0.11-lab cs630-qemu-lab markdown-lab tinylab.org linux-lab"
-[ -z "$prompt" ] && prompt="<p><em>说明</em>：以下帐号仅供免费体验，半小时更新一组，感谢 青云QingCloud 赞助服务器。</p>"
+[ -z "$prompt" ] && prompt="<p><em>说明</em>：以下帐号仅供免费体验，半小时更新一组。</p>"
 
 [ `id -u` -ne 0 ] && SUDO=sudo
 
