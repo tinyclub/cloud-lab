@@ -523,7 +523,6 @@ EOF
 
   cat <<EOF >> $RELEASE_FILE
 </table>
-<br>
 <p>Powered by <a target="_blank" href="http://tinylab.org/cloud-lab">Cloud Lab</a>,<br>
 © 2017 <a target="_blank" href="http://tinylab.org">泰晓科技</a>, All Rights Reserved.</p>
 </body>
