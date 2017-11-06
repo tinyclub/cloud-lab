@@ -59,10 +59,10 @@ do
       echo "LOG: Run $lab for $user"
       lab_alive=$alive ${TOP_DIR}/tools/deploy/run $lab $user $peruser
     done
-  done
 
-  echo "LOG: Release all labs"
-  lab_life=$alive prompt="$prompt" ${TOP_DIR}/tools/deploy/release all >/dev/null
+    echo "LOG: Release $lab"
+    lab_life=$alive prompt="$prompt" ${TOP_DIR}/tools/deploy/release all
+  done
 
   if [ -n "$alive" ]; then
     echo "LOG: Allow $lab running for ${alive}."
