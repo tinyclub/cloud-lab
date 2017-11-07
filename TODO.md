@@ -20,3 +20,5 @@
 12. Add multiple security levels
 13. Verify the auto start logic, /etc/rc.local?
 14. Fix up tools/docker/publish, .vnc-token path
+15. Add guacamole suppport, another web vnc implementation
+    http://guacamole.incubator.apache.org/doc/gug/
