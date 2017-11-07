@@ -45,10 +45,7 @@ $SUDO /bin/bash -c "cat <<EOF > $CRON
 #!/bin/bash
 
 # Clean up the log file every hour
-rm $LOG
-touch $LOG
-chown $HOST_USER:$HOST_USER $LOG
-chmod o-r $LOG
+echo > $LOG
 
 flock -w $WAIT -x $LOCK -c $DST
 EOF"
