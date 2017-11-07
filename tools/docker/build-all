@@ -5,11 +5,11 @@ TOP_DIR=$(cd $(dirname $0)/../../ && pwd)
 
 # markdown-lab must be built before qing-lab
 
-for i in `ls $CONFIGS_DIR | tr -s ' '`
+for lab in $LABS
 do
-    echo "\n\n========== Building tinylab/$i ==========\n\n"
+    echo "\n\n========== Building tinylab/$lab ==========\n\n"
 
-    ${TOP_DIR}/tools/docker/build $i
+    $DOCKER_BUILD_CMD $lab
 
     [ $? -ne 0 ] && exit 1
 done

@@ -8,7 +8,8 @@ TOP_DIR=$(cd $(dirname $0)/../../ && pwd)
 
 for lab in $LABS
 do
-    echo "LOG: pulling repository: $lab"
+    echo "LOG: Pulling repository: $lab"
 
-    cd ${LAB_DIR}/$lab && git pull -v
+    lab_dir=$LAB_DIR/$lab
+    [ -d "$lab_dir" ] && cd $lab_dir && git pull -v
 done

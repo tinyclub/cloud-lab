@@ -5,15 +5,31 @@
 
 export RELEASE=0
 
-id_names=`docker ps -a --format='{{.ID}},{{.Names}}' | sed '1!G;h;$!d'`
+TOP_DIR=$(cd $(dirname $0)/../../ && pwd)
+. $TOP_DIR/tools/docker/config $* >/dev/null
+
+id_names=`docker ps -f status=running --format='{{.ID}},{{.Names}}' | sed '1!G;h;$!d'`
 
 for id_name in $id_names
 do
     id=$(echo $id_name | cut -d ',' -f1)
     name=$(echo $id_name | cut -d ',' -f2)
 
+    lab=`echo $name | sed -e "s%-[0-9]*$%%g"`
+    echo $LABS $WPROXY_NAME $TPROXY_NAME | tr ' ' '\n' | grep -q ^$lab$
+    [ $? -ne 0 ] && continue
+
     echo "Stopping $name ..."
-    docker stop $id 2>&1
+
+    ls ${LAB_OUTPUT}/$name*/ >/dev/null 2>&1
+
+    if [ $? -eq 0 ]; then
+        ${LAB_OUTPUT}/$name*/tools/docker/stop $lab
+    elif [ -d ${TOP_DIR}/configs/$lab ]; then
+        $DOCKER_STOP_CMD $lab
+    else
+        docker stop $id
+    fi
 done
 
 $DOCKER_RELEASE_CMD all >/dev/null 2>&1

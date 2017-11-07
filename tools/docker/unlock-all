@@ -8,7 +8,7 @@ export LAB_SECURITY=1
 TOP_DIR=$(cd $(dirname $0)/../../ && pwd)
 . $TOP_DIR/tools/docker/config $* >/dev/null
 
-for lab in `ls $CONFIGS_DIR | tr -s ' '`
+for lab in $LABS
 do
     $DOCKER_UNLOCK_CMD $lab
 done

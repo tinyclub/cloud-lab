@@ -92,6 +92,7 @@ DOCKER_EXPORT_CMD=$DOCKER_DIR/export
 DOCKER_PUBLISH_CMD=$DOCKER_DIR/publish
 DOCKER_TPROXY_CMD=$DOCKER_DIR/tproxy
 DOCKER_CLEAN_CMD=$DOCKER_DIR/clean
+DOCKER_BUILD_CMD=$DOCKER_DIR/build
 DOCKER_RM_CMD=$DOCKER_DIR/rm
 DOCKER_RUN_CMD=$DOCKER_DIR/run
 DOCKER_STOP_CMD=$DOCKER_DIR/stop
@@ -297,7 +298,7 @@ LAB_NAME=$CURRENT
 # More variables
 
 IMAGES=`find $CONFIGS_DIR -name "name" | xargs -I{} cat {} | sort -u`
-LABS=`find ${LAB_DIR} -maxdepth 1 -mindepth 1 -type d | xargs -I{} basename {}`
+LABS=`ls $CONFIGS_DIR | tr -s ' '`
 
 [ -z "$LAB_DESKTOP_SHORTCUT" ] && LAB_DESKTOP_SHORTCUT=1
 if [ "x$HOST_OS" = "xDarwin" ]; then
@@ -496,7 +497,7 @@ EOF
 
   if [ `cat $tmp | wc -c | tr -d ' '` -eq 0 ]; then
     cat <<EOF >> $RELEASE_FILE
-<p>下一组免费实验帐号即将放出，请稍等一伙后再刷新页面……</p>
+<p>No Free Labs Available Currently.</p>
 EOF
 
   fi
