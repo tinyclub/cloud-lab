@@ -30,8 +30,27 @@ echo "LOG: create cron tasks"
 $SUDO touch $LOG
 $SUDO chown $HOST_USER:$HOST_USER $LOG
 
-$SUDO /bin/bash -c "echo -e \"#!/bin/bash\n\nsudo -u $HOST_USER peruser=$peruser loop=$loop interval=$interval alive=$alive cleanup=$cleanup labs='$labs' prompt='$prompt' $SRC | tee $LOG\" > $DST"
-$SUDO /bin/bash -c "echo -e \"#!/bin/bash\n\nflock -w $WAIT -x $LOCK -c $DST\" > $CRON"
+$SUDO /bin/bash -c "cat <<EOF > $DST
+#!/bin/bash
+
+sudo -u $HOST_USER \\\\
+    peruser=$peruser loop=$loop interval=$interval alive=$alive cleanup=$cleanup \\\\
+    labs='$labs' \\\\
+    prompt='$prompt' \\\\
+    $SRC \\\\
+    | tee $LOG
+EOF"
+
+$SUDO /bin/bash -c "cat <<EOF > $CRON
+#!/bin/bash
+
+# Clean up the log file every hour
+rm $LOG
+touch $LOG
+chmod o-r $LOG
+
+flock -w $WAIT -x $LOCK -c $DST
+EOF"
 
 $SUDO chmod a+x $DST $CRON
 $SUDO chmod o-r $LOG
