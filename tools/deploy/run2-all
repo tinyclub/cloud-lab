@@ -3,7 +3,4 @@
 TOP_DIR=$(cd $(dirname $0)/../../ && pwd)
 . $TOP_DIR/tools/docker/config $* >/dev/null
 
-filter=$1
-[ -n "$2" ] && filter=$2
-
-deploy_do stop 'Stopping' $filter
+. ${TOP_DIR}/tools/deploy/run2

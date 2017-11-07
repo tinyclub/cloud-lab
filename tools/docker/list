@@ -3,7 +3,10 @@
 TOP_DIR=$(cd $(dirname $0)/../../ && pwd)
 . $TOP_DIR/tools/docker/config $* >/dev/null 2>&1
 
-labs=`find $LAB_DIR -maxdepth 1 -mindepth 1 -type d | xargs -I{} basename {}`
+filter=$1
+[ -n "$2" ] && filter=$2
+
+labs=`get_lab_bases $LAB_DIR $filter`
 
 [ -z "$lab_life" ] && lab_life=0
 

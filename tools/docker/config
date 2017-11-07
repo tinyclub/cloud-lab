@@ -48,7 +48,7 @@ CONFIG_WORKDIR=/configs
 
 # Some commands not require to specify the lab name
 CMD=`basename $0`
-echo "tproxy export choose unlock-all build-all pull-all git-pull-all push-all clean-all rm-all list release batch autostart autodeploy run-all " | grep "$CMD "
+echo "tproxy export choose unlock-all build-all pull-all git-pull-all push-all clean-all rm-all list release batch autostart autodeploy run-all stop-all start-all " | grep "$CMD "
 [ $? -eq 0 ] && IGNORE_LAB_NAME=1
 
 if [ -n "$IN_CONTAINER" ]; then
@@ -449,13 +449,14 @@ get_browser ()
   fi
 }
 
-get_labs ()
+get_lab_info ()
 {
   local tmp=`mktemp`
   local list="$1"
-  local prompt="$2"
+  local filter="$2"
+  local prompt="$3"
 
-  [ -n "$list" ] && $list | grep "$LAB_NAME" | grep -v "LOG:" | sort -k 1 > $tmp
+  [ -n "$list" ] && $list $filter | grep -v "LOG:" > $tmp
 
   cat $tmp | awk 'BEGIN{FS=" "}{ \
 	printf("Lab: %s, User: %s\n", $11, $2); \
@@ -617,4 +618,60 @@ get_endtime ()
   else
     date "+%Y%m%d %H:%M:%S" --date="@$lab_seconds"
   fi
+}
+
+get_lab_list ()
+{
+  local dir="$1"
+  local filter="$2"
+
+  if [ -z "$filter" ]; then
+     filter=$LAB_NAME
+  else
+     [ "$filter" = "all" ] && filter=".*"
+  fi
+
+  find $dir -maxdepth 1 -mindepth 1 -type d | grep "$filter" | sort -k 1
+}
+
+get_lab_bases ()
+{
+  local dir="$1"
+  local filter="$2"
+
+  get_lab_list $dir $filter | tr ' ' '\n' | xargs -I{} basename {}
+}
+
+deploy_do ()
+{
+  local cmd="$1"
+  local prompt="$2"
+  local filter="$3"
+
+  [ ! -d $LAB_OUTPUT ] && exit 0
+
+  labs=`get_lab_list $LAB_OUTPUT $filter`
+
+  for lab in $labs
+  do
+    _cmd=$lab/tools/docker/$cmd
+
+    echo "LOG: $prompt $lab"
+    $_cmd
+  done
+}
+
+deploy_do_clean ()
+{
+  local filter=$1
+
+  deploy_do clean 'Cleaning' $filter
+  deploy_do unlock 'Unlocking' $filter
+
+  labs=`get_lab_list $LAB_OUTPUT $filter`
+  for lab in $labs
+  do
+    echo "LOG: Destroying $lab"
+    $SUDO rm -rf $lab
+  done
 }

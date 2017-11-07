@@ -3,6 +3,9 @@
 TOP_DIR=$(cd $(dirname $0)/../../ && pwd)
 . $TOP_DIR/tools/docker/config $* >/dev/null
 
-[ -z "$LAB_NAME" -o "$1" = "all" ] && LAB_NAME=" "
+[ -z "$LAB_NAME" -o "$1" = "all" ] && LAB_NAME=".*"
 
-get_labs $TOP_DIR/tools/deploy/list "$prompt"
+filter=$1
+[ -n "$2" ] && filter=$2
+
+get_lab_info $TOP_DIR/tools/deploy/list "$filter" "$prompt"

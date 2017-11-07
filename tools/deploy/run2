@@ -3,14 +3,7 @@
 TOP_DIR=$(cd $(dirname $0)/../../ && pwd)
 . $TOP_DIR/tools/docker/config $* >/dev/null
 
-[ ! -d $LAB_OUTPUT ] && exit 0
+filter=$1
+[ -n "$2" ] && filter=$2
 
-run_cmds=`find $LAB_OUTPUT/${CURRENT}*/ -name "run" | grep -v deploy | grep 'docker/run'`
-
-for run_cmd in $run_cmds
-do
-    lab_name=$(echo $run_cmd | sed -e 's%$LAB_OUTPUT%%g' | cut -d'+' -f1)
-    lab_name=$(basename $lab_name)
-
-    $run_cmd $lab_name
-done
+deploy_do run 'Runing' $filter
