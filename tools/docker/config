@@ -472,17 +472,29 @@ get_lab_info ()
 <body>
 <head>
 <style type="text/css">
-  body { margin: auto; padding-top: 1em; overflow: auto; text-align: center; max-width: 960px; font-family: 'Lucida Grande', 'Helvetica Neue', Arial, 'Hiragino Sans GB', 'Microsoft YaHei', '微软雅黑', 'WenQuanYi Micro Hei', sans-serif, 'SimSun', "宋体", 'Heiti', "黑体"; }
+  body { padding: 1.2em; margin: auto; overflow: auto; text-align: center; max-width: 960px; font-family: 'Lucida Grande', 'Helvetica Neue', Arial, 'Hiragino Sans GB', 'Microsoft YaHei', '微软雅黑', 'WenQuanYi Micro Hei', sans-serif, 'SimSun', "宋体", 'Heiti', "黑体"; font-size: 1em; *font-size: small; -moz-transform: scale(1.0); -moz-transform-origin: center top 0; zoom: 1.0 }
+
+  h1 { font-weight: 900; }
   a { text-decoration: none; outline: none; }
-  p { text-align: center; }
+  p { font-weight: 600; text-align: center; }
+
   table { border: 1px solid #333; border-spacing: 0; border-collapse: collapse; width: 100%; }
-  th, td { font-size: 95%; padding-left: 2px; padding-right: 2px; padding-top: 6px; padding-bottom: 6px;
+  th, td { font-size: 0.8em; padding-left: 2px; padding-right: 2px; padding-top: 10px; padding-bottom: 10px;
      border: 1px solid #aaa; display: table-cell;
-     text-align: center; max-width: 60px; }
+     text-align: center; max-width: 100px; }
   td { overflow: hidden; text-overflow: ellipsis }
+  td.time { font-size: 0.6em; }
   tr.head { background-color: #ccc; }
   tr.odd { background-color: #eee; }
   tr.even { background-color: #fff; }
+  th { font-weight: 600; }
+
+  @media (max-width: 999px) {
+    body, p { font-size: 1.3em; }
+    th, td { font-size: 1.3em; padding-top: 1.2em; padding-bottom: 1.2em; }
+    td.time { font-size: 1.2em; }
+  }
+
 </style>
 <meta charset="UTF-8"> 	\
 <title>Cloud Lab | 泰晓实验云台</title>
@@ -504,7 +516,7 @@ EOF
 
   cat << EOF >> $RELEASE_FILE
 <table>
-<tr class="head"><td>Lab</td><td>VNC</td><td>SSH</td><td>Start</td><td>End</td></tr>
+<tr class="head"><th>Lab</th><th>VNC</th><th>SSH</th><th>Start</th><th>End</th></tr>
 EOF
 
   cat $tmp | awk 'BEGIN {FS=" "; }{ 			\
@@ -514,15 +526,15 @@ EOF
 		$3, $4, $5, $6); \
 	printf("  <td><a target=\"_blank\" href=\"'$WEB_HTTP'://%s:%s/?ssh=ssh://%s:%s@%s:22\">Login</a></td>\n", \
 		$3, $9, $2, $10, $8); \
-	printf("<td>%s<br>%s</td>\n", $13, $14); \
-	printf("<td>%s<br>%s</td>\n", $15, $16); \
+	printf("<td class=\"time\">%s<br>%s</td>\n", $13, $14); \
+	printf("<td class=\"time\">%s<br>%s</td>\n", $15, $16); \
 	printf("</tr>\n"); \
      }' >> $RELEASE_FILE
 
   cat <<EOF >> $RELEASE_FILE
 </table>
-<p>Powered by <a target="_blank" href="http://tinylab.org/cloud-lab">Cloud Lab</a>!</p>
-<p>感谢 青云QingCloud 赞助服务器！</p>
+<p>感谢 <a href="http://qingcloud.com">青云QingCloud</a> 赞助服务器，感谢 <a href="http://tinylab.org">泰晓科技</a> 构建该实验平台！</p>
+<p>Powered by <a target="_blank" href="http://tinylab.org/cloud-lab">Cloud Lab</a> !</p>
 </p>
 </body>
 </html>
