@@ -559,13 +559,16 @@ time_to_seconds ()
     "Y" | "y")
       echo "$time * 360 * 24 * 60 * 60" | bc
       ;;
+    "M")
+      echo "$time * 30 * 24 * 60 * 60" | bc
+      ;;
     "D" | "d")
       echo "$time * 24 * 60 * 60" | bc
       ;;
     "H" | "h")
       echo "$time * 60 * 60" | bc
       ;;
-    "M" | "m")
+    "m")
       echo "$time * 60" | bc
       ;;
     *)
