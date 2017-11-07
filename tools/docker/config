@@ -227,7 +227,7 @@ which shasum >/dev/null 2>&1 && DEF_ENCRYPT_CMD=shasum
 which sha1sum >/dev/null 2>&1 && DEF_ENCRYPT_CMD=sha1sum
 [ -z "$ENCRYPT_CMD" ] && ENCRYPT_CMD=$DEF_ENCRYPT_CMD
 
-CLOUD_LAB_TOP_DIR=$(echo $TOP_DIR | sed -e "s%/cloud-lab/output/.*%/cloud-lab/%g")
+CLOUD_LAB_TOP_DIR=$(echo $TOP_DIR | sed -e "s%/output/.*%%g")
 
 [ -z "$RELEASE_DIR" ] && RELEASE_DIR=${CLOUD_LAB_TOP_DIR}/labs && mkdir -p $RELEASE_DIR
 [ -z "$RELEASE_HTML" ] && RELEASE_HTML=index.html
