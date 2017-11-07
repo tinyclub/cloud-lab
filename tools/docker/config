@@ -557,19 +557,19 @@ time_to_seconds ()
   time=`echo $time | tr -c -d '[0-9]'`
   case $format in
     "Y" | "y")
-      echo "$time * 360 * 24 * 60 * 60" | bc
+      echo $((time * 360 * 24 * 60 * 60))
       ;;
     "M")
-      echo "$time * 30 * 24 * 60 * 60" | bc
+      echo $((time * 30 * 24 * 60 * 60))
       ;;
     "D" | "d")
-      echo "$time * 24 * 60 * 60" | bc
+      echo $((time * 24 * 60 * 60))
       ;;
     "H" | "h")
-      echo "$time * 60 * 60" | bc
+      echo $((time * 60 * 60))
       ;;
     "m")
-      echo "$time * 60" | bc
+      echo $((time * 60))
       ;;
     *)
       echo $time
