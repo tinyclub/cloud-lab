@@ -471,7 +471,7 @@ get_lab_info ()
 <body>
 <head>
 <style type="text/css">
-  body { margin: auto; padding-top: 10px; overflow: auto; text-align: center; max-width: 960px; font-family: 'Lucida Grande', 'Helvetica Neue', Arial, 'Hiragino Sans GB', 'Microsoft YaHei', '微软雅黑', 'WenQuanYi Micro Hei', sans-serif, 'SimSun', "宋体", 'Heiti', "黑体"; }
+  body { margin: auto; padding-top: 1em; overflow: auto; text-align: center; max-width: 960px; font-family: 'Lucida Grande', 'Helvetica Neue', Arial, 'Hiragino Sans GB', 'Microsoft YaHei', '微软雅黑', 'WenQuanYi Micro Hei', sans-serif, 'SimSun', "宋体", 'Heiti', "黑体"; }
   a { text-decoration: none; outline: none; }
   p { text-align: center; }
   table { border: 1px solid #333; border-spacing: 0; border-collapse: collapse; width: 100%; }
