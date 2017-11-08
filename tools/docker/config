@@ -697,3 +697,17 @@ deploy_do_clean ()
     $SUDO rm -rf $lab
   done
 }
+
+verify_cpus ()
+{
+  local cpus=$1
+
+  if [ "x$HOST_OS" = "xDarwin" ]; then
+    total=`sysctl -n hw.ncpu`
+  else
+    total=`grep -c processor /proc/cpuinfo`
+  fi
+
+  echo "$cpus" | egrep -v "`seq $total 100` | tr ' ' '|'" > /dev/null
+  [ $? -ne 0 ] && echo "LOG: cpuset $cpus invalid" && exit 1
+}

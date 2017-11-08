@@ -19,11 +19,8 @@ TOP_DIR=$(cd $(dirname $0)/../../ && pwd)
 [ -z "$lab_name" ] && lab_name=$CURRENT
 [ -n "$lab_alive" ] && lab_life=$lab_alive
 
-if [ -n "$lab_cpus" ]; then
-  total=`grep processor /proc/cpuinfo | wc -l`
-  echo "$lab_cpus" | egrep -v "`seq $total 100` | tr ' ' '|'" > /dev/null
-  [ $? -ne 0 ] && echo "LOG: cpuset $lab_cpus invalid" && exit 1
-fi
+# Verify cpuset_cpus
+[ -n "$lab_cpus" ] && verify_cpus $lab_cpus
 
 [ ! -d $LAB_OUTPUT ] && mkdir -p $LAB_OUTPUT
 VNC_IDENTIFY=1; [ $lab_identify -eq 0 ] && VNC_IDENTIFY=0
