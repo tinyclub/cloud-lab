@@ -19,10 +19,10 @@ TOP_DIR=$(cd $(dirname $0)/../../ && pwd)
 [ -z "$lab_name" ] && lab_name=$CURRENT
 [ -n "$lab_alive" ] && lab_life=$lab_alive
 
-if [ -n "$lab_cpuset" ]; then
+if [ -n "$lab_cpus" ]; then
   total=`grep processor /proc/cpuinfo | wc -l`
-  echo "$lab_cpuset" | egrep -v "`seq $total 100` | tr ' ' '|'" > /dev/null
-  [ $? -ne 0 ] && echo "LOG: cpuset invalid" && exit 1
+  echo "$lab_cpus" | egrep -v "`seq $total 100` | tr ' ' '|'" > /dev/null
+  [ $? -ne 0 ] && echo "LOG: cpuset $lab_cpus invalid" && exit 1
 fi
 
 [ ! -d $LAB_OUTPUT ] && mkdir -p $LAB_OUTPUT
@@ -101,7 +101,7 @@ do
 
     do_lock
 
-    [ -n "$lab_cpuset" ] && sed -i -e "s%--cpuset-cpus.*%--cpuset-cpus=$lab_cpuset%g" $LAB_LIMITS
+    [ -n "$lab_cpus" ] && sed -i -e "s%--cpuset-cpus.*%--cpuset-cpus=$lab_cpus%g" $LAB_LIMITS
     [ -n "$lab_mem" ] && sed -i -e "s%--memory.*%--memory=$lab_mem%g" $LAB_LIMITS
 
     UNIX_USER=$lab_user CONTAINER_NAME=$CONTAINER_NAME $DOCKER_RUN_CMD $lab_name
