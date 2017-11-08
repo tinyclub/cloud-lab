@@ -95,6 +95,9 @@ do
 
     do_lock
 
+    [ -n "$lab_cpuset" ] && sed -i -e "s%--cpuset-cpus.*%--cpuset-cpus=$lab_cpuset%g" $LAB_LIMITS
+    [ -n "$lab_mem" ] && sed -i -e "s%--memory.*%--memory=$lab_mem%g" $LAB_LIMITS
+
     UNIX_USER=$lab_user CONTAINER_NAME=$CONTAINER_NAME $DOCKER_RUN_CMD $lab_name
     [ -n "$lab_alive" ] && notify_user 0 "Note: Lab is only free for $lab_life." $lab_name
 done

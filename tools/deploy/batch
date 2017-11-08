@@ -27,6 +27,7 @@ TOP_DIR=$(cd $(dirname $0)/../../ && pwd)
 [ -z "$loop" ] && loop=1
 [ -z "$prompt" ] && prompt='Hello, Cloud Lab!'
 [ -z "$empty_prompt" ] && empty_prompt='当前没有任何 Lab 在线运行!'
+[ -z "$cpuset" ] && cpuset="0-3"
 
 LAB_SECURITY=$security
 export prompt empty_prompt
@@ -65,7 +66,7 @@ do
     for user in $users
     do
       echo "LOG: Run $lab for $user"
-      lab_alive=$alive ${TOP_DIR}/tools/deploy/run $lab $user $peruser
+      lab_alive=$alive lab_cpuset=$cpuset ${TOP_DIR}/tools/deploy/run $lab $user $peruser
 
       echo "LOG: Release $lab"
       lab_life=$alive ${TOP_DIR}/tools/deploy/release all
