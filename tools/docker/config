@@ -473,12 +473,15 @@ get_lab_info ()
 <html>
 <body>
 <head>
-<style type="text/css">
+ <meta charset="UTF-8">
+ <title>Cloud Lab | 泰晓实验云台</title>
+
+ <style type="text/css">
   body { padding: 1.2em; margin: auto; overflow: auto; text-align: center; max-width: 960px; font-family: 'Lucida Grande', 'Helvetica Neue', Arial, 'Hiragino Sans GB', 'Microsoft YaHei', '微软雅黑', 'WenQuanYi Micro Hei', sans-serif, 'SimSun', "宋体", 'Heiti', "黑体"; font-size: 1em; *font-size: small; -moz-transform: scale(1.0); -moz-transform-origin: center top 0; zoom: 1.0; }
 
-  h1 { font-weight: 900; }
+  h1 { font-weight: 600; }
   a { text-decoration: none; outline: none; }
-  p { font-weight: 600; text-align: center; }
+  p { text-align: center; }
   p.empty { line-height: 300px; }
 
   table { border: 1px solid #333; border-spacing: 0; border-collapse: collapse; width: 100%; }
@@ -499,18 +502,19 @@ get_lab_info ()
         zoom: 1.5
     }
   }
-</style>
-<meta charset="UTF-8"> 	\
-<title>Cloud Lab | 泰晓实验云台</title>
+ </style>
 </head>
+
 <h1><a target="_blank" href="${WEB_HTTP}://${HOST}:6080">Cloud Lab | 泰晓实验云台</a></h1>
 EOF
 
+  # No lab running
   if [ `cat $tmp | wc -c | tr -d ' '` -eq 0 ]; then
     cat <<EOF >> $RELEASE_FILE
 <p class="empty">$empty_prompt</p>
 EOF
 
+  # Labs exist
   else
 
     cat <<EOF >> $RELEASE_FILE
@@ -534,17 +538,21 @@ EOF
 	printf("</tr>\n"); \
      }' >> $RELEASE_FILE
 
+
     cat <<EOF >> $RELEASE_FILE
 </table>
 EOF
 
+  # Labs running or not, end if
   fi
 
   cat <<EOF >> $RELEASE_FILE
 <p>感谢 <a href="http://qingcloud.com">青云QingCloud</a> 赞助服务器，感谢 <a href="http://tinylab.org">泰晓科技</a> 构建该实验平台！</p>
 <p>Contact us - Wechat: lzufalcon, Github: <a href="https://github.com/tinyclub">tinyclub</a> .</p>
 <p>Powered by <a target="_blank" href="http://tinylab.org/cloud-lab">Cloud Lab</a> !</p>
-</p>
+
+<script type="text/javascript">var cnzz_protocol = (("https:" == document.location.protocol) ? " https://" : " http://");document.write(unescape("%3Cspan id='cnzz_stat_icon_1264337212'%3E%3C/span%3E%3Cscript src='" + cnzz_protocol + "s22.cnzz.com/stat.php%3Fid%3D1264337212%26online%3D2' type='text/javascript'%3E%3C/script%3E"));</script>
+
 </body>
 </html>
 EOF
