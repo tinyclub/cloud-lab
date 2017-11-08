@@ -1,0 +1,3 @@
+#!/bin/bash
+
+ps -ef | grep cloud-lab | grep -v grep | tr -s ' ' | cut -d' ' -f2 | xargs -I{} kill -9 {}
