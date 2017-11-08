@@ -25,10 +25,11 @@ TOP_DIR=$(cd $(dirname $0)/../../ && pwd)
 [ -z "$interval" ] && interval=""
 # loop =1 for always, 0 means 1 time, 2 means 2 times...
 [ -z "$loop" ] && loop=1
-[ -z "$prompt" ] && prompt='<p>Hello, Cloud Lab!</p>'
+[ -z "$prompt" ] && prompt='Hello, Cloud Lab!'
+[ -z "$empty_prompt" ] && empty_prompt='当前没有任何 Lab 在线运行!'
 
 LAB_SECURITY=$security
-export RELEASE=1
+export prompt empty_prompt
 
 . ${TOP_DIR}/tools/deploy/init
 
@@ -52,7 +53,7 @@ do
       yes yes | ${TOP_DIR}/tools/deploy/clean $lab
 
       echo "LOG: Update release page for $lab"
-      lab_life=$alive prompt="$prompt" ${TOP_DIR}/tools/deploy/release all
+      lab_life=$alive ${TOP_DIR}/tools/deploy/release all
       echo $lab > $LAB_CURRENT
     fi
 
@@ -64,10 +65,10 @@ do
     for user in $users
     do
       echo "LOG: Run $lab for $user"
-      lab_alive=$alive prompt="$prompt" ${TOP_DIR}/tools/deploy/run $lab $user $peruser
+      lab_alive=$alive ${TOP_DIR}/tools/deploy/run $lab $user $peruser
 
       echo "LOG: Release $lab"
-      lab_life=$alive prompt="$prompt" ${TOP_DIR}/tools/deploy/release all
+      lab_life=$alive ${TOP_DIR}/tools/deploy/release all
     done
   done
 
@@ -94,7 +95,7 @@ do
     unset NOTIFY_WAIT
     unset NOTIFY_MSG
 
-    echo "LOG: Empty release page" && prompt="$prompt" get_labs
+    echo "LOG: Empty release page" && get_labs
   fi
 
   echo "LOG: End $count"

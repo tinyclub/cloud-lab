@@ -455,7 +455,9 @@ get_lab_info ()
   local tmp=`mktemp`
   local list="$1"
   local filter="$2"
-  local prompt="$3"
+
+  [ -z "$prompt" ] && prompt="Hello, Cloud Lab !"
+  [ -z "$empty_prompt" ] && empty_prompt="当前没有任何 Lab 在线运行!"
 
   [ -n "$list" ] && $list $filter | grep -v "LOG:" > $tmp
 
@@ -472,29 +474,31 @@ get_lab_info ()
 <body>
 <head>
 <style type="text/css">
-  body { padding: 1.2em; margin: auto; overflow: auto; text-align: center; max-width: 960px; font-family: 'Lucida Grande', 'Helvetica Neue', Arial, 'Hiragino Sans GB', 'Microsoft YaHei', '微软雅黑', 'WenQuanYi Micro Hei', sans-serif, 'SimSun', "宋体", 'Heiti', "黑体"; font-size: 1em; *font-size: small; -moz-transform: scale(1.0); -moz-transform-origin: center top 0; zoom: 1.0 }
+  body { padding: 1.2em; margin: auto; overflow: auto; text-align: center; max-width: 960px; font-family: 'Lucida Grande', 'Helvetica Neue', Arial, 'Hiragino Sans GB', 'Microsoft YaHei', '微软雅黑', 'WenQuanYi Micro Hei', sans-serif, 'SimSun', "宋体", 'Heiti', "黑体"; font-size: 1em; *font-size: small; -moz-transform: scale(1.0); -moz-transform-origin: center top 0; zoom: 1.0; }
 
   h1 { font-weight: 900; }
   a { text-decoration: none; outline: none; }
   p { font-weight: 600; text-align: center; }
+  p.empty { line-height: 300px; }
 
   table { border: 1px solid #333; border-spacing: 0; border-collapse: collapse; width: 100%; }
-  th, td { font-size: 0.8em; padding-left: 2px; padding-right: 2px; padding-top: 10px; padding-bottom: 10px;
+  th, td { font-size: 95%; padding-left: 2px; padding-right: 2px; padding-top: 10px; padding-bottom: 10px;
      border: 1px solid #aaa; display: table-cell;
      text-align: center; max-width: 100px; }
   td { overflow: hidden; text-overflow: ellipsis }
-  td.time { font-size: 0.6em; }
+  td.time { font-size: 92%; }
   tr.head { background-color: #ccc; }
   tr.odd { background-color: #eee; }
   tr.even { background-color: #fff; }
   th { font-weight: 600; }
 
   @media (max-width: 999px) {
-    body, p { font-size: 1.3em; }
-    th, td { font-size: 1.3em; padding-top: 1.2em; padding-bottom: 1.2em; }
-    td.time { font-size: 1.2em; }
+    body {
+        -moz-transform: scale(1.5);
+        -moz-transform-origin: center top 0;
+        zoom: 1.5
+    }
   }
-
 </style>
 <meta charset="UTF-8"> 	\
 <title>Cloud Lab | 泰晓实验云台</title>
@@ -502,24 +506,23 @@ get_lab_info ()
 <h1><a target="_blank" href="${WEB_HTTP}://${HOST}:6080">Cloud Lab | 泰晓实验云台</a></h1>
 EOF
 
-    cat <<EOF >> $RELEASE_FILE
-$prompt
-EOF
-
-
   if [ `cat $tmp | wc -c | tr -d ' '` -eq 0 ]; then
     cat <<EOF >> $RELEASE_FILE
-<p>No Free Labs Available Currently.</p>
+<p class="empty">$empty_prompt</p>
 EOF
 
-  fi
+  else
 
-  cat << EOF >> $RELEASE_FILE
+    cat <<EOF >> $RELEASE_FILE
+<p>$prompt</p>
+EOF
+
+    cat << EOF >> $RELEASE_FILE
 <table>
 <tr class="head"><th>Lab</th><th>VNC</th><th>SSH</th><th>Start</th><th>End</th></tr>
 EOF
 
-  cat $tmp | awk 'BEGIN {FS=" "; }{ 			\
+    cat $tmp | awk 'BEGIN {FS=" "; }{ 			\
 	printf("<tr class=\"%s\">\n", (FNR%2 == 0) ? "odd" : "even"); \
 	printf("<td><a title=\"Project Homepage and Usage\" target=\"_blank\" href=\"http://tinylab.org/%s\">%s</a></td>\n", $1, $1); \
 	printf("  <td><a target=\"_blank\" href=\"'$WEB_HTTP'://%s:%s/?u=%s&p=%s&autoconnect=1\">Login</a></td>\n", \
@@ -531,8 +534,13 @@ EOF
 	printf("</tr>\n"); \
      }' >> $RELEASE_FILE
 
-  cat <<EOF >> $RELEASE_FILE
+    cat <<EOF >> $RELEASE_FILE
 </table>
+EOF
+
+  fi
+
+  cat <<EOF >> $RELEASE_FILE
 <p>感谢 <a href="http://qingcloud.com">青云QingCloud</a> 赞助服务器，感谢 <a href="http://tinylab.org">泰晓科技</a> 构建该实验平台！</p>
 <p>欢迎通过 <a target="_blank" href="https://weidian.com/?userid=335178200">泰晓开源小店</a> 购买实验帐号或赞助我们！</p>
 <p>Powered by <a target="_blank" href="http://tinylab.org/cloud-lab">Cloud Lab</a> !</p>
@@ -659,7 +667,7 @@ get_lab_bases ()
 deploy_do ()
 {
   local cmd="$1"
-  local prompt="$2"
+  local action="$2"
   local filter="$3"
 
   [ ! -d $LAB_OUTPUT ] && exit 0
@@ -670,7 +678,7 @@ deploy_do ()
   do
     _cmd=$lab/tools/docker/$cmd
 
-    echo "LOG: $prompt $lab"
+    echo "LOG: $action $lab"
     $_cmd
   done
 }

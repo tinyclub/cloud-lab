@@ -10,4 +10,4 @@ TOP_DIR=$(cd $(dirname $0)/../../ && pwd)
 filter=$1
 [ -n "$2" ] && filter=$2
 
-get_lab_info $TOP_DIR/tools/docker/list "$filter" "$prompt"
+get_lab_info $TOP_DIR/tools/docker/list "$filter"
