@@ -11,6 +11,14 @@
 # 2.
 #    prompt="" loop=2 interval=20 alive=20 cleanup=1 labs="linux-0.11-lab cs630-qemu-lab" tools/deploy/batch
 #
+# 3.
+#    loop=0 alive=20 cleanup=1 labs="linux-0.11-lab cs630-qemu-lab" tools/deploy/batch
+#
+## Notes
+#
+# loop=0, one running
+# loop=1, forever running
+# loop=n (>1), n running
 
 TOP_DIR=$(cd $(dirname $0)/../../ && pwd)
 . $TOP_DIR/tools/docker/config $* >/dev/null 2>&1
@@ -41,8 +49,8 @@ count=0
 
 while :;
 do
-  let count+=1
-  echo "LOG: Start $count"
+  count=$((count+1))
+  echo "LOG: Start deploy $count"
 
   for lab in $labs
   do
@@ -88,18 +96,31 @@ do
     for lab in $labs
     do
       echo "LOG: Clean up $lab"
-      yes yes | ${TOP_DIR}/tools/deploy/clean $lab
+      (yes yes | ${TOP_DIR}/tools/deploy/clean $lab) &
     done
 
-    sleep $NOTIFY_WAIT
+    # Wait for every lab finish cleaning
+    for i in `seq 1 $NOTIFY_WAIT`
+    do
+      finish=1
+      for lab in $labs
+      do
+        echo "LOG: Checking clean up status of $lab"
+        ls -d $LAB_OUTPUT/${lab}-* >/dev/null 2>&1
+        [ $? -eq 0 ] && finish=0 && echo "LOG: $lab still in cleaning" && break
+        echo "LOG: $lab clean up done"
+      done
+      [ $finish -eq 1 ] && break
+      sleep 2
+    done
 
     unset NOTIFY_WAIT
     unset NOTIFY_MSG
 
-    echo "LOG: Empty release page" && get_labs
+    echo "LOG: Empty release page" && get_lab_info
   fi
 
-  echo "LOG: End $count"
+  echo "LOG: End deploy $count"
   [ $loop -eq 0 ] && break
   [ $loop -ne 1 -a $count -ge $loop ] && echo "LOG: Reached $loop times" && break
 
