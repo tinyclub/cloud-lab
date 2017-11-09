@@ -551,6 +551,7 @@ EOF
 
   cat <<EOF >> $RELEASE_FILE
 <p>感谢 <a href="http://qingcloud.com">青云QingCloud</a> 赞助服务器，感谢 <a href="http://tinylab.org">泰晓科技</a> 构建该实验平台！</p>
+<p>欢迎通过 <a href="http://t.cn/RlZbQ3A">泰晓原创服务中心</a> 获取长期使用帐号或者赞助我们。</p>
 <p>Contact us - Wechat: lzufalcon, Github: <a href="https://github.com/tinyclub">tinyclub</a> .</p>
 <p>Powered by <a target="_blank" href="http://tinylab.org/cloud-lab">Cloud Lab</a> !</p>
 
