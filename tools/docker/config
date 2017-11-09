@@ -523,18 +523,21 @@ EOF
 
     cat << EOF >> $RELEASE_FILE
 <table>
-<tr class="head"><th>Lab</th><th>VNC</th><th>SSH</th><th>Start</th><th>End</th></tr>
+<tr class="head"><th></th><th>Lab</th><th>VNC</th><th>VIEW</th><th>SSH</th><th>Start</th><th>End</th></tr>
 EOF
 
     cat $tmp | awk 'BEGIN {FS=" "; }{ 			\
 	printf("<tr class=\"%s\">\n", (FNR%2 == 0) ? "odd" : "even"); \
-	printf("<td><a title=\"Project Homepage and Usage\" target=\"_blank\" href=\"http://tinylab.org/%s\">%s</a></td>\n", $1, $1); \
+	printf("  <td>%d</td>\n", FNR); \
+	printf("  <td><a title=\"Project Homepage and Usage\" target=\"_blank\" href=\"http://tinylab.org/%s\">%s</a></td>\n", $1, $1); \
 	printf("  <td><a target=\"_blank\" href=\"'$WEB_HTTP'://%s:%s/?u=%s&p=%s\">Login</a></td>\n", \
 		$3, $4, $5, $6); \
+	printf("  <td><a target=\"_blank\" href=\"'$WEB_HTTP'://%s:%s/?r=%s%s\">Login</a></td>\n", \
+		$3, $4, $5, $7); \
 	printf("  <td><a target=\"_blank\" href=\"'$WEB_HTTP'://%s:%s/?ssh=ssh://%s:%s@%s:22\">Login</a></td>\n", \
 		$3, $9, $2, $10, $8); \
-	printf("<td class=\"time\">%s<br>%s</td>\n", $13, $14); \
-	printf("<td class=\"time\">%s<br>%s</td>\n", $15, $16); \
+	printf("  <td class=\"time\">%s<br>%s</td>\n", $13, $14); \
+	printf("  <td class=\"time\">%s<br>%s</td>\n", $15, $16); \
 	printf("</tr>\n"); \
      }' >> $RELEASE_FILE
 
