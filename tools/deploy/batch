@@ -36,8 +36,11 @@ TOP_DIR=$(cd $(dirname $0)/../../ && pwd)
 [ -z "$prompt" ] && prompt='Hello, Cloud Lab!'
 [ -z "$empty_prompt" ] && empty_prompt='当前没有任何 Lab 在线运行!'
 [ -z "$cpus" ] && cpus="0-3"
+[ -z "$timeout" ] && timeout=1
 
 LAB_SECURITY=$security
+
+export VNC_TIMEOUT=$timeout
 export prompt empty_prompt
 
 . ${TOP_DIR}/tools/deploy/init
