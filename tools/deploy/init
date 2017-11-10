@@ -9,3 +9,12 @@ export LAB_SECURITY
 
 # Increase the files open limit
 $SUDO sh -c 'echo 1024 > /proc/sys/fs/inotify/max_user_instances'
+
+# Panic on oom
+$SUDO sh -c 'echo 1 > /proc/sys/vm/panic_on_oom'
+
+# Panic on oops
+$SUDO sh -c 'echo 1 > /proc/sys/kernel/panic_on_oops'
+
+# Reboot on panic
+$SUDO sh -c 'echo 5 > /proc/sys/kernel/panic'
