@@ -21,19 +21,15 @@ do
 
     echo "Removing $name ..."
 
-    force=0
     ls ${LAB_OUTPUT}/$name*/ >/dev/null 2>&1
     if [ $? -eq 0 ]; then
         ${LAB_OUTPUT}/$name*/tools/docker/rm $lab
     elif [ -d ${TOP_DIR}/configs/$lab ]; then
         $DOCKER_RM_CMD $lab
     else
-        force=1
+        docker rm -f $id
     fi
 
-    # Force remove at last
-    [ $? -ne 0 ] && force=1
-    [ $force -eq 1 ] && docker rm -f $id
 done
 
 $DOCKER_RELEASE_CMD all >/dev/null 2>&1
