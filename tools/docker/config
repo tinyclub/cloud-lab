@@ -612,7 +612,36 @@ time_to_seconds ()
   esac
 }
 
+# time_to_seconds "10D"
+time_to_strings ()
+{
+  local time=$1
+  local format=`echo $time | tr -d '[0-9]'`
+  local time=`echo $time | tr -c -d '[0-9]'`
 
+  case $format in
+    "Y" | "y")
+      format='years'
+      ;;
+    "M")
+      format='months'
+      ;;
+    "D" | "d")
+      format='days'
+      ;;
+    "H" | "h")
+      format='hours'
+      ;;
+    "m")
+      format='minutes'
+      ;;
+    *)
+      format='seconds'
+      ;;
+  esac
+
+  echo "$time $format"
+}
 # get_starttime "20170633092133" -> "20170633 09:21:33"
 get_starttime()
 {

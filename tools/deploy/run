@@ -102,7 +102,7 @@ do
     do_lock
 
     UNIX_USER=$lab_user CONTAINER_NAME=$CONTAINER_NAME $DOCKER_RUN_CMD $lab_name
-    [ -n "$lab_alive" ] && notify_user 0 "Note: Lab is only free for $lab_life." $lab_name
+    [ -n "$lab_alive" ] && notify_user 0 "Note: Lab is only free for `time_to_strings $lab_life`." $lab_name
 done
 
 rm $tmpfile
