@@ -22,3 +22,5 @@
 14. Fix up tools/docker/publish, .vnc-token path
 15. Add guacamole suppport, another web vnc implementation
     http://guacamole.incubator.apache.org/doc/gug/
+16. Fix up cgroup swap support warning
+    edit /etc/default/grub, and set GRUB_CMDLINE_LINUX to "cgroup_enable=memory swapaccount=1", then run "sudo update-grub"
