@@ -52,7 +52,7 @@ WPROXY_DIR=$BASE_DIR/wproxy
 
 # Some commands not require to specify the lab name
 CMD=`basename $0`
-echo "tproxy export choose unlock-all build-all pull-all git-pull-all push-all clean-all rm-all list release batch autostart autodeploy run-all stop-all start-all " | grep "$CMD "
+echo "tproxy export choose unlock-all build-all pull-all git-pull-all push-all clean-all rm-all rm-full list release batch autostart autodeploy run-all stop-all start-all " | grep "$CMD "
 [ $? -eq 0 ] && IGNORE_LAB_NAME=1
 
 if [ -n "$IN_CONTAINER" ]; then
