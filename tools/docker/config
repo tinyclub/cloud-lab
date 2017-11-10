@@ -46,6 +46,10 @@ TOOL_WORKDIR=/tools
 CONFIGS_DIR=$TOP_DIR/configs/
 CONFIG_WORKDIR=/configs
 
+BASE_DIR=$TOP_DIR/base
+TPROXY_DIR=$BASE_DIR/tproxy
+WPROXY_DIR=$BASE_DIR/wproxy
+
 # Some commands not require to specify the lab name
 CMD=`basename $0`
 echo "tproxy export choose unlock-all build-all pull-all git-pull-all push-all clean-all rm-all list release batch autostart autodeploy run-all stop-all start-all " | grep "$CMD "
@@ -133,6 +137,9 @@ LAB_VNC_IDENTIFY=$CONFIG_DOCKER_DIR/.vnc_identify
 LAB_UNIX_IDENTIFY=$CONFIG_DOCKER_DIR/.unix_identify
 LAB_SUDO_IDENTIFY=$CONFIG_DOCKER_DIR/.sudo_identify
 
+LAB_TPROXY_LIMITS=$TPROXY_DIR/limits
+LAB_WPROXY_LIMITS=$WPROXY_DIR/limits
+
 [ `id -u` -ne 0 ] && SUDO=sudo
 
 # Lock the important files for security
@@ -175,6 +182,7 @@ LAB_VARS="$LAB_VARS WEB_BROWSER HOST"
 LAB_VARS="$LAB_VARS CONTAINER_NAME CONTAINER_ID HOST HOST_NAME"
 LAB_VARS="$LAB_VARS UNIX_USER UNIX_PWD VNC_PWD VNC_PWD_VIEWONLY TPROXY TPROXY_IP UNIX_UID UNIX_IDENTIFY VNC_IDENTIFY SUDO_IDENTIFY VNC_IP VNC_TOKEN"
 LAB_VARS="$LAB_VARS VNC_SHARED SCREEN_SIZE"
+LAB_VARS="$LAB_VARS WPROXY_LIMITS TPROXY_LIMITS"
 
 do_unlock
 
