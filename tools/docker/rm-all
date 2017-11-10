@@ -23,13 +23,18 @@ do
 
     ls ${LAB_OUTPUT}/$name*/ >/dev/null 2>&1
 
+    force=0
     if [ $? -eq 0 ]; then
         ${LAB_OUTPUT}/$name*/tools/docker/rm $lab
     elif [ -d ${TOP_DIR}/configs/$lab ]; then
         $DOCKER_RM_CMD $lab
     else
-        docker rm -f $id
+        force=1
     fi
+
+    # Force remove at last
+    [ $? -ne 0 ] && force=1
+    [ $force -eq 1 ] && docker rm -f $id
 done
 
 $DOCKER_RELEASE_CMD all >/dev/null 2>&1
