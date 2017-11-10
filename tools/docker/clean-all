@@ -28,6 +28,8 @@ do
 
 done
 
+$TOP_DIR/tools/docker/rm-all
+
 yes yes | $TOP_DIR/tools/deploy/clean-all all
 
 $SUDO git clean -fdx

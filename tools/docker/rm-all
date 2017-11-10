@@ -21,9 +21,8 @@ do
 
     echo "Removing $name ..."
 
-    ls ${LAB_OUTPUT}/$name*/ >/dev/null 2>&1
-
     force=0
+    ls ${LAB_OUTPUT}/$name*/ >/dev/null 2>&1
     if [ $? -eq 0 ]; then
         ${LAB_OUTPUT}/$name*/tools/docker/rm $lab
     elif [ -d ${TOP_DIR}/configs/$lab ]; then
