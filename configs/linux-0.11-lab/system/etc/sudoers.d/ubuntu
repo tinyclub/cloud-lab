@@ -1,0 +1,3 @@
+Cmnd_Alias LAB_TOOLS = /bin/mount,/bin/umount,/bin/cp,/bin/make
+
+ubuntu ALL=(ALL) NOPASSWD: LAB_TOOLS
