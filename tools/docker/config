@@ -744,6 +744,7 @@ deploy_do_clean ()
   do
     echo "LOG: Destroying $lab"
     $SUDO rm -rf $lab
+    $SUDO sync
   done
 }
 
