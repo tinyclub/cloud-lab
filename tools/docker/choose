@@ -10,6 +10,7 @@ TOP_DIR=$(cd $(dirname $0)/../../ && pwd)
 OLD_LAB=$CURRENT
 
 [ -z "$PULL" ] && PULL=1
+[ -z "$SUBMODULE" ] && SUBMODULE=1
 
 download_submodule ()
 {
@@ -19,10 +20,15 @@ download_submodule ()
 
     for lab in $LABS; do
       LAB_CURRENT_DIR=$LAB_DIR/$lab
-      [ ! -f $LAB_CURRENT_DIR/.git ] \
-        && git submodule update --init --remote $LAB_CURRENT_DIR
+      [ $SUBMODULE -eq 1 ] && RECURSIVE=--recursive
 
-      cd $LAB_CURRENT_DIR && git checkout master && [ $PULL -eq 1 ] && echo "LOG: Pulling repository: $lab" && git pull -v
+      [ ! -f $LAB_CURRENT_DIR/.git ] \
+        && git submodule update --init --remote $RECURSIVE $LAB_CURRENT_DIR
+
+      cd $LAB_CURRENT_DIR && git checkout master
+
+      [ $SUBMODULE -eq 1 ] && echo "LOG: Pulling submodules of $lab" && git submodule update --init --remote --recursive .
+      [ $PULL -eq 1 ] && echo "LOG: Pulling repository: $lab" && git pull --recurse-submodules=yes -v
 
       echo "LOG: Source code downloaded to $LAB_CURRENT_DIR"
     done
