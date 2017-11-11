@@ -753,6 +753,7 @@ _deploy_do_clean2 ()
 {
   # lab with path
   local lab=$1
+  local _lab=$(echo `basename $lab` | cut -d'+' -f1)
 
   [ -z "$NOTIFY_WAIT" ] && NOTIFY_WAIT=2
 
@@ -763,6 +764,9 @@ _deploy_do_clean2 ()
 
   echo "LOG: Removing container: $container"
   $SUDO docker rm -f $container
+
+  echo "LOG: Removing desktop shortcuts: $container"
+  rm -rf ~/Desktop/${_lab}.command ~/Desktop/${_lab}.desktop
 
   echo "LOG: Unlocking $lab"
   which chattr >/dev/null 2>&1 && $SUDO chattr -R -i $lab/configs/ $lab/tools/
