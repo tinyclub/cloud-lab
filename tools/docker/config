@@ -407,7 +407,7 @@ get_random_pwd ()
   random=$RANDOM
   [ -z "$random" ] && random=`date '+%s'`
 
-  echo $((random % 89273831 * 513793917553423 / 3)) | bc
+  echo $((random % 89273831 * 513793917553423 / 3))
 }
 
 get_browser ()
@@ -680,7 +680,7 @@ get_endtime ()
 
   #echo "life_seconds:" $lab_life_seconds
 
-  lab_seconds=`echo "$lab_start_seconds+$lab_life_seconds" | bc`
+  lab_seconds=$((lab_start_seconds + lab_life_seconds))
 
   #echo "seconds: " $lab_seconds
 
