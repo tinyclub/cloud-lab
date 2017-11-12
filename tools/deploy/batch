@@ -14,6 +14,9 @@
 # 3.
 #    loop=0 alive=20 cleanup=1 labs="linux-0.11-lab cs630-qemu-lab" tools/deploy/batch
 #
+# 4.
+#    loop=1 labs="linux-0.11-lab cs630-qemu-lab" alive=10 interval=10 alive_check=5 notify_wait=5 tools/deploy/batch
+#
 ## Notes
 #
 # loop=0, one running
@@ -37,6 +40,8 @@ TOP_DIR=$(cd $(dirname $0)/../../ && pwd)
 [ -z "$empty_prompt" ] && empty_prompt='当前没有任何 Lab 在线运行!'
 [ -z "$cpus" ] && cpus="0-3"
 [ -z "$timeout" ] && timeout=1
+[ -z "$notify_wait" ] && notify_wait=30
+[ -z "$alive_check" ] && alive_check=30
 
 LAB_SECURITY=$security
 
@@ -87,13 +92,13 @@ do
   if [ -n "$alive" ]; then
     alive_seconds=`time_to_seconds $alive`
     echo "LOG: Allow $lab running for `time_to_strings $alive`."
-    for i in `seq 1 30 $alive_seconds`
+    for i in `seq 1 $alive_check $alive_seconds`
     do
-      sleep 30
+      sleep $alive_check
       echo "LOG: Check alive $i of $alive_seconds"
     done
 
-    export NOTIFY_WAIT=30
+    export NOTIFY_WAIT=$notify_wait
     export NOTIFY_MSG="Lab will be removed"
 
     for lab in $labs
