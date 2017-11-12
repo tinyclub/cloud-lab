@@ -737,7 +737,7 @@ deploy_do_clean ()
   local filter=$1
 
   [ ! -d $LAB_OUTPUT ] && exit 0
-  [ -z "$NOTIFY_WAIT" ] && NOTIFY_WAIT=30
+  [ -z "$NOTIFY_WAIT" ] && NOTIFY_WAIT=2
 
   labs=`get_lab_list $LAB_OUTPUT $filter`
   for lab in $labs
