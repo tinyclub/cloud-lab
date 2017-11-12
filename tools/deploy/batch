@@ -63,7 +63,7 @@ do
   for lab in $labs
   do
     echo "LOG: Choose $lab"
-    PULL=0 ${TOP_DIR}/tools/docker/choose $lab
+    PULL=0 SUBMODULE=0 ${TOP_DIR}/tools/docker/choose $lab
 
     if [ $cleanup -eq 1 ]; then
       echo "LOG: Clean up $lab"
