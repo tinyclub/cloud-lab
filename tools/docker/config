@@ -732,6 +732,46 @@ deploy_do ()
   done
 }
 
+_deploy_do_clean1 ()
+{
+  # lab with path
+  local lab=$1
+  local _lab=$(echo `basename $lab` | cut -d'+' -f1)
+  local _lab=${_lab%-*}
+
+  echo "LOG: Cleaning up $lab"
+  $lab/tools/docker/clean $_lab
+
+  echo "LOG: Unlocking $lab"
+  $lab/tools/docker/unlock $_lab
+
+  echo "LOG: Destroying $lab"
+  $SUDO rm -rf $lab
+}
+
+_deploy_do_clean2 ()
+{
+  # lab with path
+  local lab=$1
+
+  [ -z "$NOTIFY_WAIT" ] && NOTIFY_WAIT=2
+
+  local container=$(echo `basename $lab` | cut -d'+' -f1)
+  echo "LOG: Notifying container: $container"
+  $SUDO docker exec $container /bin/bash -c 'export DISPLAY=:1 && notify-send -u critical -t 0 "Lab will be removed in '$NOTIFY_WAIT' seconds."'
+  sleep $NOTIFY_WAIT
+
+  echo "LOG: Removing container: $container"
+  $SUDO docker rm -f $container
+
+  echo "LOG: Unlocking $lab"
+  which chattr >/dev/null 2>&1 && $SUDO chattr -R -i $lab/configs/ $lab/tools/
+
+  echo "LOG: Destroying $lab"
+  $SUDO rm -rf $lab
+  $SUDO sync
+}
+
 deploy_do_clean ()
 {
   local filter=$1
@@ -739,24 +779,14 @@ deploy_do_clean ()
   [ ! -d $LAB_OUTPUT ] && exit 0
   [ -z "$NOTIFY_WAIT" ] && NOTIFY_WAIT=2
 
-  labs=`get_lab_list $LAB_OUTPUT $filter`
+  local labs=`get_lab_list $LAB_OUTPUT $filter`
   for lab in $labs
   do
-    container=$(echo `basename $lab` | cut -d'+' -f1)
-    echo "LOG: Notifying container: $container"
-    $SUDO docker exec $container /bin/bash -c 'export DISPLAY=:1 && notify-send -u critical -t 0 "Lab will be removed in '$NOTIFY_WAIT' seconds."'
-    sleep $NOTIFY_WAIT
-
-    echo "LOG: Removing container: $container"
-    $SUDO docker rm -f $container
-
-    echo "LOG: Unlocking $lab"
-    which chattr >/dev/null 2>&1 && $SUDO chattr -R -i $lab/configs/ $lab/tools/
-
-    echo "LOG: Destroying $lab"
-    $SUDO rm -rf $lab
-    $SUDO sync
+    _deploy_do_clean1 $lab &
   done
+
+  echo "LOG: Wait $NOTIFY_WAIT seconds for $filter cleaning."
+  sleep $((NOTIFY_WAIT+2))
 }
 
 verify_cpus ()

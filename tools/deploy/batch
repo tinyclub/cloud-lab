@@ -108,8 +108,10 @@ do
     done
 
     # Wait for every lab finish cleaning
-    last_lab=`echo $labs | tr ' ' '\n' | tail -1`
-    for i in `seq 1 $NOTIFY_WAIT`
+    last_lab=`echo $labs | tr -s ' ' | tr ' ' '\n' | tail -1`
+    lab_total=`echo $labs | tr -s ' ' | tr ' ' '\n' | wc -l`
+
+    for i in `seq 1 $((NOTIFY_WAIT+lab_total))`
     do
       finish=0
       for lab in $labs
@@ -122,7 +124,7 @@ do
         [ $lab = $last_lab ] && finish=1 && break
       done
       [ $finish -eq 1 ] && break
-      sleep 2
+      sleep $peruser
     done
 
     unset NOTIFY_WAIT
