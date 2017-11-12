@@ -737,11 +737,16 @@ deploy_do_clean ()
   local filter=$1
 
   [ ! -d $LAB_OUTPUT ] && exit 0
+  [ -z "$NOTIFY_WAIT" ] && NOTIFY_WAIT=30
 
   labs=`get_lab_list $LAB_OUTPUT $filter`
   for lab in $labs
   do
     container=$(echo `basename $lab` | cut -d'+' -f1)
+    echo "LOG: Notifying container: $container"
+    $SUDO docker exec $container /bin/bash -c 'export DISPLAY=:1 && notify-send -u critical -t 0 "Lab will be removed in '$NOTIFY_WAIT' seconds."'
+    sleep $NOTIFY_WAIT
+
     echo "LOG: Removing container: $container"
     $SUDO docker rm -f $container
 
