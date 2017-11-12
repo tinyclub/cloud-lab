@@ -23,3 +23,8 @@
 	url = https://github.com/tinyclub/tinylab.org.git
 	branch = master
 	ignore = all
+[submodule "labs/lep-lab"]
+	path = labs/lep-lab
+	url = https://github.com/tinyclub/lep-lab.git
+	branch = master
+	ignore = all

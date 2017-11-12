@@ -1,0 +1,7 @@
+[Desktop Entry]
+Encoding=UTF-8
+Name=Lep Viewer
+Comment=Launch Lepd, Lepv server and lepv client in one command
+Exec=/labs/lep-lab/launch.sh
+Icon=/usr/share/pixmaps/chromium-browser.png
+Type=Application
