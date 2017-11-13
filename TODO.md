@@ -29,3 +29,6 @@
     fix up perf report, ref: https://stackoverflow.com/questions/38927895/how-do-you-get-debugging-symbols-working-in-linux-perf-tool-inside-docker-contai
     enable kernel with sched statistic information
     add qemu-system-ARCH for lepd running and kernel customization, or simply use lep-lab with linux-lab.
+19. Fix up ip conflicts issue
+    1). Need to add a group deploy feature, which can allocate different subnet for different group, then, the container can restored their own ip without conflicts in another group.
+    2). Or maintain a ip table, record the used ip addr in this table, udpate it while the container is removed.
