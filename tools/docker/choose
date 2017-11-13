@@ -11,8 +11,7 @@ OLD_LAB=$CURRENT
 
 [ -z "$PULL" ] && PULL=1
 
-# Missing realpath currently
-SUBMODULE=0
+[ -z "$SUBMODULE" ] && SUBMODULE=1
 
 download_submodule ()
 {
@@ -32,8 +31,9 @@ download_submodule ()
       [ $SUBMODULE -eq 1 ] && echo "LOG: Pulling submodules of $lab" && git submodule update --init --remote --recursive .
       [ $PULL -eq 1 ] && echo "LOG: Pulling repository: $lab" && git pull $PULL_RECURSIVE -v
 
-
-      [ $SUBMODULE -eq 1 ] && git submodule foreach --recursive '[ -f .git ] && echo "gitdir: $(realpath --relative-to=. $(cut -d" " -f2 .git))" > .git'
+      # Convert absolute path to relative path for gitdir in .git of submodules
+      [ $SUBMODULE -eq 1 ] && \
+        git submodule foreach --recursive '[ -f .git ] && gitdir=$(cut -d" " -f2 .git) && dir=$(echo $gitdir | sed -e 's%"$TOP_DIR/"%%') && relpath=$(echo $PWD | sed -e 's%"$TOP_DIR"%%g' | tr -c -d '/' | sed -e 's%/%../%g') && echo "gitdir: $((echo $gitdir | grep -q ^/) && echo $relpath)$dir" > .git'
 
       echo "LOG: Source code downloaded to $LAB_CURRENT_DIR"
     done
