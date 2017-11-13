@@ -1,0 +1,12 @@
+#!/bin/bash
+#
+# startup.sh -- lab specific startup script,
+#
+
+TOP_DIR=$(cd $(dirname $0) && pwd)/
+
+# Install perf, compile and run lepd, run lepv backend
+LEP=/labs/lep-lab/lep.sh
+$LEP perf &
+PREBUILT=1 $LEP lepd &
+$LEP lepv &
