@@ -1,6 +1,6 @@
 [Desktop Entry]
 Encoding=UTF-8
-Name=Lep Monitor
+Name=LEP Monitor
 Comment=Start lepv web monitor
 Exec=chromium-browser http://localhost:8889
 Icon=/usr/share/pixmaps/chromium-browser.png
