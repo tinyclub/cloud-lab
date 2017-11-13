@@ -1,0 +1,3 @@
+Cmnd_Alias LAB_TOOLS = /labs/lep-lab/lepd/lepd,/usr/bin/apt-get,/usr/bin/pkill,/usr/bin/qemu-arm
+
+ubuntu ALL=(ALL) NOPASSWD: LAB_TOOLS
