@@ -33,7 +33,7 @@ download_submodule ()
 
       # Convert absolute path to relative path for gitdir in .git of submodules
       [ $SUBMODULE -eq 1 ] && \
-        git submodule foreach --recursive '[ -f .git ] && gitdir=$(cut -d" " -f2 .git) && dir=$(echo $gitdir | sed -e 's%"$TOP_DIR/"%%') && relpath=$(echo $PWD | sed -e 's%"$TOP_DIR"%%g' | tr -c -d '/' | sed -e 's%/%../%g') && echo "gitdir: $((echo $gitdir | grep -q ^/) && echo $relpath)$dir" > .git'
+        git submodule foreach --recursive '[ -f .git ] && gitdir=$(cut -d" " -f2 .git) && (echo $gitdir | grep -q ^/) && dir=$(echo $gitdir | sed -e 's%$TOP_DIR/%%') && relpath=$(echo $PWD | sed -e 's%$TOP_DIR%%g' | tr -c -d '/' | sed -e 's%/%../%g') && echo "gitdir: $(echo $relpath)$dir" > .git || :'
 
       echo "LOG: Source code downloaded to $LAB_CURRENT_DIR"
     done
