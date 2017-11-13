@@ -25,3 +25,7 @@
 16. Fix up cgroup swap support warning
     edit /etc/default/grub, and set GRUB_CMDLINE_LINUX to "cgroup_enable=memory swapaccount=1", then run "sudo update-grub"
 17. Add io limitation
+18. lep-lab
+    fix up perf report, ref: https://stackoverflow.com/questions/38927895/how-do-you-get-debugging-symbols-working-in-linux-perf-tool-inside-docker-contai
+    enable kernel with sched statistic information
+    add qemu-system-ARCH for lepd running and kernel customization, or simply use lep-lab with linux-lab.
