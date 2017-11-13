@@ -32,3 +32,4 @@
 19. Fix up ip conflicts issue
     1). Need to add a group deploy feature, which can allocate different subnet for different group, then, the container can restored their own ip without conflicts in another group.
     2). Or maintain a ip table, record the used ip addr in this table, udpate it while the container is removed.
+20. Change the noVNC token:ip mapping method to improve the performance, no need to genrate a map file, simply use a dynamic convert function should work better.
