@@ -20,7 +20,7 @@ download_submodule ()
 
     for lab in $LABS; do
       LAB_CURRENT_DIR=$LAB_DIR/$lab
-      [ $SUBMODULE -eq 1 ] && RECURSIVE=--recursive
+      [ $SUBMODULE -eq 1 ] && RECURSIVE=--recursive && PULL_RECURSIVE=--recurse-submodules=yes
 
       [ ! -f $LAB_CURRENT_DIR/.git ] \
         && git submodule update --init --remote $RECURSIVE $LAB_CURRENT_DIR
@@ -28,7 +28,10 @@ download_submodule ()
       cd $LAB_CURRENT_DIR && git checkout master
 
       [ $SUBMODULE -eq 1 ] && echo "LOG: Pulling submodules of $lab" && git submodule update --init --remote --recursive .
-      [ $PULL -eq 1 ] && echo "LOG: Pulling repository: $lab" && git pull --recurse-submodules=yes -v
+      [ $PULL -eq 1 ] && echo "LOG: Pulling repository: $lab" && git pull $PULL_RECURSIVE -v
+
+
+      [ $SUBMODULE -eq 1 ] && git submodule foreach --recursive '[ -f .git ] && echo "gitdir: $(realpath --relative-to=. $(cut -d" " -f2 .git))" > .git'
 
       echo "LOG: Source code downloaded to $LAB_CURRENT_DIR"
     done
