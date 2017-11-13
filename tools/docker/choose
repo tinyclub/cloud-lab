@@ -11,12 +11,8 @@ OLD_LAB=$CURRENT
 
 [ -z "$PULL" ] && PULL=1
 
-if [ "x$HOST_OS" = "xDarwin" ]; then
-  # Missing realpath in mac osx currently
-  SUBMODULE=0
-else
-  [ -z "$SUBMODULE" ] && SUBMODULE=1
-fi
+# Missing realpath currently
+SUBMODULE=0
 
 download_submodule ()
 {
