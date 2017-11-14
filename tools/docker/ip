@@ -1,0 +1,101 @@
+#!/bin/sh
+#
+# ip.sh -- Get a new ip nobody is using
+#
+# Note: this not work in Mac OSX currently for the /var/lib/docker/containers not available there.
+#
+
+TOP_DIR=$(cd $(dirname $0)/../../ && pwd)
+. $TOP_DIR/tools/docker/config $* >/dev/null 2>&1
+
+DOCKER_CONTAINERS_DIR=/var/lib/docker/containers
+
+used=`$SUDO find $DOCKER_CONTAINERS_DIR/ -name config.v2.json \
+	-exec grep -oE '"IPAddress":"\b([0-9]{1,3}\.){3}[0-9]{1,3}\b"' {} \; \
+	| cut -d ':' -f2 | tr -d '"'`
+
+bridge=`docker network ls | grep bridge | cut -d' ' -f1`
+net=`docker inspect --format "{{ .IPAM.Config }}" $bridge | grep -oE "\b([0-9]{1,3}\.){3}[0-9]{1,3}\b/[0-9]{1,2}"`
+base=${net%/*}
+mask=${net#*/}
+used="$used $base"
+
+get_suffix ()
+{
+  local total=$1
+  local random=0
+  local tmp=""
+
+  for i in `seq $total`
+  do
+    random=`get_random`
+    tmp=$tmp.$((random % 253))
+  done
+
+  echo $tmp
+}
+
+get_ip ()
+{
+  case $mask in
+    24)
+      prefix=`echo $base | cut -d '.' -f1,2,3`
+      suffix=`get_suffix 1`
+      ;;
+    16)
+      prefix=`echo $base | cut -d '.' -f1,2`
+      suffix=`get_suffix 2`
+      ;;
+    8)
+      prefix=`echo $base | cut -d '.' -f1`
+      suffix=`get_suffix 3`
+      ;;
+    *)
+      prefix=$base
+      ;;
+  esac
+
+  echo $prefix$suffix
+}
+
+get_max ()
+{
+  case $mask in
+    24)
+      max=253
+      ;;
+    16)
+      max=$((253*253))
+      ;;
+    8)
+      max=$((253*253*253))
+      ;;
+    *)
+      max=254
+      ;;
+  esac
+
+  echo $max
+}
+
+used="$used"
+
+get_new_ip ()
+{
+  local max=`get_max`
+  local t=1
+
+  while [ $t -le $max ];
+  do
+    ip=`get_ip`
+    echo $used | grep -q $ip
+    [ $? -ne 0 ] && break
+    t=$((t+=1))
+  done
+
+  [ $t -gt $max ] && echo "LOG: No available ip found." && exit 1
+
+  echo $ip
+}
+
+get_new_ip

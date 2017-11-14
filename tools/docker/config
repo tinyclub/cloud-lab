@@ -89,6 +89,7 @@ CONFIG_SYSTEM_DIR=$CONFIG_DIR/system
 DOCKER_DIR=$TOOL_DIR/docker
 DOCKER_IDENTIFY_CMD=$DOCKER_DIR/identify
 DOCKER_VNC_CMD=$DOCKER_DIR/vnc
+DOCKER_IP_CMD=$DOCKER_DIR/ip
 DOCKER_RELEASE_CMD=$DOCKER_DIR/release
 DOCKER_SSH_CMD=$DOCKER_DIR/ssh
 DOCKER_WEBSSH_CMD=$DOCKER_DIR/webssh
@@ -389,23 +390,35 @@ do_op () #op $ARG $args
   eval $op $arg $args
 }
 
+get_time ()
+{
+   local t=`date '+%N'`
+
+   [ $t = "N" ] && t=`date '+%s'`
+
+   echo $t | sed -e 's%^0*%%g'
+}
+
 get_random ()
 {
-  random=$RANDOM
+  local random=$RANDOM
+
   if [ -n "$random" ]; then
       echo $random
   else
-      random=`date '+%s'`
+      random=`get_time`
       echo $(( random % 65535 ))
   fi
 }
 
 get_random_pwd ()
 {
+  local random
+
   which pwgen >/dev/null 2>&1 && pwgen -c -n -s -1 50 && exit 0
 
   random=$RANDOM
-  [ -z "$random" ] && random=`date '+%s'`
+  [ -z "$random" ] && random=`get_time`
 
   echo $((random % 89273831 * 513793917553423 / 3))
 }
@@ -413,13 +426,13 @@ get_random_pwd ()
 get_browser ()
 {
   # Get the best web browser for different system
-  macos_chrome='/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'
-  macos_safari=/Applications/Safari.app/Contents/MacOS/Safari
-  macos_firefox=/Applications/Firefox.app/Contents/MacOS/firefox
-  linux_chrome=chromium-browser
-  linux_firefox=firefox
+  local macos_chrome='/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'
+  local macos_safari=/Applications/Safari.app/Contents/MacOS/Safari
+  local macos_firefox=/Applications/Firefox.app/Contents/MacOS/firefox
+  local linux_chrome=chromium-browser
+  local linux_firefox=firefox
 
-  DEF_WEB_BROWSER=firefox
+  local DEF_WEB_BROWSER=firefox
   if [ "x$HOST_OS" = "xDarwin" ]; then
     [ -f "$macos_safari" ] && DEF_WEB_BROWSER="$macos_safari"
     [ -f "$macos_firefox" ] && DEF_WEB_BROWSER="$macos_firefox"
