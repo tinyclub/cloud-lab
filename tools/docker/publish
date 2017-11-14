@@ -8,13 +8,8 @@ do_unlock
 [ -z "$VNC_TOKEN" ] && get_var VNC_TOKEN
 do_lock
 
-LOCAL_TOKEN_DIR=${TOP_DIR}/$DEF_TOKEN_DIR
-if [ ! -d $LOCAL_TOKEN_DIR ]; then
-  echo $TOP_DIR | grep -q "cloud-lab/output/"
-  [ $? -eq 0 ] && LOCAL_TOKEN_DIR=$(cd ${TOP_DIR}/../../ && pwd)/$DEF_TOKEN_DIR
-
-  mkdir -p $LOCAL_TOKEN_DIR
-fi
+LOCAL_TOKEN_DIR=${TOP_TOKEN_DIR}/$DEF_TOKEN_DIR
+[ ! -d $LOCAL_TOKEN_DIR ] && mkdir -p $LOCAL_TOKEN_DIR
 
 LOCAL_MAP=$LOCAL_TOKEN_DIR/local_map
 
