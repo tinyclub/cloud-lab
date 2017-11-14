@@ -27,7 +27,7 @@ do
   __lab_name=$lab_name
   [ "$lab_name" = "qing-lab" ] && __lab_name='*'
   find $LAB_SRC/configs/$lab_name \
-       $LAB_SRC/tools -type f | sed -e "s%$LAB_SRC%./%g" | grep -v "/docker/\." > $tmpfile
+       $LAB_SRC/tools -type f | sed -e "s%$LAB_SRC%./%g" | grep -v "/docker/\." | grep -v "docker/limits$" > $tmpfile
 
   if [ -z "$SUDO" ]; then
     rsync -arvz $LAB_SRC $LAB_DST/ --files-from=$tmpfile
