@@ -10,11 +10,26 @@ labs=`get_lab_bases $LAB_DIR $filter`
 
 [ -z "$lab_life" ] && lab_life=0
 
+_get_lab_life () # lab_attr
+{
+  echo $2
+}
+
+get_lab_life () # TOP_DIR
+{
+  local lab_basename=`basename $1`
+  lab_attrs=$(echo $lab_basename | cut -d'+' -f2 | tr '-' ' ')
+  _get_lab_life $lab_attrs
+}
+
 for lab in $labs
 do
   CURRENT=$lab
   unset UNIX_USER UNIX_PWD VNC_PWD VNC_PWD_VIEWONLY CONTAINER_NAME VNC_IP VNC_TOKEN
   . $TOP_DIR/tools/docker/config >/dev/null 2>&1
+
+  echo $TOP_DIR | grep -q /$lab-
+  [ $? -eq 0 ] && lab_life=`get_lab_life $TOP_DIR`
 
   # Ignore the containers not running
   [ -z "$CONTAINER_NAME" ] && continue
