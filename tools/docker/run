@@ -76,6 +76,14 @@ volumemap="$volumemap -v $TOOL_DIR:$TOOL_WORKDIR"
 volumemap="$volumemap -v $CONFIG_DIR:$CONFIG_WORKDIR"
 limits=$LIMITS
 
+# Get a new ip for our new container
+if [ "x$HOST_OS" = "xLinux" ]; then
+  if [ -z "$VNC_IP" -o "$VNC_IP" = "$DEF_VNC_IP" ]; then
+    VNC_IP=`$DOCKER_IP_CMD`
+    [ $? -ne 0 ] && exit 1
+  fi
+fi
+
 for var in $VARS; do
     __ENCRYPT_CMD="cat"
     # Available encrypt cmds: sha1sum, sha224sum, cksum, sha256sum, sha512sum, md5sum, sha384sum, sum
