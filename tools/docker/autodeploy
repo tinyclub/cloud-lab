@@ -20,7 +20,7 @@ WAIT=3600
 [ -z "$alive" ] && alive="30m"
 [ -z "$cleanup" ] && cleanup=1
 [ -z "$peruser" ] && peruser=2
-[ -z "$labs" ] && labs="linux-0.11-lab cs630-qemu-lab markdown-lab tinylab.org linux-lab"
+[ -z "$labs" ] && labs="linux-0.11-lab cs630-qemu-lab lep-lab markdown-lab tinylab.org linux-lab"
 [ -z "$prompt" ] && prompt="<em>说明</em>：以下帐号仅供免费体验，半小时更新一组。"
 [ -z "$empty_prompt" ] && empty_prompt="<em>说明</em>：下一组免费体验帐号即将放出，请稍等片刻。"
 
