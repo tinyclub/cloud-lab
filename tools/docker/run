@@ -80,7 +80,7 @@ limits=$LIMITS
 if [ "x$HOST_OS" = "xLinux" ]; then
   if [ -z "$VNC_IP" -o "$VNC_IP" = "$DEF_VNC_IP" ]; then
     VNC_IP=`$DOCKER_IP_CMD`
-    [ $? -ne 0 ] && exit 1
+    [ $? -ne 0 ] && echo "LOG: $DOCKER_IP_CMD: get ip address error." && exit 1
   fi
 fi
 
