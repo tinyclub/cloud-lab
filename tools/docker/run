@@ -30,6 +30,7 @@ fi
 
 (docker ps -f name=$WPROXY_NAME | grep -q -v PORTS) || \
   (echo "LOG: Start $WPROXY_NAME" \
+  && touch_token_map \
   && $DOCKER_EXPORT_CMD $*)
 
 if [ -n "$CONTAINER_ID" ]; then
