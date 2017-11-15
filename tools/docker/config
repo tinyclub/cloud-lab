@@ -838,6 +838,7 @@ deploy_do_clean ()
   labs=`get_lab_list $LAB_OUTPUT $filter`
   for lab in $labs
   do
+    [ -n "$SUDO" ] && $SUDO -s
     _deploy_do_clean1 $lab &
   done
 
