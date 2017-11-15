@@ -520,7 +520,8 @@ get_lab_info ()
 	}'
   echo
 
-  echo "LOG: Release to $RELEASE_FILE"
+  echo "LOG: Released to: $RELEASE_FILE"
+  echo "LOG: Labs online: `echo $RELEASE_FILE | sed -e \"s%$MAIN_CLOUD_LAB/$DEF_RELEASE_DIR%$WEB_HTTP://$HOST:$HOST_VNC_PORT/labs%g\"`"
   echo
 
   cat << EOF > $RELEASE_FILE
