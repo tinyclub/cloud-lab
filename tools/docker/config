@@ -248,16 +248,23 @@ which sha1sum >/dev/null 2>&1 && DEF_ENCRYPT_CMD=sha1sum
 [ -z "$DEF_RELEASE_DIR" ] && DEF_RELEASE_DIR=releasings
 
 if [ -z "$RELEASE_DIR" ]; then
-  if [ -n "$CURRENT" ]; then
-    USER_LAB_DIR=`basename $TOP_DIR`
-    USER_RELEASE_DIR=${USER_LAB_DIR%%+*}-$(echo ${USER_LAB_DIR##*+} | cut -d'-' -f1)
-    RELEASE_DIR=$TOP_RELEASE_DIR/$DEF_RELEASE_DIR/$USER_RELEASE_DIR
-  elif [ $MAIN_CLOUD_LAB != $CLOUD_LAB_TOP_DIR ]; then
-    GROUP_RELEASE_DIR=${CLOUD_LAB_TOP_DIR##*-}
-    RELEASE_DIR=$TOP_RELEASE_DIR/$DEF_RELEASE_DIR/$GROUP_RELEASE_DIR
-  else
-    RELEASE_DIR=$TOP_RELEASE_DIR/$DEF_RELEASE_DIR
+  GROUP_RELEASE_DIR=""
+  if [ $MAIN_CLOUD_LAB != $CLOUD_LAB_TOP_DIR ]; then
+    GROUP_LAB_DIR=`basename $CLOUD_LAB_TOP_DIR`
+    GROUP_RELEASE_DIR=${GROUP_LAB_DIR##*-}
   fi
+
+  USER_RELEASE_DIR=""
+  if [ -n "$CURRENT" ]; then
+    if [ $CLOUD_LAB_TOP_DIR != $TOP_DIR ]; then
+      USER_LAB_DIR=`basename $TOP_DIR`
+      USER_RELEASE_DIR=${USER_LAB_DIR%%+*}-$(echo ${USER_LAB_DIR##*+} | cut -d'-' -f1)
+    fi
+  fi
+
+  RELEASE_DIR=$TOP_RELEASE_DIR/$DEF_RELEASE_DIR
+  [ -n "$GROUP_RELEASE_DIR" ] && RELEASE_DIR=$RELEASE_DIR/$GROUP_RELEASE_DIR
+  [ -n "$USER_RELEASE_DIR" ] && RELEASE_DIR=$RELEASE_DIR/$USER_RELEASE_DIR
 fi
 
 [ ! -d $RELEASE_DIR ] && mkdir -p $RELEASE_DIR
