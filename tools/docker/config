@@ -219,6 +219,8 @@ if [ ! -n "$IN_CONTAINER" ]; then
     LOCALHOST=`ifconfig $eth | grep 'inet ' | tr ':' ' ' | tr -s ' ' | tr ' ' '\n' | grep "[0-9\.]\{7,\}" | head -1`
     break
   done
+
+  [ -n "$LOCALHOST" -a "$HOST" = "localhost" ] && HOST=$LOCALHOST
 fi
 
 ## password
@@ -522,8 +524,6 @@ get_lab_info ()
   echo
 
   [ ! -d $RELEASE_DIR ] && mkdir -p $RELEASE_DIR
-
-  [ -n "$LOCALHOST" -a "$HOST" = "localhost" ] && HOST=$LOCALHOST
 
   echo "LOG: Released to: $RELEASE_FILE"
   echo "LOG: Labs online: `echo $RELEASE_FILE | sed -e \"s%$MAIN_CLOUD_LAB/$DEF_RELEASE_DIR%$WEB_HTTP://$HOST:$HOST_VNC_PORT/labs%g\"`"
