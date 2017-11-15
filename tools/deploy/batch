@@ -45,6 +45,7 @@ TOP_DIR=$(cd $(dirname $0)/../../ && pwd)
 
 LAB_SECURITY=$security
 
+export PARALLEL_CLEAN=1
 export VNC_TIMEOUT=$timeout
 export prompt empty_prompt
 
@@ -67,7 +68,7 @@ do
 
     if [ $cleanup -eq 1 ]; then
       echo "LOG: Clean up $lab"
-      yes yes | ${TOP_DIR}/tools/deploy/clean $lab
+      yes yes | $SUDO ${TOP_DIR}/tools/deploy/clean $lab
 
       echo "LOG: Update release page for $lab"
       lab_life=$alive ${TOP_DIR}/tools/deploy/release all
@@ -104,7 +105,7 @@ do
     for lab in $labs
     do
       echo "LOG: Clean up $lab"
-      (yes yes | ${TOP_DIR}/tools/deploy/clean $lab) &
+      (yes yes | $SUDO ${TOP_DIR}/tools/deploy/clean $lab) &
     done
 
     # Wait for every lab finish cleaning

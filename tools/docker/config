@@ -836,15 +836,22 @@ deploy_do_clean ()
 
   [ ! -d $LAB_OUTPUT ] && exit 0
   [ -z "$NOTIFY_WAIT" ] && NOTIFY_WAIT=2
+  [ -z "$PARALLEL_CLEAN" ] && PARALLEL_CLEAN=0
 
   labs=`get_lab_list $LAB_OUTPUT $filter`
   for lab in $labs
   do
-    _deploy_do_clean1 $lab &
+    if [ $PARALLEL_CLEAN -eq 1 ]; then
+      _deploy_do_clean1 $lab &
+    else
+      _deploy_do_clean1 $lab
+    fi
   done
 
-  echo "LOG: Wait $NOTIFY_WAIT seconds for $filter cleaning."
-  sleep $((NOTIFY_WAIT+2))
+  if [ $PARALLEL_CLEAN -eq 1 ]; then
+    echo "LOG: Wait $NOTIFY_WAIT seconds for $filter cleaning."
+    sleep $((NOTIFY_WAIT+2))
+  fi
 }
 
 verify_cpus ()
