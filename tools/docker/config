@@ -30,7 +30,7 @@ if [ ! -n "$IN_CONTAINER" ]; then
       if [ "$sure" = "xyes" -o "x$sure" = "xy" -o "x$sure" = "xY" -o "x$sure" = "xYES" ]; then
         $SUDO usermod -aG docker $HOST_USER
         echo >&2
-        time_to_reboot=10
+        time_to_reboot=5
         for i in `seq 0 $time_to_reboot`
         do
           echo "Time left to reboot:" $((time_to_reboot-i)) >&2
