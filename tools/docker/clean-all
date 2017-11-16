@@ -32,6 +32,6 @@ $TOP_DIR/tools/docker/rm-all
 
 yes yes | $TOP_DIR/tools/deploy/clean-all all
 
-$SUDO git clean -fdx
+git clean -fdx
 
 $DOCKER_RELEASE_CMD all >/dev/null 2>&1
