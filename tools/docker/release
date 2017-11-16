@@ -4,7 +4,7 @@
 
 TOP_DIR=$(cd $(dirname $0)/../../ && pwd)
 [ ! -f $TOP_DIR/README.md -a $RELEASE -eq 0 ] && echo "LOG: Please try following command:" \
-	&& echo "  RELEASE=1 $0" && exit 0
+	&& echo "RELEASE=1 $0" | sed -e "s%$TOP_DIR%%g" && exit 0
 
 . $TOP_DIR/tools/docker/config $* >/dev/null
 
