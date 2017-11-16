@@ -874,4 +874,6 @@ touch_token_map ()
 {
   [ ! -d $LOCAL_TOKEN_DIR ] && mkdir -p $LOCAL_TOKEN_DIR
   [ ! -f $LOCAL_TOKEN_MAP ] && touch $LOCAL_TOKEN_MAP
+
+  return 0
 }
