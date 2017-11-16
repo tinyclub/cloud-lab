@@ -15,12 +15,14 @@ HOST_USER=`whoami`
 
 HOST_OS=$(uname)
 
+[ `id -u` -ne 0 ] && SUDO=sudo
+
 # Basic requirement: docker and let docker run without sudo
 if [ ! -n "$IN_CONTAINER" ]; then
   DOCKER_INSTALL_CMD=$TOP_DIR/tools/docker/install
   $DOCKER_INSTALL_CMD >&2 || exit 1
   which groups >/dev/null 2>&1 && which usermod >/dev/null 2>&1 \
-    && ((groups $HOST_USER | grep -q docker) || sudo usermod -aG docker $HOST_USER)
+    && ((groups $HOST_USER | grep -q docker) || $SUDO usermod -aG docker $HOST_USER)
 fi
 
 [ -z "$TPROXY" ] && TPROXY=0
@@ -140,8 +142,6 @@ LAB_SUDO_IDENTIFY=$CONFIG_DOCKER_DIR/.sudo_identify
 
 LAB_TPROXY_LIMITS=$TPROXY_DIR/limits
 LAB_WPROXY_LIMITS=$WPROXY_DIR/limits
-
-[ `id -u` -ne 0 ] && SUDO=sudo
 
 # Lock the important files for security
 __do_lock ()
