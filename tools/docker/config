@@ -799,7 +799,7 @@ _deploy_do_clean1 ()
   $lab/tools/docker/unlock $_lab
 
   echo "LOG: Destroying $lab"
-  $SUDO rm -rf $lab
+  rm -rf $lab
 }
 
 _deploy_do_clean2 ()
@@ -825,7 +825,7 @@ _deploy_do_clean2 ()
   which chattr >/dev/null 2>&1 && $SUDO chattr -R -i $lab/configs/ $lab/tools/
 
   echo "LOG: Destroying $lab"
-  $SUDO rm -rf $lab
+  rm -rf $lab
   sync
 }
 

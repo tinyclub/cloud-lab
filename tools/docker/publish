@@ -13,6 +13,9 @@ do_lock
 
 touch_token_map
 
+# SUDO only required while the map is created in WPROXY
+SUDO=""
+
 map="${VNC_TOKEN}: ${VNC_IP}:5900"
 [ ! -f $LOCAL_TOKEN_MAP ] && $SUDO sh -c "echo $map > $LOCAL_TOKEN_MAP" && exit 0
 
