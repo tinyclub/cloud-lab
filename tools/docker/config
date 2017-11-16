@@ -812,11 +812,11 @@ _deploy_do_clean2 ()
 
   local container=$(echo `basename $lab` | cut -d'+' -f1)
   echo "LOG: Notifying container: $container"
-  $SUDO docker exec $container /bin/bash -c 'export DISPLAY=:1 && notify-send -u critical -t 0 "Lab will be removed in '$NOTIFY_WAIT' seconds."'
+  docker exec $container /bin/bash -c 'export DISPLAY=:1 && notify-send -u critical -t 0 "Lab will be removed in '$NOTIFY_WAIT' seconds."'
   sleep $NOTIFY_WAIT
 
   echo "LOG: Removing container: $container"
-  $SUDO docker rm -f $container
+  docker rm -f $container
 
   echo "LOG: Removing desktop shortcuts: $container"
   rm -rf ~/Desktop/${_lab}.command ~/Desktop/${_lab}.desktop
@@ -826,7 +826,7 @@ _deploy_do_clean2 ()
 
   echo "LOG: Destroying $lab"
   $SUDO rm -rf $lab
-  $SUDO sync
+  sync
 }
 
 deploy_do_clean ()

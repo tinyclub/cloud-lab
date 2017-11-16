@@ -78,7 +78,8 @@ volumemap="$volumemap -v $CONFIG_DIR:$CONFIG_WORKDIR"
 limits=$LIMITS
 
 # Get a new ip for our new container
-if [ "x$HOST_OS" = "xLinux" ]; then
+[ -z "$RANDOM_IP" ] && RANDOM_IP=0
+if [ "x$HOST_OS" = "xLinux" -a $RANDOM_IP -eq 1 ]; then
   if [ -z "$VNC_IP" -o "$VNC_IP" = "$DEF_VNC_IP" ]; then
     VNC_IP=`$DOCKER_IP_CMD`
     [ $? -ne 0 ] && echo "LOG: $DOCKER_IP_CMD: get ip address error." && exit 1

@@ -2,8 +2,12 @@
 
 # Enhance security: protect private data
 
-[ -z "$LAB_SECURITY" ] && LAB_SECURITY=0
+# These variables should be added in ~/.bashrc for cloud lab server
+[ -z "$LAB_SECURITY" ] && LAB_SECURITY=2
 export LAB_SECURITY
+export RANDOM_IP=1
+export VNC_TIMEOUT=1
+export PARALLEL_CLEAN=1
 
 [ `id -u` -ne 0 ] && SUDO=sudo
 
