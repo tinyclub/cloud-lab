@@ -96,8 +96,14 @@ do
     set_var HOST
     set_var VNC_IDENTIFY
 
-    [ -n "$lab_cpus" ] && sed -i -e "s%--cpuset-cpus.*%--cpuset-cpus=$lab_cpus%g" $LAB_LIMITS
-    [ -n "$lab_mem" ] && sed -i -e "s%--memory.*%--memory=$lab_mem%g" $LAB_LIMITS
+    if [ -n "$lab_mem" ]; then
+       sed -i -e "/--memory/d" $LAB_LIMITS
+       echo "--memory=$lab_mem" >> $LAB_LIMITS
+    fi
+    if [ -n "$lab_cpus" ]; then
+      sed -i -e "/--cpuset-cpus/d" $LAB_LIMITS
+      echo "--cpuset-cpus=$lab_cpus" >> $LAB_LIMITS
+    fi
 
     do_lock
 
