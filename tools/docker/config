@@ -21,8 +21,31 @@ HOST_OS=$(uname)
 if [ ! -n "$IN_CONTAINER" ]; then
   DOCKER_INSTALL_CMD=$TOP_DIR/tools/docker/install
   $DOCKER_INSTALL_CMD >&2 || exit 1
-  which groups >/dev/null 2>&1 && which usermod >/dev/null 2>&1 \
-    && ((groups $HOST_USER | grep -q docker) || $SUDO usermod -aG docker $HOST_USER)
+  which groups >/dev/null 2>&1 && which usermod >/dev/null 2>&1
+  if [ $? -eq 0 ]; then
+    groups $HOST_USER | grep -q docker
+    if [ $? -ne 0 ]; then
+      echo >&2
+      read -p 'LOG: Restart X Server to use docker without sudo ? (yes/no) ' sure
+      if [ "$sure" = "xyes" -o "x$sure" = "xy" -o "x$sure" = "xY" -o "x$sure" = "xYES" ]; then
+        $SUDO usermod -aG docker $HOST_USER
+        echo >&2
+        time_to_reboot=10
+        for i in `seq 0 $time_to_reboot`
+        do
+          echo "Time left to reboot:" $((time_to_reboot-i)) >&2
+          sleep 1
+        done
+        $SUDO pkill X
+        exit 0
+      else
+        echo >&2
+        echo "LOG: Please say 'yes' to add $HOST_USER to docker user group, otherwise, must run with sudo everytime." >&2
+        echo >&2
+        exit 1
+      fi
+    fi
+  fi
 fi
 
 [ -z "$TPROXY" ] && TPROXY=0
