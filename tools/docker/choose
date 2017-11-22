@@ -12,6 +12,7 @@ OLD_LAB=$CURRENT
 [ -z "$PULL" ] && PULL=1
 
 [ -z "$SUBMODULE" ] && SUBMODULE=1
+[ -z "$DEPTH" ] && DEPTH=2
 
 download_submodule ()
 {
@@ -21,14 +22,17 @@ download_submodule ()
 
     for lab in $LABS; do
       LAB_CURRENT_DIR=$LAB_DIR/$lab
-      [ $SUBMODULE -eq 1 ] && RECURSIVE=--recursive && PULL_RECURSIVE=--recurse-submodules=yes
+      [ $SUBMODULE -eq 1 ] && \
+	RECURSIVE=" --recursive --depth $DEPTH" && \
+	PULL_RECURSIVE=" --recurse-submodules=yes --depth=$DEPTH"
 
       [ ! -f $LAB_CURRENT_DIR/.git ] \
         && git submodule update --init --remote $RECURSIVE $LAB_CURRENT_DIR
 
       cd $LAB_CURRENT_DIR && git checkout master
 
-      [ $SUBMODULE -eq 1 ] && echo "LOG: Pulling submodules of $lab" && git submodule update --init --remote --recursive .
+      [ $SUBMODULE -eq 1 ] && echo "LOG: Pulling submodules of $lab" \
+	&& git submodule update --init --remote $RECURSIVE .
       [ $PULL -eq 1 ] && echo "LOG: Pulling repository: $lab" && git pull $PULL_RECURSIVE -v
 
       # Convert absolute path to relative path for gitdir in .git of submodules
