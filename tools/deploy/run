@@ -75,10 +75,11 @@ do
 
     __lab_name=$lab_name
     [ "$lab_name" = "qing-lab" ] && __lab_name='*'
-    [ `cat $tmpfile | wc -c | tr -d ' '` -eq 0 ] && find $LAB_SRC/configs/$lab_name \
+    [ ! -s $tmpfile ] && find $LAB_SRC/configs/$lab_name \
          $LAB_SRC/labs/$__lab_name \
          $LAB_SRC/.git/modules/labs/$__lab_name \
-         $LAB_SRC/tools -type f | sed -e "s%$LAB_SRC%./%g" | grep -v "/docker/\." > $tmpfile
+         $LAB_SRC/tools -type f -or -type d -or -type l | sed -e "s%$LAB_SRC%./%g" | grep -v "/docker/\." > $tmpfile
+
     if [ -z "$SUDO" ]; then
       rsync -ar $LAB_SRC $LAB_DST/ --files-from=$tmpfile
     else
