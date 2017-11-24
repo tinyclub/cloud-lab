@@ -9,4 +9,4 @@ TOP_DIR=$(cd $(dirname $0) && pwd)/
 LEP=/labs/lep-lab/lep.sh
 $LEP perf &
 PREBUILT=1 $LEP lepd &
-$LEP lepv &
+sudo -u $UNIX_USER $LEP lepv &
