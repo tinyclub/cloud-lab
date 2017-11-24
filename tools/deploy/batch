@@ -107,7 +107,7 @@ do
     last_lab=`echo $labs | tr -s ' ' | tr ' ' '\n' | tail -1`
     lab_total=`echo $labs | tr -s ' ' | tr ' ' '\n' | wc -l`
 
-    for i in `seq 1 $((NOTIFY_WAIT+lab_total))`
+    for i in `seq 1 $((NOTIFY_WAIT*2+lab_total))`
     do
       finish=0
       for lab in $labs
