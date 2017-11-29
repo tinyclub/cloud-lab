@@ -23,6 +23,7 @@ fi
 
 $SUDO curl -fsSL http://mirrors.aliyun.com/docker-ce/linux/ubuntu/gpg | sudo apt-key add -
 ubuntu_version=$(lsb_release -cs)
+$SUDO apt-get install -y software-properties-common
 $SUDO add-apt-repository "deb [arch=amd64] http://mirrors.aliyun.com/docker-ce/linux/ubuntu $ubuntu_version stable"
 $SUDO apt-get -y update
 $SUDO apt-get -y install apt-transport-https ca-certificates
