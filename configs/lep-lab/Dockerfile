@@ -47,6 +47,8 @@ RUN apt-get -y update \
     && rm -rf /var/lib/apt/lists/* \
     && rm -rf /var/cache/apt/archives/*.deb
 
+RUN pip3 install flask_socketio
+
 # Can not use python 2.7 by default, for supervisor doesn't work with python >= 3
 #RUN update-alternatives --install /usr/bin/python python /usr/bin/python2.7 41 \
 #    && update-alternatives --install /usr/bin/python python /usr/bin/python3.4 45 \
