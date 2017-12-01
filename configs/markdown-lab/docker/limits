@@ -1,3 +1,2 @@
-#--cpuset-cpus=0
 --cpu-shares=512
 --memory=2G
