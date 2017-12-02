@@ -23,6 +23,17 @@ RUN url=https://launchpad.net/gcc-arm-embedded \
     && rm -rf $file \
     && rm $file.$suffix
 
+# For scons --menuconfig
+
+RUN apt-get -y update \
+    && apt-get install -y --force-yes --no-install-recommends \
+	libncurses-dev \
+    && apt-get autoclean -y \
+    && apt-get autoremove -y \
+    && rm -rf /var/lib/apt/lists/* \
+    && rm -rf /var/cache/apt/archives/*.deb
+
+
 EXPOSE 5900 22
 
 WORKDIR /labs/
