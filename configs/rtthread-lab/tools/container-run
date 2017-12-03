@@ -5,10 +5,6 @@
 
 TOP_DIR=$(cd $(dirname $0) && pwd)/
 
-# Insert missing kernel modules
-
-$TOP_DIR/insmod.sh
-
 # Enable network bridge support
 
 $TOP_DIR/enable_net_bridge.sh
