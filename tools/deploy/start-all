@@ -3,4 +3,6 @@
 TOP_DIR=$(cd $(dirname $0)/../../ && pwd)
 . $TOP_DIR/tools/docker/config $* >/dev/null
 
+filter=all
+
 . ${TOP_DIR}/tools/deploy/start

@@ -3,7 +3,9 @@
 TOP_DIR=$(cd $(dirname $0)/../../ && pwd)
 . $TOP_DIR/tools/docker/config $* >/dev/null
 
-filter=$1
-[ -n "$2" ] && filter=$2
+if [ -z "$filter" ]; then
+  filter=$1
+  [ -n "$2" ] && filter=$2
+fi
 
 deploy_do run 'Runing' $filter

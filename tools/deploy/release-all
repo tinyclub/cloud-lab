@@ -3,9 +3,6 @@
 TOP_DIR=$(cd $(dirname $0)/../../ && pwd)
 . $TOP_DIR/tools/docker/config $* >/dev/null
 
-if [ -z "$filter" ]; then
-  filter=$1
-  [ -n "$2" ] && filter=$2
-fi
+filter=all
 
-deploy_do rm 'Removing' $filter
+. $TOP_DIR/tools/deploy/release
