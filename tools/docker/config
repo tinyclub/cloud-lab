@@ -633,7 +633,7 @@ EOF
   fi
 
   cat <<EOF >> $RELEASE_FILE
-<div style="position:absolute; top:1em; right:1em; font-size:10px;"><img width="90px;" src="https://raw.githubusercontent.com/tinyclub/tinylab.org/master/images/sponsor/wechat-pay-admin-9.68.jpg"><br>微信扫码,赞助我们</div>
+<div style="position:absolute; top:1em; right:1em; font-size:10px;"><img width="90px;" src="https://raw.githubusercontent.com/tinyclub/tinylab.org/gh-pages/images/sponsor/wechat-pay-admin-9.68.jpg"><br>微信扫码,赞助我们</div>
 <p>Powered by <a target="_blank" href="http://tinylab.org/cloud-lab">Cloud Lab</a> !</p>
 
 <script type="text/javascript">var cnzz_protocol = (("https:" == document.location.protocol) ? " https://" : " http://");document.write(unescape("%3Cspan id='cnzz_stat_icon_1264337212'%3E%3C/span%3E%3Cscript src='" + cnzz_protocol + "s22.cnzz.com/stat.php%3Fid%3D1264337212%26online%3D2' type='text/javascript'%3E%3C/script%3E"));</script>
