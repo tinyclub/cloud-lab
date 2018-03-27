@@ -21,5 +21,8 @@ do_op "sed -i -e \"/$VNC_TOKEN/d\"" LOCAL_TOKEN_MAP
 
 find $CONFIG_DOCKER_DIR -iname ".[^.]*" -exec rm -rf {} \;
 
+# Prune others
+docker system prune -f
+
 # Update lab list
 [ "$RELEASE" != '0' ] && $DOCKER_RELEASE_CMD all >/dev/null 2>&1

@@ -1,0 +1,8 @@
+#!/bin/sh
+#
+# Prune a clean docker environment.
+#
+
+# Will this clean up the increasing files /run/udev/data/+cgroup:*
+
+docker system prune -f
