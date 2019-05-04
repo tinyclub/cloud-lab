@@ -651,7 +651,7 @@ EOF
 
 get_xterm ()
 {
-   [ -z "$XTERM" ] && XTERM=`$DOCKER_XTERM_CMD lxterminal`
+   [ -z "$XTERM" ] && XTERM=`$DOCKER_XTERM_CMD terminator`
 }
 
 notify_user ()

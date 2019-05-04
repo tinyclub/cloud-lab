@@ -32,7 +32,7 @@ if [ -d ~/Desktop -a -n "$REMOTE_DESKTOP_SHORTCUT" -a -f "$REMOTE_DESKTOP_SHORTC
 
   if [ "x$HOST_OS" = "xDarwin" ]; then
 
-    if [ "x$LAB_DESKTOP_SHORTCUT" = "x1" ]; then
+    if [ "x$LAB_DESKTOP_SHORTCUT" = "x1" -a ! -f $LOCAL_DESKTOP_SHORTCUT ]; then
       echo "$DOCKER_RUN_CMD $LAB_NAME" > $LOCAL_DESKTOP_SHORTCUT
 
       # ref: https://superuser.com/questions/479411/close-all-mac-terminal-windows-but-the-one-running-a-script
@@ -40,16 +40,19 @@ if [ -d ~/Desktop -a -n "$REMOTE_DESKTOP_SHORTCUT" -a -f "$REMOTE_DESKTOP_SHORTC
     fi
 
     # For cloud lab
-    echo "/usr/bin/open -a 'Terminal' '"$CLOUD_LAB_TOP_DIR"'" > $MANAGE_DESKTOP_SHORTCUT
-    echo 'osascript -e "do shell script \"osascript -e \\\\\"tell application \\\\\\\\\\\\\\"Terminal\\\\\\\\\\\\\\" \\\\\\" -e \\\\\\"set mainID to id of second window\\\\\\" -e \\\\\\" close (every window whose id = mainID)\\\\\\"  -e \\\\\\"end tell\\\\\\"   &> /dev/null &\""; exit' >> $MANAGE_DESKTOP_SHORTCUT
+    if [ ! -f $MANAGE_DESKTOP_SHORTCUT ]; then
+      echo "/usr/bin/open -a 'Terminal' '"$CLOUD_LAB_TOP_DIR"'" > $MANAGE_DESKTOP_SHORTCUT
+      echo 'osascript -e "do shell script \"osascript -e \\\\\"tell application \\\\\\\\\\\\\\"Terminal\\\\\\\\\\\\\\" \\\\\\" -e \\\\\\"set mainID to id of second window\\\\\\" -e \\\\\\" close (every window whose id = mainID)\\\\\\"  -e \\\\\\"end tell\\\\\\"   &> /dev/null &\""; exit' >> $MANAGE_DESKTOP_SHORTCUT
+    fi
 
-    echo "/usr/bin/open -a '"$WEB_BROWSER"' '"$LABS_WEB_URL"'" > $BROWSE_DESKTOP_SHORTCUT
-    echo 'osascript -e "do shell script \"osascript -e \\\\\"tell application \\\\\\\\\\\\\\"Terminal\\\\\\\\\\\\\\" \\\\\\" -e \\\\\\"set mainID to id of first window\\\\\\" -e \\\\\\" close (every window whose id = mainID)\\\\\\"  -e \\\\\\"end tell\\\\\\"   &> /dev/null &\""; exit' >> $BROWSE_DESKTOP_SHORTCUT
-
+    if [ ! -f $BROWSE_DESKTOP_SHORTCUT ]; then
+      echo "/usr/bin/open -a '"$WEB_BROWSER"' '"$LABS_WEB_URL"'" > $BROWSE_DESKTOP_SHORTCUT
+      echo 'osascript -e "do shell script \"osascript -e \\\\\"tell application \\\\\\\\\\\\\\"Terminal\\\\\\\\\\\\\\" \\\\\\" -e \\\\\\"set mainID to id of first window\\\\\\" -e \\\\\\" close (every window whose id = mainID)\\\\\\"  -e \\\\\\"end tell\\\\\\"   &> /dev/null &\""; exit' >> $BROWSE_DESKTOP_SHORTCUT
+    fi
 
   else
 
-    if [ "x$LAB_DESKTOP_SHORTCUT" = "x1" ]; then
+    if [ "x$LAB_DESKTOP_SHORTCUT" = "x1" -a ! -f $LOCAL_DESKTOP_SHORTCUT ]; then
       echo '#!/usr/bin/env xdg-open' > $LOCAL_DESKTOP_SHORTCUT
       TMP_URL=`echo $CONTAINER_WEB_URL | tr '&' '|'`
       cat $REMOTE_DESKTOP_SHORTCUT \
@@ -59,7 +62,7 @@ if [ -d ~/Desktop -a -n "$REMOTE_DESKTOP_SHORTCUT" -a -f "$REMOTE_DESKTOP_SHORTC
     fi
 
     # For cloud lab
-    cat <<EOF > $MANAGE_DESKTOP_SHORTCUT
+    [ ! -f $MANAGE_DESKTOP_SHORTCUT ] && cat <<EOF > $MANAGE_DESKTOP_SHORTCUT
 #!/usr/bin/env xdg-open
 [Desktop Entry]
 Encoding=UTF-8
@@ -70,7 +73,7 @@ Icon=/usr/share/pixmaps/${XTERM}.png
 Type=Application
 EOF
 
-    cat <<EOF > $BROWSE_DESKTOP_SHORTCUT
+    [ ! -f $BROWSE_DESKTOP_SHORTCUT ] && cat <<EOF > $BROWSE_DESKTOP_SHORTCUT
 #!/usr/bin/env xdg-open
 [Desktop Entry]
 Encoding=UTF-8
