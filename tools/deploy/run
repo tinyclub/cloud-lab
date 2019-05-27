@@ -81,9 +81,9 @@ do
          $LAB_SRC/tools -type f -or -type d -or -type l | sed -e "s%$LAB_SRC%./%g" | grep -v "/docker/\." > $tmpfile
 
     if [ -z "$SUDO" ]; then
-      rsync -ar $LAB_SRC $LAB_DST/ --files-from=$tmpfile
+      rsync -ar -H $LAB_SRC $LAB_DST/ --files-from=$tmpfile
     else
-      $SUDO -u $HOST_USER rsync -ar $LAB_SRC $LAB_DST/ --files-from=$tmpfile
+      $SUDO -u $HOST_USER rsync -ar -H $LAB_SRC $LAB_DST/ --files-from=$tmpfile
     fi
 
     # Run it
