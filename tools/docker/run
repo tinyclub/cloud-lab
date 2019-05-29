@@ -9,7 +9,6 @@ TOP_DIR=$(cd $(dirname $0)/../../ && pwd)
 # Start the transparent proxy via tinylab/cloud-ubuntu-proxy_client_transparent container
 (docker ps -f name=$TPROXY_NAME -f status=exited | grep -q -v PORTS) \
   && echo "LOG: Resume the stopped $TPROXY_NAME" \
-  && (if [ -f $LAB_HOST_RUN ]; then $LAB_HOST_RUN; fi) \
   && docker start `docker ps -f name=$TPROXY_NAME -f status=exited -q`
 
 (docker ps -f name=$TPROXY_NAME | grep -q -v PORTS)
@@ -44,6 +43,7 @@ if [ -n "$CONTAINER_ID" ]; then
   # If already there and stopped, start and open it
   (docker ps -f id=$CONTAINER_ID -f status=exited | grep -q -v PORTS) \
     && echo "LOG: Resume the stopped $LAB_NAME" \
+    && (if [ -f $LAB_HOST_RUN ]; then $LAB_HOST_RUN; fi) \
     && $DOCKER_START_CMD $LAB_NAME \
     && echo "LOG: Wait for lab resuming..." \
     && while :; do \
