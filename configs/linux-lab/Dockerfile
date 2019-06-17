@@ -54,6 +54,17 @@ RUN apt-get -y update \
     && rm -rf /home/ubuntu/ \
     && rm -rf /var/cache/apt/archives/*.deb
 
+# For qemu sdl graphic building
+
+RUN apt-get -y update \
+    && apt-get install -y --force-yes --no-install-recommends \
+        libsdl2-dev libsdl2-image-dev libsdl2-2.0-0 libsdl2-image-2.0-0 libegl1-mesa-dev libgles2-mesa-dev \
+    && apt-get autoclean -y \
+    && apt-get autoremove -y \
+    && rm -rf /var/lib/apt/lists/* \
+    && rm -rf /home/ubuntu/ \
+    && rm -rf /var/cache/apt/archives/*.deb
+
 EXPOSE 5900 22
 
 WORKDIR /labs/
