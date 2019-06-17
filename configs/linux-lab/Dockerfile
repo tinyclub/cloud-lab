@@ -55,6 +55,7 @@ RUN apt-get -y update \
     && rm -rf /var/cache/apt/archives/*.deb
 
 # For qemu sdl graphic building
+# RUN sed -i -e "s%archive.ubuntu.com%mirrors.163.com%g" /etc/apt/sources.list
 
 RUN apt-get -y update \
     && apt-get install -y --force-yes --no-install-recommends \
