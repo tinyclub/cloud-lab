@@ -6,6 +6,8 @@
 #
 # ref: https://jpetazzo.github.io/2014/01/29/docker-device-mapper-resize/
 #
+# ref: https://mirror.tuna.tsinghua.edu.cn/help/docker-ce/
+#
 
 which docker > /dev/null 2>&1 && exit 0
 
