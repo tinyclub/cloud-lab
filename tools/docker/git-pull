@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# pull -- pull the docker image from docker hub
+# git-pull -- pull the latest lab
 #
 
 TOP_DIR=$(cd $(dirname $0)/../../ && pwd)
