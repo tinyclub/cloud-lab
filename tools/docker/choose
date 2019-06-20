@@ -11,7 +11,7 @@ OLD_LAB=$CURRENT
 
 [ -z "$PULL" ] && PULL=1
 
-[ -z "$SUBMODULE" ] && SUBMODULE=1
+[ -z "$SUBMODULE" ] && SUBMODULE=0
 
 download_submodule ()
 {
