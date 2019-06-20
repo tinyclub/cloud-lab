@@ -33,7 +33,7 @@ download_submodule ()
 
       [ $PULL -eq 1 ] && echo "LOG: Pulling repository: $lab" && git pull $PULL_RECURSIVE -v
 
-      [ $SUBMODULE -eq 1 ] && echo "LOG: Pulling submodules of $lab" \
+      [ $SUBMODULE -eq 1 ] && git submodule sync && echo "LOG: Pulling submodules of $lab" \
 	&& git submodule update --init --remote $RECURSIVE .
 
       # Convert absolute path to relative path for gitdir in .git of submodules
