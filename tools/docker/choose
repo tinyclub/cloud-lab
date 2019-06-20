@@ -31,7 +31,7 @@ download_submodule ()
 
       cd $LAB_CURRENT_DIR && git checkout master
 
-      [ $PULL -eq 1 ] && echo "LOG: Pulling repository: $lab" && git pull -v && git submodule sync && $PULL_RECURSIVE -v
+      [ $PULL -eq 1 ] && echo "LOG: Pulling repository: $lab" && git pull -v && git submodule sync && git pull $PULL_RECURSIVE -v
 
       [ $SUBMODULE -eq 1 ] && echo "LOG: Pulling submodules of $lab" \
 	&& git submodule update --init --remote $RECURSIVE .
