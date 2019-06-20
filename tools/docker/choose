@@ -12,7 +12,6 @@ OLD_LAB=$CURRENT
 [ -z "$PULL" ] && PULL=1
 
 [ -z "$SUBMODULE" ] && SUBMODULE=1
-[ -z "$DEPTH" ] && DEPTH=2
 
 download_submodule ()
 {
@@ -23,8 +22,8 @@ download_submodule ()
     for lab in $LABS; do
       LAB_CURRENT_DIR=$LAB_DIR/$lab
       [ $SUBMODULE -eq 1 ] && \
-	RECURSIVE=" --recursive --depth $DEPTH" && \
-	PULL_RECURSIVE=" --recurse-submodules=yes --depth=$DEPTH"
+	RECURSIVE=" --recursive " && \
+	PULL_RECURSIVE=" --recurse-submodules=yes "
 
       [ ! -f $LAB_CURRENT_DIR/.git ] \
         && git submodule update --init --remote $RECURSIVE $LAB_CURRENT_DIR
