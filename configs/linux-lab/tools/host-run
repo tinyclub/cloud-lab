@@ -1,6 +1,6 @@
 # nfsd.ko must be inserted to enable nfs kernel server
 
-modules="loop nfsd 9pnet_virtio"
+modules="loop nfsd 9pnet_virtio kvm kvm-intel"
 
 which lsmod 2>&1 > /dev/null
 
@@ -12,6 +12,11 @@ if [ $? -eq 0 ]; then
 
     lsmod | grep -q $m
     [ $? -ne 0 ] && sudo modprobe $m
+
+    # tell user enable cpu virtualization in bios if not disabled
+    if [ $? -ne 0 -a "$m" = "kvm-intel" ]; then
+      echo "LOG: Please turn on cpu virtualization in bios if want use kvm speedup"
+    fi
   done
 fi
 
