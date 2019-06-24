@@ -9,7 +9,7 @@ TOP_DIR=$(cd $(dirname $0)/../../ && pwd)
 . $TOP_DIR/tools/docker/config $* >/dev/null
 OLD_LAB=$CURRENT
 
-[ -z "$PULL" ] && PULL=1
+[ -z "$PULL" ] && PULL=0
 
 [ -z "$SUBMODULE" ] && SUBMODULE=0
 
