@@ -9,7 +9,7 @@ if [ $? -eq 0 ]; then
     [ $? -ne 0 ] && continue
 
     lsmod | grep -q $m
-    [ $? -ne 0 ] && sudo modprobe $m
+    [ $? -ne 0 ] && sudo modprobe $m 2>/dev/null
 
     # tell user enable cpu virtualization in bios if not disabled
     if [ $? -ne 0 ]; then
