@@ -56,9 +56,6 @@ if [ ! -f $CREATE_FLAG ]; then
   # Touch a flag
   touch $CREATE_FLAG
 
-  # Update PS1 of the TERM
-  bash -c "sed -i -e 's%PS1=.*$%PS1=\"$UNIX_USER@$IMAGE\$ \"%g' /etc/skel/.bashrc"
-
   DEF_HOME=/home/$DEF_USER
   DEF_SYSTEM_SUDOERS_USER=/etc/sudoers.d/$DEF_USER
   DESKTOP=$HOME/Desktop/
