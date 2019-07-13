@@ -1,4 +1,11 @@
-modules="loop kvm kvm-intel kvm-amd"
+grep -qi intel /proc/cpuinfo
+if [ $? -eq 0 ]; then
+  kvm_dri=kvm-intel
+else
+  kvm_dri=kvm-amd
+fi
+
+modules="loop nfsd 9pnet_virtio kvm $kvm_dri"
 
 which lsmod 2>&1 > /dev/null
 
