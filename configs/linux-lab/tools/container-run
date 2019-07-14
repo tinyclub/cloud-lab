@@ -11,3 +11,9 @@ $TOP_DIR/enable_net_bridge.sh
 
 ## Start Net servers
 $TOP_DIR/restart-net-servers.sh
+
+## Install aarch64-linux-gnu-gcc alternatives
+[ -f /usr/bin/aarch64-linux-gnu-gcc-4.8 ] && \
+  update-alternatives --install /usr/bin/aarch64-linux-gnu-gcc aarch64-linux-gnu-gcc /usr/bin/aarch64-linux-gnu-gcc-4.8 45
+[ -f /usr/local/bin/aarch64-linux-gnu-gcc-4.9.3 ] && \
+  update-alternatives --install /usr/bin/aarch64-linux-gnu-gcc aarch64-linux-gnu-gcc /usr/local/bin/aarch64-linux-gnu-gcc-4.9.3 46
