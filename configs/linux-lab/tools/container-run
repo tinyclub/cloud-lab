@@ -16,4 +16,5 @@ $TOP_DIR/restart-net-servers.sh
 [ -f /usr/bin/aarch64-linux-gnu-gcc-4.8 ] && \
   update-alternatives --install /usr/bin/aarch64-linux-gnu-gcc aarch64-linux-gnu-gcc /usr/bin/aarch64-linux-gnu-gcc-4.8 45
 [ -f /usr/local/bin/aarch64-linux-gnu-gcc-4.9.3 ] && \
-  update-alternatives --install /usr/bin/aarch64-linux-gnu-gcc aarch64-linux-gnu-gcc /usr/local/bin/aarch64-linux-gnu-gcc-4.9.3 46
+  ln -sf /usr/local/bin/aarch64-linux-gnu-gcc-4.9.3 /usr/bin/aarch64-linux-gnu-gcc-4.9.3 && \
+  update-alternatives --install /usr/bin/aarch64-linux-gnu-gcc aarch64-linux-gnu-gcc /usr/bin/aarch64-linux-gnu-gcc-4.9.3 46
