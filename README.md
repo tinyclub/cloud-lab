@@ -1,3 +1,7 @@
+**关注作者公众号**：
+<br/>
+<img src='images/tinylab-wechat.jpg' width='110px'/>
+<br/>
 
 # Cloud Lab
 
