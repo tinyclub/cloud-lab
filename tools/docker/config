@@ -27,7 +27,7 @@ if [ ! -n "$IN_CONTAINER" ]; then
     if [ $? -ne 0 ]; then
       echo >&2
       read -p 'LOG: Restart X Server to use docker without sudo ? (yes/no) ' sure
-      if [ "$sure" = "xyes" -o "x$sure" = "xy" -o "x$sure" = "xY" -o "x$sure" = "xYES" ]; then
+      if [ "x$sure" = "xyes" -o "x$sure" = "xy" -o "x$sure" = "xY" -o "x$sure" = "xYES" ]; then
         $SUDO usermod -aG docker $HOST_USER
         echo >&2
         time_to_reboot=5
