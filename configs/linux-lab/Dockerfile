@@ -88,6 +88,17 @@ RUN apt-get -y update \
     && rm -rf /home/ubuntu/ \
     && rm -rf /var/cache/apt/archives/*.deb
 
+# For gcc -m32 support
+
+RUN apt-get -y update \
+    && apt-get install -y --force-yes --no-install-recommends \
+        libc6-i386 libc6-dev-i386 \
+    && apt-get autoclean -y \
+    && apt-get autoremove -y \
+    && rm -rf /var/lib/apt/lists/* \
+    && rm -rf /home/ubuntu/ \
+    && rm -rf /var/cache/apt/archives/*.deb
+
 EXPOSE 5900 22
 
 WORKDIR /labs/
