@@ -8,6 +8,7 @@ TOP_DIR=$(cd $(dirname $0)/../../ && pwd)
 
 # Get web browser
 get_browser
+[ $? -ne 0 ] && echo "ERR: Give up browser launching for no web browser found" && exit 0
 
 docker ps -f name=$CONTAINER_NAME | grep -qv PORTS
 [ $? -ne 0 ] && echo "LOG: $LAB_NAME is not running." && exit 1

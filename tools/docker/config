@@ -522,8 +522,15 @@ get_browser ()
   else
     which $WEB_BROWSER >/dev/null 2>&1
     if [ $? -eq 1 ]; then
-      echo "LOG: No $WEB_BROWSER found, use firefox instead."
-      WEB_BROWSER=firefox
+      if [ x"$WEB_BROWSER" = "xfirefox" ]; then
+        echo "ERR: No web browser found, are you running me in cloud? please open the 'Normal' url yourself."
+        exit 1
+      else
+        echo "LOG: No $WEB_BROWSER found, try firefox instead."
+        WEB_BROWSER=firefox
+        which $WEB_BROWSER >/dev/null 2>&1
+        [ $? -eq 1 ] && echo "ERR: No $WEB_BROWSER found too." && exit 2
+      fi
     fi
   fi
 
