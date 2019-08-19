@@ -20,7 +20,7 @@
 	ignore = all
 [submodule "labs/tinylab.org"]
 	path = labs/tinylab.org
-	url = https://github.com/tinyclub/tinylab.org.git
+	url = https://gitee.com/tinylab/tinylab.org.git
 	branch = master
 	ignore = all
 [submodule "labs/lep-lab"]
