@@ -60,16 +60,16 @@ LAB_HOST=$TOP_DIR/.host_name
 LAB_OUTPUT=$TOP_DIR/output
 
 GIT_DIR=$TOP_DIR/.git
-GIT_WORKDIR=/.git
+GIT_WORKDIR=//.git
 
 LAB_DIR=$TOP_DIR/labs
-LAB_WORKDIR=/labs
+LAB_WORKDIR=//labs
 
 TOOL_DIR=$TOP_DIR/tools
-TOOL_WORKDIR=/tools
+TOOL_WORKDIR=//tools
 
 CONFIGS_DIR=$TOP_DIR/configs/
-CONFIG_WORKDIR=/configs
+CONFIG_WORKDIR=//configs
 
 BASE_DIR=$TOP_DIR/base
 TPROXY_DIR=$BASE_DIR/tproxy
