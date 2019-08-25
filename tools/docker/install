@@ -15,7 +15,7 @@ which docker > /dev/null 2>&1 && exit 0
 if [ $? -eq 0 ]; then
     echo "LOG: Install docker-ce with $0"
 else
-    echo "LOG: Please install docker-ce with doc: https://docs.docker.com/engine/installation/linux/docker-ce/ubuntu/"
+    echo "LOG: Please install docker-ce with doc: https://docs.docker.com/install/"
     exit 1
 fi
 
