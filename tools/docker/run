@@ -84,6 +84,7 @@ fi
 
 # Run the lab via start a lab container
 caps=""
+dnss=""
 devs=""
 vars="-e LAB_SECURITY=$LAB_SECURITY"
 envs=""
@@ -112,6 +113,7 @@ for var in $VARS; do
 done
 for env in $ENVS; do vars="$vars -e $env"; done
 for cap in $CAPS; do caps="$caps --cap-add $cap"; done
+for dns in $DNS; do dnss="$dnss --dns $dns"; done
 for dev in $DEVICES; do devs="$devs --device $dev"; done
 for map in $PORTMAP; do portmap="$portmap -p $map"; done
 for map in $VOLUMEMAP; do volumemap="$volumemap -v $map"; done
@@ -126,7 +128,7 @@ do_unlock
 set_var UNIX_UID
 do_lock
 
-CONTAINER_ID=$(docker run -d --privileged -h $LAB_NAME $container $portmap $caps $devices $limits $volumemap $vars $EXTRA_ARGS $IMAGE)
+CONTAINER_ID=$(docker run -d --privileged -h $LAB_NAME $container $portmap $caps $dnss $devices $limits $volumemap $vars $EXTRA_ARGS $IMAGE)
 
 [ $? -ne 0 ] && echo "LOG: docker running error." && exit 1
 
