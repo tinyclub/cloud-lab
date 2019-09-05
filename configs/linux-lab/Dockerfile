@@ -92,7 +92,7 @@ RUN apt-get -y update \
 
 RUN apt-get -y update \
     && apt-get install -y --force-yes --no-install-recommends \
-        libc6-i386 libc6-dev-i386 \
+        libc6-dev libc6-dev-i386 lib32gcc-8-dev \
     && apt-get autoclean -y \
     && apt-get autoremove -y \
     && rm -rf /var/lib/apt/lists/* \
