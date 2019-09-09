@@ -854,7 +854,7 @@ _deploy_do_clean2 ()
 
   local container=$(echo `basename $lab` | cut -d'+' -f1)
   echo "LOG: Notifying container: $container"
-  docker exec $container /bin/bash -c 'export DISPLAY=:1 && notify-send -u critical -t 0 "Lab will be removed in '$NOTIFY_WAIT' seconds."'
+  docker exec $container //bin/bash -c 'export DISPLAY=:1 && notify-send -u critical -t 0 "Lab will be removed in '$NOTIFY_WAIT' seconds."'
   sleep $NOTIFY_WAIT
 
   echo "LOG: Removing container: $container"

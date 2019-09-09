@@ -41,7 +41,7 @@ do
   if [ "x$HOST_OS" = "xLinux" ]; then
     lab_start="$(date '+%Y%m%d %H:%M:%S' --date $start_time)"
   else
-    lab_start=`docker exec $CONTAINER_NAME /bin/bash -c "date '+%Y%m%d %H:%M:%S' --date $start_time"`
+    lab_start=`docker exec $CONTAINER_NAME //bin/bash -c "date '+%Y%m%d %H:%M:%S' --date $start_time"`
   fi
   lab_end=`get_endtime "$lab_start" $lab_life`
   echo $lab $UNIX_USER $HOST $HOST_VNC_PORT $VNC_TOKEN $VNC_PWD $VNC_PWD_VIEWONLY $VNC_IP $HOST_WEBSSH_PORT $UNIX_PWD $CONTAINER_NAME \
