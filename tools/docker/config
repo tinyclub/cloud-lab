@@ -410,7 +410,7 @@ get_var () #VAR #defval
   var_file=`eval echo \\${LAB_$VAR}`
   var_value=""
 
-  [ -n "$var_file" -a -f "$var_file" ] && var_value='$(cat $var_file)' && eval `eval echo \\$VAR='$var_value'`
+  [ -n "$var_file" -a -f "$var_file" ] && var_value='$(cat $var_file | tr -d "\r" | tr "\n" " ")' && eval `eval echo \\$VAR='$var_value'`
   [ -z "$var_value" ] && eval `eval echo \\$VAR=$defval`
 
   #echo `eval echo "LOG: GET: $VAR=\\$${VAR}"`
