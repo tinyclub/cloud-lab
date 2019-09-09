@@ -436,7 +436,7 @@ set_var () #VAR
   #echo "LOG: SET: Save '$var' to $var_file"
 
   if [ -n "$var" ]; then
-    echo "$var" | tr ' ' '\n' > $var_file
+    echo "$var" | tr -d '\r' | tr ' ' '\n' > $var_file
   fi
 }
 
