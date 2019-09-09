@@ -138,4 +138,4 @@ show_lab
 get_browser
 [ $? -ne 0 ] && echo "ERR: Give up browser launching for no web browser found" && exit 0
 
-(eval $__WEB_BROWSER '$CONTAINER_WEB_URL' >/dev/null 2>&1 &)>/dev/null 2>&1
+(eval "'$__WEB_BROWSER'" "'$CONTAINER_WEB_URL'" >/dev/null 2>&1 &)>/dev/null 2>&1

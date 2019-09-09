@@ -505,7 +505,7 @@ get_browser ()
   local macos_firefox=/Applications/Firefox.app/Contents/MacOS/firefox
   local linux_chrome=chromium-browser
   local linux_firefox=firefox
-  local win_chrome='/c/Program Files (x86)/Google/Chrome/Applications/chrome.exe'
+  local win_chrome='/c/Program\ Files\ \(x86\)/Google/Chrome/Application/chrome.exe'
 
   local DEF_WEB_BROWSER=firefox
   if [ "x$HOST_OS" = "xDarwin" ]; then
@@ -516,15 +516,15 @@ get_browser ()
     which $linux_firefox >/dev/null 2>&1 && DEF_WEB_BROWSER=$linux_firefox
     which $linux_chrome >/dev/null 2>&1 && DEF_WEB_BROWSER=$linux_chrome
   else
-    DEF_WEB_BROWSER=$win_chrome
+    DEF_WEB_BROWSER="$win_chrome"
   fi
 
   do_unlock
-  [ -z "$WEB_BROWSER" ] && get_var WEB_BROWSER $DEF_WEB_BROWSER
+  [ -z "$WEB_BROWSER" ] && get_var WEB_BROWSER "'$DEF_WEB_BROWSER'"
   do_lock
 
   if [ "x$HOST_OS" = "xDarwin" ]; then
-    WEB_BROWSER="$(echo $WEB_BROWSER | tr '-' ' ')"
+    WEB_BROWSER="$(echo \"$WEB_BROWSER\" | tr '-' ' ')"
     if [ ! -f "$WEB_BROWSER" ]; then
       web_browser=`ls /Applications/*/Contents/MacOS/* | grep -i "$WEB_BROWSER$"`
       if [ $? -eq 0 ]; then
@@ -534,13 +534,13 @@ get_browser ()
       fi
     fi
   else
-    which $WEB_BROWSER >/dev/null 2>&1
+    which "$WEB_BROWSER" >/dev/null 2>&1
     if [ $? -eq 1 ]; then
       if [ x"$WEB_BROWSER" = "xfirefox" ]; then
         echo "ERR: No web browser found, are you running me in cloud? please open the 'Normal' url yourself."
         exit 1
       else
-        echo "LOG: No $WEB_BROWSER found, try firefox instead."
+        echo "LOG: No "$WEB_BROWSER" found, try firefox instead."
         WEB_BROWSER=firefox
         which $WEB_BROWSER >/dev/null 2>&1
         [ $? -eq 1 ] && echo "ERR: No $WEB_BROWSER found too." && exit 2
@@ -548,7 +548,7 @@ get_browser ()
     fi
   fi
 
-  __WEB_BROWSER=$WEB_BROWSER
+  __WEB_BROWSER="$WEB_BROWSER"
 
   if [ "x$HOST_OS" = "xDarwin" ]; then
     __WEB_BROWSER="/usr/bin/open -a '$WEB_BROWSER'"
