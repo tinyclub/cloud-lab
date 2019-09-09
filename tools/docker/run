@@ -3,7 +3,8 @@
 # run -- Run the docker image of the lab
 #
 
-TOP_DIR=$(cd $(dirname $0)/../../ && pwd)
+uname | grep -q MINGW && PWD_OPT="-W"
+TOP_DIR=$(cd $(dirname $0)/../../ && pwd $PWD_OPT)
 . $TOP_DIR/tools/docker/config $* >/dev/null
 
 # Check and download the lab source

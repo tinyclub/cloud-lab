@@ -5,7 +5,8 @@
 # Note: scripts/web-ubuntu.sh of https://github.com/tinyclub/cloud-ubuntu
 #
 
-TOP_DIR=$(cd $(dirname $0)/../../ && pwd)
+uname | grep -q MINGW && PWD_OPT="-W"
+TOP_DIR=$(cd $(dirname $0)/../../ && pwd $PWD_OPT)
 . $TOP_DIR/tools/docker/config $* >/dev/null
 
 IMAGE_NAME=tinylab/$WPROXY_NAME

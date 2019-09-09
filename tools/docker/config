@@ -15,6 +15,12 @@ HOST_USER=`whoami`
 
 HOST_OS=$(uname)
 
+uname | grep -q MINGW && PWD_OPT="-W"
+
+[ -z "$TOP_DIR" ] && TOP_DIR="/$(cd $(dirname $0)/../../ && pwd $PWD_OPT)"
+#[ -z "$TOP_DIR" ] && TOP_DIR=$(cd $(dirname $0)/../../ && pwd)
+TOP_DIR=$(cd $(dirname $TOP_DIR/null) && pwd $PWD_OPT)
+
 [ `id -u` -ne 0 ] && SUDO=sudo
 
 # Basic requirement: docker and let docker run without sudo

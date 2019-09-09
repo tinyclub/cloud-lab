@@ -3,7 +3,8 @@
 # vnc -- open the docker lab's novnc frontend via a browser
 #
 
-TOP_DIR=$(cd $(dirname $0)/../../ && pwd)
+uname | grep -q MINGW && PWD_OPT="-W"
+TOP_DIR=$(cd $(dirname $0)/../../ && pwd $PWD_OPT)
 . $TOP_DIR/tools/docker/config $* >/dev/null
 
 # lab info
