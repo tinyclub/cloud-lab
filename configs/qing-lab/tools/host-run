@@ -2,7 +2,7 @@
 
 modules="loop nfsd 9pnet_virtio"
 
-which lsmod 2>&1 > /dev/null
+which lsmod > /dev/null 2>&1
 
 if [ $? -eq 0 ]; then
   for m in $modules
