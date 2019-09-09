@@ -13,6 +13,12 @@ OLD_LAB=$CURRENT
 
 [ -z "$SUBMODULE" ] && SUBMODULE=0
 
+config_git ()
+{
+    git config --global core.safecrlf true
+    git config --global core.autocrlf false
+}
+
 download_submodule ()
 {
     LAB_CURRENT_DIR=$LAB_DIR/$CURRENT
@@ -65,6 +71,9 @@ echo "\n     $number\t$CURRENT\n"
 set_var CURRENT
 
 echo "\nLOG: Download the lab...\n"
+
+# Hacking for windows support, disable autocrlf switch
+config_git
 
 # Clone the submodule
 download_submodule
