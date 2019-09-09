@@ -61,6 +61,8 @@ echo "LOG: VNC pages released in $HOST_RELEASE_DIR"
 VOLUME_MAP="$VOLUME_MAP -v $HOST_TOKEN_DIR:$CONTAINER_TOKEN_DIR"
 echo "LOG: VNC tokens stored in $HOST_TOKEN_DIR"
 
+[ ! -d $LOCAL_TOKEN_DIR ] && mkdir -p $LOCAL_TOKEN_DIR
+
 docker run \
 	--name $WPROXY_NAME --privileged -d -t \
 	$PORT_MAP $VOLUME_MAP $ENV_ARGS $WPROXY_LIMITS $EXTRA_ARGS \
