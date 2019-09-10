@@ -6,20 +6,16 @@
 # debug with DEBUG=1
 [ x$DEBUG = x"1" ] && set -x
 
-[ -z "$TOP_DIR" ] && TOP_DIR=$(cd $(dirname $0)/../../ && pwd)
-TOP_DIR=$(cd $(dirname $TOP_DIR/null) && pwd)
+uname | grep -q MINGW && PWD_OPT="-W" && WINPTY=winpty
+
+[ -z "$TOP_DIR" ] && TOP_DIR="/$(cd $(dirname $0)/../../ && pwd $PWD_OPT)"
+TOP_DIR=$(cd $(dirname $TOP_DIR/null) && pwd $PWD_OPT)
 
 # Basic variables
 HOST_USER=`whoami`
 [ "x$HOST_USER" = "xroot" -a -n "$SUDO_USER" ] && HOST_USER=$SUDO_USER
 
 HOST_OS=$(uname)
-
-uname | grep -q MINGW && PWD_OPT="-W" && WINPTY=winpty
-
-[ -z "$TOP_DIR" ] && TOP_DIR="/$(cd $(dirname $0)/../../ && pwd $PWD_OPT)"
-#[ -z "$TOP_DIR" ] && TOP_DIR=$(cd $(dirname $0)/../../ && pwd)
-TOP_DIR=$(cd $(dirname $TOP_DIR/null) && pwd $PWD_OPT)
 
 [ `id -u` -ne 0 ] && SUDO=sudo
 
