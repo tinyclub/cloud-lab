@@ -130,7 +130,7 @@ EOF
       GIT_BASH="$(echo $(cd / && pwd -W)/git-bash.exe | sed -e 's% %\" \"%g')"
       WIN_CHROME="C:/Program\" \"Files\" \"(x86)/Google/Chrome/Application/chrome.exe"
       WORK_DIR="$(echo $TOP_DIR | sed -e 's% %\" \"%g')"
-      echo "start $GIT_BASH --cd=$WORK_DIR tools/docker/run $LAB_NAME" > $RUN_BAT
+      echo "start $GIT_BASH -c '$WORK_DIR/tools/docker/run $LAB_NAME'" > $RUN_BAT
       echo "start $WIN_CHROME \"$CONTAINER_WEB_URL\"" >> $RUN_BAT
 
       cat <<EOF > "$LOCAL_DESKTOP_SHORTCUT"
