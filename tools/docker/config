@@ -512,8 +512,7 @@ get_browser ()
     which $linux_firefox >/dev/null 2>&1 && DEF_WEB_BROWSER=$linux_firefox
     which $linux_chrome >/dev/null 2>&1 && DEF_WEB_BROWSER=$linux_chrome
   else
-    DEF_WEB_BROWSER=$win_edge
-    which $win_chrome >/dev/null 2>&1 && DEF_WEB_BROWSER=$win_chrome
+    DEF_WEB_BROWSER=$win_chrome
   fi
 
   do_unlock

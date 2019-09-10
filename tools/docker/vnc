@@ -39,7 +39,7 @@ else
 fi
 
 echo
-echo "Note: both firefox and safari work, but google chrome web browser is preferable."
+echo "Note: firefox, safari and edge work, but google chrome web browser is preferable."
 echo
 }
 
