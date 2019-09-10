@@ -5,8 +5,9 @@
 # Usage: IDENTIFY 0|1 vnc|unix|sudo
 #
 
-TOP_DIR=$(cd $(dirname $0)/../../ && pwd)
-. $TOP_DIR/tools/docker/config $* >/dev/null
+uname | grep -q MINGW && PWD_OPT="-W"
+TOP_DIR="$(cd "$(dirname "$0")"/../../ && pwd $PWD_OPT)"
+. "$TOP_DIR"/tools/docker/config $* >/dev/null
 
 IDENTIFY=$1
 ACCOUNT=$2
@@ -15,8 +16,8 @@ ACCOUNT=$2
 [ -z "$ACCOUNT" ] && ACCOUNT=vnc
 
 do_unlock
-LAB_IDENTIFY=$CONFIG_DOCKER_DIR/.${ACCOUNT}_identify
-[ -z "$IDENTIFY" -a ! -f $LAB_IDENTIFY ] && IDENTIFY=1 && set_var IDENTIFY
+LAB_IDENTIFY="$CONFIG_DOCKER_DIR/.${ACCOUNT}_identify"
+[ -z "$IDENTIFY" -a ! -f "$LAB_IDENTIFY" ] && IDENTIFY=1 && set_var IDENTIFY
 
 # Switch if no IDENTIFY argument pass
 if [ -z "$IDENTIFY" ]; then

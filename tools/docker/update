@@ -3,28 +3,29 @@
 # update -- update everything for a target lab
 #
 
-TOP_DIR=$(cd $(dirname $0)/../../ && pwd)
-. $TOP_DIR/tools/docker/config $* >/dev/null
+uname | grep -q MINGW && PWD_OPT="-W"
+TOP_DIR="$(cd "$(dirname "$0")"/../../ && pwd $PWD_OPT)"
+. "$TOP_DIR"/tools/docker/config $* >/dev/null
 
 CLOUD_UBUNTU_WEB=$LAB_USER/$WPROXY_NAME
 CLOUD_UBUNTU_TPROXY=$LAB_USER/$TPROXY_NAME
 DOCKER_IMAGES="$CLOUD_UBUNTU_WEB $CLOUD_UBUNTU_TPROXY"
-DOCKER_TOOL=${TOP_DIR}/tools/docker/
+DOCKER_TOOL="${TOP_DIR}/tools/docker/"
 
 echo "LOG: pulling cloud-lab"
-cd $TOP_DIR && git pull && git submodule sync
+cd "$TOP_DIR" && git pull && git submodule sync
 
 echo "LOG: checking docker image: $LAB_USER/$LAB_NAME"
 (docker search $LAB_USER | grep -q $LAB_NAME) || (echo "LOG: No $IMAGE found in docker hub" && exit 1)
 
 echo "LOG: pulling git repo: $LAB_NAME"
-PULL=1 ${DOCKER_TOOL}/choose $LAB_NAME
+PULL=1 "${DOCKER_TOOL}/choose" $LAB_NAME
 
 echo "LOG: pulling docker image: $LAB_NAME"
-${DOCKER_TOOL}/pull $LAB_NAME
+"${DOCKER_TOOL}/pull" $LAB_NAME
 
 echo "LOG: pulling git repo: $LAB_NAME"
-${DOCKER_TOOL}/git-pull $LAB_NAME
+"${DOCKER_TOOL}/git-pull" $LAB_NAME
 
 # Pull cloud-ubuntu-web and tinylab/cloud-ubuntu-proxy_client_transparent
 for image in $DOCKER_IMAGES
@@ -34,17 +35,17 @@ do
 done
 
 echo "LOG: removing deprecated images"
-${DOCKER_TOOL}/rmi-all
+"${DOCKER_TOOL}/rmi-all"
 
 echo "LOG: stopping docker container: $LAB_NAME"
-${DOCKER_TOOL}/stop $LAB_NAME
+"${DOCKER_TOOL}/stop" $LAB_NAME
 
 echo "LOG: removing docker container: $LAB_NAME"
-${DOCKER_TOOL}/rm $LAB_NAME
+"${DOCKER_TOOL}/rm" $LAB_NAME
 
 if [ "x$CLEAN" = "x1" ]; then
     echo "LOG: cleaning lab: $LAB_NAME"
-    ${DOCKER_TOOL}/clean $LAB_NAME
+    "${DOCKER_TOOL}/clean" $LAB_NAME
 fi
 
 for image in $DOCKER_IMAGES
@@ -57,5 +58,5 @@ done
 
 if [ "x$RUN" != "x0" ]; then
     echo "LOG: running $LAB_NAME"
-    ${DOCKER_TOOL}/run $LAB_NAME
+    "${DOCKER_TOOL}/run" $LAB_NAME
 fi

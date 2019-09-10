@@ -3,13 +3,15 @@
 # cmd -- Start any cmd in a container
 #
 
-TOP_DIR=$(cd $(dirname $0)/../../ && pwd)
-. $TOP_DIR/tools/docker/config $* >/dev/null
+
+uname | grep -q MINGW && PWD_OPT="-W"
+TOP_DIR="$(cd "$(dirname "$0")"/../../ && pwd $PWD_OPT)"
+. "$TOP_DIR/tools/docker/config" $* >/dev/null
 
 [ -z "$1" ] && echo "Usage: $0 [lab-name] cmd" && exit 0
 
-cmd=$1
-[ -n "$2" ] && cmd=$2
+cmd="$1"
+[ -n "$2" ] && cmd="$2"
 
 docker ps -f name=$CONTAINER_NAME | grep -qv PORTS
 [ $? -ne 0 ] && echo "LOG: $LAB_NAME is not running." && exit 1

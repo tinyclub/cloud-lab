@@ -3,9 +3,10 @@
 # renew -- clean a docker lab and renew it
 #
 
-TOP_DIR=$(cd $(dirname $0)/../../ && pwd)
-. $TOP_DIR/tools/docker/config $* >/dev/null
+uname | grep -q MINGW && PWD_OPT="-W"
+TOP_DIR="$(cd "$(dirname "$0")"/../../ && pwd $PWD_OPT)"
+. "$TOP_DIR"/tools/docker/config $* >/dev/null
 
-$DOCKER_CLEAN_CMD $LAB_NAME
+"$DOCKER_CLEAN_CMD" $LAB_NAME
 
-$DOCKER_RUN_CMD $LAB_NAME
+"$DOCKER_RUN_CMD" $LAB_NAME

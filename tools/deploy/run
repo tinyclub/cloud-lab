@@ -9,8 +9,9 @@ lab_total=$3
 # In hours
 lab_life=$4
 
-TOP_DIR=$(cd $(dirname $0)/../../ && pwd)
-. $TOP_DIR/tools/docker/config $* >/dev/null
+uname | grep -q MINGW && PWD_OPT="-W"
+TOP_DIR="$(cd "$(dirname "$0")"/../../ && pwd $PWD_OPT)"
+. "$TOP_DIR/tools/docker/config" $* >/dev/null
 
 [ -z "$lab_identify" ] && lab_identify=1
 [ -z "$lab_total" ] && lab_total=1
@@ -22,7 +23,7 @@ TOP_DIR=$(cd $(dirname $0)/../../ && pwd)
 # Verify cpuset_cpus
 [ -n "$lab_cpus" ] && verify_cpus $lab_cpus
 
-[ ! -d $LAB_OUTPUT ] && mkdir -p $LAB_OUTPUT
+[ ! -d "$LAB_OUTPUT" ] && mkdir -p "$LAB_OUTPUT"
 VNC_IDENTIFY=1; [ $lab_identify -eq 0 ] && VNC_IDENTIFY=0
 
 # Start the transparent proxy via tinylab/cloud-ubuntu-proxy_client_transparent container
@@ -49,17 +50,17 @@ fi
 
 (docker ps -f name=$WPROXY_NAME | grep -q -v PORTS) || \
   (echo "LOG: Start $WPROXY_NAME" \
-  && $DOCKER_EXPORT_CMD $*)
+  && "$DOCKER_EXPORT_CMD" $*)
 
 
-OLD_TOP_DIR=$TOP_DIR
-OLD_LAB_OUTPUT=$LAB_OUTPUT
+OLD_TOP_DIR="$TOP_DIR"
+OLD_LAB_OUTPUT="$LAB_OUTPUT"
 
 tmpfile=`mktemp`
 
 for i in `seq 1 $lab_total`
 do
-    LAB_SRC=$OLD_TOP_DIR
+    LAB_SRC="$OLD_TOP_DIR"
     while :;
     do
        lab_name_random=`get_random`
@@ -68,28 +69,28 @@ do
        [ $exist -eq 0 ] && break
     done
 
-    LAB_PATH=${CONTAINER_NAME}+${lab_user}-${lab_life}-`date +"%Y%m%d-%H%M%S"`
-    LAB_DST=$OLD_LAB_OUTPUT/$LAB_PATH/
+    LAB_PATH="${CONTAINER_NAME}+${lab_user}-${lab_life}-`date +"%Y%m%d-%H%M%S"`"
+    LAB_DST="$OLD_LAB_OUTPUT/$LAB_PATH/"
 
     echo "LOG: Create $LAB_PATH"
 
     __lab_name=$lab_name
     [ "$lab_name" = "qing-lab" ] && __lab_name='*'
-    [ ! -s $tmpfile ] && find $LAB_SRC/configs/$lab_name \
-         $LAB_SRC/labs/$__lab_name \
-         $LAB_SRC/.git/modules/labs/$__lab_name \
-         $LAB_SRC/tools -type f -or -type d -or -type l | sed -e "s%$LAB_SRC%./%g" | grep -v "/docker/\." > $tmpfile
+    [ ! -s "$tmpfile" ] && find "$LAB_SRC/configs/$lab_name" \
+         "$LAB_SRC/labs/$__lab_name" \
+         "$LAB_SRC/.git/modules/labs/$__lab_name" \
+         "$LAB_SRC/tools" -type f -or -type d -or -type l | sed -e "s%$LAB_SRC%./%g" | grep -v "/docker/\." > $tmpfile
 
     if [ -z "$SUDO" ]; then
-      rsync -ar -H $LAB_SRC $LAB_DST/ --files-from=$tmpfile
+      rsync -ar -H "$LAB_SRC" "$LAB_DST/" --files-from=$tmpfile
     else
-      $SUDO -u $HOST_USER rsync -ar -H $LAB_SRC $LAB_DST/ --files-from=$tmpfile
+      $SUDO -u $HOST_USER rsync -ar -H "$LAB_SRC" "$LAB_DST/" --files-from=$tmpfile
     fi
 
     # Run it
 
-    TOP_DIR=$LAB_DST
-    . $TOP_DIR/tools/docker/config $lab_name >/dev/null
+    TOP_DIR="$LAB_DST"
+    . "$TOP_DIR/tools/docker/config" $lab_name >/dev/null
 
     do_unlock
 
@@ -98,17 +99,17 @@ do
     set_var VNC_IDENTIFY
 
     if [ -n "$lab_mem" ]; then
-       sed -i -e "/--memory/d" $LAB_LIMITS
-       echo "--memory=$lab_mem" >> $LAB_LIMITS
+       sed -i -e "/--memory/d" "$LAB_LIMITS"
+       echo "--memory=$lab_mem" >> "$LAB_LIMITS"
     fi
     if [ -n "$lab_cpus" ]; then
-      sed -i -e "/--cpuset-cpus/d" $LAB_LIMITS
-      echo "--cpuset-cpus=$lab_cpus" >> $LAB_LIMITS
+      sed -i -e "/--cpuset-cpus/d" "$LAB_LIMITS"
+      echo "--cpuset-cpus=$lab_cpus" >> "$LAB_LIMITS"
     fi
 
     do_lock
 
-    UNIX_USER=$lab_user CONTAINER_NAME=$CONTAINER_NAME $DOCKER_RUN_CMD $lab_name
+    UNIX_USER=$lab_user CONTAINER_NAME=$CONTAINER_NAME "$DOCKER_RUN_CMD" $lab_name
     [ -n "$lab_alive" ] && notify_user 0 "Note: Lab is only free for `time_to_strings $lab_life`." $lab_name
 done
 

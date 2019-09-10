@@ -1,7 +1,8 @@
 #!/bin/sh
 
-TOP_DIR=$(cd $(dirname $0)/../../ && pwd)
-. $TOP_DIR/tools/docker/config $* >/dev/null
+uname | grep -q MINGW && PWD_OPT="-W"
+TOP_DIR="$(cd "$(dirname "$0")"/../../ && pwd $PWD_OPT)"
+. "$TOP_DIR"/tools/docker/config $* >/dev/null
 
 [ -z "$LAB_NAME" -o "$1" = "all" ] && LAB_NAME=".*"
 
@@ -10,4 +11,4 @@ if [ -z "$filter" ]; then
   [ -n "$2" ] && filter=$2
 fi
 
-get_lab_info $TOP_DIR/tools/deploy/list "$filter"
+get_lab_info "$TOP_DIR/tools/deploy/list" "$filter"

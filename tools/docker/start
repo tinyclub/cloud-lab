@@ -3,12 +3,13 @@
 # start -- start a stopped docker lab
 #
 
-TOP_DIR=$(cd $(dirname $0)/../../ && pwd)
-. $TOP_DIR/tools/docker/config $* >/dev/null
+uname | grep -q MINGW && PWD_OPT="-W"
+TOP_DIR="$(cd "$(dirname "$0")"/../../ && pwd $PWD_OPT)"
+. "$TOP_DIR"/tools/docker/config $* >/dev/null
 
 # Require to prepare some environment for docker containers in host
-[ -f $LAB_HOST_RUN ] && $LAB_HOST_RUN
+[ -f "$LAB_HOST_RUN" ] && "$LAB_HOST_RUN"
 
 do_op "docker start" CONTAINER_ID
 
-[ "$RELEASE" != '0' ] && sleep 2 && $DOCKER_RELEASE_CMD all >/dev/null 2>&1
+[ "$RELEASE" != '0' ] && sleep 2 && "$DOCKER_RELEASE_CMD" all >/dev/null 2>&1

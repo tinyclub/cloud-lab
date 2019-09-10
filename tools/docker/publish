@@ -3,8 +3,9 @@
 # publish -- put the token map in .vnc-tokens/local_map
 #
 
-TOP_DIR=$(cd $(dirname $0)/../../ && pwd)
-. $TOP_DIR/tools/docker/config $* >/dev/null 2>&1
+uname | grep -q MINGW && PWD_OPT="-W"
+TOP_DIR="$(cd "$(dirname "$0")"/../../ && pwd $PWD_OPT)"
+. "$TOP_DIR"/tools/docker/config $* >/dev/null
 
 do_unlock
 [ -z "$VNC_IP" ] && get_var VNC_IP
@@ -17,11 +18,11 @@ touch_token_map
 SUDO=""
 
 map="${VNC_TOKEN}: ${VNC_IP}:5900"
-[ ! -f $LOCAL_TOKEN_MAP ] && $SUDO sh -c "echo $map > $LOCAL_TOKEN_MAP" && exit 0
+[ ! -f "$LOCAL_TOKEN_MAP" ] && $SUDO sh -c "echo $map > $LOCAL_TOKEN_MAP" && exit 0
 
-grep -q "$map" $LOCAL_TOKEN_MAP
+grep -q "$map" "$LOCAL_TOKEN_MAP"
 if [ $? -ne 0 ]; then
-  grep ${VNC_TOKEN} $LOCAL_TOKEN_MAP
-  [ $? -eq 0 ] && $SUDO sed -i -e "/${VNC_TOKEN}: /d" $LOCAL_TOKEN_MAP
+  grep ${VNC_TOKEN} "$LOCAL_TOKEN_MAP"
+  [ $? -eq 0 ] && $SUDO sed -i -e "/${VNC_TOKEN}: /d" "$LOCAL_TOKEN_MAP"
   $SUDO sh -c "echo $map >> $LOCAL_TOKEN_MAP"
 fi

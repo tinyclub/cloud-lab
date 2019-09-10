@@ -3,13 +3,14 @@
 # update -- update configs, tools for already depoloyed labs
 #
 
-TOP_DIR=$(cd $(dirname $0)/../../ && pwd)
-. $TOP_DIR/tools/docker/config $* >/dev/null
+uname | grep -q MINGW && PWD_OPT="-W"
+TOP_DIR="$(cd "$(dirname "$0")"/../../ && pwd $PWD_OPT)"
+. "$TOP_DIR"/tools/docker/config $* >/dev/null
 
-[ ! -d $LAB_OUTPUT ] && exit 0
+[ ! -d "$LAB_OUTPUT" ] && exit 0
 
-LAB_SRC=$TOP_DIR
-labs=`find $LAB_OUTPUT -maxdepth 1 -mindepth 1 -type d | xargs -I{} basename {}`
+LAB_SRC="$TOP_DIR"
+labs=`find "$LAB_OUTPUT" -maxdepth 1 -mindepth 1 -type d | xargs -I{} basename "{}"`
 
 
 for lab in $labs
@@ -18,21 +19,21 @@ do
   _lab_name=$(echo $lab_basename | cut -d'+' -f1)
   lab_name=${_lab_name%-*}
 
-  LAB_DST=$LAB_OUTPUT/$lab
+  LAB_DST="$LAB_OUTPUT/$lab"
 
   echo "LOG: unlock $_lab_name"
-  $LAB_DST/tools/docker/unlock
+  "$LAB_DST/tools/docker/unlock"
 
   tmpfile=`mktemp`
   __lab_name=$lab_name
   [ "$lab_name" = "qing-lab" ] && __lab_name='*'
-  find $LAB_SRC/configs/$lab_name \
-       $LAB_SRC/tools -type f | sed -e "s%$LAB_SRC%./%g" | grep -v "/docker/\." | grep -v "docker/limits$" > $tmpfile
+  find "$LAB_SRC/configs/$lab_name" \
+       "$LAB_SRC/tools" -type f | sed -e "s%$LAB_SRC%./%g" | grep -v "/docker/\." | grep -v "docker/limits$" > $tmpfile
 
   if [ -z "$SUDO" ]; then
-    rsync -arvz $LAB_SRC $LAB_DST/ --files-from=$tmpfile
+    rsync -arvz "$LAB_SRC" "$LAB_DST/" --files-from=$tmpfile
   else
-    $SUDO -u $HOST_USER rsync -arvz $LAB_SRC $LAB_DST/ --files-from=$tmpfile
+    $SUDO -u $HOST_USER rsync -arvz "$LAB_SRC" "$LAB_DST/" --files-from=$tmpfile
   fi
 
   rm $tmpfile

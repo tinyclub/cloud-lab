@@ -5,8 +5,9 @@
 # Note: scripts/proxy-client-transparent.sh of https://github.com/tinyclub/cloud-ubuntu
 #
 
-TOP_DIR=$(cd $(dirname $0)/../../ && pwd)
-. $TOP_DIR/tools/docker/config $* >/dev/null 2>&1
+uname | grep -q MINGW && PWD_OPT="-W"
+TOP_DIR="$(cd "$(dirname "$0")"/../../ && pwd $PWD_OPT)"
+. "$TOP_DIR"/tools/docker/config $* >/dev/null
 
 IMAGE_NAME=tinylab/$TPROXY_NAME
 

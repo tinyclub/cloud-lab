@@ -3,9 +3,10 @@
 # git-pull -- pull the latest lab
 #
 
-TOP_DIR=$(cd $(dirname $0)/../../ && pwd)
-. $TOP_DIR/tools/docker/config $* >/dev/null
+uname | grep -q MINGW && PWD_OPT="-W"
+TOP_DIR="$(cd "$(dirname "$0")"/../../ && pwd $PWD_OPT)"
+. "$TOP_DIR"/tools/docker/config $* >/dev/null
 
 echo "LOG: pulling repository: $LAB_NAME"
 
-cd $LAB_DIR/$LAB_NAME && git pull -v
+cd "$LAB_DIR/$LAB_NAME" && git pull -v

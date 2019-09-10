@@ -23,8 +23,9 @@
 # loop=1, forever running
 # loop=n (>1), n running
 
-TOP_DIR=$(cd $(dirname $0)/../../ && pwd)
-. $TOP_DIR/tools/docker/config $* >/dev/null 2>&1
+uname | grep -q MINGW && PWD_OPT="-W"
+TOP_DIR="$(cd "$(dirname "$0")"/../../ && pwd $PWD_OPT)"
+. "$TOP_DIR"/tools/docker/config $* >/dev/null
 
 [ -z "$users" ] && users="ubuntu"
 [ -z "$peruser" ] && peruser=1
@@ -45,7 +46,7 @@ TOP_DIR=$(cd $(dirname $0)/../../ && pwd)
 LAB_SECURITY=$security
 export prompt empty_prompt
 
-. ${TOP_DIR}/tools/deploy/init
+. "${TOP_DIR}/tools/deploy/init"
 
 echo "LOG: Start batch running @ `date`"
 
@@ -59,29 +60,29 @@ do
   for lab in $labs
   do
     echo "LOG: Choose $lab"
-    PULL=0 SUBMODULE=0 ${TOP_DIR}/tools/docker/choose $lab
+    PULL=0 SUBMODULE=0 "${TOP_DIR}/tools/docker/choose" $lab
 
     if [ $cleanup -eq 1 ]; then
       echo "LOG: Clean up $lab"
-      yes yes | ${TOP_DIR}/tools/deploy/clean $lab
+      yes yes | "${TOP_DIR}/tools/deploy/clean" $lab
 
       echo "LOG: Update release page for $lab"
-      lab_life=$alive ${TOP_DIR}/tools/deploy/release all
-      echo $lab > $LAB_CURRENT
+      lab_life=$alive "${TOP_DIR}/tools/deploy/release" all
+      echo $lab > "$LAB_CURRENT"
     fi
 
     echo "LOG: Unlock $lab"
-    ${TOP_DIR}/tools/docker/unlock $lab
+    "${TOP_DIR}/tools/docker/unlock" $lab
 
-    echo $host > ${TOP_DIR}/.host_name
+    echo $host > "${TOP_DIR}/.host_name"
 
     for user in $users
     do
       echo "LOG: Run $lab for $user"
-      lab_alive=$alive lab_cpus=$cpus ${TOP_DIR}/tools/deploy/run $lab $user $peruser
+      lab_alive=$alive lab_cpus=$cpus "${TOP_DIR}/tools/deploy/run" $lab $user $peruser
 
       echo "LOG: Release $lab"
-      lab_life=$alive ${TOP_DIR}/tools/deploy/release all
+      lab_life=$alive "${TOP_DIR}/tools/deploy/release" all
     done
   done
 
@@ -100,7 +101,7 @@ do
     for lab in $labs
     do
       echo "LOG: Clean up $lab"
-      (yes yes | ${TOP_DIR}/tools/deploy/clean $lab) &
+      (yes yes | "${TOP_DIR}/tools/deploy/clean" $lab) &
     done
 
     # Wait for every lab finish cleaning
@@ -113,7 +114,7 @@ do
       for lab in $labs
       do
         echo "LOG: Checking clean up status of $lab"
-        ls -d $LAB_OUTPUT/${lab}-* >/dev/null 2>&1
+        ls -d "$LAB_OUTPUT/${lab}-*" >/dev/null 2>&1
         [ $? -eq 0 ] && echo "LOG: $lab still in cleaning" && break
 
         echo "LOG: $lab clean up done"

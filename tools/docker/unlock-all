@@ -5,10 +5,11 @@
 
 export LAB_SECURITY=1
 
-TOP_DIR=$(cd $(dirname $0)/../../ && pwd)
-. $TOP_DIR/tools/docker/config $* >/dev/null
+uname | grep -q MINGW && PWD_OPT="-W"
+TOP_DIR="$(cd "$(dirname "$0")"/../../ && pwd $PWD_OPT)"
+. "$TOP_DIR"/tools/docker/config $* >/dev/null
 
 for lab in $LABS
 do
-    $DOCKER_UNLOCK_CMD $lab
+    "$DOCKER_UNLOCK_CMD" $lab
 done

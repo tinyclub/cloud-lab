@@ -4,13 +4,13 @@
 #
 
 uname | grep -q MINGW && PWD_OPT="-W"
-TOP_DIR=$(cd $(dirname $0)/../../ && pwd $PWD_OPT)
-. $TOP_DIR/tools/docker/config $* >/dev/null
+TOP_DIR="$(cd "$(dirname "$0")"/../../ && pwd $PWD_OPT)"
+. "$TOP_DIR"/tools/docker/config $* >/dev/null
 
 # Check and download the lab source
-if [ ! -f $TOP_DIR/labs/$LAB_NAME/.git ]; then
+if [ ! -f "$TOP_DIR/labs/$LAB_NAME/.git" ]; then
   echo "LOG: pulling git repo: $LAB_NAME"
-  ${TOP_DIR}/tools/docker/choose $LAB_NAME
+  "${TOP_DIR}/tools/docker/choose" $LAB_NAME
 fi
 
 # Start the transparent proxy via tinylab/cloud-ubuntu-proxy_client_transparent container
@@ -21,7 +21,7 @@ fi
 (docker ps -f name=$TPROXY_NAME | grep -q -v PORTS)
   [ $? -ne 0 -a $TPROXY -eq 1 -a -n "$PROXY_SERVER" -a -n "$PROXY_PWD" -a -n "$ENCRYPT_CMD" ] \
   && echo "LOG: Start $TPROXY_NAME" \
-  && PROXY_SERVER=$PROXY_SERVER PROXY_PWD=$PROXY_PWD ENCRYPT_CMD=$ENCRYPT_CMD PROXY_LIMIT=$PROXY_LIMIT $DOCKER_TPROXY_CMD $*
+  && PROXY_SERVER="$PROXY_SERVER" PROXY_PWD="$PROXY_PWD" ENCRYPT_CMD="$ENCRYPT_CMD" PROXY_LIMIT=$PROXY_LIMIT "$DOCKER_TPROXY_CMD" $*
 
 if [ $TPROXY -eq 1 ]; then
   TPROXY_IP=`docker inspect --format '{{ .NetworkSettings.IPAddress }}' $TPROXY_NAME`
@@ -38,7 +38,7 @@ fi
 (docker ps -f name=$WPROXY_NAME | grep -q -v PORTS) || \
   (echo "LOG: Start $WPROXY_NAME" \
   && touch_token_map \
-  && $DOCKER_EXPORT_CMD $*)
+  && "$DOCKER_EXPORT_CMD" $*)
 
 if [ -n "$CONTAINER_ID" ]; then
   # If already there and running, open it
@@ -46,7 +46,7 @@ if [ -n "$CONTAINER_ID" ]; then
 
   if [ $? -eq 0 ]; then
      echo "LOG: Open the running $LAB_NAME"
-     $DOCKER_VNC_CMD $*
+     "$DOCKER_VNC_CMD" $*
 
      exit $?
   fi
@@ -56,14 +56,14 @@ if [ -n "$CONTAINER_ID" ]; then
 
   if [ $? -eq 0 ]; then
     echo "LOG: Resume the stopped $LAB_NAME" \
-    && (if [ -f $LAB_HOST_RUN ]; then $LAB_HOST_RUN; fi) \
-    && $DOCKER_START_CMD $LAB_NAME \
+    && (if [ -f "$LAB_HOST_RUN" ]; then "$LAB_HOST_RUN"; fi) \
+    && "$DOCKER_START_CMD" $LAB_NAME \
     && echo "LOG: Wait for lab resuming..." \
     && while :; do \
        pass=`docker logs $CONTAINER_ID 2>/dev/null | grep Password`; \
        sleep 2; \
        [ -n "$pass" ] && break; done \
-    && $DOCKER_VNC_CMD $*
+    && "$DOCKER_VNC_CMD" $*
 
     exit $?
   fi
@@ -81,7 +81,7 @@ if [ -z "$CONTAINER_NAME" ]; then
 fi
 
 # Require to prepare some environment for docker containers in host
-[ -f $LAB_HOST_RUN ] && $LAB_HOST_RUN
+[ -f "$LAB_HOST_RUN" ] && "$LAB_HOST_RUN"
 
 # Run the lab via start a lab container
 caps=""
@@ -89,10 +89,10 @@ dnss=""
 devs=""
 vars="-e LAB_SECURITY=$LAB_SECURITY"
 envs=""
-volumemap="-v $GIT_DIR:$GIT_WORKDIR"
-volumemap="$volumemap -v $LAB_DIR:$LAB_WORKDIR"
-volumemap="$volumemap -v $TOOL_DIR:$TOOL_WORKDIR"
-volumemap="$volumemap -v $CONFIG_DIR:$CONFIG_WORKDIR"
+volumemap="-v '$GIT_DIR':'$GIT_WORKDIR'"
+volumemap="$volumemap -v '$LAB_DIR':'$LAB_WORKDIR'"
+volumemap="$volumemap -v '$TOOL_DIR':'$TOOL_WORKDIR'"
+volumemap="$volumemap -v '$CONFIG_DIR':'$CONFIG_WORKDIR'"
 limits=$LIMITS
 
 # Get a new ip for our new container
@@ -129,7 +129,7 @@ do_unlock
 set_var UNIX_UID
 do_lock
 
-CONTAINER_ID=$(docker run -d --privileged -h $LAB_NAME $container $portmap $caps $dnss $devices $limits $volumemap $vars $EXTRA_ARGS $IMAGE)
+CONTAINER_ID=$(eval docker run -d --privileged -h $LAB_NAME $container $portmap $caps $dnss $devices $limits $volumemap $vars $EXTRA_ARGS $IMAGE)
 
 [ $? -ne 0 ] && echo "LOG: docker running error." && exit 1
 
@@ -158,8 +158,8 @@ echo "LOG: Container ID: ${CONTAINER_ID} Container Name: ${CONTAINER_NAME}"
 echo "LOG: $password"
 
 # Publish vnc port
-$DOCKER_PUBLISH_CMD $*
+"$DOCKER_PUBLISH_CMD" $*
 
-$DOCKER_VNC_CMD $*
+"$DOCKER_VNC_CMD" $*
 
-$DOCKER_RELEASE_CMD all
+"$DOCKER_RELEASE_CMD" all

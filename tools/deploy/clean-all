@@ -2,11 +2,12 @@
 
 export RELEASE=0
 
-TOP_DIR=$(cd $(dirname $0)/../../ && pwd)
-. $TOP_DIR/tools/docker/config $* >/dev/null
+uname | grep -q MINGW && PWD_OPT="-W"
+TOP_DIR="$(cd "$(dirname "$0")"/../../ && pwd $PWD_OPT)"
+. "$TOP_DIR/tools/docker/config" $* >/dev/null
 
 filter=all
 
-. ${TOP_DIR}/tools/deploy/clean
+. "${TOP_DIR}/tools/deploy/clean"
 
-rm -rf $RELEASE_FILE
+rm -rf "$RELEASE_FILE"

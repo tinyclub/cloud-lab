@@ -1,12 +1,13 @@
 #!/bin/sh
 
-TOP_DIR=$(cd $(dirname $0)/../../ && pwd)
-. $TOP_DIR/tools/docker/config $* >/dev/null 2>&1
+uname | grep -q MINGW && PWD_OPT="-W"
+TOP_DIR="$(cd "$(dirname "$0")"/../../ && pwd $PWD_OPT)"
+. "$TOP_DIR/tools/docker/config" $* >/dev/null 2>&1
 
 filter=$1
 [ -n "$2" ] && filter=$2
 
-labs=`get_lab_bases $LAB_DIR $filter`
+labs="`get_lab_bases "$LAB_DIR" $filter`"
 
 [ -z "$lab_life" ] && lab_life=0
 
@@ -17,19 +18,19 @@ _get_lab_life () # lab_attr
 
 get_lab_life () # TOP_DIR
 {
-  local lab_basename=`basename $1`
-  lab_attrs=$(echo $lab_basename | cut -d'+' -f2 | tr '-' ' ')
+  local lab_basename="`basename $1`"
+  lab_attrs=$(echo "$lab_basename" | cut -d'+' -f2 | tr '-' ' ')
   _get_lab_life $lab_attrs
 }
 
 for lab in $labs
 do
-  CURRENT=$lab
+  CURRENT="$lab"
   unset UNIX_USER UNIX_PWD VNC_PWD VNC_PWD_VIEWONLY CONTAINER_NAME VNC_IP VNC_TOKEN
-  . $TOP_DIR/tools/docker/config >/dev/null 2>&1
+  . "$TOP_DIR/tools/docker/config" >/dev/null 2>&1
 
-  echo $TOP_DIR | grep -q /$lab-
-  [ $? -eq 0 ] && lab_life=`get_lab_life $TOP_DIR`
+  echo "$TOP_DIR" | grep -q "/$lab-"
+  [ $? -eq 0 ] && lab_life="`get_lab_life "$TOP_DIR"`"
 
   # Ignore the containers not running
   [ -z "$CONTAINER_NAME" ] && continue
@@ -46,4 +47,5 @@ do
   lab_end=`get_endtime "$lab_start" $lab_life`
   echo $lab $UNIX_USER $HOST $HOST_VNC_PORT $VNC_TOKEN $VNC_PWD $VNC_PWD_VIEWONLY $VNC_IP $HOST_WEBSSH_PORT $UNIX_PWD $CONTAINER_NAME \
 	$lab_life $lab_start $lab_end
+
 done

@@ -9,14 +9,15 @@ read -p 'This command is dangerous, are you sure? (yes/no) ' sure
 
 [ "x$sure" != 'xyes' ] && exit 0
 
-TOP_DIR=$(cd $(dirname $0)/../../ && pwd)
-. $TOP_DIR/tools/docker/config $* >/dev/null
+uname | grep -q MINGW && PWD_OPT="-W"
+TOP_DIR="$(cd "$(dirname "$0")"/../../ && pwd $PWD_OPT)"
+. "$TOP_DIR"/tools/docker/config $* >/dev/null
 
 for lab in $LABS
 do
   CURRENT=$lab
   unset CONTAINER_NAME
-  . $TOP_DIR/tools/docker/config >/dev/null 2>&1
+  . "$TOP_DIR/tools/docker/config" >/dev/null 2>&1
 
   # Ignore the containers not exists
   [ -z "$CONTAINER_NAME" ] && continue
@@ -24,13 +25,13 @@ do
   #docker ps -f name=$CONTAINER_NAME | grep -qv PORTS
   #[ $? -ne 0 ] && continue
 
-  $DOCKER_CLEAN_CMD $lab
+  "$DOCKER_CLEAN_CMD" $lab
 
 done
 
-$TOP_DIR/tools/docker/rm-all
+"$TOP_DIR/tools/docker/rm-all"
 
-yes yes | $TOP_DIR/tools/deploy/clean-all all
+yes yes | "$TOP_DIR/tools/deploy/clean-all" all
 
 git clean -fdx
 

@@ -7,8 +7,9 @@
 #    $ trun lab_name
 #
 
-TOP_DIR=$(cd $(dirname $0)/../../ && pwd)
-. $TOP_DIR/tools/docker/config $* >/dev/null
+uname | grep -q MINGW && PWD_OPT="-W"
+TOP_DIR="$(cd "$(dirname "$0")"/../../ && pwd $PWD_OPT)"
+. "$TOP_DIR"/tools/docker/config $* >/dev/null
 
 # Configuration
 
@@ -25,4 +26,4 @@ PROXY_PWD=$PROXY_PWD \
 ENCRYPT_CMD=$ENCRYPT_CMD \
 PROXY_LIMIT=$PROXY_LIMIT \
 TPROXY=1 \
-${TOP_DIR}/tools/docker/run $1
+"${TOP_DIR}/tools/docker/run" $1

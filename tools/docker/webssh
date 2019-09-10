@@ -3,8 +3,9 @@
 # webssh -- login the docker lab via web ssh
 #
 
-TOP_DIR=$(cd $(dirname $0)/../../ && pwd)
-. $TOP_DIR/tools/docker/config $* >/dev/null
+uname | grep -q MINGW && PWD_OPT="-W"
+TOP_DIR="$(cd "$(dirname "$0")"/../../ && pwd $PWD_OPT)"
+. "$TOP_DIR/tools/docker/config" $* >/dev/null
 
 # Get web browser
 get_browser
@@ -17,13 +18,13 @@ WEBSSH_URL="$WEB_HTTP://${HOST}:${HOST_WEBSSH_PORT}?ssh=ssh://$UNIX_USER:$UNIX_P
 
 echo "LOG: Please login with 'ip=$VNC_IP, port=$CONTAINER_SSH_PORT, user=$UNIX_USER, password=$UNIX_PWD' and enter workdir: $LAB_WORKDIR\n"
 
-(eval $__WEB_BROWSER "$WEBSSH_URL" >/dev/null 2>&1 &) >/dev/null 2>&1
+(eval "'$__WEB_BROWSER'" "'$WEBSSH_URL'" >/dev/null 2>&1 &) >/dev/null 2>&1
 
 echo "LOG: Or access via web browser:\n  $WEBSSH_URL"
 echo
 
 if [ -n "$LOCALHOST" ]; then
-    _WEBSSH_URL=$(echo $WEBSSH_URL | sed -e "s%localhost%$LOCALHOST%g" )
+    _WEBSSH_URL="$(echo "$WEBSSH_URL" | sed -e "s%localhost%$LOCALHOST%g" )"
     echo "LOG: Or access it outside via:\n  $_WEBSSH_URL"
     echo
 fi

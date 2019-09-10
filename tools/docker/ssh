@@ -3,8 +3,9 @@
 # ssh -- login the docker lab via ssh
 #
 
-TOP_DIR=$(cd $(dirname $0)/../../ && pwd)
-. $TOP_DIR/tools/docker/config $* >/dev/null
+uname | grep -q MINGW && PWD_OPT="-W"
+TOP_DIR="$(cd "$(dirname "$0")"/../../ && pwd $PWD_OPT)"
+. "$TOP_DIR/tools/docker/config" $* >/dev/null
 
 SSH_CMD="ssh ${UNIX_USER}@${VNC_IP} -p ${CONTAINER_SSH_PORT}"
 REMOTE_SSH_CMD="ssh ${UNIX_USER}@${HOST} -p ${HOST_SSH_PORT}"
@@ -26,4 +27,4 @@ EOF
 echo "LOG: Remote, Please login with '$REMOTE_SSH_CMD' with '$UNIX_PWD'\n"
 echo "LOG: Local, Please login with '$SSH_CMD' with '$UNIX_PWD' and enter workdir: $LAB_WORKDIR\n"
 
-eval $SSH_CMD
+eval "$SSH_CMD"

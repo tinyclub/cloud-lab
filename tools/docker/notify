@@ -3,8 +3,9 @@
 # cmd -- Start any cmd in a container
 #
 
-TOP_DIR=$(cd $(dirname $0)/../../ && pwd)
-. $TOP_DIR/tools/docker/config $* >/dev/null
+uname | grep -q MINGW && PWD_OPT="-W"
+TOP_DIR="$(cd "$(dirname "$0")"/../../ && pwd $PWD_OPT)"
+. "$TOP_DIR/tools/docker/config" $* >/dev/null
 
 [ -z "$1" ] && echo "Usage: $0 [lab-name] msg" && exit 0
 

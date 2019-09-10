@@ -7,9 +7,10 @@
 # E.g. LAB_CACHE=0 tools/docer/build
 #
 
-TOP_DIR=$(cd $(dirname $0)/../../ && pwd)
-. $TOP_DIR/tools/docker/config $* >/dev/null
+uname | grep -q MINGW && PWD_OPT="-W"
+TOP_DIR="$(cd "$(dirname "$0")"/../../ && pwd $PWD_OPT)"
+. "$TOP_DIR/tools/docker/config" $* >/dev/null
 
 [ -n "$LAB_CACHE" -a "x$LAB_CACHE" = "x0"  ] && NO_CACHE="--no-cache"
 
-do_op "docker build $NO_CACHE -t " IMAGE $CONFIG_DIR
+do_op "docker build $NO_CACHE -t " IMAGE "'$CONFIG_DIR'"

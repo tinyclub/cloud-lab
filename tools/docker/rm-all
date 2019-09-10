@@ -5,8 +5,9 @@
 
 export RELEASE=0
 
-TOP_DIR=$(cd $(dirname $0)/../../ && pwd)
-. $TOP_DIR/tools/docker/config $* >/dev/null
+uname | grep -q MINGW && PWD_OPT="-W"
+TOP_DIR="$(cd "$(dirname "$0")"/../../ && pwd $PWD_OPT)"
+. "$TOP_DIR/tools/docker/config" $* >/dev/null
 
 id_names=`docker ps -f status=running -f status=exited --format='{{.ID}},{{.Names}}' | sed '1!G;h;$!d'`
 
@@ -28,11 +29,11 @@ do
 
     echo "Removing $name ..."
 
-    ls ${LAB_OUTPUT}/$name*/ >/dev/null 2>&1
+    ls "${LAB_OUTPUT}/$name*/" >/dev/null 2>&1
     if [ $? -eq 0 ]; then
-        ${LAB_OUTPUT}/$name*/tools/docker/rm $lab
-    elif [ -d ${TOP_DIR}/configs/$lab ]; then
-        $DOCKER_RM_CMD $lab
+        "${LAB_OUTPUT}/$name*/tools/docker/rm" $lab
+    elif [ -d "${TOP_DIR}/configs/$lab" ]; then
+        "$DOCKER_RM_CMD" $lab
     else
         docker rm -f $id
     fi

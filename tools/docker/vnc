@@ -4,8 +4,8 @@
 #
 
 uname | grep -q MINGW && PWD_OPT="-W"
-TOP_DIR=$(cd $(dirname $0)/../../ && pwd $PWD_OPT)
-. $TOP_DIR/tools/docker/config $* >/dev/null
+TOP_DIR="$(cd "$(dirname "$0")"/../../ && pwd $PWD_OPT)"
+. "$TOP_DIR/tools/docker/config" $* >/dev/null
 
 # lab info
 show_lab()
@@ -24,8 +24,8 @@ echo
 
 if [ -n "$LOCALHOST" ]; then
     # Get external access address
-    _HOST_WEB_URL=$(echo $HOST_WEB_URL | sed -e "s%localhost%$LOCALHOST%g")
-    _HOST_WEB_URL_VIEWONLY=$(echo $HOST_WEB_URL_VIEWONLY | sed -e "s%localhost%$LOCALHOST%g")
+    _HOST_WEB_URL="$(echo "$HOST_WEB_URL" | sed -e "s%localhost%$LOCALHOST%g")"
+    _HOST_WEB_URL_VIEWONLY="$(echo "$HOST_WEB_URL_VIEWONLY" | sed -e "s%localhost%$LOCALHOST%g")"
 
     echo "Remote URL:"
     echo
@@ -66,68 +66,68 @@ if [ -d ~/Desktop -a -n "$REMOTE_DESKTOP_SHORTCUT" -a -f "$REMOTE_DESKTOP_SHORTC
 
   if [ "x$HOST_OS" = "xDarwin" ]; then
 
-    if [ "x$LAB_DESKTOP_SHORTCUT" = "x1" -a ! -f $LOCAL_DESKTOP_SHORTCUT ]; then
-      echo "$DOCKER_RUN_CMD $LAB_NAME" > $LOCAL_DESKTOP_SHORTCUT
+    if [ "x$LAB_DESKTOP_SHORTCUT" = "x1" -a ! -f "$LOCAL_DESKTOP_SHORTCUT" ]; then
+      echo "$DOCKER_RUN_CMD $LAB_NAME" > "$LOCAL_DESKTOP_SHORTCUT"
 
       # ref: https://superuser.com/questions/479411/close-all-mac-terminal-windows-but-the-one-running-a-script
-      echo 'osascript -e "do shell script \"osascript -e \\\\\"tell application \\\\\\\\\\\\\\"Terminal\\\\\\\\\\\\\\" \\\\\\" -e \\\\\\"set mainID to id of front window\\\\\\" -e \\\\\\" close (every window whose id = mainID)\\\\\\"  -e \\\\\\"end tell\\\\\\"   &> /dev/null &\""; exit' >> $LOCAL_DESKTOP_SHORTCUT
+      echo 'osascript -e "do shell script \"osascript -e \\\\\"tell application \\\\\\\\\\\\\\"Terminal\\\\\\\\\\\\\\" \\\\\\" -e \\\\\\"set mainID to id of front window\\\\\\" -e \\\\\\" close (every window whose id = mainID)\\\\\\"  -e \\\\\\"end tell\\\\\\"   &> /dev/null &\""; exit' >> "$LOCAL_DESKTOP_SHORTCUT"
     fi
 
     # For cloud lab
-    if [ ! -f $MANAGE_DESKTOP_SHORTCUT ]; then
-      echo "/usr/bin/open -a 'Terminal' '"$CLOUD_LAB_TOP_DIR"'" > $MANAGE_DESKTOP_SHORTCUT
-      echo 'osascript -e "do shell script \"osascript -e \\\\\"tell application \\\\\\\\\\\\\\"Terminal\\\\\\\\\\\\\\" \\\\\\" -e \\\\\\"set mainID to id of second window\\\\\\" -e \\\\\\" close (every window whose id = mainID)\\\\\\"  -e \\\\\\"end tell\\\\\\"   &> /dev/null &\""; exit' >> $MANAGE_DESKTOP_SHORTCUT
+    if [ ! -f "$MANAGE_DESKTOP_SHORTCUT" ]; then
+      echo "/usr/bin/open -a 'Terminal' '"$CLOUD_LAB_TOP_DIR"'" > "$MANAGE_DESKTOP_SHORTCUT"
+      echo 'osascript -e "do shell script \"osascript -e \\\\\"tell application \\\\\\\\\\\\\\"Terminal\\\\\\\\\\\\\\" \\\\\\" -e \\\\\\"set mainID to id of second window\\\\\\" -e \\\\\\" close (every window whose id = mainID)\\\\\\"  -e \\\\\\"end tell\\\\\\"   &> /dev/null &\""; exit' >> "$MANAGE_DESKTOP_SHORTCUT"
     fi
 
-    if [ ! -f $BROWSE_DESKTOP_SHORTCUT ]; then
-      echo "/usr/bin/open -a '"$WEB_BROWSER"' '"$LABS_WEB_URL"'" > $BROWSE_DESKTOP_SHORTCUT
-      echo 'osascript -e "do shell script \"osascript -e \\\\\"tell application \\\\\\\\\\\\\\"Terminal\\\\\\\\\\\\\\" \\\\\\" -e \\\\\\"set mainID to id of first window\\\\\\" -e \\\\\\" close (every window whose id = mainID)\\\\\\"  -e \\\\\\"end tell\\\\\\"   &> /dev/null &\""; exit' >> $BROWSE_DESKTOP_SHORTCUT
+    if [ ! -f "$BROWSE_DESKTOP_SHORTCUT" ]; then
+      echo "/usr/bin/open -a '"$WEB_BROWSER"' '"$LABS_WEB_URL"'" > "$BROWSE_DESKTOP_SHORTCUT"
+      echo 'osascript -e "do shell script \"osascript -e \\\\\"tell application \\\\\\\\\\\\\\"Terminal\\\\\\\\\\\\\\" \\\\\\" -e \\\\\\"set mainID to id of first window\\\\\\" -e \\\\\\" close (every window whose id = mainID)\\\\\\"  -e \\\\\\"end tell\\\\\\"   &> /dev/null &\""; exit' >> "$BROWSE_DESKTOP_SHORTCUT"
     fi
 
   else
 
-    if [ "x$LAB_DESKTOP_SHORTCUT" = "x1" -a ! -f $LOCAL_DESKTOP_SHORTCUT ]; then
-      echo '#!/usr/bin/env xdg-open' > $LOCAL_DESKTOP_SHORTCUT
+    if [ "x$LAB_DESKTOP_SHORTCUT" = "x1" -a ! -f "$LOCAL_DESKTOP_SHORTCUT" ]; then
+      echo '#!/usr/bin/env xdg-open' > "$LOCAL_DESKTOP_SHORTCUT"
       TMP_URL=`echo $CONTAINER_WEB_URL | tr '&' '|'`
-      cat $REMOTE_DESKTOP_SHORTCUT \
+      cat "$REMOTE_DESKTOP_SHORTCUT" \
         | sed "s%Exec=.*%Exec=$DOCKER_RUN_CMD $LAB_NAME%g" \
         | sed "s%terminator.png%${WEB_BROWSER}.png%g;s%lxterminal.xpm%${WEB_BROWSER}.png%g" | tr '|' '&' \
-	  >> $LOCAL_DESKTOP_SHORTCUT
+	  >> "$LOCAL_DESKTOP_SHORTCUT"
     fi
 
     # For cloud lab
-    [ ! -f $MANAGE_DESKTOP_SHORTCUT ] && cat <<EOF > $MANAGE_DESKTOP_SHORTCUT
+    [ ! -f "$MANAGE_DESKTOP_SHORTCUT" ] && cat <<EOF > "$MANAGE_DESKTOP_SHORTCUT"
 #!/usr/bin/env xdg-open
 [Desktop Entry]
 Encoding=UTF-8
 Name=Cloud Lab Manager
 Comment=Cloud Lab Manage Center
-Exec=$XTERM --working-directory=$CLOUD_LAB_TOP_DIR -T 'Cloud Lab'
+Exec=$XTERM --working-directory="$CLOUD_LAB_TOP_DIR" -T 'Cloud Lab'
 Icon=/usr/share/pixmaps/${XTERM}.png
 Type=Application
 EOF
 
-    [ ! -f $BROWSE_DESKTOP_SHORTCUT ] && cat <<EOF > $BROWSE_DESKTOP_SHORTCUT
+    [ ! -f "$BROWSE_DESKTOP_SHORTCUT" ] && cat <<EOF > "$BROWSE_DESKTOP_SHORTCUT"
 #!/usr/bin/env xdg-open
 [Desktop Entry]
 Encoding=UTF-8
 Name=Cloud Lab Browser
 Comment=Cloud Lab Web Center
-Exec=$WEB_BROWSER $LABS_WEB_URL
+Exec="$WEB_BROWSER $LABS_WEB_URL"
 Icon=/usr/share/pixmaps/${WEB_BROWSER}.png
 Type=Application
 EOF
   fi
 
-  [ -f $LOCAL_DESKTOP_SHORTCUT ] && chmod a+x $LOCAL_DESKTOP_SHORTCUT
-  chmod a+x $MANAGE_DESKTOP_SHORTCUT
-  chmod a+x $BROWSE_DESKTOP_SHORTCUT
+  [ -f "$LOCAL_DESKTOP_SHORTCUT" ] && chmod a+x "$LOCAL_DESKTOP_SHORTCUT"
+  chmod a+x "$MANAGE_DESKTOP_SHORTCUT"
+  chmod a+x "$BROWSE_DESKTOP_SHORTCUT"
 fi
 
 # For web portmapping
-[ -f $LAB_PORTMAP ] && grep -q ":8" $LAB_PORTMAP \
+[ -f "$LAB_PORTMAP" ] && grep -q ":8" "$LAB_PORTMAP" \
     && (docker logs $CONTAINER_ID 2>/dev/null | grep "Server address:") \
-    && for port in $(grep ":8" $LAB_PORTMAP | cut -d':' -f1); \
+    && for port in $(grep ":8" "$LAB_PORTMAP" | cut -d':' -f1); \
        do echo "LOG: Local Web Address: http://$HOST:$port/"; done
 
 # Show lab info

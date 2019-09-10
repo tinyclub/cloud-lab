@@ -5,8 +5,9 @@
 
 NEW_LAB=$1
 
-TOP_DIR=$(cd $(dirname $0)/../../ && pwd)
-. $TOP_DIR/tools/docker/config $* >/dev/null
+uname | grep -q MINGW && PWD_OPT="-W"
+TOP_DIR="$(cd "$(dirname "$0")"/../../ && pwd $PWD_OPT)"
+. "$TOP_DIR/tools/docker/config" $* >/dev/null
 OLD_LAB=$CURRENT
 
 [ -z "$PULL" ] && PULL=0
@@ -21,19 +22,19 @@ config_git ()
 
 download_submodule ()
 {
-    LAB_CURRENT_DIR=$LAB_DIR/$CURRENT
-    LAB_LABS=$CONFIG_DIR/labs
+    LAB_CURRENT_DIR="$LAB_DIR/$CURRENT"
+    LAB_LABS="$CONFIG_DIR/labs"
     get_var LABS $CURRENT
 
     for lab in $LABS; do
-      LAB_CURRENT_DIR=$LAB_DIR/$lab
+      LAB_CURRENT_DIR="$LAB_DIR/$lab"
       [ $SUBMODULE -eq 1 ] && \
 	RECURSIVE=" --recursive " && \
 	PULL_RECURSIVE=" --recurse-submodules=yes "
 
-      [ ! -f $LAB_CURRENT_DIR/.git ] \
-        && git submodule update --init --remote $RECURSIVE $LAB_CURRENT_DIR \
-        && cd $LAB_CURRENT_DIR && git checkout $BRANCH
+      [ ! -f "$LAB_CURRENT_DIR/.git" ] \
+        && git submodule update --init --remote $RECURSIVE "$LAB_CURRENT_DIR" \
+        && cd "$LAB_CURRENT_DIR" && git checkout $BRANCH
 
       [ $PULL -eq 1 ] && echo "LOG: Pulling repository: $lab" \
         && git pull -v && git submodule sync && git pull $PULL_RECURSIVE -v
@@ -50,7 +51,7 @@ download_submodule ()
 }
 
 if [ -n "$NEW_LAB" ]; then
-    . $TOP_DIR/tools/docker/config $NEW_LAB >/dev/null
+    . "$TOP_DIR/tools/docker/config" $NEW_LAB >/dev/null
 
     set_var CURRENT
 
