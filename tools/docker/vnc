@@ -61,6 +61,9 @@ LABS_WEB_URL="$WEB_HTTP://localhost:${HOST_VNC_PORT}/labs/$RELEASE_HTML"
 # Get xterm
 get_xterm
 
+# Get web browser
+get_browser
+
 # Create local shotcut on Desktop
 if [ -d ~/Desktop -a -n "$REMOTE_DESKTOP_SHORTCUT" -a -f "$REMOTE_DESKTOP_SHORTCUT" ]; then
 
@@ -90,7 +93,7 @@ if [ -d ~/Desktop -a -n "$REMOTE_DESKTOP_SHORTCUT" -a -f "$REMOTE_DESKTOP_SHORTC
       echo '#!/usr/bin/env xdg-open' > "$LOCAL_DESKTOP_SHORTCUT"
       TMP_URL=`echo $CONTAINER_WEB_URL | tr '&' '|'`
       cat "$REMOTE_DESKTOP_SHORTCUT" \
-        | sed "s%Exec=.*%Exec=$DOCKER_RUN_CMD $LAB_NAME%g" \
+        | sed "s%Exec=.*%Exec='$DOCKER_RUN_CMD' $LAB_NAME%g" \
         | sed "s%terminator.png%${WEB_BROWSER}.png%g;s%lxterminal.xpm%${WEB_BROWSER}.png%g" | tr '|' '&' \
 	  >> "$LOCAL_DESKTOP_SHORTCUT"
     fi
@@ -102,7 +105,7 @@ if [ -d ~/Desktop -a -n "$REMOTE_DESKTOP_SHORTCUT" -a -f "$REMOTE_DESKTOP_SHORTC
 Encoding=UTF-8
 Name=Cloud Lab Manager
 Comment=Cloud Lab Manage Center
-Exec=$XTERM --working-directory="$CLOUD_LAB_TOP_DIR" -T 'Cloud Lab'
+Exec="$XTERM" --working-directory="$CLOUD_LAB_TOP_DIR" -T 'Cloud Lab'
 Icon=/usr/share/pixmaps/${XTERM}.png
 Type=Application
 EOF
@@ -113,7 +116,7 @@ EOF
 Encoding=UTF-8
 Name=Cloud Lab Browser
 Comment=Cloud Lab Web Center
-Exec="$WEB_BROWSER $LABS_WEB_URL"
+Exec="$WEB_BROWSER" "$LABS_WEB_URL"
 Icon=/usr/share/pixmaps/${WEB_BROWSER}.png
 Type=Application
 EOF
@@ -134,8 +137,6 @@ fi
 show_lab
 
 
-# Get web browser
-get_browser
 [ $? -ne 0 ] && echo "ERR: Give up browser launching for no web browser found" && exit 0
 
 (eval "'$__WEB_BROWSER'" "'$CONTAINER_WEB_URL'" >/dev/null 2>&1 &)>/dev/null 2>&1
