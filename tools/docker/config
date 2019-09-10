@@ -382,9 +382,9 @@ elif [ "x$HOST_OS" = "xLinux" ]; then
   MANAGE_DESKTOP_SHORTCUT=~/Desktop/lab-manager.desktop
   BROWSE_DESKTOP_SHORTCUT=~/Desktop/lab-browser.desktop
 else
-  LOCAL_DESKTOP_SHORTCUT=~/Desktop/${CONTAINER_NAME}.bat
-  MANAGE_DESKTOP_SHORTCUT=~/Desktop/lab-manager.bat
-  BROWSE_DESKTOP_SHORTCUT=~/Desktop/lab-browser.bat
+  LOCAL_DESKTOP_SHORTCUT=~/Desktop/${CONTAINER_NAME}.url
+  MANAGE_DESKTOP_SHORTCUT=~/Desktop/lab-manager.url
+  BROWSE_DESKTOP_SHORTCUT=~/Desktop/lab-browser.url
 fi
 
 

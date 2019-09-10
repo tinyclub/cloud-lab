@@ -87,11 +87,10 @@ if [ -d ~/Desktop -a -n "$REMOTE_DESKTOP_SHORTCUT" -a -f "$REMOTE_DESKTOP_SHORTC
       echo 'osascript -e "do shell script \"osascript -e \\\\\"tell application \\\\\\\\\\\\\\"Terminal\\\\\\\\\\\\\\" \\\\\\" -e \\\\\\"set mainID to id of first window\\\\\\" -e \\\\\\" close (every window whose id = mainID)\\\\\\"  -e \\\\\\"end tell\\\\\\"   &> /dev/null &\""; exit' >> "$BROWSE_DESKTOP_SHORTCUT"
     fi
 
-  else
+  elif [ "x$HOST_OS" = "xDarwin" ]; then
 
     if [ "x$LAB_DESKTOP_SHORTCUT" = "x1" -a ! -f "$LOCAL_DESKTOP_SHORTCUT" ]; then
       echo '#!/usr/bin/env xdg-open' > "$LOCAL_DESKTOP_SHORTCUT"
-      TMP_URL=`echo $CONTAINER_WEB_URL | tr '&' '|'`
       cat "$REMOTE_DESKTOP_SHORTCUT" \
         | sed "s%Exec=.*%Exec='$DOCKER_RUN_CMD' $LAB_NAME%g" \
         | sed "s%terminator.png%${WEB_BROWSER}.png%g;s%lxterminal.xpm%${WEB_BROWSER}.png%g" | tr '|' '&' \
@@ -120,6 +119,51 @@ Exec="$WEB_BROWSER" "$LABS_WEB_URL"
 Icon=/usr/share/pixmaps/${WEB_BROWSER}.png
 Type=Application
 EOF
+
+  else # Windows
+
+    if [ "x$LAB_DESKTOP_SHORTCUT" = "x1" -a ! -f "$LOCAL_DESKTOP_SHORTCUT" ]; then
+      RUN_BAT="$TOP_DIR/tools/windows/run.bat"
+
+      mkdir -p "$TOP_DIR/tools/windows"
+
+      GIT_BASH="$(echo $(cd / && pwd -W)/git-bash.exe | sed -e 's% %\" \"%g')"
+      WIN_CHROME="C:/Program\" \"Files\" \"(x86)/Google/Chrome/Application/chrome.exe"
+      WORK_DIR="$(echo $TOP_DIR | sed -e 's% %\" \"%g')"
+      echo "start $GIT_BASH --cd=$WORK_DIR tools/docker/run $LAB_NAME" > $RUN_BAT
+      echo "start $WIN_CHROME \"$CONTAINER_WEB_URL\"" >> $RUN_BAT
+
+      cat <<EOF > "$LOCAL_DESKTOP_SHORTCUT"
+[InternetShortcut]
+URL="$RUN_BAT"
+IconIndex=0
+EOF
+    fi
+
+    # For cloud lab
+    if [ ! -f "$MANAGE_DESKTOP_SHORTCUT" ]; then
+      MANAGE_BAT="$TOP_DIR/tools/windows/manage.bat"
+
+      mkdir -p "$TOP_DIR/tools/windows"
+
+      GIT_BASH="$(echo $(cd / && pwd -W)/git-bash.exe | sed -e 's% %\" \"%g')"
+      WORK_DIR="$(echo $TOP_DIR | sed -e 's% %\" \"%g')"
+      echo "start $GIT_BASH --cd=$WORK_DIR" > $MANAGE_BAT
+
+      cat <<EOF > "$MANAGE_DESKTOP_SHORTCUT"
+[InternetShortcut]
+URL="$MANAGE_BAT"
+IconIndex=0
+IconFile=D:\Program" "Files\Git\git-bash.exe
+EOF
+    fi
+
+    [ ! -f "$BROWSE_DESKTOP_SHORTCUT" ] && cat <<EOF > "$BROWSE_DESKTOP_SHORTCUT"
+[InternetShortcut]
+URL="$LABS_WEB_URL"
+IconIndex=0
+EOF
+
   fi
 
   [ -f "$LOCAL_DESKTOP_SHORTCUT" ] && chmod a+x "$LOCAL_DESKTOP_SHORTCUT"
