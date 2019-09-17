@@ -542,7 +542,7 @@ get_browser ()
         [ $? -eq 1 ] && echo "ERR: No "$WEB_BROWSER" found too." && exit 2
       fi
     fi
-  else
+  else # Windows
     which "$WEB_BROWSER" >/dev/null 2>&1
     if [ $? -eq 1 ]; then
       if [ x"$WEB_BROWSER" = "xstart" ]; then

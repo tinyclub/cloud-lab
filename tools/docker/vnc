@@ -87,7 +87,7 @@ if [ -d ~/Desktop -a -n "$REMOTE_DESKTOP_SHORTCUT" -a -f "$REMOTE_DESKTOP_SHORTC
       echo 'osascript -e "do shell script \"osascript -e \\\\\"tell application \\\\\\\\\\\\\\"Terminal\\\\\\\\\\\\\\" \\\\\\" -e \\\\\\"set mainID to id of first window\\\\\\" -e \\\\\\" close (every window whose id = mainID)\\\\\\"  -e \\\\\\"end tell\\\\\\"   &> /dev/null &\""; exit' >> "$BROWSE_DESKTOP_SHORTCUT"
     fi
 
-  elif [ "x$HOST_OS" = "xDarwin" ]; then
+  elif [ "x$HOST_OS" = "xLinux" ]; then
 
     if [ "x$LAB_DESKTOP_SHORTCUT" = "x1" -a ! -f "$LOCAL_DESKTOP_SHORTCUT" ]; then
       echo '#!/usr/bin/env xdg-open' > "$LOCAL_DESKTOP_SHORTCUT"
