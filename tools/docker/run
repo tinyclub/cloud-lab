@@ -129,7 +129,7 @@ do_unlock
 set_var UNIX_UID
 do_lock
 
-CONTAINER_ID=$(eval docker run -d --privileged -h $LAB_NAME $container $portmap $caps $dnss $devices $limits $volumemap $vars $EXTRA_ARGS $IMAGE)
+CONTAINER_ID=$(eval docker run -d --privileged --ulimit core=-1 -h $LAB_NAME $container $portmap $caps $dnss $devices $limits $volumemap $vars $EXTRA_ARGS $IMAGE)
 
 [ $? -ne 0 ] && echo "LOG: docker running error." && exit 1
 
