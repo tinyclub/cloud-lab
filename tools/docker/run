@@ -129,7 +129,10 @@ do_unlock
 set_var UNIX_UID
 do_lock
 
-CONTAINER_ID=$(eval docker run -d --privileged --ulimit core=-1 -h $LAB_NAME $container $portmap $caps $dnss $devices $limits $volumemap $vars $EXTRA_ARGS $IMAGE)
+#coredump="--ulimit core=99999999999:99999999999 --mount source=coredumps_volume,target=/tmp/cores"
+coredump="--ulimit core=-1"
+
+CONTAINER_ID=$(eval docker run -d --privileged $coredump -h $LAB_NAME $container $portmap $caps $dnss $devices $limits $volumemap $vars $EXTRA_ARGS $IMAGE)
 
 [ $? -ne 0 ] && echo "LOG: docker running error." && exit 1
 
