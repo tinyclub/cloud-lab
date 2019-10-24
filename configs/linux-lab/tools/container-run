@@ -5,6 +5,10 @@
 
 TOP_DIR=$(cd $(dirname $0) && pwd)/
 
+# Configure for core-dump
+# echo "/tmp/cores/core.%e.%p" > /proc/sys/kernel/core_pattern
+echo core > /proc/sys/kernel/core_pattern
+
 # Enable network bridge support
 
 $TOP_DIR/enable_net_bridge.sh
