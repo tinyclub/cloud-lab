@@ -7,7 +7,6 @@ TOP_DIR=$(cd $(dirname $0) && pwd)/
 
 [ ! -d /proc ] && mount -t proc none /proc
 
-# modules loading
 grep -qi intel /proc/cpuinfo
 if [ $? -eq 0 ]; then
   kvm_dri=kvm-intel
@@ -15,29 +14,22 @@ else
   kvm_dri=kvm-amd
 fi
 
-modules="loop minix nfsd 9pnet_virtio kvm $kvm_dri"
+modules="loop nfsd 9pnet_virtio kvm $kvm_dri"
 
 if [ $? -eq 0 ]; then
   for m in $modules
   do
-    modprobe -d /m -n $m > /dev/null 2>&1
+    modprobe -n $m > /dev/null 2>&1
     [ $? -ne 0 ] && continue
 
     lsmod | grep -q $m
-    [ $? -ne 0 ] && modprobe -d /m $m >/dev/null 2>&1
+    [ $? -ne 0 ] && modprobe $m >/dev/null 2>&1
 
     # tell user enable cpu virtualization in bios if not disabled
     if [ $? -ne 0 ]; then
-      if [ "$m" = "kvm-intel" -o "$m" = "kvm-amd" ]; then
+      if [ "$m" = "kvm-amd" -o "$m" = "kvm-intel" ]; then
         echo "LOG: Please turn on cpu virtualization in bios if want use kvm speedup"
       fi
     fi
   done
 fi
-# Insert missing kernel modules
-
-$TOP_DIR/insmod.sh
-
-# Enable network bridge support
-
-$TOP_DIR/enable_net_bridge.sh

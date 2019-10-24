@@ -5,6 +5,42 @@
 
 TOP_DIR=$(cd $(dirname $0) && pwd)/
 
+[ ! -d /proc ] && mount -t proc none /proc
+
+# nfsd.ko must be inserted to enable nfs kernel server
+grep -qi intel /proc/cpuinfo
+if [ $? -eq 0 ]; then
+  kvm_dri=kvm-intel
+else
+  kvm_dri=kvm-amd
+fi
+
+modules="loop nfsd 9pnet_virtio kvm $kvm_dri"
+
+if [ $? -eq 0 ]; then
+  for m in $modules
+  do
+    modprobe -d /m -n $m >/dev/null 2>&1
+    [ $? -ne 0 ] && continue
+
+    lsmod | grep -q $m
+    [ $? -ne 0 ] && modprobe -d/m $m >/dev/null 2>&1
+
+    # tell user enable cpu virtualization in bios if not disabled
+    if [ $? -ne 0 ]; then
+      if [ "$m" = "kvm-intel" -o "$m" = "kvm-amd" ]; then
+        echo "LOG: Please turn on cpu virtualization in bios if want use kvm speedup"
+      fi
+    fi
+  done
+fi
+
+# For qemu-mips64el
+[ ! -d /proc/sys/fs/binfmt_misc ] && mount -t binfmt_misc none /proc/sys/fs/binfmt_misc
+if [ ! -f /proc/sys/fs/binfmt_misc/mips64el -a -f /proc/sys/fs/binfmt_misc/register ]; then
+  sh -c "echo ':mips64el:M::\x7fELF\x02\x01\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00\x02\x00\x08\x00:\xff\xff\xff\xff\xff\xff\xff\x00\xff\xff\xff\xff\xff\xff\xff\xff\xfe\xff\xff\xff:/usr/bin/qemu-mips64el:' > /proc/sys/fs/binfmt_misc/register"
+fi
+
 # Configure for core-dump
 # echo "/tmp/cores/core.%e.%p" > /proc/sys/kernel/core_pattern
 echo core > /proc/sys/kernel/core_pattern
