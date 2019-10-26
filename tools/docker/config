@@ -520,7 +520,7 @@ get_browser ()
   do_lock
 
   if [ "x$HOST_OS" = "xDarwin" ]; then
-    WEB_BROWSER="$(echo \"$WEB_BROWSER\" | tr '-' ' ')"
+    WEB_BROWSER="$(echo $WEB_BROWSER | tr '-' ' ')"
     if [ ! -f "$WEB_BROWSER" ]; then
       web_browser=`ls /Applications/*/Contents/MacOS/* | grep -i "$WEB_BROWSER$"`
       if [ $? -eq 0 ]; then
