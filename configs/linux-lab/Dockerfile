@@ -110,6 +110,26 @@ RUN apt-get -y update \
     && rm -rf /home/ubuntu/ \
     && rm -rf /var/cache/apt/archives/*.deb
 
+# For eu-readelf ... tools
+RUN apt-get -y update \
+    && apt-get install -y --force-yes --no-install-recommends \
+        elfutils \
+    && apt-get autoclean -y \
+    && apt-get autoremove -y \
+    && rm -rf /var/lib/apt/lists/* \
+    && rm -rf /home/ubuntu/ \
+    && rm -rf /var/cache/apt/archives/*.deb
+
+# For arm cross support
+RUN apt-get -y update \
+    && apt-get install -y --force-yes --no-install-recommends \
+        libc6-dev-armel-cross libc6-armel-cross \
+    && apt-get autoclean -y \
+    && apt-get autoremove -y \
+    && rm -rf /var/lib/apt/lists/* \
+    && rm -rf /home/ubuntu/ \
+    && rm -rf /var/cache/apt/archives/*.deb
+
 EXPOSE 5900 22
 
 WORKDIR /labs/
