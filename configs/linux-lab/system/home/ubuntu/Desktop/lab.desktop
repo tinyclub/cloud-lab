@@ -2,6 +2,6 @@
 Encoding=UTF-8
 Name=Linux Lab
 Comment=A Friendly Lab for Linux Learning
-Exec=/usr/bin/lxterminal --working-directory=/labs/linux-lab/ -t "Linux Lab"
-Icon=/usr/share/pixmaps/lxterminal.xpm
+Exec=/usr/bin/terminator --working-directory=/labs/linux-lab/ -T "Linux Lab"
+Icon=/usr/share/pixmaps/terminator.png
 Type=Application

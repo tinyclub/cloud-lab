@@ -2,6 +2,6 @@
 Encoding=UTF-8
 Name=Linux 0.11 Lab
 Comment=A Friendly Lab for Linux Learning
-Exec=/usr/bin/lxterminal --working-directory=/labs/linux-0.11-lab/ -t "Linux 0.11 Lab"
-Icon=/usr/share/pixmaps/lxterminal.xpm
+Exec=/usr/bin/terminator --working-directory=/labs/linux-0.11-lab/ -T "Linux 0.11 Lab"
+Icon=/usr/share/pixmaps/terminator.png
 Type=Application
