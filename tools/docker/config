@@ -304,6 +304,7 @@ fi
 
 LOCAL_TOKEN_DIR="${TOP_TOKEN_DIR}/$DEF_TOKEN_DIR"
 LOCAL_TOKEN_MAP="$LOCAL_TOKEN_DIR/local_map"
+REMOTE_TOKEN_MAP="$LOCAL_TOKEN_DIR/remote_map"
 
 ## Security related
 ### 0: with root permission by default, sharable, for private usage
