@@ -186,11 +186,12 @@ IconIndex=0
 EOF
 
   fi
-
-  [ -f "$LOCAL_DESKTOP_SHORTCUT" ] && chmod a+x "$LOCAL_DESKTOP_SHORTCUT"
-  chmod a+x "$MANAGE_DESKTOP_SHORTCUT"
-  chmod a+x "$BROWSE_DESKTOP_SHORTCUT"
 fi
+
+
+[ -f "$LOCAL_DESKTOP_SHORTCUT" ] && chmod a+x "$LOCAL_DESKTOP_SHORTCUT"
+[ -f "$MANAGE_DESKTOP_SHORTCUT" ] && chmod a+x "$MANAGE_DESKTOP_SHORTCUT"
+[ -f "$BROWSE_DESKTOP_SHORTCUT" ] && chmod a+x "$BROWSE_DESKTOP_SHORTCUT"
 
 # For web portmapping
 [ -f "$LAB_PORTMAP" ] && grep -q ":8" "$LAB_PORTMAP" \
