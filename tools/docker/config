@@ -939,3 +939,18 @@ touch_token_map ()
 
   return 0
 }
+
+# Verify some variables
+
+## If saved ip is not in the new net ip range of docker, remove it for new generation
+get_var VNC_IP
+if [ -n "$VNC_IP" ]; then
+  bridge=`docker network ls | grep bridge | cut -d' ' -f1`
+  net=`docker inspect --format "{{ .IPAM.Config }}" $bridge | grep -oE "\b([0-9]{1,3}\.){3}[0-9]{1,3}\b/[0-9]{1,2}"`
+  VNC_IP_BASE=`echo $VNC_IP | cut -d '.' -f1,2`
+  echo $net | grep -q $VNC_IP_BASE
+  if [ $? -ne 0 ]; then
+    unset VNC_IP
+    rm $LAB_VNC_IP
+  fi
+fi
