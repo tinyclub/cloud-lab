@@ -22,8 +22,9 @@ echo "  * Normal: $HOST_WEB_URL"
 echo "  *   View: $HOST_WEB_URL_VIEWONLY"
 echo
 
-ps -eo args | grep -v grep | grep -q "sshpass"
-if [ $? -eq 0 ]; then
+if [ "x$HOST_OS" = "xLinux" ]; then
+  ps -eo args | grep -v grep | grep -q "sshpass"
+  if [ $? -eq 0 ]; then
     # Get across access address
     VNC_TOKEN_ACROSS=$(sed -ne "`echo $VNC_IP | cut -d '.' -f4`p" $REMOTE_TOKEN_MAP | cut -d ':' -f1)
     ACROSSHOST=$(ps -eo args | grep -v grep | grep "sshpass"  | head -1 | sed -e "s/.*ubuntu@\([^ ]*\) .*/\1/g")
@@ -36,6 +37,7 @@ if [ $? -eq 0 ]; then
     echo "  * Normal: $HOST_WEB_URL_ACROSS"
     echo "  *   View: $HOST_WEB_URL_VIEWONLY_ACROSS"
     echo
+  fi
 fi
 
 if [ -n "$LOCALHOST" ]; then
