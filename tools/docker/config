@@ -350,6 +350,9 @@ else
   [ -z "$VNC_SHARED" ] && VNC_SHARED=1
 fi
 
+## Default user
+DEF_USER=ubuntu
+
 ## screen size
 DEF_SCREEN_SIZE=1280x800
 
