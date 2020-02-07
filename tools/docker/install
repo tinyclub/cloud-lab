@@ -21,6 +21,8 @@ fi
 
 # Install docker-engine for Ubuntu
 
+HOST_USER=`whoami`
+[ "x$HOST_USER" = "xroot" -a -n "$SUDO_USER" ] && HOST_USER=$SUDO_USER
 [ `id -u` -ne 0 ] && SUDO=sudo
 
 $SUDO apt-get -y update
@@ -34,14 +36,13 @@ $SUDO apt-get -y install bridge-utils
 $SUDO apt-get -y install terminator
 [ "$ubuntu_version" = "trusty" ] && $SUDO apt-get -y install linux-image-extra-$(uname -r) linux-image-extra-virtual
 $SUDO apt-get -y --force-yes install docker-ce
-$SUDO usermod -aG docker $USER
+$SUDO usermod -aG docker $HOST_USER
 
 # The --bip works like https://gist.github.com/ismell/6689836
 $SUDO sed -i -e "/DOCKER HACK START 578327498237/,/DOCKER HACK END 789527394722/d" /etc/default/docker
 $SUDO bash -c 'cat <<EOF >> /etc/default/docker
 # CLOUD LAB: DOCKER HACK START 578327498237
-# DOCKER_OPTS="\$DOCKER_OPTS --insecure-registry registry.mirrors.aliyuncs.com"
-#DOCKER_OPTS="\$DOCKER_OPTS --registry-mirror https://xxx.mirror.aliyuncs.com"
+# DOCKER_OPTS="\$DOCKER_OPTS --registry-mirror=https://xxx.mirror.aliyuncs.com"
 DOCKER_OPTS="\$DOCKER_OPTS --registry-mirror=https://docker.mirrors.ustc.edu.cn"
 # DOCKER_OPTS="\$DOCKER_OPTS --dns 119.29.29.29 --dns 180.76.76.76"
 # DOCKER_OPTS="\$DOCKER_OPTS --dns 223.5.5.5 --dns 114.114.114.114"
@@ -54,3 +55,4 @@ EOF'
 $SUDO ifconfig docker0 down
 $SUDO brctl delbr docker0
 $SUDO service docker restart
+newgrp docker
