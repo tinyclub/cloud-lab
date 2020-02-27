@@ -24,7 +24,12 @@ download_submodule ()
 {
     LAB_CURRENT_DIR="$LAB_DIR/$CURRENT"
     LAB_LABS="$CONFIG_DIR/labs"
-    get_var LABS $CURRENT
+
+    if [ -n "$CURRENT" ]; then
+      LABS=$CURRENT
+    else
+      get_var LABS $CURRENT
+    fi
 
     for lab in $LABS; do
       LAB_CURRENT_DIR="$LAB_DIR/$lab"
