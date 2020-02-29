@@ -363,7 +363,7 @@ DEF_SCREEN_SIZE=1280x800
 # 16:9: 960x540 1280x720 1920x1080 2560x1440
 which xrandr >/dev/null 2>&1
 [ $? -eq 0 -a -z "$SCREEN_SIZE" ] && SCREEN_SIZE=`xrandr --current | grep "^ .*\*" | tr -s ' ' | cut -d' ' -f2 | head -1`
-[ -z "$SCREEN_SIZE" ] && SCREEN_SIZE=$DEF_SCREEN_SIZE
+[ $? -ne 0 -a -z "$SCREEN_SIZE" ] && SCREEN_SIZE=$DEF_SCREEN_SIZE
 
 ## Image names
 TPROXY_NAME=cloud-ubuntu-proxy_client_transparent
