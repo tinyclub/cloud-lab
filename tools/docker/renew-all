@@ -1,0 +1,24 @@
+#!/bin/sh
+#
+# renew -- clean a docker lab and renew it
+#
+
+uname | grep -q MINGW && PWD_OPT="-W"
+TOP_DIR="$(cd "$(dirname "$0")"/../../ && pwd $PWD_OPT)"
+. "$TOP_DIR"/tools/docker/config $* >/dev/null
+
+id_names=`docker ps -f status=running -f status=exited --format='{{.ID}},{{.Names}}' | sed '1!G;h;$!d'`
+
+for id_name in $id_names
+do
+    id=$(echo $id_name | cut -d ',' -f1)
+    name=$(echo $id_name | cut -d ',' -f2)
+ 
+    lab=`echo $name | sed -e "s%-[0-9]*$%%g"`
+    echo $LABS | tr ' ' '\n' | grep -q ^$lab$
+    [ $? -ne 0 ] && continue
+
+    "$DOCKER_CLEAN_CMD" $lab
+
+    "$DOCKER_RUN_CMD" $lab
+done
