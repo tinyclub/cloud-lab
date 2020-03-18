@@ -8,6 +8,8 @@
 [Cloud Lab](http://tinylab.org/cloud-lab) is a Docker based online lab center, it integrates many popular computer
 science courses and provides a Docker based experiment environment as-is.
 
+Cloud Lab is open source with no warranty – use at your own risk.
+
 ## Quickstart
 
 ### Install docker
