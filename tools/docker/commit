@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# commit -- commit/save a docker lab
+# commit -- commit/save a running lab container to image
 #
 
 uname | grep -q MINGW && PWD_OPT="-W"
