@@ -1,0 +1,19 @@
+#!/bin/sh
+#
+# commit -- commit/save a docker lab
+#
+
+uname | grep -q MINGW && PWD_OPT="-W"
+TOP_DIR="$(cd "$(dirname "$0")"/../../ && pwd $PWD_OPT)"
+. "$TOP_DIR/tools/docker/config" $* >/dev/null
+
+NEW_IMAGE_NAME=$LAB_USER/$CURRENT:local-$(date +"%Y%m%d%H%M%S")
+
+do_op "docker commit" CONTAINER_NAME "$NEW_IMAGE_NAME"
+
+IMAGE=$NEW_IMAGE_NAME
+do_unlock
+set_var IMAGE
+do_lock
+
+echo "LOG: new image name saved to $LAB_IMAGE"
