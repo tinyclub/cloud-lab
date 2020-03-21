@@ -51,7 +51,10 @@ if [ -d $HOME -a ! -f $CREATE_FLAG ]; then
   touch $BACKUP_FLAG
 fi
 
-if [ ! -f $CREATE_FLAG ]; then
+if [ -f $CREATE_FLAG ]; then
+  # Simply report current setting
+  echo "User: $UNIX_USER ,Password: $UNIX_PWD ,VNC Password: $VNC_PWD ,Viewonly Password: $VNC_PWD_VIEWONLY"
+else
   # Touch a flag
   touch $CREATE_FLAG
 
