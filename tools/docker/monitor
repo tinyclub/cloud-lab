@@ -6,4 +6,4 @@
 TOP_DIR=$(cd $(dirname $0)/../../ && pwd)
 . $TOP_DIR/tools/docker/config $* >/dev/null
 
-do_op "docker stats" CONTAINER_ID
+do_op "docker stats" CONTAINER_NAME

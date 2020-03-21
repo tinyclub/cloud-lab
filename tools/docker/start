@@ -10,6 +10,6 @@ TOP_DIR="$(cd "$(dirname "$0")"/../../ && pwd $PWD_OPT)"
 # Require to prepare some environment for docker containers in host
 [ -f "$LAB_HOST_RUN" ] && "$LAB_HOST_RUN"
 
-do_op "docker start" CONTAINER_ID
+do_op "docker start" CONTAINER_NAME
 
 [ "$RELEASE" != '0' ] && sleep 2 && "$DOCKER_RELEASE_CMD" all >/dev/null 2>&1

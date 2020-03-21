@@ -40,9 +40,9 @@ fi
   && touch_token_map \
   && "$DOCKER_EXPORT_CMD" $*)
 
-if [ -n "$CONTAINER_ID" ]; then
+if [ -n "$CONTAINER_NAME" ]; then
   # If already there and running, open it
-  docker ps -f id=$CONTAINER_ID | grep -q -v PORTS
+  docker ps -f id=$CONTAINER_NAME | grep -q -v PORTS
 
   if [ $? -eq 0 ]; then
      echo "LOG: Open the running $LAB_NAME"
@@ -52,7 +52,7 @@ if [ -n "$CONTAINER_ID" ]; then
   fi
 
   # If already there and stopped, start and open it
-  docker ps -f id=$CONTAINER_ID -f status=exited | grep -q -v PORTS
+  docker ps -f id=$CONTAINER_NAME -f status=exited | grep -q -v PORTS
 
   if [ $? -eq 0 ]; then
     echo "LOG: Resume the stopped $LAB_NAME" \
@@ -60,7 +60,7 @@ if [ -n "$CONTAINER_ID" ]; then
     && "$DOCKER_START_CMD" $LAB_NAME \
     && echo "LOG: Wait for lab resuming..." \
     && while :; do \
-       pass=`docker logs $CONTAINER_ID 2>/dev/null | grep Password`; \
+       pass=`docker logs $CONTAINER_NAME 2>/dev/null | grep Password`; \
        sleep 2; \
        [ -n "$pass" ] && break; done \
     && "$DOCKER_VNC_CMD" $*
@@ -142,7 +142,7 @@ trap 'echo "  Please wait for a while, to really stop me, please fire: kill -9 $
 
 echo "LOG: Wait for lab launching..."
 while :; do
-    password=`docker logs $CONTAINER_ID 2>/dev/null | grep Password`
+    password=`docker logs $CONTAINER_NAME 2>/dev/null | grep Password`
     sleep 2
     [ -n "$password" ] && break
 done

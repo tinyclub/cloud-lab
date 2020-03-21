@@ -7,4 +7,4 @@ uname | grep -q MINGW && PWD_OPT="-W"
 TOP_DIR="$(cd "$(dirname "$0")"/../../ && pwd $PWD_OPT)"
 . "$TOP_DIR"/tools/docker/config $* >/dev/null
 
-do_op "docker logs" CONTAINER_ID
+do_op "docker logs" CONTAINER_NAME

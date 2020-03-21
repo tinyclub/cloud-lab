@@ -197,7 +197,7 @@ fi
 
 # For web portmapping
 [ -f "$LAB_PORTMAP" ] && grep -q ":8" "$LAB_PORTMAP" \
-    && (docker logs $CONTAINER_ID 2>/dev/null | grep "Server address:") \
+    && (docker logs $CONTAINER_NAME 2>/dev/null | grep "Server address:") \
     && for port in $(grep ":8" "$LAB_PORTMAP" | cut -d':' -f1); \
        do echo "LOG: Local Web Address: http://$HOST:$port/"; done
 
