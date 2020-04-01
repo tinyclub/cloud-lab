@@ -10,16 +10,23 @@ TOP_DIR="$(cd "$(dirname "$0")"/../../ && pwd $PWD_OPT)"
 # lab info
 show_lab()
 {
-echo "Please login with:"
+echo "Please login via VNC Client with:"
 echo
-echo "        User: $VNC_TOKEN"
+echo "          IP: $VNC_IP"
+echo "        User: $VNC_TOKEN (Only for noVNC)"
 echo "    Password: $VNC_PWD (Normal)"
 echo "    Password: $VNC_PWD_VIEWONLY (View)"
 echo
-echo "Local URL:"
+echo "Login for noVNC web client:"
 echo
 echo "  * Normal: $HOST_WEB_URL"
 echo "  *   View: $HOST_WEB_URL_VIEWONLY"
+echo
+echo "Login for local VNC clients:"
+echo
+echo "  *     IP: $VNC_IP"
+echo "  * Normal: $VNC_PWD"
+echo "  *   View: $VNC_PWD_VIEWONLY"
 echo
 
 if [ "x$HOST_OS" = "xLinux" ]; then
