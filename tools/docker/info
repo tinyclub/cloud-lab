@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# ip -- get the ip of a specified lab
+# info -- get the info of a specified lab
 #
 
 uname | grep -q MINGW && PWD_OPT="-W"
@@ -11,4 +11,12 @@ TOP_DIR="$(cd "$(dirname "$0")"/../../ && pwd $PWD_OPT)"
 docker ps -f name=$CONTAINER_NAME | grep -qv PORTS
 [ $? -ne 0 ] && echo "LOG: $LAB_NAME is not running." && exit 1
 
-echo $VNC_IP
+echo
+echo "IP: $VNC_IP"
+echo "Unix User: $UNIX_USER"
+echo "Unix Password: $UNIX_PWD"
+echo
+echo "VNC Token: $VNC_TOKEN"
+echo "VNC Password (Normal): $VNC_PWD"
+echo "VNC Password (Viewonly): $VNC_PWD_VIEWONLY"
+echo
