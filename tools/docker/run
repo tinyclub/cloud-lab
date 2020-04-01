@@ -42,7 +42,7 @@ fi
 
 if [ -n "$CONTAINER_NAME" ]; then
   # If already there and running, open it
-  docker ps -f id=$CONTAINER_NAME | grep -q -v PORTS
+  docker ps -f name=$CONTAINER_NAME | grep -q -v PORTS
 
   if [ $? -eq 0 ]; then
      echo "LOG: Open the running $LAB_NAME"
@@ -52,7 +52,7 @@ if [ -n "$CONTAINER_NAME" ]; then
   fi
 
   # If already there and stopped, start and open it
-  docker ps -f id=$CONTAINER_NAME -f status=exited | grep -q -v PORTS
+  docker ps -f name=$CONTAINER_NAME -f status=exited | grep -q -v PORTS
 
   if [ $? -eq 0 ]; then
     echo "LOG: Resume the stopped $LAB_NAME" \
