@@ -2,6 +2,8 @@
 #
 # run -- Run the docker image of the lab
 #
+# Copyright (C) 2016-2020 Wu Zhangjin <lzufalcon@163.com>
+#
 
 uname | grep -q MINGW && PWD_OPT="-W"
 TOP_DIR="$(cd "$(dirname "$0")"/../../ && pwd $PWD_OPT)"

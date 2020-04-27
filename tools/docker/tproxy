@@ -2,6 +2,8 @@
 #
 # tproxy -- start the transparent proxy client
 #
+# Copyright (C) 2016-2020 Wu Zhangjin <lzufalcon@163.com>
+#
 # Note: scripts/proxy-client-transparent.sh of https://github.com/tinyclub/cloud-ubuntu
 #
 

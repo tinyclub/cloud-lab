@@ -1,4 +1,9 @@
 #!/bin/sh
+#
+# clean-all
+#
+# Copyright (C) 2016-2020 Wu Zhangjin <lzufalcon@163.com>
+#
 
 export RELEASE=0
 

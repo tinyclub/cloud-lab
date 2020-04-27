@@ -2,6 +2,8 @@
 #
 # config -- Configure the common variables
 #
+# Copyright (C) 2016-2020 Wu Zhangjin <lzufalcon@163.com>
+#
 
 # debug with DEBUG=1
 [ x$DEBUG = x"1" ] && set -x

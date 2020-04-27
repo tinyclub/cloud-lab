@@ -2,6 +2,8 @@
 #
 # batch -- create multiple containers in one script
 #
+# Copyright (C) 2016-2020 Wu Zhangjin <lzufalcon@163.com>
+#
 # usage:
 #
 # E.x.:

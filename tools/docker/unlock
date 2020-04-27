@@ -2,6 +2,8 @@
 #
 # unlock -- unlock configs and tools
 #
+# Copyright (C) 2016-2020 Wu Zhangjin <lzufalcon@163.com>
+#
 
 LAB_SECURITY=1
 

@@ -1,4 +1,9 @@
 #!/bin/bash
+#
+# enable_net_bridge.sh
+#
+# Copyright (C) 2016-2020 Wu Zhangjin <lzufalcon@163.com>
+#
 
 ip=`ifconfig eth0 | grep "inet addr" | cut -d':' -f2 | cut -d' ' -f1`
 route=`route -n | head -3 | tail -1 | tr -s ' ' | cut -d' ' -f2`

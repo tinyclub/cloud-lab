@@ -2,6 +2,8 @@
 #
 # build -- Build the docker image for the lab
 #
+# Copyright (C) 2016-2020 Wu Zhangjin <lzufalcon@163.com>
+#
 # ref: https://docs.docker.com/engine/installation/linux/ubuntulinux/
 #
 # E.g. LAB_CACHE=0 tools/docer/build

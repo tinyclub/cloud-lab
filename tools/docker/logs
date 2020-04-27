@@ -1,6 +1,8 @@
 #!/bin/sh
 #
-# monitor -- monitor a docker lab
+# logs -- monitor a docker lab
+#
+# Copyright (C) 2016-2020 Wu Zhangjin <lzufalcon@163.com>
 #
 
 uname | grep -q MINGW && PWD_OPT="-W"

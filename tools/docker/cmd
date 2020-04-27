@@ -2,6 +2,8 @@
 #
 # cmd -- Start any cmd in a container
 #
+# Copyright (C) 2016-2020 Wu Zhangjin <lzufalcon@163.com>
+#
 
 
 uname | grep -q MINGW && PWD_OPT="-W"

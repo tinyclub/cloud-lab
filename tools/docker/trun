@@ -2,6 +2,8 @@
 #
 # trun -- Run the docker image with in transparent proxy available environment
 #
+# Copyright (C) 2016-2020 Wu Zhangjin <lzufalcon@163.com>
+#
 # Usage:
 #
 #    $ trun lab_name

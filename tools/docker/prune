@@ -2,6 +2,8 @@
 #
 # Prune a clean docker environment.
 #
+# Copyright (C) 2016-2020 Wu Zhangjin <lzufalcon@163.com>
+#
 
 # Will this clean up the increasing files /run/udev/data/+cgroup:*
 

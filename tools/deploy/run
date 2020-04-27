@@ -2,6 +2,8 @@
 #
 # run -- deploy a docker lab
 #
+# Copyright (C) 2016-2020 Wu Zhangjin <lzufalcon@163.com>
+#
 
 lab_name=$1
 lab_user=$2

@@ -2,6 +2,8 @@
 #
 # unlock-all -- unlock all configs and tools
 #
+# Copyright (C) 2016-2020 Wu Zhangjin <lzufalcon@163.com>
+#
 
 export LAB_SECURITY=1
 
