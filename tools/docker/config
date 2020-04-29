@@ -704,7 +704,7 @@ EOF
 </html>
 EOF
 
-  sync
+  #sync
 
   rm "$tmp"
 }
@@ -909,7 +909,7 @@ _deploy_do_clean2 ()
 
   echo "LOG: Destroying $lab"
   rm -rf "$lab"
-  sync
+  #sync
 }
 
 deploy_do_clean ()
