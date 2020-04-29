@@ -213,5 +213,5 @@ fi
 if [ "x$HOST_OS" = "xDarwin" ]; then
   (eval $__WEB_BROWSER '$CONTAINER_WEB_URL' >/dev/null 2>&1 &)>/dev/null 2>&1
 else
-  (eval "'$__WEB_BROWSER'" "'$CONTAINER_WEB_URL'" >/dev/null 2>&1 &)>/dev/null 2>&1
+  (eval nohup "'$__WEB_BROWSER'" "'$CONTAINER_WEB_URL'" >/dev/null 2>&1 &)>/dev/null 2>&1
 fi
