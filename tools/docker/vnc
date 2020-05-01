@@ -60,8 +60,7 @@ if [ -n "$LOCALHOST" ]; then
     echo "  *   View: $_HOST_WEB_URL_VIEWONLY"
     echo
 else
-    echo "Note: Please ensure network available outside and then replace 'localhost' with the external ip or domain name."
-    echo "      E.g. Virtualbox setting 'Network->Adapter2->Host-only Adapter' adds eth1. 'ifconfig eth1' give us the ip."
+    echo "Note: Please make sure network available outside and then replace 'localhost' with the external ip or domain name."
     echo "      Then 'echo \$ip > .host_name' or 'echo \$domain_name > .host_name'"
 fi
 

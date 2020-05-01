@@ -241,17 +241,6 @@ do_lock
 
 if [ ! -n "$IN_CONTAINER" ]; then
   [ -z "$HOST" ] && HOST=localhost
-
-  ## Get localhost address, for virtualbox, please enable: Network -> Adapter2 -> Host-only Adapter
-  for eth in en0 eth1
-  do
-    ifconfig $eth >/dev/null 2>&1
-    [ $? -ne 0 ] && continue
-    LOCALHOST=`ifconfig $eth | grep 'inet ' | tr ':' ' ' | tr -s ' ' | tr ' ' '\n' | grep "[0-9\.]\{7,\}" | head -1`
-    break
-  done
-
-  [ -n "$LOCALHOST" -a "$HOST" = "localhost" ] && HOST=$LOCALHOST
 fi
 
 ## main branch
