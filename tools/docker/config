@@ -21,6 +21,9 @@ HOST_OS=$(uname)
 
 [ `id -u` -ne 0 ] && SUDO=sudo
 
+# set boot timeout, 1 minute should be enough for modern computer
+[ -z "$BOOT_TIMEOUT" ] && BOOT_TIMEOUT=60
+
 # Basic requirement: docker and let docker run without sudo
 if [ ! -n "$IN_CONTAINER" ]; then
   DOCKER_INSTALL_CMD="$TOP_DIR"/tools/docker/install

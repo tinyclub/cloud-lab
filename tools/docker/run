@@ -143,11 +143,31 @@ CONTAINER_ID=`echo $CONTAINER_ID | cut -c-12`
 trap 'echo "  Please wait for a while, to really stop me, please fire: kill -9 $$"' 2
 
 echo "LOG: Wait for lab launching..."
+boot_time=0
 while :; do
     boot_completed=`docker logs $CONTAINER_NAME 2>/dev/null | grep boot_completed`
-    sleep 2
+
+    sleep 1
+    boot_time=`expr $boot_time + 1`
+    echo "$boot_time/$BOOT_TIMEOUT"
+
+    if [ $boot_time -gt $BOOT_TIMEOUT ]; then
+       echo "ERR: Booting $CONTAINER_NAME Timeout, exit."
+       echo
+       echo "LOG: Booting log is below:"
+       echo
+       docker logs $CONTAINER_NAME
+       echo
+       echo "LOG: Removing not completed $CONTAINER_NAME"
+       docker rm -f $CONTAINER_NAME
+       exit 1
+    fi
+
     [ -n "$boot_completed" ] && break
 done
+
+# Wait for more completed
+sleep 2
 
 do_unlock
 
