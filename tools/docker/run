@@ -62,9 +62,9 @@ if [ -n "$CONTAINER_NAME" ]; then
     && "$DOCKER_START_CMD" $LAB_NAME \
     && echo "LOG: Wait for lab resuming..." \
     && while :; do \
-       pass=`docker logs $CONTAINER_NAME 2>/dev/null | grep Password`; \
+       boot_completed=`docker logs $CONTAINER_NAME 2>/dev/null | grep boot_completed`; \
        sleep 2; \
-       [ -n "$pass" ] && break; done \
+       [ -n "$boot_completed" ] && break; done \
     && "$DOCKER_VNC_CMD" $*
 
     exit $?
@@ -144,9 +144,9 @@ trap 'echo "  Please wait for a while, to really stop me, please fire: kill -9 $
 
 echo "LOG: Wait for lab launching..."
 while :; do
-    password=`docker logs $CONTAINER_NAME 2>/dev/null | grep Password`
+    boot_completed=`docker logs $CONTAINER_NAME 2>/dev/null | grep boot_completed`
     sleep 2
-    [ -n "$password" ] && break
+    [ -n "$boot_completed" ] && break
 done
 
 do_unlock
@@ -160,6 +160,7 @@ do_lock
 trap 'exit 0' 2
 
 echo "LOG: Container ID: ${CONTAINER_ID} Container Name: ${CONTAINER_NAME}"
+password=`docker logs $CONTAINER_NAME 2>/dev/null | grep Password`
 echo "LOG: $password"
 
 # Publish vnc port

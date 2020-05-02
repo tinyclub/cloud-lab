@@ -183,6 +183,9 @@ do
     . $f
 done
 
+# Report boot_completed
+echo "boot_completed"
+
 # Launch supervisor tasks
 
 SYSTEM_SUPERVISORD_CONF=/etc/supervisor/supervisord.conf
