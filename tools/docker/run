@@ -188,4 +188,6 @@ echo "LOG: $password"
 
 "$DOCKER_VNC_CMD" $*
 
-"$DOCKER_RELEASE_CMD" all
+# This is very slow in windows, silence it
+# It is not necessary for normal users
+# "$DOCKER_RELEASE_CMD" all
