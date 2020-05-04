@@ -231,7 +231,7 @@ do
 
   var_value=""
   if [ -n "$var_file" -a -f "$var_file" -a -z "$var" ]; then
-    var_value='$(grep -v "#" "$var_file" | tr -d "\r" | tr "\n" " " | sed -e "s%^[[:space:]]*$%%g")'
+    var_value='$(grep -v "#" "$var_file" | tr -d "\r" | tr "\n" " " | sed -e "s%^[[:space:]]*$%%g;s%[[:space:]]\{1,\}$%%g")'
     eval `eval echo \\$VAR='$var_value'`
   fi
 
@@ -428,7 +428,7 @@ get_var () #VAR #defval
   var_value=""
 
   if [ -n "$var_file" -a -f "$var_file" ]; then
-    var_value='$(grep -v "#" "$var_file" | tr -d "\r" | tr "\n" " " | sed -e "s%^[[:space:]]*$%%g")'
+    var_value='$(grep -v "#" "$var_file" | tr -d "\r" | tr "\n" " " | sed -e "s%^[[:space:]]*$%%g;s%[[:space:]]\{1,\}$%%g")'
     eval `eval echo \\$VAR='$var_value'`
     var_value="`eval echo '$'${VAR}`"
   fi
@@ -451,7 +451,7 @@ set_var () #VAR
   #echo "LOG: SET: Save '$var' to $var_file"
 
   if [ -n "$var" ]; then
-    echo "$var" | tr -d '\r' | tr ' ' '\n' > "$var_file"
+    echo -n "$var" | tr -d '\r' | sed -e "s%^[[:space:]]*$%%g;s%[[:space:]]\{1,\}$%%g" | tr ' ' '\n' > "$var_file"
   fi
 }
 
