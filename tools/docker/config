@@ -451,7 +451,7 @@ set_var () #VAR
   #echo "LOG: SET: Save '$var' to $var_file"
 
   if [ -n "$var" ]; then
-    echo -n "$var" | tr -d '\r' | sed -e "s%^[[:space:]]*$%%g;s%[[:space:]]\{1,\}$%%g" | tr ' ' '\n' > "$var_file"
+    echo "$var" | tr -d '\r' | sed -e "s%^[[:space:]]*$%%g;s%[[:space:]]\{1,\}$%%g" | tr ' ' '\n' > "$var_file"
   fi
 }
 
