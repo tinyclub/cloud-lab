@@ -149,7 +149,7 @@ while :; do
 
     sleep 1
     boot_time=`expr $boot_time + 1`
-    echo "$boot_time/$BOOT_TIMEOUT"
+    echo "$boot_time / $BOOT_TIMEOUT"
 
     if [ $boot_time -gt $BOOT_TIMEOUT ]; then
        echo "ERR: Booting $CONTAINER_NAME Timeout, exit."
