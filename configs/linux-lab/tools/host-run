@@ -2,9 +2,11 @@
 
 uname | grep -q MINGW && PWD_OPT="-W"
 TOP_DIR="$(cd "$(dirname "$0")"/../../../ && pwd $PWD_OPT)"
+LAB_HOME=$TOP_DIR/tools/system/home/ubuntu/
 
-# load user .labconfig
-labconfig=~/.labconfig
-if [ -f $labconfig ]; then
-  cp $labconfig $TOP_DIR/tools/system/home/ubuntu/
-fi
+# load user configuration
+configs=".labconfig .gitconfig"
+for config in $configs
+do
+  [ -f ~/$config ] && cp ~/$config $LAB_HOME/
+done
