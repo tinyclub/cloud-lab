@@ -7,3 +7,4 @@
 4. Optimize performance issue of tools/docker/config, should be cleaned up and optimized
     * tools/docker/list, tools/docker/release very slow on windows.
     * the tools/docker/config should be dividied into several parts.
+5. Export docker image and upload to Cloud Disk for late import to isolated network.
