@@ -1,1 +1,10 @@
-# dummy
+# get TOP_DIR 
+
+uname | grep -q MINGW && PWD_OPT="-W"
+TOP_DIR="$(cd "$(dirname "$0")"/../../../ && pwd $PWD_OPT)"
+
+# load user .labconfig
+labconfig=~/.labconfig
+if [ -f $labconfig ]; then
+  cp $labconfig $TOP_DIR/tools/system/home/ubuntu/
+fi
