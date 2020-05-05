@@ -1,0 +1,18 @@
+#!/bin/bash
+#
+# clean-service -- clean the docker service
+#
+# Copyright (C) 2016-2020 Wu Zhangjin <lzufalcon@163.com>
+#
+
+uname | grep -q MINGW && PWD_OPT="-W"
+TOP_DIR="$(cd "$(dirname "$0")"/../../ && pwd $PWD_OPT)"
+. "$TOP_DIR/tools/docker/config" $* >/dev/null
+
+# Fix up the port already used issue
+echo "LOG: Stopping docker-proxy"
+$SUDO pkill docker-proxy
+
+echo "LOG: Restarting docker service"
+# Restart docker service
+$SUDO service docker restart

@@ -24,12 +24,6 @@ do_op "sed -i -e \"/$VNC_TOKEN/d\"" LOCAL_TOKEN_MAP
 
 find "$CONFIG_DOCKER_DIR" -iname ".[^.]*" -exec rm -rf "{}" \;
 
-# Fix up the port already used issue
-$SUDO pkill docker-proxy
-
-# Restart docker service
-$SUDO service docker restart
-
 # Prune others
 docker system prune -f
 
