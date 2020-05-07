@@ -14,4 +14,4 @@ docker ps -f name=$CONTAINER_NAME | grep -qv PORTS
 
 [ -z "$UNIX_USER" ] && get_var UNIX_USER $DEF_USER
 
-do_op "$WINPTY docker exec -it -u $UNIX_USER" CONTAINER_NAME "//bin/bash"
+do_op "$WINPTY docker exec -it -w /labs/$CURRENT -u $UNIX_USER" CONTAINER_NAME "//bin/bash"
