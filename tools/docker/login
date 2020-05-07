@@ -29,7 +29,7 @@ verify_login()
 login_config()
 {
   # List available login methods
-  echo "Available Login Methods:"
+  echo "Please choose one of the login methods:"
   echo
   echo $LOGIN_METHODS | tr ' ' '\n' | nl -v 1
   echo
@@ -71,6 +71,14 @@ fi
 
 LOGIN_TOOL="tools/docker/$LOGIN"
 
-echo "LOG: Available login methods: $LOGIN_METHODS" | egrep --color "[^a-z]$LOGIN"
+echo "LOG: Available login methods:"
+echo
+echo "   $LOGIN_METHODS" | egrep --color "[^a-z]$LOGIN"
+echo
+echo "LOG: Switch to another method:"
+echo
+echo "   ./$0 LOGIN_METHOD"
+echo
 echo "LOG: Running '$LOGIN_TOOL'"
+echo
 $LOGIN_TOOL

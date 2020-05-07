@@ -71,7 +71,7 @@ show_vnc()
 {
   AVAILABLE_VNC_CLIENTS=$INSTALLED_VNC_CLIENTS
   echo $AVAILABLE_VNC_CLIENTS | egrep -q "$VNC"
-  [ $? -ne 0 -a "$VNC" != "list" ] && AVAILABLE_VNC_CLIENTS="$VNC $AVAILABLE_VNC_CLIENTS"
+  [ $? -ne 0 -a "$VNC" != "list" -a "$VNC" != "none" ] && AVAILABLE_VNC_CLIENTS="$VNC $AVAILABLE_VNC_CLIENTS"
 
   echo
   echo "         VNC Clients: $AVAILABLE_VNC_CLIENTS"

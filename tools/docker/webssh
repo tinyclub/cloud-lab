@@ -18,7 +18,14 @@ docker ps -f name=$CONTAINER_NAME | grep -qv PORTS
 
 WEBSSH_URL="$WEB_HTTP://${HOST}:${HOST_WEBSSH_PORT}?ssh=ssh://$UNIX_USER:$UNIX_PWD@$VNC_IP:$CONTAINER_SSH_PORT"
 
-echo "LOG: Please login with 'ip=$VNC_IP, port=$CONTAINER_SSH_PORT, user=$UNIX_USER, password=$UNIX_PWD' and enter workdir: $LAB_WORKDIR\n"
+echo "LOG: Please login via ssh client with:"
+echo
+echo "    SSH_IP: $VNC_IP"
+echo "  SSH_PORT: $CONTAINER_SSH_PORT"
+echo "      User: $UNIX_USER"
+echo "  Password: $UNIX_PWD"
+echo "   Workdir: $LAB_WORKDIR/$CURRENT"
+echo
 
 (eval "'$__WEB_BROWSER'" "'$WEBSSH_URL'" >/dev/null 2>&1 &) >/dev/null 2>&1
 
