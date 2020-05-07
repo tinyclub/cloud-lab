@@ -252,7 +252,7 @@ if [ ! -n "$IN_CONTAINER" ]; then
 fi
 
 # supported login methods
-LOGIN_METHODS="bash ssh vnc webssh webvnc"
+LOGIN_METHODS="bash vnc ssh webssh webvnc"
 VNC_CLIENTS="vinagre xvnc4viewer gvncviewer xtightvncviewer krdc"
 DEF_LOGIN="vnc"
 
