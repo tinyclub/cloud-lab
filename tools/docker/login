@@ -62,12 +62,13 @@ if [ "$LOGIN" != "list" ]; then
   if [ -n "$LOGIN" ]; then
     verify_login $LOGIN
     [ $? -ne 0 ] && echo "\nERR: method $LOGIN is not valid.\n" && exit 1
+    set_var LOGIN
   else
     get_var LOGIN none
   fi
 fi
 
-[ "$LOGIN" = "none" -o "$LOGIN" = "list" ] && login_config
+[ "$LOGIN" = "none" -o "$LOGIN" = "list" ] && login_config && set_var LOGIN
 
 LOGIN_TOOL="tools/docker/$LOGIN"
 

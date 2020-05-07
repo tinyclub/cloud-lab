@@ -104,6 +104,7 @@ if [ "$VNC" != "list" ]; then
   if [ -n "$VNC" ]; then
     which $VNC >/dev/null 2>&1
     [ $? -ne 0 ] && echo "\nERR: client $VNC is not installed.\n" && exit 1
+    set_var VNC
   else
     get_var VNC none
   fi
@@ -120,7 +121,7 @@ if [ "$VNC" = "none" -a -z "$INSTALLED_VNC_CLIENTS" ]; then
 fi
 
 # If no vnc client specified in command line, let use choose always
-[ "$VNC" = "none" -o "$VNC" = "list" ] && vnc_config
+[ "$VNC" = "none" -o "$VNC" = "list" ] && vnc_config && set_var VNC
 
 case $VNC in
   remmina)
