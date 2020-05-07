@@ -9,11 +9,26 @@ uname | grep -q MINGW && PWD_OPT="-W"
 TOP_DIR="$(cd "$(dirname "$0")"/../../ && pwd $PWD_OPT)"
 . "$TOP_DIR/tools/docker/config" $* >/dev/null
 
-SSH_CMD="ssh ${UNIX_USER}@${VNC_IP} -p ${CONTAINER_SSH_PORT}"
-REMOTE_SSH_CMD="ssh ${UNIX_USER}@${HOST} -p ${HOST_SSH_PORT}"
+which sshpass >/dev/null 2>&1
+[ $? -eq 0 ] && SSH_PASS="sshpass -p '$UNIX_PWD'"
 
-cat <<EOF
-LOG: Upload public ssh key with following steps:
+SSH_CMD="$SSH_PASS ssh -t ${UNIX_USER}@${VNC_IP} -p ${CONTAINER_SSH_PORT} 'cd /labs/$CURRENT && exec bash -l'"
+REMOTE_SSH_CMD="ssh -t ${UNIX_USER}@${HOST} -p ${HOST_SSH_PORT} 'cd /labs/$CURRENT && exec bash -l'"
+
+if [ -z "$SSH_PASS" ]; then
+  echo
+  echo "LOG: Password required, please login with the following command:"
+  echo
+  echo "  $SSH_CMD"
+  echo
+
+  echo "LOG: If want to login without password, there are two methods:"
+  echo
+  echo "  1. Install the 'sshpass' command"
+  echo
+
+  cat <<EOF
+  2. Upload public ssh key with following steps:
 
         $ mkdir ~/.ssh/
         $ touch ~/.ssh/authorized_keys
@@ -26,6 +41,7 @@ LOG: Upload public ssh key with following steps:
 
 EOF
 
-echo "LOG: Local, Please login with '$SSH_CMD' with '$UNIX_PWD' and enter workdir: $LAB_WORKDIR\n"
+fi
 
+echo "LOG: Running '$SSH_CMD'"
 eval "$SSH_CMD"
