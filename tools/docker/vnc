@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# vnc -- open the docker lab's novnc frontend via a browser
+# vnc -- login with a local vnc client
 #
 # Copyright (C) 2016-2020 Wu Zhangjin <lzufalcon@163.com>
 #
@@ -9,208 +9,137 @@ uname | grep -q MINGW && PWD_OPT="-W"
 TOP_DIR="$(cd "$(dirname "$0")"/../../ && pwd $PWD_OPT)"
 . "$TOP_DIR/tools/docker/config" $* >/dev/null
 
-# lab info
-show_lab()
+vnc_clients()
 {
-echo "Please login via VNC Client with:"
-echo
-echo "          IP: $VNC_IP"
-echo "        User: $VNC_TOKEN (Only for noVNC)"
-echo "    Password: $VNC_PWD (Normal)"
-echo "    Password: $VNC_PWD_VIEWONLY (View)"
-echo
-echo "Login for noVNC web client:"
-echo
-echo "  * Normal: $HOST_WEB_URL"
-echo "  *   View: $HOST_WEB_URL_VIEWONLY"
-echo
-echo "Login for local VNC clients:"
-echo
-echo "  *     IP: $VNC_IP"
-echo "  * Normal: $VNC_PWD"
-echo "  *   View: $VNC_PWD_VIEWONLY"
-echo
-
-if [ "x$HOST_OS" = "xLinux" ]; then
-  ps -eo args | grep -v grep | grep -q "sshpass"
-  if [ $? -eq 0 ]; then
-    # Get across access address
-    VNC_TOKEN_ACROSS=$(sed -ne "`echo $VNC_IP | cut -d '.' -f4`p" $REMOTE_TOKEN_MAP | cut -d ':' -f1)
-    ACROSSHOST=$(ps -eo args | grep -v grep | grep "sshpass"  | head -1 | sed -e "s/.*ubuntu@\([^ ]*\) .*/\1/g")
-    HOST_WEB_URL_ACROSS="$(echo "$HOST_WEB_URL" | sed -e "s%$VNC_TOKEN%$VNC_TOKEN_ACROSS%g;s%localhost%$ACROSSHOST%g")"
-    HOST_WEB_URL_VIEWONLY_ACROSS="$(echo "$HOST_WEB_URL_VIEWONLY" | sed -e "s%$VNC_TOKEN%$VNC_TOKEN_ACROSS%g;s%localhost%$ACROSSHOST%g")"
-
-    echo
-    echo "Across URL:"
-    echo
-    echo "  * Normal: $HOST_WEB_URL_ACROSS"
-    echo "  *   View: $HOST_WEB_URL_VIEWONLY_ACROSS"
-    echo
-  fi
-fi
-
-if [ -n "$LOCALHOST" ]; then
-    # Get external access address
-    _HOST_WEB_URL="$(echo "$HOST_WEB_URL" | sed -e "s%localhost%$LOCALHOST%g")"
-    _HOST_WEB_URL_VIEWONLY="$(echo "$HOST_WEB_URL_VIEWONLY" | sed -e "s%localhost%$LOCALHOST%g")"
-
-    echo "Remote URL:"
-    echo
-    echo "  * Normal: $_HOST_WEB_URL"
-    echo "  *   View: $_HOST_WEB_URL_VIEWONLY"
-    echo
-else
-    echo "Note: Please make sure network available outside and then replace 'localhost' with the external ip or domain name."
-    echo "      Then 'echo \$ip > .host_name' or 'echo \$domain_name > .host_name'"
-fi
-
-echo
-echo "Note: firefox, safari and edge work, but google chrome web browser is preferable."
-echo
+  for v in $VNC_CLIENTS
+  do
+    which $v >/dev/null 2>&1
+    [ $? -eq 0 ] && echo -n "$v "
+  done  
 }
 
-# Check status
-docker ps -f name=$CONTAINER_NAME | grep -qv PORTS
-[ $? -ne 0 ] && echo "LOG: $LAB_NAME is not running." && exit 1
+verify_vnc()
+{
+  client=$1
+  match=0
+  number=0
 
-[ -z "$VNC_AUTOCONNECT" ] && VNC_AUTOCONNECT=1
+  for l in $INSTALLED_VNC_CLIENTS
+  do
+    number=`expr $number + 1`
 
-# Get vnc page
-CONTAINER_WEB_URL="$WEB_HTTP://localhost:${HOST_VNC_PORT}/?u=$VNC_TOKEN&p=$VNC_PWD"
-HOST_WEB_URL="$WEB_HTTP://${HOST}:${HOST_VNC_PORT}/?u=$VNC_TOKEN&p=$VNC_PWD"
-HOST_WEB_URL_VIEWONLY="$WEB_HTTP://${HOST}:${HOST_VNC_PORT}/?r=${VNC_TOKEN}${VNC_PWD_VIEWONLY}"
-LABS_WEB_URL="$WEB_HTTP://localhost:${HOST_VNC_PORT}/labs/$RELEASE_HTML"
-
-[ $VNC_AUTOCONNECT -eq 1 ] && \
-  CONTAINER_WEB_URL="$CONTAINER_WEB_URL&autoconnect=1"
-
-# Show lab info
-show_lab
-
-# Get xterm
-get_xterm
-
-# Get web browser
-get_browser
-
-[ $? -ne 0 ] && echo "ERR: Give up browser launching for no web browser found" && exit 0
-
-# Create local shotcut on Desktop
-if [ -d ~/Desktop -a -n "$REMOTE_DESKTOP_SHORTCUT" -a -f "$REMOTE_DESKTOP_SHORTCUT" ]; then
-
-  if [ "x$HOST_OS" = "xDarwin" ]; then
-
-    if [ "x$LAB_DESKTOP_SHORTCUT" = "x1" -a ! -f "$LOCAL_DESKTOP_SHORTCUT" ]; then
-      echo "$DOCKER_RUN_CMD $LAB_NAME" > "$LOCAL_DESKTOP_SHORTCUT"
-
-      # ref: https://superuser.com/questions/479411/close-all-mac-terminal-windows-but-the-one-running-a-script
-      echo 'osascript -e "do shell script \"osascript -e \\\\\"tell application \\\\\\\\\\\\\\"Terminal\\\\\\\\\\\\\\" \\\\\\" -e \\\\\\"set mainID to id of front window\\\\\\" -e \\\\\\" close (every window whose id = mainID)\\\\\\"  -e \\\\\\"end tell\\\\\\"   &> /dev/null &\""; exit' >> "$LOCAL_DESKTOP_SHORTCUT"
+    if [ "$l" = "$client" ]; then
+      match=1
+      return $number
     fi
+  done
+  return -1
+}
 
-    # For cloud lab
-    if [ ! -f "$MANAGE_DESKTOP_SHORTCUT" ]; then
-      echo "/usr/bin/open -a 'Terminal' '"$CLOUD_LAB_TOP_DIR"'" > "$MANAGE_DESKTOP_SHORTCUT"
-      echo 'osascript -e "do shell script \"osascript -e \\\\\"tell application \\\\\\\\\\\\\\"Terminal\\\\\\\\\\\\\\" \\\\\\" -e \\\\\\"set mainID to id of second window\\\\\\" -e \\\\\\" close (every window whose id = mainID)\\\\\\"  -e \\\\\\"end tell\\\\\\"   &> /dev/null &\""; exit' >> "$MANAGE_DESKTOP_SHORTCUT"
-    fi
+vnc_config()
+{
+  client=$1
 
-    if [ ! -f "$BROWSE_DESKTOP_SHORTCUT" ]; then
-      echo "/usr/bin/open -a '"$WEB_BROWSER"' '"$LABS_WEB_URL"'" > "$BROWSE_DESKTOP_SHORTCUT"
-      echo 'osascript -e "do shell script \"osascript -e \\\\\"tell application \\\\\\\\\\\\\\"Terminal\\\\\\\\\\\\\\" \\\\\\" -e \\\\\\"set mainID to id of first window\\\\\\" -e \\\\\\" close (every window whose id = mainID)\\\\\\"  -e \\\\\\"end tell\\\\\\"   &> /dev/null &\""; exit' >> "$BROWSE_DESKTOP_SHORTCUT"
-    fi
+  # List available vnc clients
+  echo "Available VNC Clients:"
+  echo
+  echo $INSTALLED_VNC_CLIENTS | tr ' ' '\n' | nl -v 1
+  echo
+  
+  # Let user choose one
+  read -p 'LOG: Choose the vnc client: ' client
 
-  elif [ "x$HOST_OS" = "xLinux" ]; then
+  [ -z "$client" ] && echo "\nERR: No client specified.\n" && exit 1
 
-    if [ "x$LAB_DESKTOP_SHORTCUT" = "x1" -a ! -f "$LOCAL_DESKTOP_SHORTCUT" ]; then
-      echo '#!/usr/bin/env xdg-open' > "$LOCAL_DESKTOP_SHORTCUT"
-      cat "$REMOTE_DESKTOP_SHORTCUT" \
-        | sed "s%Exec=.*%Exec='$DOCKER_RUN_CMD' $LAB_NAME%g" \
-        | sed "s%terminator.png%${WEB_BROWSER}.png%g;s%lxterminal.xpm%${WEB_BROWSER}.png%g" | tr '|' '&' \
-	  >> "$LOCAL_DESKTOP_SHORTCUT"
-    fi
+  echo $client | grep -q '[a-z]'
+  if [ $? -ne 0 ]; then
+    number=$client
+  else
+    number=`verify_vnc $client`
+    [ $? -eq -1 ] && echo "\nERR: No valid client specified.\n" && exit 1
+  fi
 
-    # For cloud lab
-    [ ! -f "$MANAGE_DESKTOP_SHORTCUT" ] && cat <<EOF > "$MANAGE_DESKTOP_SHORTCUT"
-#!/usr/bin/env xdg-open
-[Desktop Entry]
-Encoding=UTF-8
-Name=Cloud Lab Manager
-Comment=Cloud Lab Manage Center
-Exec="$XTERM" --working-directory="$CLOUD_LAB_TOP_DIR" -T 'Cloud Lab'
-Icon=/usr/share/pixmaps/${XTERM}.png
-Type=Application
-EOF
+  VNC_CLIENT=`echo $INSTALLED_VNC_CLIENTS | tr ' ' '\n' | head -$number | tail -1`
+  echo "\n     $number\t$VNC_CLIENT\n"
+  
+  VNC=$VNC_CLIENT
 
-    [ ! -f "$BROWSE_DESKTOP_SHORTCUT" ] && cat <<EOF > "$BROWSE_DESKTOP_SHORTCUT"
-#!/usr/bin/env xdg-open
-[Desktop Entry]
-Encoding=UTF-8
-Name=Cloud Lab Browser
-Comment=Cloud Lab Web Center
-Exec="$WEB_BROWSER" "$LABS_WEB_URL"
-Icon=/usr/share/pixmaps/${WEB_BROWSER}.png
-Type=Application
-EOF
+  set_var VNC
+} # vnc_config
 
-  else # Windows
+show_vnc()
+{
+  AVAILABLE_VNC_CLIENTS=$INSTALLED_VNC_CLIENTS
+  echo $AVAILABLE_VNC_CLIENTS | egrep -q "$VNC"
+  [ $? -ne 0 -a "$VNC" != "list" ] && AVAILABLE_VNC_CLIENTS="$VNC $AVAILABLE_VNC_CLIENTS"
 
-    if [ "x$LAB_DESKTOP_SHORTCUT" = "x1" -a ! -f "$LOCAL_DESKTOP_SHORTCUT" ]; then
-      RUN_BAT="$TOP_DIR/tools/windows/run.bat"
+  echo
+  echo "         VNC Clients: $AVAILABLE_VNC_CLIENTS"
+  echo "          VNC Server: $VNC_IP"
+  echo "     Normal Password: $VNC_PWD"
+  echo "   Viewonly Password: $VNC_PWD_VIEWONLY"
+  echo
+}
 
-      mkdir -p "$TOP_DIR/tools/windows"
+show_usage()
+{
+  # Report if no vnc client specified
+  echo "LOG: No vnc client found, please configure one with one of the following methods:"
+  echo
+  echo "1. Specify via: $0 VNC_CLIENT"
+  echo "2. Or install any one you prefer and add it to $LAB_VNC"
+  echo "3. Or install one of the following:"
+  echo
+  echo "      $VNC_CLIENTS"
+  echo
+}
 
-      GIT_BASH="$(echo $(cd / && pwd -W)/git-bash.exe | sed -e 's% %\" \"%g')"
-      WIN_CHROME="C:/Program\" \"Files\" \"(x86)/Google/Chrome/Application/chrome.exe"
-      WORK_DIR="$(echo $TOP_DIR | sed -e 's% %\" \"%g')"
-      echo "start $GIT_BASH -c '$WORK_DIR/tools/docker/run $LAB_NAME'" > $RUN_BAT
-      echo "start $WIN_CHROME \"$CONTAINER_WEB_URL\"" >> $RUN_BAT
+# Get login client in this order: command argument, environment variable and .login_client configuration
+[ -n "$1" ] && VNC=$1
 
-      cat <<EOF > "$LOCAL_DESKTOP_SHORTCUT"
-[InternetShortcut]
-URL="$RUN_BAT"
-IconIndex=0
-EOF
-    fi
+# Get installed vnc clients
+INSTALLED_VNC_CLIENTS=`vnc_clients`
 
-    # For cloud lab
-    if [ ! -f "$MANAGE_DESKTOP_SHORTCUT" ]; then
-      MANAGE_BAT="$TOP_DIR/tools/windows/manage.bat"
-
-      mkdir -p "$TOP_DIR/tools/windows"
-
-      GIT_BASH="$(echo $(cd / && pwd -W)/git-bash.exe | sed -e 's% %\" \"%g')"
-      WORK_DIR="$(echo $TOP_DIR | sed -e 's% %\" \"%g')"
-      echo "start $GIT_BASH --cd=$WORK_DIR" > $MANAGE_BAT
-
-      cat <<EOF > "$MANAGE_DESKTOP_SHORTCUT"
-[InternetShortcut]
-URL="$MANAGE_BAT"
-IconIndex=0
-IconFile=D:\Program" "Files\Git\git-bash.exe
-EOF
-    fi
-
-    [ ! -f "$BROWSE_DESKTOP_SHORTCUT" ] && cat <<EOF > "$BROWSE_DESKTOP_SHORTCUT"
-[InternetShortcut]
-URL="$LABS_WEB_URL"
-IconIndex=0
-EOF
-
+if [ "$VNC" != "list" ]; then
+  if [ -n "$VNC" ]; then
+    which $VNC >/dev/null 2>&1
+    [ $? -ne 0 ] && echo "\nERR: client $VNC is not installed.\n" && exit 1
+  else
+    get_var VNC none
   fi
 fi
 
+# show vnc info
+echo "LOG: VNC login information:"
+show_vnc
 
-[ -f "$LOCAL_DESKTOP_SHORTCUT" ] && chmod a+x "$LOCAL_DESKTOP_SHORTCUT"
-[ -f "$MANAGE_DESKTOP_SHORTCUT" ] && chmod a+x "$MANAGE_DESKTOP_SHORTCUT"
-[ -f "$BROWSE_DESKTOP_SHORTCUT" ] && chmod a+x "$BROWSE_DESKTOP_SHORTCUT"
-
-# For web portmapping
-[ -f "$LAB_PORTMAP" ] && grep -q ":8" "$LAB_PORTMAP" \
-    && (docker logs $CONTAINER_NAME 2>/dev/null | grep "Server address:") \
-    && for port in $(grep ":8" "$LAB_PORTMAP" | cut -d':' -f1); \
-       do echo "LOG: Local Web Address: http://$HOST:$port/"; done
-
-if [ "x$HOST_OS" = "xDarwin" ]; then
-  (eval $__WEB_BROWSER '$CONTAINER_WEB_URL' >/dev/null 2>&1 &)>/dev/null 2>&1
-else
-  (eval nohup "'$__WEB_BROWSER'" "'$CONTAINER_WEB_URL'" >/dev/null 2>&1 &)>/dev/null 2>&1
+# show usage
+if [ "$VNC" = "none" -a -z "$INSTALLED_VNC_CLIENTS" ]; then 
+  show_usage
+  exit 1
 fi
+
+# If no vnc client specified in command line, let use choose always
+[ "$VNC" = "none" -o "$VNC" = "list" ] && vnc_config
+
+case $VNC in
+  remmina)
+      VNC_LOGIN="$VNC $VNC_IP"
+      ;;
+  vinagre)
+      VNC_LOGIN="$VNC --geometry 800x600 $VNC_IP"
+      ;;
+  *)
+      VNC_LOGIN="$VNC $VNC_IP"
+      ;;
+esac
+
+# Easier login
+which xclip >/dev/null 2>&1
+[ $? -eq 0 ] && echo $VNC_PWD | tr -d '\n' | xclip -selection clipboard
+which xsel >/dev/null 2>&1
+[ $? -eq 0 ] && echo $VNC_PWD | tr -d '\n' | xsel -b
+
+echo "LOG: Running '$VNC_LOGIN'"
+
+nohup $VNC_LOGIN >/dev/null 2>&1 &

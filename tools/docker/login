@@ -1,0 +1,76 @@
+#!/bin/sh
+#
+# login -- login lab with a specified method
+#
+# Copyright (C) 2016-2020 Wu Zhangjin <lzufalcon@163.com>
+#
+
+uname | grep -q MINGW && PWD_OPT="-W"
+TOP_DIR="$(cd "$(dirname "$0")"/../../ && pwd $PWD_OPT)"
+. "$TOP_DIR/tools/docker/config" $* >/dev/null
+
+verify_login()
+{
+  method=$1
+  match=0
+  number=0
+  for l in $LOGIN_METHODS
+  do
+    number=`expr $number + 1`
+
+    if [ "$l" = "$method" ]; then
+      match=1
+      return 0
+    fi
+  done
+  return 1
+}
+
+login_config()
+{
+  # List available login methods
+  echo "Available Login Methods:"
+  echo
+  echo $LOGIN_METHODS | tr ' ' '\n' | nl -v 1
+  echo
+  
+  # Let user choose one
+  read -p 'LOG: Choose the login method: ' method
+
+  [ -z "$method" ] && echo "\nERR: No method specified.\n" && exit 1
+  
+  echo $method | grep -q '[a-z]'
+  if [ $? -ne 0 ]; then
+    number=$method
+  else
+    verify_login $method
+    [ $? -ne 0 ] && echo "\nERR: No valid method specified.\n" && exit 1
+  fi
+  
+  LOGIN_METHOD=`echo $LOGIN_METHODS | tr ' ' '\n' | head -$number | tail -1`
+  echo "\n     $number\t$LOGIN_METHOD\n"
+  
+  LOGIN=$LOGIN_METHOD
+  
+  set_var LOGIN
+} # login_config
+
+# Get login method in this order: command argument, environment variable and .login_method configuration
+[ -n "$1" ] && LOGIN=$1
+
+if [ "$LOGIN" != "list" ]; then
+  if [ -n "$LOGIN" ]; then
+    verify_login $LOGIN
+    [ $? -ne 0 ] && echo "\nERR: method $LOGIN is not valid.\n" && exit 1
+  else
+    get_var LOGIN none
+  fi
+fi
+
+[ "$LOGIN" = "none" -o "$LOGIN" = "list" ] && login_config
+
+LOGIN_TOOL="tools/docker/$LOGIN"
+
+echo "LOG: Available login methods: $LOGIN_METHODS" | egrep --color "[^a-z]$LOGIN"
+echo "LOG: Running '$LOGIN_TOOL'"
+$LOGIN_TOOL

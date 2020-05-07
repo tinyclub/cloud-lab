@@ -48,7 +48,7 @@ if [ -n "$CONTAINER_NAME" ]; then
 
   if [ $? -eq 0 ]; then
      echo "LOG: Open the running $LAB_NAME"
-     "$DOCKER_VNC_CMD" $*
+     "$DOCKER_LOGIN_CMD"
 
      exit $?
   fi
@@ -65,7 +65,7 @@ if [ -n "$CONTAINER_NAME" ]; then
        boot_completed=`docker logs $CONTAINER_NAME 2>/dev/null | grep boot_completed`; \
        sleep 2; \
        [ -n "$boot_completed" ] && break; done \
-    && "$DOCKER_VNC_CMD" $*
+    && "$DOCKER_LOGIN_CMD" $*
 
     exit $?
   fi
@@ -186,7 +186,7 @@ echo "LOG: $password"
 # Publish vnc port
 "$DOCKER_PUBLISH_CMD" $*
 
-"$DOCKER_VNC_CMD" $*
+"$DOCKER_LOGIN_CMD"
 
 # This is very slow in windows, silence it
 # It is not necessary for normal users

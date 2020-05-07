@@ -6,3 +6,5 @@ releasings
 branch
 .labconfig
 .gitconfig
+.login_method
+.login_vnc
