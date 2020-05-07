@@ -72,6 +72,8 @@ echo ""
 
 read -p 'LOG: Choose the lab number: ' number
 
+[ -z "$number" ] && echo "\nERR: No valid number specified.\n" && exit 1
+
 CURRENT=`echo $LABS | tr ' ' '\n' | head -$number | tail -1`
 
 echo "\n     $number\t$CURRENT\n"
