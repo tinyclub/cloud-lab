@@ -253,7 +253,7 @@ fi
 
 # supported login methods
 LOGIN_METHODS="bash ssh vnc webssh webvnc"
-VNC_CLIENTS="vinagre vncviewer"
+VNC_CLIENTS="vinagre xvnc4viewer gvncviewer xtightvncviewer krdc"
 DEF_LOGIN="vnc"
 
 ## main branch
