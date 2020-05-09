@@ -142,5 +142,6 @@ which xsel >/dev/null 2>&1
 [ $? -eq 0 ] && echo $VNC_PWD | tr -d '\n' | xsel -b
 
 echo "LOG: Running '$VNC_LOGIN'"
+echo
 
 nohup $VNC_LOGIN >/dev/null 2>&1 &

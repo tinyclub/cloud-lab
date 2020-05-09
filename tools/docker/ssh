@@ -44,4 +44,6 @@ EOF
 fi
 
 echo "LOG: Running '$SSH_CMD'"
+echo
+
 eval "$SSH_CMD"
