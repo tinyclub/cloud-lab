@@ -482,7 +482,7 @@ do_op () #op $ARG $args
 
   [ -z "$arg" ] && echo "LOG: '$ARG' required for '$op'" && exit 1
 
-  echo "LOG: Running ' $op $arg $args'\n"
+  echo "\nLOG: Running ' $op $arg $args'\n"
 
   eval $op $arg $args
 }

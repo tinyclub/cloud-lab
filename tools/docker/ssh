@@ -43,6 +43,7 @@ EOF
 
 fi
 
+echo
 echo "LOG: Running '$SSH_CMD'"
 echo
 

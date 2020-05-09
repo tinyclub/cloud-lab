@@ -95,7 +95,16 @@ show_usage()
 }
 
 # Get login client in this order: command argument, environment variable and .login_client configuration
-[ -n "$1" ] && VNC=$1
+# If the first argument is valid lab, use the second one as vnc client argument.
+if [ -n "$1" ]; then
+  LAB=$1
+  [ -n "$LAB" ] && ls "$CONFIGS_DIR" | tr -s ' ' | tr ' ' '\n' | grep -q ^$LAB$
+  if [ $? -eq 0 ]; then
+    VNC=$2
+  else
+    VNC=$1
+  fi
+fi
 
 # Get installed vnc clients
 INSTALLED_VNC_CLIENTS=`vnc_clients`
@@ -111,6 +120,7 @@ if [ "$VNC" != "list" ]; then
 fi
 
 # show vnc info
+echo
 echo "LOG: VNC login information:"
 show_vnc
 
@@ -128,7 +138,7 @@ case $VNC in
       VNC_LOGIN="$VNC $VNC_IP"
       ;;
   vinagre)
-      VNC_LOGIN="$VNC --geometry 800x600 $VNC_IP"
+      VNC_LOGIN="$VNC --vnc-scale --geometry 800x600 $VNC_IP"
       ;;
   *)
       VNC_LOGIN="$VNC $VNC_IP"

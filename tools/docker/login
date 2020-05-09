@@ -56,12 +56,25 @@ login_config()
 } # login_config
 
 # Get login method in this order: command argument, environment variable and .login_method configuration
-[ -n "$1" ] && LOGIN=$1
+# If the first argument is valid lab, use the second one as login method argument.
+if [ -n "$1" ]; then
+  LAB=$1
+  [ -n "$LAB" ] && ls "$CONFIGS_DIR" | tr -s ' ' | tr ' ' '\n' | grep -q ^$LAB$
+  if [ $? -eq 0 ]; then
+    LOGIN=$2
+  else
+    LOGIN=$1
+  fi
+fi
 
 if [ "$LOGIN" != "list" ]; then
   if [ -n "$LOGIN" ]; then
     verify_login $LOGIN
-    [ $? -ne 0 ] && echo "\nERR: method $LOGIN is not valid.\n" && exit 1
+    if [ $? -ne 0 ]; then
+      echo "\nERR: $LOGIN is not valid login method, avilable methods:\n"
+      echo "    $LOGIN_METHODS.\n"
+      exit 1
+    fi
     set_var LOGIN
   else
     get_var LOGIN none
