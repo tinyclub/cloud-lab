@@ -22,18 +22,27 @@ verify_vnc()
 {
   client=$1
   match=0
-  number=0
 
-  for l in $INSTALLED_VNC_CLIENTS
-  do
-    number=`expr $number + 1`
+  echo $client | grep -q '[a-z]'
+  if [ $? -eq 0 ]; then
+    for l in $INSTALLED_VNC_CLIENTS
+    do
+      number=`expr $number + 1`
 
-    if [ "$l" = "$client" ]; then
-      match=1
-      return $number
+      if [ "$l" = "$client" ]; then
+        match=1
+        return 0
+      fi
+    done
+  else
+    total=`echo $INSTALLED_VNC_CLIENTS | tr -d -c ' ' | wc -c`
+    if [ $client -le $total ]; then
+       number=$client
+       return 0
     fi
-  done
-  return -1
+  fi
+
+  return 1
 }
 
 vnc_config()
@@ -51,13 +60,9 @@ vnc_config()
 
   [ -z "$client" ] && echo "\nERR: No client specified.\n" && exit 1
 
-  echo $client | grep -q '[a-z]'
-  if [ $? -ne 0 ]; then
-    number=$client
-  else
-    number=`verify_vnc $client`
-    [ $? -eq -1 ] && echo "\nERR: No valid client specified.\n" && exit 1
-  fi
+  number=0
+  verify_vnc $client
+  [ $? -ne 0 ] && echo "\nERR: No valid client specified.\n" && exit 1
 
   VNC_CLIENT=`echo $INSTALLED_VNC_CLIENTS | tr ' ' '\n' | head -$number | tail -1`
   echo "\n     $number\t$VNC_CLIENT\n"

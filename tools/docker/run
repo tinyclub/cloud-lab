@@ -186,7 +186,7 @@ echo "LOG: $password"
 # Publish vnc port
 "$DOCKER_PUBLISH_CMD" $*
 
-"$DOCKER_LOGIN_CMD"
+"$DOCKER_LOGIN_CMD" $*
 
 # This is very slow in windows, silence it
 # It is not necessary for normal users
