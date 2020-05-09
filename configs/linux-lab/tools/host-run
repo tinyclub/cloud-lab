@@ -10,3 +10,26 @@ for config in $configs
 do
   [ -f ~/$config ] && cp ~/$config $LAB_HOME/
 done
+
+# load nfsd module
+
+# FIXME: with linux kernel v5.3, v5.4, v5.6, nfsd has bug while be plugged in
+# container side, but ok in host side, move it back to host side:
+# https://gitee.com/tinylab/linux-lab/issues/I1GGG1
+#
+# This may break nfsboot in Windows 10 and Mac OSX, there is no suitable method
+# to insert nfsd in 'host' side.
+
+uname -r | grep ^[5-9]
+[ $? -eq 0 ] && NFS=nfsd
+
+modules="$NFS"
+
+for m in $modules
+do
+  sudo modprobe -n $m >/dev/null 2>&1
+  [ $? -ne 0 ] && continue
+
+  lsmod | grep -q $m
+  [ $? -ne 0 ] && sudo modprobe $m >/dev/null 2>&1
+done

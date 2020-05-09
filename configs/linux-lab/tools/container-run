@@ -17,25 +17,42 @@ else
   kvm_dri=kvm-amd
 fi
 
-modules="loop minix nfsd 9pnet_virtio kvm $kvm_dri"
+# FIXME: with linux kernel v5.3, v5.4, v5.6, nfsd has bug while be plugged in
+# container side, but ok in host side, move it back to host side:
+# https://gitee.com/tinylab/linux-lab/issues/I1GGG1
+#
+# This may break nfsboot in Windows 10 and Mac OSX, there is no suitable method
+# to insert nfsd in 'host' side.
 
-if [ $? -eq 0 ]; then
-  for m in $modules
-  do
-    modprobe -d /m -n $m >/dev/null 2>&1
-    [ $? -ne 0 ] && continue
-
-    lsmod | grep -q $m
-    [ $? -ne 0 ] && modprobe -d/m $m >/dev/null 2>&1
-
-    # tell user enable cpu virtualization in bios if not disabled
-    if [ $? -ne 0 ]; then
-      if [ "$m" = "kvm-intel" -o "$m" = "kvm-amd" ]; then
-        echo "LOG: Please turn on cpu virtualization in bios if want use kvm speedup"
-      fi
-    fi
-  done
+os=`uname`
+if [ "$os" = "Linux" ]; then
+  uname -r | grep ^[5-9]
+  [ $? -ne 0 ] && NFS=nfsd
+else
+  # Insert nfsd in container side for Windows and Mac OS X currently for there is
+  # no method to insert nfs module.
+  #
+  # If they use the same kernel, it should crash too ...
+  NFS=nfsd
 fi
+
+modules="loop minix $NFS 9pnet_virtio kvm $kvm_dri"
+
+for m in $modules
+do
+  modprobe -d /m -n $m >/dev/null 2>&1
+  [ $? -ne 0 ] && continue
+
+  lsmod | grep -q $m
+  [ $? -ne 0 ] && modprobe -d /m $m >/dev/null 2>&1
+
+  # tell user enable cpu virtualization in bios if not disabled
+  if [ $? -ne 0 ]; then
+    if [ "$m" = "kvm-intel" -o "$m" = "kvm-amd" ]; then
+      echo "LOG: Please turn on cpu virtualization in bios if want use kvm speedup"
+    fi
+  fi
+done
 
 # For qemu-mips64el
 [ ! -f /proc/sys/fs/binfmt_misc/regisiter ] && mount -t binfmt_misc none /proc/sys/fs/binfmt_misc
