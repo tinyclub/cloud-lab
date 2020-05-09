@@ -100,22 +100,9 @@ else
 
   [ -n "$CURRENT" ] && ls "$CONFIGS_DIR" | tr -s ' ' | tr ' ' '\n' | grep -q ^$CURRENT$
   if [ $? -eq 1 -o -z "$CURRENT" ]; then
-    if [ -n "$CURRENT" ]; then
-      echo "LOG: Specified lab $CURRENT is not one of supported labs:" >&2
-      echo >&2
-      echo "     `ls $CONFIGS_DIR | tr '\n' ' '`" >&2
-      echo >&2
-    fi
-
     CURRENT=""
     if [ -f "$LAB_CURRENT" ]; then
       CURRENT="$(cat "$LAB_CURRENT")"
-      if [ -n "$1" -a -n "$CURRENT" ]; then
-        echo "LOG: Use the one pre-configured in:" >&2
-        echo >&2
-        echo "     $LAB_CURRENT" | sed -e "s%$TOP_DIR/%%g" >&2
-        echo >&2
-      fi
       LAB_CURRENT_DIR="$LAB_DIR/$CURRENT"
     fi
   else
