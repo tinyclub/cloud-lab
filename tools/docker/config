@@ -105,6 +105,8 @@ else
       CURRENT="$(cat "$LAB_CURRENT")"
       LAB_CURRENT_DIR="$LAB_DIR/$CURRENT"
     fi
+  else
+    [ -n "$CURRENT" ] && echo $CURRENT | tr -d '\r' | tr -d '\n' > $LAB_CURRENT
   fi
 
   # Container don't need this CURRENT
