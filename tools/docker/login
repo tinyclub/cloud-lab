@@ -78,7 +78,7 @@ echo "   $LOGIN_METHODS" | egrep --color "[^a-z]$LOGIN"
 echo
 echo "LOG: Switch to another method:"
 echo
-echo "   ./$0 LOGIN_METHOD"
+echo "   $0 LOGIN_METHOD"
 echo
 echo "LOG: Running '$LOGIN_TOOL'"
 echo
