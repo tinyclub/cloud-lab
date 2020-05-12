@@ -26,7 +26,7 @@ verify_login()
       fi
     done
   else
-    total=`echo $LOGIN_METHODS | tr -d -c ' ' | wc -c`
+    total=`echo "$LOGIN_METHODS " | tr -d -c ' ' | wc -c`
     if [ $method -le $total ]; then
       number=$method
       return 0

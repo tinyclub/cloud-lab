@@ -35,7 +35,7 @@ verify_vnc()
       fi
     done
   else
-    total=`echo $INSTALLED_VNC_CLIENTS | tr -d -c ' ' | wc -c`
+    total=`echo "$INSTALLED_VNC_CLIENTS " | tr -d -c ' ' | wc -c`
     if [ $client -le $total ]; then
        number=$client
        return 0
