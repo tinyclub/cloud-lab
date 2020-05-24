@@ -2,6 +2,8 @@
 #
 # install -- Install docker engine
 #
+# Usage: tools/docker/install [registry-mirror-site]
+#
 # Copyright (C) 2016-2020 Wu Zhangjin <lzufalcon@163.com>
 #
 # ref: https://docs.docker.com/engine/installation/linux/ubuntulinux/
@@ -10,6 +12,10 @@
 #
 # ref: https://mirror.tuna.tsinghua.edu.cn/help/docker-ce/
 #
+
+# Allow customize docker registry mirror site
+[ -n "$1" ] && REGISTRY_MIRROR=$1
+[ -z "$REGISTRY_MIRROR" ] && REGISTRY_MIRROR=https://docker.mirrors.ustc.edu.cn
 
 which docker > /dev/null 2>&1 && exit 0
 
@@ -45,7 +51,7 @@ $SUDO sed -i -e "/DOCKER HACK START 578327498237/,/DOCKER HACK END 789527394722/
 $SUDO bash -c 'cat <<EOF >> /etc/default/docker
 # CLOUD LAB: DOCKER HACK START 578327498237
 # DOCKER_OPTS="\$DOCKER_OPTS --registry-mirror=https://<YOUR OWN ACCOUNT>.mirror.aliyuncs.com"
-DOCKER_OPTS="\$DOCKER_OPTS --registry-mirror=https://docker.mirrors.ustc.edu.cn"
+DOCKER_OPTS="\$DOCKER_OPTS --registry-mirror='$REGISTRY_MIRROR'"
 # DOCKER_OPTS="\$DOCKER_OPTS --dns 119.29.29.29 --dns 180.76.76.76"
 # DOCKER_OPTS="\$DOCKER_OPTS --dns 223.5.5.5 --dns 114.114.114.114"
 # DOCKER_OPTS="\$DOCKER_OPTS --dns 8.8.8.8 --dns 8.8.4.4"
@@ -53,6 +59,16 @@ DOCKER_OPTS="\$DOCKER_OPTS --bip=10.66.0.10/16"
 # DOCKER_OPTS="\$DOCKER_OPTS --storage-opt dm.basesize=5G"
 # CLOUD LAB: DOCKER HACK END 789527394722
 EOF'
+
+# Add register-mirror for newer docker
+if [ ! -f /etc/docker/daemon.json ]; then
+$SUDO bash -c 'cat <<EOF > /etc/docker/daemon.json
+{
+  "registry-mirrors": ["'$REGISTRY_MIRROR'"]
+}
+EOF'
+fi
+
 # Restart to make sure the above opts work
 $SUDO ifconfig docker0 down
 $SUDO brctl delbr docker0
