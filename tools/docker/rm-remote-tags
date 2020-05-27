@@ -1,0 +1,48 @@
+#!/bin/bash
+#
+# rm-remote-tags -- remove tags from remote docker registry
+#
+# Copyright (C) 2016-2020 Wu Zhangjin <lzufalcon@163.com>
+#
+# ref: https://devopsheaven.com/docker/dockerhub/2018/04/09/delete-docker-image-tag-dockerhub.html
+#
+
+echo
+echo "LOG: Removing tags from remote hub.docker.com"
+echo
+
+echo "LOG: Please input necessary information:"
+
+read -p "Docker Username: " DOCKER_USERNAME
+read -p "Docker password: " DOCKER_PASSWORD
+read -p "Docker Organization: " DOCKER_ORGANIZATION
+read -p "Docker Image: " DOCKER_IMAGE
+read -p "Docker Tag: " DOCKER_TAG
+
+# docker run --rm -it lumir/remove-dockerhub-tag --user "$DOCKER_USERNAME" --password "$DOCKER_PASSWORD" $DOCKER_TAGS
+
+login_data() {
+cat <<EOF
+{
+  "username": "$DOCKER_USERNAME",
+  "password": "$DOCKER_PASSWORD"
+}
+EOF
+}
+
+# Before removing
+echo "LOG: Old Tags"
+curl -s "https://registry.hub.docker.com/v2/repositories/${DOCKER_ORGANIZATION}/${DOCKER_IMAGE}/tags/" | jq '."results"[]["name"]'
+
+# Removing tags
+echo "LOG: Removing ${DOCKER_ORGANIZATION}/${DOCKER_IMAGE}:${DOCKER_TAG}"
+
+TOKEN=`curl -s -H "Content-Type: application/json" -X POST -d "$(login_data)" "https://hub.docker.com/v2/users/login/" | jq -r .token`
+
+curl "https://hub.docker.com/v2/repositories/${DOCKER_ORGANIZATION}/${DOCKER_IMAGE}/tags/${DOCKER_TAG}/" \
+-X DELETE \
+-H "Authorization: JWT ${TOKEN}"
+
+# After removing
+echo "LOG: New Tags"
+curl -s "https://registry.hub.docker.com/v2/repositories/${DOCKER_ORGANIZATION}/${DOCKER_IMAGE}/tags/" | jq '."results"[]["name"]'
