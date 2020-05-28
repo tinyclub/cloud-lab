@@ -65,6 +65,7 @@ if [ -n "$CONTAINER_NAME" ]; then
        boot_completed=`docker logs $CONTAINER_NAME 2>/dev/null | grep boot_completed`; \
        sleep 2; \
        [ -n "$boot_completed" ] && break; done \
+    && "$DOCKER_PUBLISH_CMD" $* \
     && "$DOCKER_LOGIN_CMD" $*
 
     exit $?
@@ -98,7 +99,7 @@ volumemap="$volumemap -v '$CONFIG_DIR':'$CONFIG_WORKDIR'"
 limits=$LIMITS
 
 # Get a new ip for our new container
-[ -z "$RANDOM_IP" ] && RANDOM_IP=0
+[ -z "$RANDOM_IP" ] && RANDOM_IP=1
 if [ "x$HOST_OS" = "xLinux" -a $RANDOM_IP -eq 1 ]; then
   if [ -z "$VNC_IP" -o "$VNC_IP" = "$DEF_VNC_IP" ]; then
     VNC_IP=`$DOCKER_IP_CMD`
@@ -134,7 +135,11 @@ do_lock
 #coredump="--ulimit core=99999999999:99999999999 --mount source=coredumps_volume,target=/tmp/cores"
 coredump="--ulimit core=-1"
 
-CONTAINER_ID=$(eval docker run -d --privileged $coredump -h $LAB_NAME $container $portmap $caps $dnss $devices $limits $volumemap $vars $EXTRA_ARGS $IMAGE)
+# use --ip command to record the ip address
+[ -n "$VNC_IP" ] && ip="--ip=$VNC_IP"
+net="$ip --network $VNC_NET_NAME"
+
+CONTAINER_ID=$(eval docker run -d --privileged $coredump -h $LAB_NAME $net $container $portmap $caps $dnss $devices $limits $volumemap $vars $EXTRA_ARGS $IMAGE)
 
 [ $? -ne 0 ] && echo "LOG: docker running error." && exit 1
 

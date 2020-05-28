@@ -11,17 +11,12 @@ uname | grep -q MINGW && PWD_OPT="-W"
 TOP_DIR="$(cd "$(dirname "$0")"/../../ && pwd $PWD_OPT)"
 . "$TOP_DIR"/tools/docker/config $* >/dev/null
 
-DOCKER_CONTAINERS_DIR=/var/lib/docker/containers
+used=`find "$CONFIGS_DIR" -name .vnc_ip -exec cat {} \;`
 
-used=`$SUDO find "$DOCKER_CONTAINERS_DIR/" -name config.v2.json \
-	-exec grep -oE '"IPAddress":"\b([0-9]{1,3}\.){3}[0-9]{1,3}\b"' {} \; \
-	| cut -d ':' -f2 | tr -d '"'`
-
-bridge=`docker network ls | grep bridge | cut -d' ' -f1`
-net=`docker inspect --format "{{ .IPAM.Config }}" $bridge | grep -oE "\b([0-9]{1,3}\.){3}[0-9]{1,3}\b/[0-9]{1,2}"`
+net=`echo $VNC_NET | grep -oE "\b([0-9]{1,3}\.){3}[0-9]{1,3}\b/[0-9]{1,2}"`
 base=${net%/*}
 mask=${net#*/}
-used="$used $base"
+used="$used $VNC_GATEWAY $WPROXY_IP $TPROXY_IP"
 
 get_suffix ()
 {

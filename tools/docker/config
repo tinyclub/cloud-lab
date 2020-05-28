@@ -172,7 +172,6 @@ LAB_VNC_PWD_VIEWONLY="$CONFIG_DOCKER_DIR/.vnc_pwd_viewonly"
 LAB_VNC_IP="$CONFIG_DOCKER_DIR/.vnc_ip"
 LAB_VNC_TOKEN="$CONFIG_DOCKER_DIR/.vnc_token"
 LAB_TPROXY="$CONFIG_DOCKER_DIR/.tproxy"
-LAB_TPROXY_IP="$CONFIG_DOCKER_DIR/.tproxy"
 LAB_SCREEN_SIZE="$CONFIG_DOCKER_DIR/.screen_size"
 LAB_VNC_SHARED="$CONFIG_DOCKER_DIR/.vnc_shared"
 LAB_VNC_IDENTIFY="$CONFIG_DOCKER_DIR/.vnc_identify"
@@ -219,7 +218,7 @@ LAB_VARS="CURRENT IMAGE ENVS CAPS DNS DEVICES LIMITS PORTMAP VOLUMEMAP BRANCH"
 
 LAB_VARS="$LAB_VARS WEB_BROWSER HOST"
 LAB_VARS="$LAB_VARS CONTAINER_NAME CONTAINER_ID HOST HOST_NAME"
-LAB_VARS="$LAB_VARS UNIX_USER UNIX_PWD VNC_PWD VNC_PWD_VIEWONLY TPROXY TPROXY_IP UNIX_UID UNIX_IDENTIFY VNC_IDENTIFY SUDO_IDENTIFY VNC_IP VNC_TOKEN"
+LAB_VARS="$LAB_VARS UNIX_USER UNIX_PWD VNC_PWD VNC_PWD_VIEWONLY TPROXY UNIX_UID UNIX_IDENTIFY VNC_IDENTIFY SUDO_IDENTIFY VNC_IP VNC_TOKEN"
 LAB_VARS="$LAB_VARS VNC_SHARED SCREEN_SIZE"
 LAB_VARS="$LAB_VARS WPROXY_LIMITS TPROXY_LIMITS"
 
@@ -967,17 +966,59 @@ touch_token_map ()
   return 0
 }
 
-# Verify some variables
+get_random_net ()
+{
+  # use one of the net in (172.16.0.0 - 172.31.255.255  (172.16/12 prefix)
 
-## If saved ip is not in the new net ip range of docker, remove it for new generation
-get_var VNC_IP
-if [ ! -n "$IN_CONTAINER" -a -n "$VNC_IP" ]; then
-  bridge=`docker network ls | grep bridge | cut -d' ' -f1`
-  net=`docker inspect --format "{{ .IPAM.Config }}" $bridge | grep -oE "\b([0-9]{1,3}\.){3}[0-9]{1,3}\b/[0-9]{1,2}"`
-  VNC_IP_BASE=`echo $VNC_IP | cut -d '.' -f1,2`
-  echo $net | grep -q $VNC_IP_BASE
+  subnet=$((16 + $((`get_random` % 15))))
+  echo 172.${subnet}.19.0
+}
+
+create_cloud_lab_net ()
+{
+  # Configure subnet info
+  [ -z "$VNC_NET_NAME" ] && VNC_NET_NAME=cloud-lab-net
+
+  docker network inspect $VNC_NET_NAME >/dev/null 2>&1
   if [ $? -ne 0 ]; then
-    unset VNC_IP
-    rm $LAB_VNC_IP
+    [ -z "$VNC_NET_MASK" ] && VNC_NET_MASK=16
+
+    while :; do
+      if [ -z "$VNC_NET" ]; then
+        VNC_NET=172.20.19.0/$VNC_NET_MASK
+      else
+        VNC_NET=`get_random_net`/$VNC_NET_MASK
+      fi
+      VNC_NET_PREFIX=$(echo $VNC_NET | cut -d'/' -f1 | cut -d '.' -f1-$((5-$VNC_NET_MASK/8)))
+      VNC_GATEWAY=$VNC_NET_PREFIX.1
+
+      docker network create --driver bridge --subnet=$VNC_NET --gateway=$VNC_GATEWAY $VNC_NET_NAME
+      [ $? -eq 0 ] && break
+    done
+  else
+    VNC_NET=`docker inspect --format "{{ .IPAM.Config }}" $VNC_NET_NAME | grep -oE "\b([0-9]{1,3}\.){3}[0-9]{1,3}\b/[0-9]{1,2}"`
+    VNC_NET_MASK=`echo $VNC_NET | cut -d'/' -f2`
+    VNC_NET_PREFIX=$(echo $VNC_NET | cut -d'/' -f1 | cut -d '.' -f1-$((5-$VNC_NET_MASK/8)))
+    VNC_GATEWAY=$VNC_NET_PREFIX.1
   fi
+
+  # Set gateway, wproxy and tproxy
+  [ -z "$WPROXY_IP" ] && WPROXY_IP=$VNC_NET_PREFIX.2
+  [ -z "$TPROXY_IP" ] && TPROXY_IP=$VNC_NET_PREFIX.3
+
+  ## If saved ip is not in the new net ip range of docker, remove it for new generation
+  get_var VNC_IP
+  if [ -n "$VNC_IP" ]; then
+    VNC_IP_BASE=`echo $VNC_IP | cut -d '.' -f1,2`
+    echo $VNC_NET | grep -q $VNC_IP_BASE
+    if [ $? -ne 0 ]; then
+      unset VNC_IP
+      rm $LAB_VNC_IP
+    fi
+  fi
+}
+
+# Create cloud lab subnet
+if [ ! -n "$IN_CONTAINER" ]; then
+  create_cloud_lab_net
 fi
