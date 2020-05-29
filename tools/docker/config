@@ -970,7 +970,7 @@ get_random_net ()
 {
   # use one of the net in (172.16.0.0 - 172.31.255.255  (172.16/12 prefix)
 
-  subnet=$((16 + $((`get_random` % 15))))
+  subnet=$((19 + $((`get_random` % 12))))
   echo 172.${subnet}.19.0
 }
 
