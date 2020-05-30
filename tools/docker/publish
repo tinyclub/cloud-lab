@@ -14,12 +14,21 @@ do_unlock
 [ -z "$VNC_TOKEN" ] && get_var VNC_TOKEN
 do_lock
 
-touch_token_map
-
 # SUDO only required while the map is created in WPROXY
 SUDO=""
 
 map="${VNC_TOKEN}: ${VNC_IP}:5900"
+
+# Share running wproxy
+docker ps -f name=$WPROXY_NAME -f status=running 2>/dev/null | grep -q -v PORTS
+if [ $? -eq 0 ]; then
+  LOCAL_TOKEN_DIR=$(docker inspect $WPROXY_NAME | jq '.[]["Mounts"][]["Source"]|select(contains("'$DEF_TOKEN_DIR'"))')
+  LOCAL_TOKEN_MAP="$LOCAL_TOKEN_DIR/local_map"
+  REMOTE_TOKEN_MAP="$LOCAL_TOKEN_DIR/remote_map"
+else
+  touch_token_map
+fi
+
 [ ! -f "$LOCAL_TOKEN_MAP" ] && $SUDO sh -c "echo $map > $LOCAL_TOKEN_MAP" && exit 0
 
 grep -q "$map" "$LOCAL_TOKEN_MAP"
