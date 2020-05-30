@@ -16,6 +16,13 @@ OLD_LAB=$CURRENT
 
 [ -z "$SUBMODULE" ] && SUBMODULE=0
 
+# Fix up windows support
+config_casesensitive ()
+{
+   # should enable case sensitive for ntfs filesystem
+   uname | grep -q MINGW && fsutil file SetCaseSensitiveInfo $TOP_DIR enable >/dev/null 2>&1
+}
+
 config_git ()
 {
     git config --global core.safecrlf true
@@ -84,6 +91,7 @@ echo "\nLOG: Download the lab...\n"
 
 # Hacking for windows support, disable autocrlf switch
 config_git
+config_casesensitive
 
 # Clone the submodule
 download_submodule
