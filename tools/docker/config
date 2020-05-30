@@ -999,7 +999,7 @@ create_cloud_lab_net ()
       VNC_NET_PREFIX=$(echo $VNC_NET | cut -d'/' -f1 | cut -d '.' -f1-$((5-$VNC_NET_MASK/8)))
       VNC_GATEWAY=$VNC_NET_PREFIX.1
 
-      docker network create --driver bridge --subnet=$VNC_NET --gateway=$VNC_GATEWAY $VNC_NET_NAME
+      docker network create --driver bridge --subnet=$VNC_NET --gateway=$VNC_GATEWAY $VNC_NET_NAME 2>/dev/null
       [ $? -eq 0 ] && break
     done
   else
