@@ -37,6 +37,9 @@ fi
   && echo "LOG: Resume the stopped $WPROXY_NAME" \
   && docker start `docker ps -f name=$WPROXY_NAME -f status=exited -q`
 
+(docker ps -f name=$WPROXY_NAME -f status=running | grep -q -v PORTS) || \
+  docker rm -f $WPROXY_NAME
+
 (docker ps -f name=$WPROXY_NAME | grep -q -v PORTS) || \
   (echo "LOG: Start $WPROXY_NAME" \
   && touch_token_map \
