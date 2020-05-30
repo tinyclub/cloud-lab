@@ -13,6 +13,14 @@ uname | grep -q MINGW && PWD_OPT="-W" && WINPTY=winpty
 [ -z "$TOP_DIR" ] && TOP_DIR="$(cd "$(dirname "$0")"/../../ && pwd $PWD_OPT)"
 TOP_DIR="$(cd "$(dirname "$TOP_DIR/null")" && pwd $PWD_OPT)"
 
+## default encrypt command: use shasum instead of md5sum
+which shasum >/dev/null 2>&1 && DEF_ENCRYPT_CMD=shasum
+which sha1sum >/dev/null 2>&1 && DEF_ENCRYPT_CMD=sha1sum
+
+# uuid for unique Namespace
+DEF_UUID_LEN=6
+UUID=$(echo "$TOP_DIR" | $DEF_ENCRYPT_CMD | cut -c 1-$DEF_UUID_LEN)
+
 # Basic variables
 HOST_USER=`whoami`
 [ "x$HOST_USER" = "xroot" -a -n "$SUDO_USER" ] && HOST_USER=$SUDO_USER
@@ -271,9 +279,6 @@ DEF_TOKEN_LENGTH=6
 [ -z "$DEF_TOKEN_DIR" ] && DEF_TOKEN_DIR=.vnc-tokens
 DEF_VNC_IP="0.0.0.0"
 
-## default encrypt command: use shasum instead of md5sum
-which shasum >/dev/null 2>&1 && DEF_ENCRYPT_CMD=shasum
-which sha1sum >/dev/null 2>&1 && DEF_ENCRYPT_CMD=sha1sum
 [ -z "$ENCRYPT_CMD" ] && ENCRYPT_CMD=$DEF_ENCRYPT_CMD
 
 [ -z "$CLOUD_LAB_TOP_DIR" ] && CLOUD_LAB_TOP_DIR="$(echo $TOP_DIR | sed -e "s%/output/.*%%g")"
@@ -381,9 +386,11 @@ fi
 
 [ -z "$SCREEN_SIZE" ] && SCREEN_SIZE=$DEF_SCREEN_SIZE
 
-## Image names
-TPROXY_NAME=cloud-ubuntu-proxy_client_transparent
-WPROXY_NAME=cloud-ubuntu-web
+## Image and Container names
+TPROXY_IMAGE_NAME=cloud-ubuntu-proxy_client_transparent
+WPROXY_IMAGE_NAME=cloud-ubuntu-web
+TPROXY_NAME=proxy-client-$UUID
+WPROXY_NAME=cloud-ubuntu-web-$UUID
 
 ## Fixme: It is not possible to run here.
 [ -z "$IMAGE" ] && IMAGE=tinylab/$CURRENT
@@ -977,7 +984,7 @@ get_random_net ()
 create_cloud_lab_net ()
 {
   # Configure subnet info
-  [ -z "$VNC_NET_NAME" ] && VNC_NET_NAME=cloud-lab-net
+  [ -z "$VNC_NET_NAME" ] && VNC_NET_NAME=cloud-lab-net-$UUID
 
   docker network inspect $VNC_NET_NAME >/dev/null 2>&1
   if [ $? -ne 0 ]; then

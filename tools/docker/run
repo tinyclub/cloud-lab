@@ -77,7 +77,7 @@ fi
 if [ -z "$CONTAINER_NAME" ]; then
   while :;
   do
-    CONTAINER_NAME=${LAB_NAME}-`get_random`
+    CONTAINER_NAME=${LAB_NAME}-$UUID
     exist=`docker ps -q --filter=name=$CONTAINER_NAME | wc -l`
     [ $exist -eq 0 ] && break
   done
