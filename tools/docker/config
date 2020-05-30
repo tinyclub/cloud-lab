@@ -389,8 +389,8 @@ fi
 ## Image and Container names
 TPROXY_IMAGE_NAME=cloud-ubuntu-proxy_client_transparent
 WPROXY_IMAGE_NAME=cloud-ubuntu-web
-TPROXY_NAME=proxy-client-$UUID
-WPROXY_NAME=cloud-ubuntu-web-$UUID
+TPROXY_NAME=proxy-client
+WPROXY_NAME=cloud-ubuntu-web
 
 ## Fixme: It is not possible to run here.
 [ -z "$IMAGE" ] && IMAGE=tinylab/$CURRENT
@@ -984,7 +984,7 @@ get_random_net ()
 create_cloud_lab_net ()
 {
   # Configure subnet info
-  [ -z "$VNC_NET_NAME" ] && VNC_NET_NAME=cloud-lab-net-$UUID
+  [ -z "$VNC_NET_NAME" ] && VNC_NET_NAME=cloud-lab-net
 
   docker network inspect $VNC_NET_NAME >/dev/null 2>&1
   if [ $? -ne 0 ]; then
