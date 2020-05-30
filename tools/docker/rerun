@@ -9,6 +9,9 @@ uname | grep -q MINGW && PWD_OPT="-W"
 TOP_DIR="$(cd "$(dirname "$0")"/../../ && pwd $PWD_OPT)"
 . "$TOP_DIR"/tools/docker/config $* >/dev/null
 
+# Must rerun wproxy and tproxy too
+docker rm -f $WPROXY_NAME $TPROXY_NAME >/dev/null 2>&1
+
 "$DOCKER_RM_CMD" $LAB_NAME
 
 "$DOCKER_RUN_CMD" $LAB_NAME
