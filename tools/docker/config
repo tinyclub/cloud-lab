@@ -315,9 +315,23 @@ fi
 [ -z "$RELEASE_HTML" ] && RELEASE_HTML=index.html
 [ -z "$RELEASE_FILE" ] && RELEASE_FILE="${RELEASE_DIR}/$RELEASE_HTML"
 
-LOCAL_TOKEN_DIR="${TOP_TOKEN_DIR}/$DEF_TOKEN_DIR"
-LOCAL_TOKEN_MAP="$LOCAL_TOKEN_DIR/local_map"
-REMOTE_TOKEN_MAP="$LOCAL_TOKEN_DIR/remote_map"
+## Image and Container names
+TPROXY_IMAGE_NAME=cloud-ubuntu-proxy_client_transparent
+WPROXY_IMAGE_NAME=cloud-ubuntu-web
+TPROXY_NAME=proxy-client
+WPROXY_NAME=cloud-ubuntu-web
+
+# Share running wproxy
+docker ps -f name=$WPROXY_NAME -f status=running 2>/dev/null | grep -q -v PORTS
+if [ $? -eq 0 ]; then
+  LOCAL_TOKEN_DIR=$(docker inspect $WPROXY_NAME | jq '.[]["Mounts"][]["Source"]|select(contains("'$DEF_TOKEN_DIR'"))' | tr -d '"')
+  LOCAL_TOKEN_MAP=$LOCAL_TOKEN_DIR/local_map
+  REMOTE_TOKEN_MAP=$LOCAL_TOKEN_DIR/remote_map
+else
+  LOCAL_TOKEN_DIR="${TOP_TOKEN_DIR}/$DEF_TOKEN_DIR"
+  LOCAL_TOKEN_MAP="$LOCAL_TOKEN_DIR/local_map"
+  REMOTE_TOKEN_MAP="$LOCAL_TOKEN_DIR/remote_map"
+fi
 
 ## Security related
 ### 0: with root permission by default, sharable, for private usage
@@ -385,12 +399,6 @@ if [ $? -eq 0 -a -z "$SCREEN_SIZE" ]; then
 fi
 
 [ -z "$SCREEN_SIZE" ] && SCREEN_SIZE=$DEF_SCREEN_SIZE
-
-## Image and Container names
-TPROXY_IMAGE_NAME=cloud-ubuntu-proxy_client_transparent
-WPROXY_IMAGE_NAME=cloud-ubuntu-web
-TPROXY_NAME=proxy-client
-WPROXY_NAME=cloud-ubuntu-web
 
 ## Fixme: It is not possible to run here.
 [ -z "$IMAGE" ] && IMAGE=tinylab/$CURRENT

@@ -14,13 +14,13 @@ notify_user 2 "Lab will be removed"
 do_unlock
 
 # Remove container
-do_op "docker rm -f" CONTAINER_NAME
+[ -n "$CONTAINER_NAME" ] && do_op "docker rm -f" CONTAINER_NAME
 
 # Remove desktop shortcut
 do_op "rm -f" LOCAL_DESKTOP_SHORTCUT
 
 # Remove the token map from .vnc-tokens/local_map
-do_op "sed -i -e \"/$VNC_TOKEN/d\"" LOCAL_TOKEN_MAP
+[ -n "$VNC_TOKEN" ] && do_op "sed -i -e \"/$VNC_TOKEN/d\"" LOCAL_TOKEN_MAP
 
 find "$CONFIG_DOCKER_DIR" -iname ".[^.]*" -exec rm -rf "{}" \;
 
