@@ -39,7 +39,7 @@ fi
 
 # Remove old non-running wproxy
 (docker ps -f name=$WPROXY_NAME -f status=running | grep -q -v PORTS) || \
-  docker rm -f $WPROXY_NAME
+  docker rm -f $WPROXY_NAME 2>/dev/null
 
 # If no running exists, start one
 (docker ps -f name=$WPROXY_NAME -f status=running | grep -q -v PORTS) || \
