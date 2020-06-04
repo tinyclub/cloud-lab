@@ -9,7 +9,7 @@ sleep 2
 
 if [ $TPROXY -eq 1 ]; then
     [ -z "$DEFAULT_GW" ] && DEFAULT_GW=$(route -n | grep "^0.0.0.0" | tr -s ' ' | cut -d' ' -f2)
-    [ -z "$DEFAULT_IFACE" ] && DEFAULT_IFACE=$(ifconfig | head -1 | cut -d' ' -f1)
+    [ -z "$DEFAULT_IFACE" ] && DEFAULT_IFACE=$(ifconfig | head -1 | cut -d' ' -f1 | tr -d ':')
 
     if [ -z "$TPROXY_IP" ]; then
         echo "LOG: Please run docker with '-e TPROXY_IP=IP'"

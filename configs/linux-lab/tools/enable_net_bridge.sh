@@ -5,10 +5,10 @@
 # Copyright (C) 2016-2020 Wu Zhangjin <lzufalcon@163.com>
 #
 
-ip=`ifconfig eth0 | grep "inet addr" | cut -d':' -f2 | cut -d' ' -f1`
+ip=`ifconfig eth0 | grep "inet " | tr -d -c '^[0-9. ]' | awk '{print $1}'`
 route=`route -n | head -3 | tail -1 | tr -s ' ' | cut -d' ' -f2`
 
-echo $ip $route
+echo ip=$ip gateway=$route
 
 brctl addbr br0
 brctl addif br0 eth0

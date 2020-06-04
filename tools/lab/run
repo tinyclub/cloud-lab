@@ -23,13 +23,13 @@ set_var UNIX_UID
 [ -z "$VNC_TOKEN" ] && get_var VNC_TOKEN ""
 [ -z "$ROUTE_IP" ] && ROUTE_IP=$(route -n | grep "^0.0.0.0" | tr -s ' ' | cut -d' ' -f2)
 
-IFACE=$(ifconfig | head -1 | cut -d' ' -f1)
+IFACE=$(ifconfig | head -1 | cut -d' ' -f1 | tr -d ':')
 if [ "$VNC_IP" != "$DEF_VNC_IP" ]; then
   ifconfig $IFACE $VNC_IP up
   _ROUTE_IP=$(route -n | grep "^0.0.0.0" | tr -s ' ' | cut -d' ' -f2)
   [ -z "$_ROUTE_IP" ] && route add default gw $ROUTE_IP $IFACE
 else
-  VNC_IP=`ifconfig $IFACE | awk '/inet addr/{print substr($2,6)}'`
+  VNC_IP=`ifconfig $IFACE | grep "inet " | tr -d -c '^[0-9. ]' | awk '{print $1}'`
 fi
 
 [ -n "$VNC_IP" -a -z "$VNC_TOKEN" ] && VNC_TOKEN=`echo -n $VNC_IP | tr -d '\n' | $ENCRYPT_CMD | cut -d' ' -f1 | cut -c1-$TOKEN_LENGTH`
