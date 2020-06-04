@@ -1,7 +1,0 @@
-[Desktop Entry]
-Encoding=UTF-8
-Name=Markdown Lab
-Comment=A Friendly Lab for Markdown Editing
-Exec=/usr/bin/lxterminal --working-directory=/labs/markdown-lab/ -T "Markdown Lab"
-Icon=/usr/share/pixmaps/lxterminal.xpm
-Type=Application
