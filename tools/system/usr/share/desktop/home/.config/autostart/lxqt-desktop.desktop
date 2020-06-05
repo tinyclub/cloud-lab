@@ -1,7 +1,7 @@
 [Desktop Entry]
 Type=Application
 Name=Desktop
-Exec=pcmanfm-qt --desktop --profile=default
+Exec=pcmanfm-qt --desktop
 TryExec=pcmanfm-qt
 X-LXQt-Module=true
 
