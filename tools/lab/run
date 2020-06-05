@@ -81,7 +81,7 @@ else
   # Install more system configuration files
   [ ! -d $DESKTOP ] && mkdir $DESKTOP
 
-  for system in $CONFIG_SYSTEM_DIR $CORE_SYSTEM_DIR
+  for system in $CORE_SYSTEM_DIR $CONFIG_SYSTEM_DIR
   do
     for f in `find $system -type f | sed -e "s%$system%%g"`
     do
