@@ -177,6 +177,10 @@ mount -t tmpfs none /tmp/
 # Run Lab specific tasks
 [ -x $LAB_CONTAINER_RUN ] && UNIX_USER=$UNIX_USER $LAB_CONTAINER_RUN
 
+# Detect lxqt
+which startlxqt
+[ $? -eq 0 ] && ln -sf /usr/bin/lxqt-session /usr/bin/lxsession
+
 # Run image built-in tasks
 for f in /etc/startup.aux/*.sh
 do
