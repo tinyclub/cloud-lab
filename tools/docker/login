@@ -75,6 +75,9 @@ fi
 
 if [ "$LOGIN" != "list" ]; then
   if [ -n "$LOGIN" ]; then
+    # Not login if none specified
+    [ "$LOGIN" = "none" ] && exit 0
+
     verify_login $LOGIN
     if [ $? -ne 0 ]; then
       echo "\nERR: $LOGIN is not valid login method, avilable methods:\n"

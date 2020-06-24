@@ -57,8 +57,10 @@ if [ -n "$CONTAINER_NAME" ]; then
   docker ps -f name=$CONTAINER_NAME | grep -q -v PORTS
 
   if [ $? -eq 0 ]; then
-     echo "LOG: Open the running $LAB_NAME"
-     "$DOCKER_LOGIN_CMD"
+     if [ "$LOGIN" != "none" ]; then
+       echo "LOG: Open the running $LAB_NAME"
+       "$DOCKER_LOGIN_CMD"
+     fi
 
      exit $?
   fi
