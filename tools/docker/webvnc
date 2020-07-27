@@ -33,6 +33,7 @@ echo
 echo "The Other Login methods:"
 echo
 echo "  *   Bash: `echo $DOCKER_BASH_CMD | sed -e \"s%$TOP_DIR/%%g\"` $CURRENT"
+echo "  *    SSH: `echo $DOCKER_SSH_CMD | sed -e \"s%$TOP_DIR/%%g\"` $CURRENT"
 echo "  * WebSSH: `echo $DOCKER_WEBSSH_CMD | sed -e \"s%$TOP_DIR/%%g\"` $CURRENT"
 echo
 
