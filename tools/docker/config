@@ -94,7 +94,7 @@ WPROXY_DIR="$BASE_DIR/wproxy"
 
 # Some commands not require to specify the lab name
 CMD=`basename $0`
-echo "tproxy export choose unlock-all ip build-all pull-all git-pull-all push-all clean-all rm-all rm-full list release batch autostart autodeploy release-all run-all stop-all start-all rerun-all renew-all " | grep "$CMD "
+echo "tproxy export choose unlock-all ip build-all pull-all git-pull-all push-all clean-all rm-all rm-full list release batch autostart release-all run-all stop-all start-all rerun-all renew-all " | grep "$CMD "
 [ $? -eq 0 ] && IGNORE_LAB_NAME=1
 
 if [ -n "$IN_CONTAINER" ]; then
@@ -864,97 +864,6 @@ get_lab_bases ()
   local filter="$2"
 
   get_lab_list "$dir" $filter | xargs -I{} basename "{}"
-}
-
-deploy_do ()
-{
-  local cmd="$1"
-  local action="$2"
-  local filter="$3"
-
-  [ ! -d "$LAB_OUTPUT" ] && exit 0
-
-  labs="`get_lab_list "$LAB_OUTPUT" $filter`"
-
-  for lab in $labs
-  do
-    _cmd="$lab/tools/docker/$cmd"
-
-    echo "LOG: $action $lab"
-    "$_cmd"
-  done
-}
-
-_deploy_do_clean1 ()
-{
-  # lab with path
-  local lab="$1"
-  local _lab="$(echo `basename "$lab"` | cut -d'+' -f1)"
-
-  _lab="${_lab%-*}"
-
-  echo "LOG: Cleaning up $lab"
-  "$lab/tools/docker/clean" "$_lab"
-
-  echo "LOG: Unlocking $lab"
-  "$lab/tools/docker/unlock" "$_lab"
-
-  echo "LOG: Destroying $lab"
-  rm -rf "$lab"
-}
-
-_deploy_do_clean2 ()
-{
-  # lab with path
-  local lab="$1"
-  local _lab="$(echo `basename "$lab"` | cut -d'+' -f1)"
-
-  [ -z "$NOTIFY_WAIT" ] && NOTIFY_WAIT=2
-
-  local container="$(echo `basename "$lab"` | cut -d'+' -f1)"
-  echo "LOG: Notifying container: $container"
-  docker exec $container //bin/bash -c 'export DISPLAY=:1 && notify-send -u critical -t 0 "Lab will be removed in '$NOTIFY_WAIT' seconds."'
-  sleep $NOTIFY_WAIT
-
-  echo "LOG: Removing container: $container"
-  docker rm -f $container
-
-  echo "LOG: Removing desktop shortcuts: $container"
-  rm -rf ~/Desktop/${_lab}.command ~/Desktop/${_lab}.desktop
-
-  echo "LOG: Unlocking $lab"
-  which chattr >/dev/null 2>&1 && $SUDO chattr -R -i "$lab/configs/" "$lab/tools/"
-
-  echo "LOG: Destroying $lab"
-  rm -rf "$lab"
-  #sync
-}
-
-deploy_do_clean ()
-{
-  local filter=$1
-  local labs
-
-  [ ! -d "$LAB_OUTPUT" ] && exit 0
-  [ -z "$NOTIFY_WAIT" ] && NOTIFY_WAIT=2
-  [ -z "$PARALLEL_CLEAN" ] && PARALLEL_CLEAN=0
-
-  labs="`get_lab_list "$LAB_OUTPUT" $filter | sed -e 's/ /--++--/g'`"
-
-  for lab in $labs
-  do
-    lab="$(echo $lab | sed -e 's/--++--/ /g')"
-    if [ $PARALLEL_CLEAN -eq 1 ]; then
-      _deploy_do_clean1 "$lab" &
-    else
-      _deploy_do_clean1 "$lab"
-    fi
-  done
-
-  if [ $PARALLEL_CLEAN -eq 1 ]; then
-    echo "LOG: Wait $NOTIFY_WAIT seconds for $filter cleaning."
-    sleep $((NOTIFY_WAIT+2))
-  fi
 }
 
 verify_cpus ()
