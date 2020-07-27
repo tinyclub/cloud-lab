@@ -33,6 +33,4 @@ done
 
 "$TOP_DIR/tools/docker/rm-all"
 
-git clean -fdx
-
 $DOCKER_RELEASE_CMD all >/dev/null 2>&1

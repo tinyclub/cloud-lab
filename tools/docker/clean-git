@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# Prune a clean docker environment.
+# clean-git -- clean the git environment.
 #
 # Copyright (C) 2016-2020 Wu Zhangjin <lzufalcon@163.com>
 #
@@ -9,4 +9,4 @@
 
 read -p 'This command is dangerous, are you sure? say no if not sure. (yes/no) ' sure
 
-docker system prune
+git clean -fdx
