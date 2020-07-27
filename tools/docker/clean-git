@@ -9,4 +9,4 @@
 
 read -p 'This command is dangerous, are you sure? say no if not sure. (yes/no) ' sure
 
-git clean -fdx
+git clean -idx
