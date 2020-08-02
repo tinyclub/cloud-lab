@@ -106,6 +106,18 @@ else
   [ -d /usr/share/desktop/home/.config ] \
     && sudo -u $UNIX_USER -i bash -c "cp -r /usr/share/desktop/home/{.[^.]*,*} /home/$UNIX_USER/" >/dev/null 2>&1
 
+  # Override user's configurations pre-installed in /usr/share/desktop/home/
+  for system in $CORE_SYSTEM_DIR $CONFIG_SYSTEM_DIR
+  do
+    for f in `find $system/home -type f | sed -e "s%$system%%g"`
+    do
+      d=$(echo $f | sed -e "s%$DEF_HOME%$HOME%g")
+      dest=`dirname $d`
+      [ ! -d $dest ] && mkdir -p $dest
+      sudo -u $UNIX_USER -i bash -c "cp $system/$f $d"
+    done
+  done
+
   # Create password, ENV > CONF > PWGEN
 
   do_unlock
