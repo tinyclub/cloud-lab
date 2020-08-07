@@ -9,10 +9,6 @@ uname | grep -q MINGW && PWD_OPT="-W"
 TOP_DIR="$(cd "$(dirname "$0")"/../../ && pwd $PWD_OPT)"
 . "$TOP_DIR/tools/docker/config" $* >/dev/null
 
-# Get web browser
-get_browser
-[ $? -ne 0 ] && echo "ERR: Give up browser launching for no web browser found" && exit 0
-
 docker ps -f name=$CONTAINER_NAME | grep -qv PORTS
 [ $? -ne 0 ] && echo "LOG: $LAB_NAME is not running." && exit 1
 
@@ -27,10 +23,15 @@ echo "  Password: $UNIX_PWD"
 echo "   Workdir: $LAB_WORKDIR/$CURRENT"
 echo
 
-(eval "'$__WEB_BROWSER'" "'$WEBSSH_URL'" >/dev/null 2>&1 &) >/dev/null 2>&1
-
 echo "LOG: Or access via web browser:\n  $WEBSSH_URL"
 echo
+
+# Get web browser
+get_browser
+
+[ $? -ne 0 ] && echo "ERR: Give up browser launching for no web browser found" && exit 0
+
+(eval "'$__WEB_BROWSER'" "'$WEBSSH_URL'" >/dev/null 2>&1 &) >/dev/null 2>&1
 
 if [ -n "$LOCALHOST" ]; then
     _WEBSSH_URL="$(echo "$WEBSSH_URL" | sed -e "s%localhost%$LOCALHOST%g" )"
