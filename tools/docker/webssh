@@ -28,8 +28,10 @@ echo
 
 # Get web browser
 get_browser
+[ $? -ne 0 ] && echo "ERR: Give up browser launching for no web browser found" && exit 1
 
-[ $? -ne 0 ] && echo "ERR: Give up browser launching for no web browser found" && exit 0
+# Exit if running as root
+[ `id -u` -eq 0 ] && echo "ERR: Web browsers can not run as root user, please run as normal user." && exit 1
 
 (eval "'$__WEB_BROWSER'" "'$WEBSSH_URL'" >/dev/null 2>&1 &) >/dev/null 2>&1
 
