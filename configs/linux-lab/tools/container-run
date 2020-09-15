@@ -77,3 +77,6 @@ $TOP_DIR/restart-net-servers.sh
 [ -f /usr/local/bin/aarch64-linux-gnu-gcc-4.9.3 ] && \
   ln -sf /usr/local/bin/aarch64-linux-gnu-gcc-4.9.3 /usr/bin/aarch64-linux-gnu-gcc-4.9.3 && \
   update-alternatives --install /usr/bin/aarch64-linux-gnu-gcc aarch64-linux-gnu-gcc /usr/bin/aarch64-linux-gnu-gcc-4.9.3 46
+
+# FIXME: Disable git detachedHead advice, bsp submodule use FETCH_HEAD currently.
+git config --global advice.detachedHead false
