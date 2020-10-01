@@ -1,0 +1,53 @@
+#!/bin/sh
+#
+# resize -- allow resize remote screen size
+#
+# Copyright (C) 2016-2020 Wu Zhangjin <lzufalcon@163.com>
+#
+# TODO: Fix up noVNC remote resizing feature
+#
+
+# Allow pass first argument as SCREEN_SIZE
+if [ -n "$1" ]; then
+  echo $1 | egrep -q '[0-9]\{3,\}x[0-9]\{3,\}|^auto$'
+  if [ $? -eq 0 ]; then
+    SCREEN_SIZE=$1
+    shift
+  fi
+fi
+
+# Allow pass second argument as SCREEN_SIZE, but first one as lab name
+if [ -n "$2" ]; then
+  echo $2 | egrep -q '[0-9]\{3,\}x[0-9]\{3,\}|^auto$'
+  if [ $? -eq 0 ]; then
+    SCREEN_SIZE=$2
+  fi
+fi
+
+if [ -z "$1" ]; then
+  SCREEN_SIZE=auto
+fi
+
+if [ "$SCREEN_SIZE" = "auto" ]; then
+  which xrandr >/dev/null 2>&1
+  ret=$?
+  if [ $ret -eq 0 ]; then
+    SCREEN_SIZE=`xrandr --current 2>/dev/null | grep "^ .*\*" | tr -s ' ' | cut -d' ' -f2 | head -1`
+    ret=$?
+  fi
+  if [ $ret -ne 0 ]; then
+    echo "Usage: $0 screen_widthxscreen_height"
+    exit 1
+  fi
+fi
+
+uname | grep -q MINGW && PWD_OPT="-W"
+TOP_DIR="$(cd "$(dirname "$0")"/../../ && pwd $PWD_OPT)"
+. "$TOP_DIR/tools/docker/config" $* >/dev/null
+
+docker ps -f name=$CONTAINER_NAME | grep -qv PORTS
+[ $? -ne 0 ] && echo "LOG: $LAB_NAME is not running." && exit 1
+
+[ -z "$UNIX_USER" ] && get_var UNIX_USER $DEF_USER
+
+do_op "$WINPTY docker exec -it -w $LAB_WORKDIR/$CURRENT -u $UNIX_USER" CONTAINER_NAME "x11vnc -display :1 -R scale:$SCREEN_SIZE"
