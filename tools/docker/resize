@@ -51,3 +51,8 @@ docker ps -f name=$CONTAINER_NAME | grep -qv PORTS
 [ -z "$UNIX_USER" ] && get_var UNIX_USER $DEF_USER
 
 do_op "$WINPTY docker exec -it -w $LAB_WORKDIR/$CURRENT -u $UNIX_USER" CONTAINER_NAME "x11vnc -display :1 -R scale:$SCREEN_SIZE"
+
+# Record SCREEN_SIZE setting
+do_unlock
+set_var SCREEN_SIZE
+do_lock
