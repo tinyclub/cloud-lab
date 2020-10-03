@@ -47,18 +47,18 @@ $SUDO apt-get -y --force-yes install docker-ce
 $SUDO usermod -aG docker $HOST_USER
 
 # The --bip works like https://gist.github.com/ismell/6689836
-$SUDO sed -i -e "/DOCKER HACK START 578327498237/,/DOCKER HACK END 789527394722/d" /etc/default/docker
-$SUDO bash -c 'cat <<EOF >> /etc/default/docker
-# CLOUD LAB: DOCKER HACK START 578327498237
-# DOCKER_OPTS="\$DOCKER_OPTS --registry-mirror=https://<YOUR OWN ACCOUNT>.mirror.aliyuncs.com"
-DOCKER_OPTS="\$DOCKER_OPTS --registry-mirror='$REGISTRY_MIRROR'"
-# DOCKER_OPTS="\$DOCKER_OPTS --dns 119.29.29.29 --dns 180.76.76.76"
-# DOCKER_OPTS="\$DOCKER_OPTS --dns 223.5.5.5 --dns 114.114.114.114"
-# DOCKER_OPTS="\$DOCKER_OPTS --dns 8.8.8.8 --dns 8.8.4.4"
-DOCKER_OPTS="\$DOCKER_OPTS --bip=10.66.0.10/16"
-# DOCKER_OPTS="\$DOCKER_OPTS --storage-opt dm.basesize=5G"
-# CLOUD LAB: DOCKER HACK END 789527394722
-EOF'
+# $SUDO sed -i -e "/DOCKER HACK START 578327498237/,/DOCKER HACK END 789527394722/d" /etc/default/docker
+# $SUDO bash -c 'cat <<EOF >> /etc/default/docker
+# # CLOUD LAB: DOCKER HACK START 578327498237
+# # DOCKER_OPTS="\$DOCKER_OPTS --registry-mirror=https://<YOUR OWN ACCOUNT>.mirror.aliyuncs.com"
+# DOCKER_OPTS="\$DOCKER_OPTS --registry-mirror='$REGISTRY_MIRROR'"
+# # DOCKER_OPTS="\$DOCKER_OPTS --dns 119.29.29.29 --dns 180.76.76.76"
+# # DOCKER_OPTS="\$DOCKER_OPTS --dns 223.5.5.5 --dns 114.114.114.114"
+# # DOCKER_OPTS="\$DOCKER_OPTS --dns 8.8.8.8 --dns 8.8.4.4"
+# DOCKER_OPTS="\$DOCKER_OPTS --bip=10.66.0.10/16"
+# # DOCKER_OPTS="\$DOCKER_OPTS --storage-opt dm.basesize=5G"
+# # CLOUD LAB: DOCKER HACK END 789527394722
+# EOF'
 
 # Add register-mirror for newer docker
 if [ ! -f /etc/docker/daemon.json ]; then
