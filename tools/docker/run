@@ -50,7 +50,7 @@ fi
 # If still not running, say failure
 (docker ps -f name=$WPROXY_NAME -f status=running | grep -q -v PORTS) || \
   (echo "ERR: Failed to start $WPROXY_NAME" >&2 \
-  && exit -1)
+  && exit 3)
 
 if [ -n "$CONTAINER_NAME" ]; then
   # If already there and running, open it
