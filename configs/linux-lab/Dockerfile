@@ -40,6 +40,14 @@ RUN apt-get -y update \
     && rm -rf /var/lib/apt/lists/* \
     && rm -rf /var/cache/apt/archives/*.deb
 
+RUN apt-get -y update \
+    && apt-get install -y --force-yes --no-install-recommends \
+        gettext \
+    && apt-get autoclean -y \
+    && apt-get autoremove -y \
+    && rm -rf /var/lib/apt/lists/* \
+    && rm -rf /var/cache/apt/archives/*.deb
+
 RUN mv /etc/apt/sources.list.bak /etc/apt/sources.list
 
 RUN \
