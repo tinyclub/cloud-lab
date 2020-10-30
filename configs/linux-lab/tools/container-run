@@ -17,17 +17,22 @@ else
   kvm_dri=kvm-amd
 fi
 
-# FIXME: with linux kernel v5.3, v5.4, v5.6, nfsd has bug while be plugged in
+# FIXME: with linux kernel v5.3-v5.7, nfsd has bug while be plugged in
 # container side, but ok in host side, move it back to host side:
 # https://gitee.com/tinylab/linux-lab/issues/I1GGG1
+# https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?h=v5.10-rc1&id=681370f4b00af0fcc65bbfb9f82de526ab7ceb0a
 #
 # This may break nfsboot in Windows 10 and Mac OSX, there is no suitable method
 # to insert nfsd in 'host' side.
 
 os=`uname`
 if [ "$os" = "Linux" ]; then
-  uname -r | grep ^[5-9]
-  [ $? -ne 0 ] && NFS=nfsd
+  NFS=nfsd
+  major_version=$(uname -r | cut -d '.' -f1)
+  minor_version=$(uname -r | cut -d '.' -f2)
+  if [ $major_version -eq 5 -a $minor_version -ge 3 -a $minor_version -le 7 ]; then
+    NFS=
+  fi
 else
   # Insert nfsd in container side for Windows and Mac OS X currently for there is
   # no method to insert nfs module.
