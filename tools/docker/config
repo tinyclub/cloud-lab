@@ -396,8 +396,9 @@ if [ $? -eq 0 -a -z "$SCREEN_SIZE" ]; then
   SCREEN_SIZE=`xrandr --current 2>/dev/null | grep "^ .*\*" | tr -s ' ' | cut -d' ' -f2 | cut -d '_' -f1 | head -1 | tr -d -c '[0-9x]'`
   if [ $? -eq 0 ]; then
     current_height=`echo $SCREEN_SIZE | cut -d 'x' -f2 | tr -d -c '[0-9]'`
-    for h in `xrandr --current 2>/dev/null | grep "^ [ 0-9]*x" | cut -d'x' -f2 | cut -d '_' -f1 | cut -d' ' -f1 | tr -d -c '[0-9]'`
+    for h in `xrandr --current 2>/dev/null | grep "^ [ 0-9]*x" | cut -d'x' -f2 | cut -d' ' -f1`
     do
+      h=$(echo $h | tr -d -c '[0-9]')
       [ $h -lt $current_height ] && break
     done
     SCREEN_SIZE=`xrandr --current 2>/dev/null | grep "^ [ 0-9]*x"  | grep "x$h" | tr -s ' ' | cut -d' ' -f2 | cut -d '_' -f1 | head -1 | tr -d -c '[0-9x]'`
