@@ -5,7 +5,7 @@ TOP_DIR="$(cd "$(dirname "$0")"/../../../ && pwd $PWD_OPT)"
 LAB_HOME=$TOP_DIR/tools/system/home/ubuntu/
 
 # load user configuration
-configs=".labconfig .gitconfig"
+configs="$(cat $TOP_DIR/configs/linux-lab/docker/configs)"
 for config in $configs
 do
   [ -f ~/$config ] && cp ~/$config $LAB_HOME/
