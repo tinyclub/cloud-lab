@@ -21,6 +21,7 @@ RUN apt-get -y update \
     && rm -rf /home/ubuntu/ \
     && rm -rf /var/cache/apt/archives/*.deb
 
+# START: for old gcc
 RUN cp /etc/apt/sources.list /etc/apt/sources.list.bak
 RUN sed -i -e "s%archive.ubuntu.com%mirrors.163.com%g;s%focal%trusty%g" /etc/apt/sources.list
 
@@ -46,6 +47,8 @@ RUN \
     && chmod a+rw /etc/alternatives/ \
     && chmod a+rw /var/lib/dpkg/alternatives/
 
+RUN mv /etc/apt/sources.list.bak /etc/apt/sources.list
+# END: for old gcc
 
 RUN apt-get -y update \
     && apt-get install -y --force-yes --no-install-recommends \
@@ -58,14 +61,6 @@ RUN apt-get -y update \
 RUN apt-get -y update \
     && apt-get install -y --force-yes --no-install-recommends \
         less \
-    && apt-get autoclean -y \
-    && apt-get autoremove -y \
-    && rm -rf /var/lib/apt/lists/* \
-    && rm -rf /var/cache/apt/archives/*.deb
-
-RUN apt-get -y update \
-    && apt-get install -y --force-yes --no-install-recommends \
-        gcc-multilib \
     && apt-get autoclean -y \
     && apt-get autoremove -y \
     && rm -rf /var/lib/apt/lists/* \
@@ -87,7 +82,8 @@ RUN apt-get -y update \
     && rm -rf /var/lib/apt/lists/* \
     && rm -rf /var/cache/apt/archives/*.deb
 
-RUN mv /etc/apt/sources.list.bak /etc/apt/sources.list
+RUN sh -c 'curl showterm.io/showterm > /usr/bin/showterm'
+RUN chmod a+x /usr/bin/showterm
 
 EXPOSE 5900 22
 
