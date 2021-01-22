@@ -135,7 +135,7 @@ RUN apt-get -y update \
 
 RUN apt-get -y update \
     && apt-get install -y --force-yes --no-install-recommends \
-        libc6-dev-x32 libc6-x32 \
+        libc6-dev-x32 libc6-x32 libx32gcc-9-dev \
     && apt-get autoclean -y \
     && apt-get autoremove -y \
     && rm -rf /var/lib/apt/lists/* \
