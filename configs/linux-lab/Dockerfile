@@ -40,6 +40,13 @@ RUN apt-get -y update \
     && rm -rf /var/lib/apt/lists/* \
     && rm -rf /var/cache/apt/archives/*.deb
 
+RUN \
+       update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-4.8 42 \
+    && update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-4.4 35 \
+    && chmod a+rw /etc/alternatives/ \
+    && chmod a+rw /var/lib/dpkg/alternatives/
+
+
 RUN apt-get -y update \
     && apt-get install -y --force-yes --no-install-recommends \
         gettext \
@@ -81,12 +88,6 @@ RUN apt-get -y update \
     && rm -rf /var/cache/apt/archives/*.deb
 
 RUN mv /etc/apt/sources.list.bak /etc/apt/sources.list
-
-RUN \
-       update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-4.8 42 \
-    && update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-4.4 35 \
-    && chmod a+rw /etc/alternatives/ \
-    && chmod a+rw /var/lib/dpkg/alternatives/
 
 EXPOSE 5900 22
 
