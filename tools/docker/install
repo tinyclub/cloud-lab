@@ -13,9 +13,17 @@
 # ref: https://mirror.tuna.tsinghua.edu.cn/help/docker-ce/
 #
 
-# Allow customize docker registry mirror site
-[ -n "$1" ] && REGISTRY_MIRROR=$1
-[ -z "$REGISTRY_MIRROR" ] && REGISTRY_MIRROR=https://docker.mirrors.ustc.edu.cn
+# Allow customize docker registry mirror sites, use 'default' argument to using default servers
+if [ -n "$1" -a "$1" = "default" ]; then
+  REGISTRY_MIRROR=""
+  UBUNTU_MIRROR=archive.ubuntu.com
+else
+  [ -n "$1" ] && REGISTRY_MIRROR=$1
+  [ -z "$REGISTRY_MIRROR" ] && REGISTRY_MIRROR=https://docker.mirrors.ustc.edu.cn
+
+  [ -n "$2" ] && UBUNTU_MIRROR=$2
+  [ -z "$UBUNTU_MIRROR" ] && UBUNTU_MIRROR=mirrors.aliyun.com
+fi
 
 which docker > /dev/null 2>&1 && exit 0
 
@@ -35,9 +43,9 @@ HOST_USER=`whoami`
 
 $SUDO apt-get -y update
 $SUDO apt-get install -y curl software-properties-common
-$SUDO curl -fsSL http://mirrors.aliyun.com/docker-ce/linux/ubuntu/gpg | sudo apt-key add -
+$SUDO curl -fsSL http://$UBUNTU_MIRROR/docker-ce/linux/ubuntu/gpg | sudo apt-key add -
 ubuntu_version=$(lsb_release -cs)
-$SUDO add-apt-repository "deb [arch=amd64] http://mirrors.aliyun.com/docker-ce/linux/ubuntu $ubuntu_version stable"
+$SUDO add-apt-repository "deb [arch=amd64] http://$UBUNTU_MIRROR/docker-ce/linux/ubuntu $ubuntu_version stable"
 $SUDO apt-get -y update
 $SUDO apt-get -y install apt-transport-https ca-certificates
 $SUDO apt-get -y install bridge-utils net-tools
@@ -61,7 +69,7 @@ $SUDO usermod -aG docker $HOST_USER
 # EOF'
 
 # Add register-mirror for newer docker
-if [ ! -f /etc/docker/daemon.json ]; then
+if [ ! -f /etc/docker/daemon.json -a -n "$REGISTRY_MIRROR" ]; then
 $SUDO bash -c 'cat <<EOF > /etc/docker/daemon.json
 {
   "registry-mirrors": ["'$REGISTRY_MIRROR'"]
