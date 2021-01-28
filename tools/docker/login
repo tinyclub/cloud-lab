@@ -92,7 +92,7 @@ fi
 
 [ "$LOGIN" = "none" -o "$LOGIN" = "list" ] && login_config && set_var LOGIN
 
-LOGIN_TOOL="tools/docker/$LOGIN"
+LOGIN_TOOL="${TOP_DIR}/tools/docker/$LOGIN"
 
 echo "LOG: Available login methods:"
 echo
