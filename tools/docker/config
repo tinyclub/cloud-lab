@@ -51,14 +51,17 @@ if [ ! -n "$IN_CONTAINER" ]; then
           echo "Time left to reboot:" $((time_to_reboot-i)) >&2
           sleep 1
         done
-        $SUDO pkill X
-        exit 0
+        $SUDO newgrp docker
       else
         echo >&2
         echo "LOG: Please say 'yes' to add $HOST_USER to docker user group, otherwise, must run with sudo everytime." >&2
         echo >&2
         exit 1
       fi
+    else
+      # Check if really running as docker group
+      groups | grep -q docker
+      [ $? -ne 0 ] && newgrp docker
     fi
   fi
 fi
