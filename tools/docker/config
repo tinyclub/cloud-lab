@@ -328,6 +328,7 @@ WPROXY_NAME=cloud-ubuntu-web
 docker ps -f name=$WPROXY_NAME -f status=running 2>/dev/null | grep -q -v PORTS
 if [ $? -eq 0 ]; then
   LOCAL_TOKEN_DIR=$(docker inspect $WPROXY_NAME | grep "Source.*$DEF_TOKEN_DIR" | cut -d ':' -f2 | tr -d ' ",')
+  [ $? -ne 0 ] && echo "ERR: Docker inspect failure" && exit 1
 
   if [ -z "$LOCAL_TOKEN_DIR" ]; then
     LOCAL_TOKEN_DIR=$(docker inspect $WPROXY_NAME | grep -B1 "Destination.*$DEF_TOKEN_DIR" | grep Source | cut -d ':' -f2 | tr -d ' ",' | sed -e "s%^/run/desktop/mnt/host%/mnt%g")
