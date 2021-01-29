@@ -190,6 +190,7 @@ LAB_UNIX_IDENTIFY="$CONFIG_DOCKER_DIR/.unix_identify"
 LAB_SUDO_IDENTIFY="$CONFIG_DOCKER_DIR/.sudo_identify"
 LAB_TPROXY_LIMITS="$TPROXY_DIR/limits"
 LAB_WPROXY_LIMITS="$WPROXY_DIR/limits"
+LAB_LOGO="$CONFIG_DIR/lab-logo.png"
 
 # Lock the important files for security
 __do_lock ()

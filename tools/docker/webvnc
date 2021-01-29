@@ -133,17 +133,23 @@ if [ -d ~/Desktop -a -n "$REMOTE_DESKTOP_SHORTCUT" -a -f "$REMOTE_DESKTOP_SHORTC
       BROWSER_ICON=$(find /usr/share/ -name "${WEB_BROWSER}*.png" | head -1)
     fi
 
-
     if [ "x$LAB_DESKTOP_SHORTCUT" = "x1" -a ! -f "$LOCAL_DESKTOP_SHORTCUT" ]; then
-      echo '#!/usr/bin/env xdg-open' > "$LOCAL_DESKTOP_SHORTCUT"
+      lab_desktop_shortcut=$(mktemp)
+      echo '#!/usr/bin/env xdg-open' > $lab_desktop_shortcut
       cat "$REMOTE_DESKTOP_SHORTCUT" \
         | sed "s%Exec=.*%Exec='$DOCKER_RUN_CMD' $LAB_NAME%g" \
         | sed "s%terminator.png%${WEB_BROWSER}.png%g;s%lxterminal.xpm%${WEB_BROWSER}.png%g" | tr '|' '&' \
-	  >> "$LOCAL_DESKTOP_SHORTCUT"
+	  >> $lab_desktop_shortcut
+
+      if [ -f "$LAB_LOGO" ]; then
+        sed -i -e "s%Icon=[^$]*%Icon=$LAB_LOGO%g" $lab_desktop_shortcut
+      fi
 
       if [ "x$DEFAULT_BROWSER_ICON" != "x$BROWSER_ICON" ]; then
-        sed -i -e "s%$DEFAULT_BROWSER_ICON%$BROWSER_ICON%g" $LOCAL_DESKTOP_SHORTCUT
+        sed -i -e "s%$DEFAULT_BROWSER_ICON%$BROWSER_ICON%g" $lab_desktopshort
       fi
+
+      mv $lab_desktop_shortcut $LOCAL_DESKTOP_SHORTCUT
     fi
 
     # Customize xterm specific options and icons

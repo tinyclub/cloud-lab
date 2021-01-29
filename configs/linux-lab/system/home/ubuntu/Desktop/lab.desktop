@@ -3,5 +3,5 @@ Encoding=UTF-8
 Name=Linux Lab
 Comment=A Friendly Lab for Linux Learning
 Exec=/usr/bin/terminator --working-directory=/labs/linux-lab/ -T "Linux Lab"
-Icon=/usr/share/pixmaps/terminator.png
+Icon=/configs/lab-logo.png
 Type=Application
