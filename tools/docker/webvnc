@@ -130,7 +130,7 @@ if [ -d ~/Desktop -a -n "$REMOTE_DESKTOP_SHORTCUT" -a -f "$REMOTE_DESKTOP_SHORTC
     BROWSER_ICON=/usr/share/pixmaps/${WEB_BROWSER}.png
     DEFAULT_BROWSER_ICON=$BROWSER_ICON
     if [ ! -f "$BROWSER_ICON" ]; then
-      BROWSER_ICON=$(find /usr/share/ -name "${WEB_BROWSER}*.png" | head -1)
+      BROWSER_ICON=$(find /usr/share/ -name "${WEB_BROWSER}*.png" | egrep "hicolor" | head -1)
     fi
 
     if [ "x$LAB_DESKTOP_SHORTCUT" = "x1" -a ! -f "$LOCAL_DESKTOP_SHORTCUT" ]; then
