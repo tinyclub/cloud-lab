@@ -126,16 +126,38 @@ if [ -d ~/Desktop -a -n "$REMOTE_DESKTOP_SHORTCUT" -a -f "$REMOTE_DESKTOP_SHORTC
 
   elif [ "x$HOST_OS" = "xLinux" ]; then
 
+    # Customize browser specific options and icons
+    BROWSER_ICON=/usr/share/pixmaps/${WEB_BROWSER}.png
+    DEFAULT_BROWSER_ICON=$BROWSER_ICON
+    if [ ! -f "$BROWSER_ICON" ]; then
+      BROWSER_ICON=$(find /usr/share/ -name "${WEB_BROWSER}*.png" | head -1)
+    fi
+
+
     if [ "x$LAB_DESKTOP_SHORTCUT" = "x1" -a ! -f "$LOCAL_DESKTOP_SHORTCUT" ]; then
       echo '#!/usr/bin/env xdg-open' > "$LOCAL_DESKTOP_SHORTCUT"
       cat "$REMOTE_DESKTOP_SHORTCUT" \
         | sed "s%Exec=.*%Exec='$DOCKER_RUN_CMD' $LAB_NAME%g" \
         | sed "s%terminator.png%${WEB_BROWSER}.png%g;s%lxterminal.xpm%${WEB_BROWSER}.png%g" | tr '|' '&' \
 	  >> "$LOCAL_DESKTOP_SHORTCUT"
+
+      if [ "x$DEFAULT_BROWSER_ICON" != "x$BROWSER_ICON" ]; then
+        sed -i -e "s%$DEFAULT_BROWSER_ICON%$BROWSER_ICON%g" $LOCAL_DESKTOP_SHORTCUT
+      fi
     fi
 
+    # Customize xterm specific options and icons
     XTERM_TITLE_OPTION=-T
-    [ "x$XTERM" = "xgnome-terminal" ] && XTERM_TITLE_OPTION=-t
+    XTERM_ICON=/usr/share/pixmaps/${XTERM}.png
+    if [ "x$XTERM" = "xgnome-terminal" ]; then
+      XTERM_TITLE_OPTION=-t
+      XTERM_ICON=/usr/share/help/C/gnome-terminal/figures/gnome-terminal-icon.png
+    fi
+    if [ ! -f "$XTERM_ICON" ]; then
+      XTERM_ICON=$(find /usr/share/ -name "${XTERM}*.png" | grep icon | head -1)
+      [ -z "$XTERM_ICON" ] && XTERM_ICON=$(find /usr/share/ -name "${XTERM}*.png" | head -1)
+    fi
+
     # For cloud lab
     [ ! -f "$MANAGE_DESKTOP_SHORTCUT" ] && cat <<EOF > "$MANAGE_DESKTOP_SHORTCUT"
 #!/usr/bin/env xdg-open
@@ -144,7 +166,7 @@ Encoding=UTF-8
 Name=Cloud Lab Manager
 Comment=Cloud Lab Manage Center
 Exec="$XTERM" --working-directory="$CLOUD_LAB_TOP_DIR" $XTERM_TITLE_OPTION 'Cloud Lab'
-Icon=/usr/share/pixmaps/${XTERM}.png
+Icon=$XTERM_ICON
 Type=Application
 EOF
 
@@ -155,7 +177,7 @@ Encoding=UTF-8
 Name=Cloud Lab Browser
 Comment=Cloud Lab Web Center
 Exec="$WEB_BROWSER" "$LABS_WEB_URL"
-Icon=/usr/share/pixmaps/${WEB_BROWSER}.png
+Icon=$BROWSER_ICON
 Type=Application
 EOF
 
