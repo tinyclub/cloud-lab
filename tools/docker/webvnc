@@ -146,7 +146,7 @@ if [ -d ~/Desktop -a -n "$REMOTE_DESKTOP_SHORTCUT" -a -f "$REMOTE_DESKTOP_SHORTC
       fi
 
       if [ "x$DEFAULT_BROWSER_ICON" != "x$BROWSER_ICON" ]; then
-        sed -i -e "s%$DEFAULT_BROWSER_ICON%$BROWSER_ICON%g" $lab_desktopshort
+        sed -i -e "s%$DEFAULT_BROWSER_ICON%$BROWSER_ICON%g" $lab_desktop_shortcut
       fi
 
       mv $lab_desktop_shortcut $LOCAL_DESKTOP_SHORTCUT
