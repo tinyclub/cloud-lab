@@ -134,6 +134,8 @@ if [ -d ~/Desktop -a -n "$REMOTE_DESKTOP_SHORTCUT" -a -f "$REMOTE_DESKTOP_SHORTC
 	  >> "$LOCAL_DESKTOP_SHORTCUT"
     fi
 
+    XTERM_TITLE_OPTION=-T
+    [ "x$XTERM" = "xgnome-terminal" ] && XTERM_TITLE_OPTION=-t
     # For cloud lab
     [ ! -f "$MANAGE_DESKTOP_SHORTCUT" ] && cat <<EOF > "$MANAGE_DESKTOP_SHORTCUT"
 #!/usr/bin/env xdg-open
@@ -141,7 +143,7 @@ if [ -d ~/Desktop -a -n "$REMOTE_DESKTOP_SHORTCUT" -a -f "$REMOTE_DESKTOP_SHORTC
 Encoding=UTF-8
 Name=Cloud Lab Manager
 Comment=Cloud Lab Manage Center
-Exec="$XTERM" --working-directory="$CLOUD_LAB_TOP_DIR" -T 'Cloud Lab'
+Exec="$XTERM" --working-directory="$CLOUD_LAB_TOP_DIR" $XTERM_TITLE_OPTION 'Cloud Lab'
 Icon=/usr/share/pixmaps/${XTERM}.png
 Type=Application
 EOF
