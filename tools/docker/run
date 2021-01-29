@@ -70,7 +70,6 @@ if [ -n "$CONTAINER_NAME" ]; then
 
   if [ $? -eq 0 ]; then
     echo "LOG: Resume the stopped $LAB_NAME" \
-    && (if [ -f "$LAB_HOST_RUN" ]; then "$LAB_HOST_RUN"; fi) \
     && "$DOCKER_START_CMD" $LAB_NAME \
     && echo "LOG: Wait for lab resuming..." \
     && while :; do \
