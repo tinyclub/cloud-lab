@@ -18,10 +18,11 @@ fi
 # Notify for X11 system
 which notify-send >/dev/null 2>&1
 if [ $? -eq 0 ]; then
+  notice="$LAB_NAME is loading ..."
   if [ -f "$LAB_LOGO" ]; then
-    notify-send -i $LAB_LOGO "Linux Lab is Loading..."
+    notify-send -i $LAB_LOGO "$notice"
   else
-    notify-send "Linux Lab is Loading..."
+    notify-send "$notice"
   fi
 fi
 
