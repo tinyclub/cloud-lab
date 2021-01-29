@@ -31,4 +31,7 @@ done
 
 XTERM=${XTERM:-$1}
 
+# reserve gnome-terminal for gnome-terminal-server
+XTERM=${XTERM%-*}
+
 echo $XTERM
