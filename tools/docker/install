@@ -44,7 +44,7 @@ $SUDO add-apt-repository "deb [arch=amd64] http://$DOCKER_MIRROR/docker-ce/linux
 $SUDO apt-get -y update
 $SUDO apt-get -y install apt-transport-https ca-certificates
 $SUDO apt-get -y install bridge-utils net-tools vim git
-$SUDO apt-get -y install terminator
+#$SUDO apt-get -y install terminator
 [ "$ubuntu_version" = "trusty" ] && $SUDO apt-get -y install linux-image-extra-$(uname -r) linux-image-extra-virtual
 $SUDO apt-get -y --force-yes install docker-ce
 $SUDO usermod -aG docker $HOST_USER
