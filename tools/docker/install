@@ -13,14 +13,14 @@
 # ref: https://mirror.tuna.tsinghua.edu.cn/help/docker-ce/
 #
 
+which docker > /dev/null 2>&1 && exit 0
+
 # Allow customize docker registry mirror sites, use 'no' argument to using default servers
 [ -n "$1" ] && REGISTRY_MIRROR=$1
 [ -z "$REGISTRY_MIRROR" ] && REGISTRY_MIRROR=https://docker.mirrors.ustc.edu.cn
 
 [ -n "$2" ] && DOCKER_MIRROR=$2
 [ -z "$DOCKER_MIRROR" ] && DOCKER_MIRROR=mirrors.163.com
-
-which docker > /dev/null 2>&1 && exit 0
 
 [ -f /etc/issue ] && grep -qi ubuntu /etc/issue
 if [ $? -eq 0 ]; then
