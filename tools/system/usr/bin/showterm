@@ -26,6 +26,13 @@
 record_base_url="http://showterm.io/record"
 upload_base_url="http://showterm.io"
 
+if ! which curl >/dev/null
+then
+    # Current docker image system is based on ubuntu
+    sudo apt-get -y update
+    sudo apt-get install -y curl
+fi
+
 if ! tty >/dev/null
 then
     echo "Usage: bash <(curl $record_base_url)"
@@ -68,6 +75,16 @@ data=$(curl --fail "$url" --data-urlencode "cols=$cols" --data-urlencode "lines=
 status=$?
 
 echo "$data"
+
+# get a browser and check the $data accessible
+for b in chromium-browser firefox
+do
+    if which $b >/dev/null
+    then
+        ($b $data >/dev/null 2>&1)&
+        break
+    fi
+done
 
 if [ $status -eq 0 ]
 then
