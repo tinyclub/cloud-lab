@@ -1,0 +1,23 @@
+#!/bin/bash
+#
+# zram-raw -- enable zram
+#
+# Copyright (C) 2016-2020 Wu Zhangjin <lzufalcon@163.com>
+#
+# Requirements:
+#
+# $ sudo apt-get install -y bcache-tools
+#
+
+size=$1
+if [ -z "$size" ]; then
+    total=$(grep MemTotal /proc/meminfo | tr -s ' ' | cut -d ' ' -f2)
+    size=$((total / 1024 / 1024 / 3))
+fi
+
+swapon | grep -q zram
+if [ $? -ne 0 ]; then
+    modprobe zram
+    echo 3 > /sys/block/zram0/max_comp_streams
+    echo $((size*1024*1024*1024)) > /sys/block/zram0/disksize
+fi
