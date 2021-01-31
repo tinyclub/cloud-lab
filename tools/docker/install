@@ -43,8 +43,13 @@ ubuntu_version=$(lsb_release -cs)
 $SUDO add-apt-repository "deb [arch=amd64] http://$DOCKER_MIRROR/docker-ce/linux/ubuntu $ubuntu_version stable"
 $SUDO apt-get -y update
 $SUDO apt-get -y install apt-transport-https ca-certificates
-$SUDO apt-get -y install bridge-utils net-tools vim git
-#$SUDO apt-get -y install terminator
+$SUDO apt-get -y install bridge-utils
+$SUDO apt-get -y install net-tools vim git
+# Not install terminator for remote server
+if pgrep Xorg >/dev/null; then
+    $SUDO apt-get -y install terminator
+fi
+
 [ "$ubuntu_version" = "trusty" ] && $SUDO apt-get -y install linux-image-extra-$(uname -r) linux-image-extra-virtual
 $SUDO apt-get -y --force-yes install docker-ce
 $SUDO usermod -aG docker $HOST_USER
