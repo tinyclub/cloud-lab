@@ -90,9 +90,6 @@ RUN apt-get -y update \
     && rm -rf /var/lib/apt/lists/* \
     && rm -rf /var/cache/apt/archives/*.deb
 
-RUN sh -c 'curl showterm.io/showterm > /usr/bin/showterm'
-RUN chmod a+x /usr/bin/showterm
-
 RUN apt-get -y update \
     && apt-get install -y --force-yes --no-install-recommends \
         libc6-dev-armel-cross libc6-armel-cross \
@@ -111,36 +108,11 @@ RUN apt-get -y update \
 
 RUN apt-get -y update \
     && apt-get install -y --force-yes --no-install-recommends \
-        libc6-dev-mipsel-cross libc6-mipsel-cross \
-    && apt-get autoclean -y \
-    && apt-get autoremove -y \
-    && rm -rf /var/lib/apt/lists/* \
-    && rm -rf /var/cache/apt/archives/*.deb
-
-RUN apt-get -y update \
-    && apt-get install -y --force-yes --no-install-recommends \
-        libc6-dev-mips64el-cross libc6-mips64el-cross \
-    && apt-get autoclean -y \
-    && apt-get autoremove -y \
-    && rm -rf /var/lib/apt/lists/* \
-    && rm -rf /var/cache/apt/archives/*.deb
-
-RUN apt-get -y update \
-    && apt-get install -y --force-yes --no-install-recommends \
         libc6-riscv64-cross libc6-dev-riscv64-cross \
     && apt-get autoclean -y \
     && apt-get autoremove -y \
     && rm -rf /var/lib/apt/lists/* \
     && rm -rf /var/cache/apt/archives/*.deb
-
-RUN apt-get -y update \
-    && apt-get install -y --force-yes --no-install-recommends \
-        libc6-dev-x32 libc6-x32 libx32gcc-9-dev \
-    && apt-get autoclean -y \
-    && apt-get autoremove -y \
-    && rm -rf /var/lib/apt/lists/* \
-    && rm -rf /var/cache/apt/archives/*.deb
-
 
 EXPOSE 5900 22
 
