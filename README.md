@@ -1,4 +1,4 @@
-**关注作者公众号**：
+**Subscribe Wechat, Learn Project Status**：
 <br/>
 <img src='images/tinylab-wechat.jpg' width='110px'/>
 <br/>

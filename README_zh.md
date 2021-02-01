@@ -1,6 +1,12 @@
+<!-- metadata start --><!--
 % Cloud Lab v0.4 中文手册
 % [泰晓科技 | Tinylab.org](http://tinylab.org)
 % \today
+--><!-- metadata end -->
+
+**订阅公众号，关注项目状态：**
+
+![Wechat Public](doc/images/tinylab-wechat.jpg)
 
 ## 1. 产品简介
 
