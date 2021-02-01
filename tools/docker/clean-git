@@ -2,7 +2,7 @@
 #
 # clean-git -- clean the git environment.
 #
-# Copyright (C) 2016-2020 Wu Zhangjin <lzufalcon@163.com>
+# Copyright (C) 2016-2021 Wu Zhangjin <falcon@ruma.tech>
 #
 
 # Will this clean up the increasing files /run/udev/data/+cgroup:*

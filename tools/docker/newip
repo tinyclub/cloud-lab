@@ -2,7 +2,7 @@
 #
 # newip -- Get a new ip nobody is using
 #
-# Copyright (C) 2016-2020 Wu Zhangjin <lzufalcon@163.com>
+# Copyright (C) 2016-2021 Wu Zhangjin <falcon@ruma.tech>
 #
 # Note: this not work in Mac OSX currently for the /var/lib/docker/containers not available there.
 #

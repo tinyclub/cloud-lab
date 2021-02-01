@@ -2,7 +2,7 @@
 #
 # enable_net_bridge.sh
 #
-# Copyright (C) 2016-2020 Wu Zhangjin <lzufalcon@163.com>
+# Copyright (C) 2016-2021 Wu Zhangjin <falcon@ruma.tech>
 #
 
 ip=`ifconfig eth0 | grep "inet " | tr -d -c '^[0-9. ]' | awk '{print $1}'`

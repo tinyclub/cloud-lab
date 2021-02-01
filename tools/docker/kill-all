@@ -2,7 +2,7 @@
 #
 # kill-all
 #
-# Copyright (C) 2016-2020 Wu Zhangjin <lzufalcon@163.com>
+# Copyright (C) 2016-2021 Wu Zhangjin <falcon@ruma.tech>
 #
 
 ps -ef | grep cloud-lab | grep -v grep | tr -s ' ' | cut -d' ' -f2 | xargs -I{} kill -9 {}

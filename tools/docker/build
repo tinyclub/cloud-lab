@@ -2,7 +2,7 @@
 #
 # build -- Build the docker image for the lab
 #
-# Copyright (C) 2016-2020 Wu Zhangjin <lzufalcon@163.com>
+# Copyright (C) 2016-2021 Wu Zhangjin <falcon@ruma.tech>
 #
 # ref: https://docs.docker.com/engine/installation/linux/ubuntulinux/
 #

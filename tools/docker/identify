@@ -2,7 +2,7 @@
 #
 # IDENTIFY -- control the password of VNC/Unix/sudo login
 #
-# Copyright (C) 2016-2020 Wu Zhangjin <lzufalcon@163.com>
+# Copyright (C) 2016-2021 Wu Zhangjin <falcon@ruma.tech>
 #
 # Usage: IDENTIFY 0|1 vnc|unix|sudo
 #
