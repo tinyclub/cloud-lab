@@ -1,4 +1,13 @@
 #!/bin/bash
+#
+# Copyright (C) 2016-2021 Wu Zhangjin <falcon@ruma.tech>
+#
+
+# Please next run it manually
+if [ ! -d /labs -o ! -d /.git ]; then
+    echo "ERR: Please don't run this manually, do you mean tools/docker/run ?"
+    exit 1
+fi
 
 # no argument required of config for container
 IN_CONTAINER=1
