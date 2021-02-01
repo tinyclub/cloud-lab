@@ -6,7 +6,7 @@
 
 **订阅公众号，关注项目状态：**
 
-![Wechat Public](doc/images/tinylab-wechat.jpg)
+![Wechat Public](images/tinylab-wechat.jpg)
 
 ## 1. 产品简介
 
