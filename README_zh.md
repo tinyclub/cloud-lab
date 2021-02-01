@@ -10,7 +10,7 @@
 
 ## 1. 产品简介
 
-[Cloud Lab](http://tinylab.org/cloud-lab) 是一套基于 Docker 的云端计算机软件实验管理平台。
+[Cloud Lab](http://tinylab.org/cloud-lab) 是一套基于 Docker 的计算机软件云端实验管理平台。
 
 ## 2. 产品安装
 
