@@ -14,7 +14,6 @@ fi
 swapon | grep -q zram
 if [ $? -ne 0 ]; then
     modprobe zram
-    echo 3 > /sys/block/zram0/max_comp_streams 
     echo $((size*1024*1024*1024)) > /sys/block/zram0/disksize
     mkswap /dev/zram0
     swapon /dev/zram0

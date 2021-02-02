@@ -15,12 +15,8 @@ if [ -z "$size" ]; then
     size=$((total / 1024 / 1024 / 3))
 fi
 
-swapon | grep -q zram
-if [ $? -ne 0 ]; then
-    modprobe bcache
-    modprobe zram
-    echo 3 > /sys/block/zram0/max_comp_streams
-    echo $((size*1024*1024*1024)) > /sys/block/zram0/disksize
-    make-bcache -C /dev/zram0 --wipe-bcache
-    bcache-super-show /dev/zram0
-fi
+modprobe bcache
+modprobe zram
+echo $((size*1024*1024*1024)) > /sys/block/zram0/disksize
+make-bcache -C /dev/zram0 --wipe-bcache
+bcache-super-show /dev/zram0
