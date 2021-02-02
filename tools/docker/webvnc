@@ -171,7 +171,7 @@ if [ -d ~/Desktop -a -n "$REMOTE_DESKTOP_SHORTCUT" -a -f "$REMOTE_DESKTOP_SHORTC
 Encoding=UTF-8
 Name=Cloud Lab Manager
 Comment=Cloud Lab Manage Center
-Exec="$XTERM" --working-directory="$CLOUD_LAB_TOP_DIR" $XTERM_TITLE_OPTION 'Cloud Lab -- 深圳市儒码科技有限公司'
+Exec="$XTERM" --working-directory="$CLOUD_LAB_TOP_DIR" $XTERM_TITLE_OPTION 'Cloud Lab -- http://tinylab.org/cloud-lab'
 Icon=$XTERM_ICON
 Type=Application
 EOF
