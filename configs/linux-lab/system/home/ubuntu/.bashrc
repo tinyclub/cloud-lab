@@ -118,3 +118,6 @@ fi
 
 # load our own complete script
 [ -e /labs/linux-lab/tools/helper/complete.sh ] && . /labs/linux-lab/tools/helper/complete.sh
+
+# enter into the default working directory for ssh login
+cd /labs/linux-lab
