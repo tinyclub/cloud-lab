@@ -61,7 +61,7 @@ login_config()
   set_var LOGIN
 } # login_config
 
-# Get login method in this order: command argument, environment variable and .login_method configuration
+# Get login method in this order: command argument, environment variable and $LAB_LOGIN configuration
 # If the first argument is valid lab, use the second one as login method argument.
 if [ -n "$1" ]; then
   LAB=$1

@@ -66,8 +66,12 @@ if [ -n "$LOCALHOST" ]; then
     echo "  *   View: $_HOST_WEB_URL_VIEWONLY"
     echo
 else
-    echo "Note: Please make sure network available outside and then replace 'localhost' with the external ip or domain name."
-    echo "      Then 'echo \$ip > .host_name' or 'echo \$domain_name > .host_name'"
+    echo "Note: Please make sure this lab network is connectable outside,"
+    echo "      If so, use external ip or domain name instead of 'localhost':"
+    echo
+    echo "      $ echo \$ip > $LAB_HOST"
+    echo "      Or"
+    echo "      $ echo \$domain_name > $LAB_HOST"
 fi
 
 echo
