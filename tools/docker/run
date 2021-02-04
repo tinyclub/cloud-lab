@@ -18,11 +18,12 @@ fi
 # Notify for X11 system
 which notify-send >/dev/null 2>&1
 if [ $? -eq 0 ]; then
-  notice="$LAB_NAME is loading ..."
+  notice_summary="$LAB_NAME is loading ..."
+  notice_body="Welcome to the ${LAB_NAME%-*} World!"
   if [ -f "$LAB_LOGO" ]; then
-    notify-send -i $LAB_LOGO "$notice"
+    notify-send -i $LAB_LOGO "$notice_summary" "$notice_body"
   else
-    notify-send "$notice"
+    notify-send "$notice" "$notice_body"
   fi
 fi
 
