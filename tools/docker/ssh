@@ -13,7 +13,6 @@ which sshpass >/dev/null 2>&1
 [ $? -eq 0 ] && SSH_PASS="sshpass -p '$UNIX_PWD'"
 
 SSH_CMD="$SSH_PASS ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -t ${UNIX_USER}@${VNC_IP} -p ${CONTAINER_SSH_PORT} 'cd $LAB_WORKDIR/$CURRENT && exec bash -l'"
-REMOTE_SSH_CMD="ssh  -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -t ${UNIX_USER}@${HOST} -p ${HOST_SSH_PORT} 'cd $LAB_WORKDIR/$CURRENT && exec bash -l'"
 
 if [ -z "$SSH_PASS" ]; then
   echo
