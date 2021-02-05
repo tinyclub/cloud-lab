@@ -19,7 +19,7 @@ fi
 which notify-send >/dev/null 2>&1
 if [ $? -eq 0 ]; then
   notice_summary="$LAB_NAME is loading ..."
-  notice_body="Welcome to the ${LAB_NAME%-*} World!"
+  notice_body="Welcome to the world of $LAB_NAME!"
   if [ -f "$LAB_LOGO" ]; then
     notify-send -i $LAB_LOGO "$notice_summary" "$notice_body"
   else
