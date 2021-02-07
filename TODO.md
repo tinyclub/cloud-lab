@@ -11,3 +11,4 @@
 6. Add ebpf lab: https://github.com/zlim/bcc-docker
 7. Add missing manpages?
 8. Remove or minimize cloud-ubuntu-web and webvnc by default?
+9. Add remote resizing support for x11vnc: https://github.com/LibVNC/x11vnc/pull/107
