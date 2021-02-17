@@ -114,6 +114,15 @@ RUN apt-get -y update \
     && rm -rf /var/lib/apt/lists/* \
     && rm -rf /var/cache/apt/archives/*.deb
 
+RUN apt-get -y update \
+    && apt-get install -y --force-yes --no-install-recommends \
+        linux-libc-dev:i386 \
+    && apt-get autoclean -y \
+    && apt-get autoremove -y \
+    && rm -rf /var/lib/apt/lists/* \
+    && rm -rf /var/cache/apt/archives/*.deb
+
+
 EXPOSE 5900 22
 
 WORKDIR /labs/
