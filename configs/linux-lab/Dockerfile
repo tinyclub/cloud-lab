@@ -122,6 +122,14 @@ RUN apt-get -y update \
     && rm -rf /var/lib/apt/lists/* \
     && rm -rf /var/cache/apt/archives/*.deb
 
+# Allow to add new ppa source
+RUN apt-get -y update \
+    && apt-get install -y --force-yes --no-install-recommends \
+        gpg-agent \
+    && apt-get autoclean -y \
+    && apt-get autoremove -y \
+    && rm -rf /var/lib/apt/lists/* \
+    && rm -rf /var/cache/apt/archives/*.deb
 
 EXPOSE 5900 22
 
