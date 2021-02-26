@@ -238,10 +238,15 @@ EOF
   fi
 fi
 
+# Allow Launching for Ubuntu 20.04
+for sc in $LOCAL_DESKTOP_SHORTCUT $MANAGE_DESKTOP_SHORTCUT $BROWSE_DESKTOP_SHORTCUT
+do
+  [ ! -f "$sc" ] && continue
 
-[ -f "$LOCAL_DESKTOP_SHORTCUT" ] && chmod a+x "$LOCAL_DESKTOP_SHORTCUT"
-[ -f "$MANAGE_DESKTOP_SHORTCUT" ] && chmod a+x "$MANAGE_DESKTOP_SHORTCUT"
-[ -f "$BROWSE_DESKTOP_SHORTCUT" ] && chmod a+x "$BROWSE_DESKTOP_SHORTCUT"
+  chmod a+x "$sc"
+  which gio >/dev/null 2>&1 && gio set "$sc" "metadata::trusted" true
+  touch "$sc"
+done
 
 # For web portmapping
 [ -f "$LAB_PORTMAP" ] && grep -q ":8" "$LAB_PORTMAP" \
