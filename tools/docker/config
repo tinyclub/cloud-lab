@@ -427,15 +427,15 @@ LABS="`ls "$CONFIGS_DIR" | tr -s ' '`"
 
 [ -z "$LAB_DESKTOP_SHORTCUT" ] && LAB_DESKTOP_SHORTCUT=1
 if [ "x$HOST_OS" = "xDarwin" ]; then
-  LOCAL_DESKTOP_SHORTCUT=~/Desktop/${CONTAINER_NAME}.command
+  LOCAL_DESKTOP_SHORTCUT=~/Desktop/${LAB_NAME}.command
   MANAGE_DESKTOP_SHORTCUT=~/Desktop/lab-manager.command
   BROWSE_DESKTOP_SHORTCUT=~/Desktop/lab-browser.command
 elif [ "x$HOST_OS" = "xLinux" ]; then
-  LOCAL_DESKTOP_SHORTCUT=~/Desktop/${CONTAINER_NAME}.desktop
+  LOCAL_DESKTOP_SHORTCUT=~/Desktop/${LAB_NAME}.desktop
   MANAGE_DESKTOP_SHORTCUT=~/Desktop/lab-manager.desktop
   BROWSE_DESKTOP_SHORTCUT=~/Desktop/lab-browser.desktop
 else
-  LOCAL_DESKTOP_SHORTCUT=~/Desktop/${CONTAINER_NAME}.url
+  LOCAL_DESKTOP_SHORTCUT=~/Desktop/${LAB_NAME}.url
   MANAGE_DESKTOP_SHORTCUT=~/Desktop/lab-manager.url
   BROWSE_DESKTOP_SHORTCUT=~/Desktop/lab-browser.url
 fi
