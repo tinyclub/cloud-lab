@@ -105,7 +105,7 @@ get_browser
 
 [ $? -ne 0 ] && echo "ERR: Give up browser launching for no web browser found" && exit 1
 
-# Create local shotcut on Desktop
+# Create local shortcut on Desktop
 if [ -d ~/Desktop -a -n "$REMOTE_DESKTOP_SHORTCUT" -a -f "$REMOTE_DESKTOP_SHORTCUT" ]; then
 
   if [ "x$HOST_OS" = "xDarwin" ]; then
