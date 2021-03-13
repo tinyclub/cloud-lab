@@ -330,21 +330,29 @@ WPROXY_NAME=cloud-ubuntu-web
 ### TODO: Check LOCAL_TOKEN_MAP and REMOTE_TOKEN_MAP path for Windows and macOS
 docker ps -f name=$WPROXY_NAME -f status=running 2>/dev/null | grep -q -v PORTS
 if [ $? -eq 0 ]; then
-  LOCAL_TOKEN_DIR=$(docker inspect $WPROXY_NAME | grep "Source.*$DEF_TOKEN_DIR" | cut -d ':' -f2 | tr -d ' ",')
+  LOCAL_TOKEN_DIR=$(docker inspect -f '{{ .Mounts }}' $WPROXY_NAME | sed -e "s%.*[ \[]\([^ ]*/*$DEF_TOKEN_DIR[ :]/*$DEF_TOKEN_DIR\).*%\1%g" | awk -F ":| " '{ printf("%s\n",$1) }')
   [ $? -ne 0 ] && echo "ERR: Docker inspect failure" && exit 1
 
-  if [ -z "$LOCAL_TOKEN_DIR" ]; then
-    LOCAL_TOKEN_DIR=$(docker inspect $WPROXY_NAME | grep -B1 "Destination.*$DEF_TOKEN_DIR" | grep Source | cut -d ':' -f2 | tr -d ' ",' | sed -e "s%^/run/desktop/mnt/host%/mnt%g")
-    [ -z "$LOCAL_TOKEN_DIR" ] && LOCAL_TOKEN_DIR="${TOP_TOKEN_DIR}/$DEF_TOKEN_DIR"
+  if [ "x$HOST_OS" = "xDarwin" ]; then
+    LOCAL_TOKEN_DIR=$(echo "LOCAL_TOKEN_DIR" | sed -e "s%^/host_mnt%%g")
+  elif [ "x$HOST_OS" = "xLinux" ]; then
+    LOCAL_TOKEN_DIR=$LOCAL_TOKEN_DIR
+  else # Windows
+    LOCAL_TOKEN_DIR=$(echo "LOCAL_TOKEN_DIR" | sed -e "s%^/run/desktop/mnt/host%%g")
   fi
 
-  LOCAL_TOKEN_MAP="$LOCAL_TOKEN_DIR/local_map"
-  REMOTE_TOKEN_MAP="$LOCAL_TOKEN_DIR/remote_map"
-else
-  LOCAL_TOKEN_DIR="${TOP_TOKEN_DIR}/$DEF_TOKEN_DIR"
-  LOCAL_TOKEN_MAP="$LOCAL_TOKEN_DIR/local_map"
-  REMOTE_TOKEN_MAP="$LOCAL_TOKEN_DIR/remote_map"
+  echo $LOCAL_TOKEN_DIR >&2
 fi
+
+if [ -z "$LOCAL_TOKEN_DIR" -o ! -d "$LOCAL_TOKEN_DIR" ]; then
+  LOCAL_TOKEN_DIR="${TOP_TOKEN_DIR}/$DEF_TOKEN_DIR"
+fi
+
+LOCAL_TOKEN_MAP="$LOCAL_TOKEN_DIR/local_map"
+REMOTE_TOKEN_MAP="$LOCAL_TOKEN_DIR/remote_map"
+
+echo $LOCAL_TOKEN_MAP >&2
+echo $REMOTE_TOKEN_MAP >&2
 
 ## Security related
 ### 0: with root permission by default, sharable, for private usage
