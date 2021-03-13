@@ -326,7 +326,8 @@ WPROXY_IMAGE_NAME=cloud-ubuntu-web
 TPROXY_NAME=proxy-client
 WPROXY_NAME=cloud-ubuntu-web
 
-# Share running wproxy
+## Share running wproxy
+### TODO: Check LOCAL_TOKEN_MAP and REMOTE_TOKEN_MAP path for Windows and macOS
 docker ps -f name=$WPROXY_NAME -f status=running 2>/dev/null | grep -q -v PORTS
 if [ $? -eq 0 ]; then
   LOCAL_TOKEN_DIR=$(docker inspect $WPROXY_NAME | grep "Source.*$DEF_TOKEN_DIR" | cut -d ':' -f2 | tr -d ' ",')
@@ -337,8 +338,8 @@ if [ $? -eq 0 ]; then
     [ -z "$LOCAL_TOKEN_DIR" ] && LOCAL_TOKEN_DIR="${TOP_TOKEN_DIR}/$DEF_TOKEN_DIR"
   fi
 
-  LOCAL_TOKEN_MAP=$LOCAL_TOKEN_DIR/local_map
-  REMOTE_TOKEN_MAP=$LOCAL_TOKEN_DIR/remote_map
+  LOCAL_TOKEN_MAP="$LOCAL_TOKEN_DIR/local_map"
+  REMOTE_TOKEN_MAP="$LOCAL_TOKEN_DIR/remote_map"
 else
   LOCAL_TOKEN_DIR="${TOP_TOKEN_DIR}/$DEF_TOKEN_DIR"
   LOCAL_TOKEN_MAP="$LOCAL_TOKEN_DIR/local_map"
