@@ -11,11 +11,14 @@ TOP_DIR="$(cd "$(dirname "$0")"/../../ && pwd $PWD_OPT)"
 
 notify_user 2 "Lab will be removed"
 
+# Remove desktop shortcut
+# do_op "rm -f" LOCAL_DESKTOP_SHORTCUT
+
 # Remove container
 do_op "docker rm -f" CONTAINER_NAME
 
-# Remove desktop shortcut
-# do_op "rm -f" LOCAL_DESKTOP_SHORTCUT
+# Disconnect docket network
+do_op "docker network disconnect -f cloud-lab-net" CONTAINER_NAME 2>/dev/null
 
 # Update lab list
 [ "$RELEASE" != '0' ] && "$DOCKER_RELEASE_CMD" all >/dev/null 2>&1
