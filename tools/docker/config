@@ -341,7 +341,7 @@ if [ $? -eq 0 ]; then
     LOCAL_TOKEN_DIR=$(echo "$LOCAL_TOKEN_DIR" | sed -e "s%^/run/desktop/mnt/host%%g")
   fi
 
-  echo $LOCAL_TOKEN_DIR >&2
+  #echo $LOCAL_TOKEN_DIR >&2
 fi
 
 if [ -z "$LOCAL_TOKEN_DIR" -o ! -d "$LOCAL_TOKEN_DIR" ]; then
@@ -351,8 +351,8 @@ fi
 LOCAL_TOKEN_MAP="$LOCAL_TOKEN_DIR/local_map"
 REMOTE_TOKEN_MAP="$LOCAL_TOKEN_DIR/remote_map"
 
-echo $LOCAL_TOKEN_MAP >&2
-echo $REMOTE_TOKEN_MAP >&2
+#echo $LOCAL_TOKEN_MAP >&2
+#echo $REMOTE_TOKEN_MAP >&2
 
 ## Security related
 ### 0: with root permission by default, sharable, for private usage
