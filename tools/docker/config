@@ -334,11 +334,11 @@ if [ $? -eq 0 ]; then
   [ $? -ne 0 ] && echo "ERR: Docker inspect failure" && exit 1
 
   if [ "x$HOST_OS" = "xDarwin" ]; then
-    LOCAL_TOKEN_DIR=$(echo "LOCAL_TOKEN_DIR" | sed -e "s%^/host_mnt%%g")
+    LOCAL_TOKEN_DIR=$(echo "$LOCAL_TOKEN_DIR" | sed -e "s%^/host_mnt%%g")
   elif [ "x$HOST_OS" = "xLinux" ]; then
     LOCAL_TOKEN_DIR=$LOCAL_TOKEN_DIR
   else # Windows
-    LOCAL_TOKEN_DIR=$(echo "LOCAL_TOKEN_DIR" | sed -e "s%^/run/desktop/mnt/host%%g")
+    LOCAL_TOKEN_DIR=$(echo "$LOCAL_TOKEN_DIR" | sed -e "s%^/run/desktop/mnt/host%%g")
   fi
 
   echo $LOCAL_TOKEN_DIR >&2
