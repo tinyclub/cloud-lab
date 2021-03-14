@@ -13,6 +13,7 @@ verify_login()
 {
   method=$1
   match=0
+  number=0
 
   echo $method | grep -q '[a-z]'
   if [ $? -eq 0 ]; then

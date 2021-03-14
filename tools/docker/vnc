@@ -22,6 +22,7 @@ verify_vnc()
 {
   client=$1
   match=0
+  number=0
 
   echo $client | grep -q '[a-z]'
   if [ $? -eq 0 ]; then
