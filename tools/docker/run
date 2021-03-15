@@ -219,4 +219,6 @@ echo "LOG: $password"
 
 # This is very slow in windows, silence it
 # It is not necessary for normal users
-# "$DOCKER_RELEASE_CMD" all
+if [ "x$HOST_OS" = "xDarwin" -o "x$HOST_OS" = "xLinux" ]; then
+  "$DOCKER_RELEASE_CMD" all
+fi
