@@ -709,6 +709,15 @@ EOF
 <p>$prompt</p>
 EOF
 
+    cat <<EOF >> "$RELEASE_FILE"
+<br/>
+<div style="padding-left: 30%">
+<p style="text-align: left">1. <a href="https://www.cctalk.com/m/group/88948325" target="_blank">免费学习 Linux Lab 视频公开课，快速上手</a></p>
+<p style="text-align: left">2. <a href="https://shop155917374.taobao.com" target="_blank">淘宝检索 “Linux Lab真盘” 购买开机即用版，免安装，无忧体验</a></p>
+</div>
+<br/>
+EOF
+
     cat << EOF >> "$RELEASE_FILE"
 <table>
 <tr class="head"><th></th><th>Lab</th><th>VNC</th><th>VIEW</th><th>SSH</th><th>Start</th><th>End</th></tr>
