@@ -1,0 +1,8 @@
+#!/usr/bin/env xdg-open
+[Desktop Entry]
+Encoding=UTF-8
+Name=Free Videos
+Comment=Free Videos for Linux Lab Usage
+Exec="firefox" "https://www.cctalk.com/m/group/88948325"
+Icon=/usr/share/logos/tinylab-video.png
+Type=Application

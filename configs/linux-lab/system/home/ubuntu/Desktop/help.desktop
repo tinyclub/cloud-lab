@@ -1,7 +1,7 @@
 [Desktop Entry]
 Encoding=UTF-8
-Name=Help Page
+Name=Help Manual
 Comment=Project Home page
-Exec=/usr/bin/chromium-browser http://tinylab.org/linux-lab/
-Icon=/usr/share/pixmaps/chromium-browser.png
+Exec=/usr/bin/chromium-browser http://gitee.com/tinylab/linux-lab/blob/master/README_zh.md
+Icon=/usr/share/icons/Adwaita/48x48/legacy/help-faq.png
 Type=Application

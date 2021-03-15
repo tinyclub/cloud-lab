@@ -1,7 +1,7 @@
 [Desktop Entry]
 Encoding=UTF-8
-Name=Terminal Demo
+Name=Quick Start
 Comment=Demonstrate the usage of Linux Lab: http://tinylab.org/linux-lab/
-Exec=/usr/bin/chromium-browser http://showterm.io/6fb264246580281d372c6
-Icon=/usr/share/pixmaps/chromium-browser.png
+Exec=/usr/bin/firefox http://showterm.io/6fb264246580281d372c6
+Icon=/usr/share/icons/Humanity/actions/48/media-record.svg
 Type=Application
