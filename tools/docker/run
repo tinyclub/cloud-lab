@@ -161,8 +161,9 @@ coredump="--ulimit core=-1"
 # use --ip command to record the ip address
 [ -n "$VNC_IP" ] && ip="--ip=$VNC_IP"
 net="$ip --network $VNC_NET_NAME"
+audio="-v //run/user/${UNIX_UID}/pulse://run/user/1000/pulse"
 
-CONTAINER_ID=$(eval docker run -d --privileged $coredump -h $LAB_NAME $net $container $portmap $caps $dnss $devices $limits $volumemap $vars $EXTRA_ARGS $IMAGE)
+CONTAINER_ID=$(eval docker run -d --privileged $coredump -h $LAB_NAME $net $audio $container $portmap $caps $dnss $devices $limits $volumemap $vars $EXTRA_ARGS $IMAGE)
 
 [ $? -ne 0 ] && echo "LOG: docker running error." && exit 1
 

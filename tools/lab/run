@@ -71,7 +71,7 @@ else
   DEF_SYSTEM_SUDOERS_USER=/etc/sudoers.d/$DEF_USER
   DESKTOP=$HOME/Desktop/
 
-  [ $SUDO_IDENTIFY -ge 1 ] && UNIX_USER_GROUPS="--groups adm,sudo"
+  [ $SUDO_IDENTIFY -ge 1 ] && UNIX_USER_GROUPS="--groups adm,sudo,audio"
   [ $SUDO_IDENTIFY -eq 0 ] && UNIX_USER_GROUPS=""
 
   # The old one should be removed before create a new one
