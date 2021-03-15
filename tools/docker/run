@@ -23,7 +23,7 @@ if [ $? -eq 0 ]; then
   if [ -f "$LAB_LOGO" ]; then
     notify-send -i $LAB_LOGO "$notice_summary" "$notice_body"
   else
-    notify-send "$notice" "$notice_body"
+    notify-send "$notice_summary" "$notice_body"
   fi
 fi
 
