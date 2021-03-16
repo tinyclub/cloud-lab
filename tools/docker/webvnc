@@ -266,10 +266,10 @@ else
   (eval nohup "'$__WEB_BROWSER'" "'$CONTAINER_WEB_URL'" >/dev/null 2>&1 &)>/dev/null 2>&1
 fi
 
-# Resize the screen
+# Resize the screen, wait for 10 seconds till the screen is resized
 if [ -f /etc/environment.d/90linux-lab-disk.conf ]; then
   . /etc/environment.d/90linux-lab-disk.conf
 fi
 [ -z "$SCREEN_RESIZE" ] && SCREEN_RESIZE=0
 [ -z "$SCREEN_SIZE" ] && SCREEN_SIZE="auto"
-[ "$SCREEN_RESIZE" = "1" ] && (sleep 0.5; $DOCKER_RESIZE_CMD $LAB_NAME $SCREEN_SIZE)&
+[ "$SCREEN_RESIZE" = "1" ] && (i=0; while [ $i -lt 20 ] ; do sleep 0.5; $DOCKER_RESIZE_CMD $LAB_NAME $SCREEN_SIZE; i=`expr $i + 1`; done)&
