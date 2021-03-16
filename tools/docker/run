@@ -219,4 +219,4 @@ echo "LOG: $password"
 
 # This is very slow in windows, silence it
 # It is not necessary for normal users
-(echo; "$DOCKER_RELEASE_CMD" all; echo;)&
+("$DOCKER_RELEASE_CMD" all >/dev/null 2>&1)&
