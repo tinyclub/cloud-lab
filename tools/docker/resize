@@ -9,7 +9,7 @@
 
 # Allow pass first argument as SCREEN_SIZE
 if [ -n "$1" ]; then
-  echo $1 | egrep -q '[0-9]\{3,\}x[0-9]\{3,\}|^auto$'
+  echo $1 | egrep -q '[0-9]{3,}x[0-9]{3,}|^auto$'
   if [ $? -eq 0 ]; then
     SCREEN_SIZE=$1
     shift
@@ -20,16 +20,13 @@ fi
 
 # Allow pass second argument as SCREEN_SIZE, but first one as lab name
 if [ -n "$2" ]; then
-  echo $2 | egrep -q '[0-9]\{3,\}x[0-9]\{3,\}|^auto$'
+  echo $2 | egrep -q '[0-9]{3,}x[0-9]{3,}|^auto$'
   if [ $? -eq 0 ]; then
     SCREEN_SIZE=$2
   fi
 fi
 
-if [ -z "$1" ]; then
-  SCREEN_SIZE=auto
-fi
-if [ -n "$LAB_NAME" -a -z "$2" ]; then
+if [ -z "$SCREEN_SIZE" ]; then
   SCREEN_SIZE=auto
 fi
 
@@ -55,7 +52,8 @@ docker ps -f name=$CONTAINER_NAME | grep -qv PORTS
 
 [ -z "$UNIX_USER" ] && get_var UNIX_USER $DEF_USER
 
-do_op "$WINPTY docker exec -it -w $LAB_WORKDIR/$CURRENT -u $UNIX_USER" CONTAINER_NAME "x11vnc -display :1 -R scale:$SCREEN_SIZE"
+# If want to call this in desktop shortcut, must remove the -t option, otherwise, it will simply silence without any info and any action
+do_op "$WINPTY docker exec -i -w $LAB_WORKDIR/$CURRENT -u $UNIX_USER" CONTAINER_NAME "x11vnc -display :1 -R scale:$SCREEN_SIZE"
 
 # Record SCREEN_SIZE setting
 do_unlock

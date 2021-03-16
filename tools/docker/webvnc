@@ -84,12 +84,14 @@ docker ps -f name=$CONTAINER_NAME | grep -qv PORTS
 [ $? -ne 0 ] && echo "LOG: $LAB_NAME is not running." && exit 1
 
 # Resize the screen
+if [ -f /etc/environment.d/90linux-lab-disk.conf ]; then
+  . /etc/environment.d/90linux-lab-disk.conf
+fi
 [ -z "$SCREEN_RESIZE" ] && SCREEN_RESIZE=0
 [ -z "$SCREEN_SIZE" ] && SCREEN_SIZE="auto"
-if [ "$SCREEN_RESIZE" = "1" ]; then
-  $DOCKER_RESIZE_CMD $LAB_NAME $SCREEN_RESIZE
-fi
+[ "$SCREEN_RESIZE" = "1" ] && $DOCKER_RESIZE_CMD $LAB_NAME $SCREEN_SIZE &
 
+# Enable autoconnect by default
 [ -z "$VNC_AUTOCONNECT" ] && VNC_AUTOCONNECT=1
 
 # Get vnc page
