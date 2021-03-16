@@ -267,9 +267,5 @@ else
 fi
 
 # Resize the screen
-if [ -f /etc/environment.d/90linux-lab-disk.conf ]; then
-  . /etc/environment.d/90linux-lab-disk.conf
-fi
-[ -z "$SCREEN_RESIZE" ] && SCREEN_RESIZE=0
-[ -z "$SCREEN_SIZE" ] && SCREEN_SIZE="auto"
-[ "$SCREEN_RESIZE" = "1" ] && (sleep 0.5; $DOCKER_RESIZE_CMD $LAB_NAME $SCREEN_SIZE)&
+[ -f /etc/environment.d/90linux-lab-disk.conf ] && . /etc/environment.d/90linux-lab-disk.conf
+[ -n "$SCREEN_RESIZE" ] && (sleep 0.5; $DOCKER_RESIZE_CMD $LAB_NAME $SCREEN_RESIZE)&
