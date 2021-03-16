@@ -83,14 +83,6 @@ echo
 docker ps -f name=$CONTAINER_NAME | grep -qv PORTS
 [ $? -ne 0 ] && echo "LOG: $LAB_NAME is not running." && exit 1
 
-# Resize the screen
-if [ -f /etc/environment.d/90linux-lab-disk.conf ]; then
-  . /etc/environment.d/90linux-lab-disk.conf
-fi
-[ -z "$SCREEN_RESIZE" ] && SCREEN_RESIZE=0
-[ -z "$SCREEN_SIZE" ] && SCREEN_SIZE="auto"
-[ "$SCREEN_RESIZE" = "1" ] && $DOCKER_RESIZE_CMD $LAB_NAME $SCREEN_SIZE &
-
 # Enable autoconnect by default
 [ -z "$VNC_AUTOCONNECT" ] && VNC_AUTOCONNECT=1
 
@@ -273,3 +265,11 @@ if [ "x$HOST_OS" = "xDarwin" ]; then
 else
   (eval nohup "'$__WEB_BROWSER'" "'$CONTAINER_WEB_URL'" >/dev/null 2>&1 &)>/dev/null 2>&1
 fi
+
+# Resize the screen
+if [ -f /etc/environment.d/90linux-lab-disk.conf ]; then
+  . /etc/environment.d/90linux-lab-disk.conf
+fi
+[ -z "$SCREEN_RESIZE" ] && SCREEN_RESIZE=0
+[ -z "$SCREEN_SIZE" ] && SCREEN_SIZE="auto"
+[ "$SCREEN_RESIZE" = "1" ] && (sleep 0.5; $DOCKER_RESIZE_CMD $LAB_NAME $SCREEN_SIZE)&
