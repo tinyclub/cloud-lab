@@ -55,6 +55,23 @@ docker ps -f name=$CONTAINER_NAME | grep -qv PORTS
 # If want to call this in desktop shortcut, must remove the -t option, otherwise, it will simply silence without any info and any action
 do_op "$WINPTY docker exec -i -w $LAB_WORKDIR/$CURRENT -u $UNIX_USER" CONTAINER_NAME "x11vnc -display :1 -R scale:$SCREEN_SIZE"
 
+# wait for a while till the screen size is really changed
+i=0
+while [ $i -lt 10 ];
+do
+  sleep 1
+
+  scale=$(do_op "$WINPTY docker exec -i -w $LAB_WORKDIR/$CURRENT -u $UNIX_USER" CONTAINER_NAME "x11vnc -display :1 -query scale" | cut -d':' -f2)
+
+  if [ "$scale" = "$SCREEN_SIZE" ]; then
+    echo "LOG: The screen size is changed to $scale sucessfully"
+    break
+  else
+    echo "LOG: The screen size is $scale, not changed to $SCREEN_SIZE"
+  fi
+  i=`expr $i + 1`
+done
+
 # Record SCREEN_SIZE setting
 do_unlock
 set_var SCREEN_SIZE
