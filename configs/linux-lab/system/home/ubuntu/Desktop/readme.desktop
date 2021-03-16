@@ -1,0 +1,8 @@
+#!/usr/bin/env xdg-open
+[Desktop Entry]
+Encoding=UTF-8
+Name=README
+Comment=Resource Index of Linux Lab
+Exec="firefox" "/usr/share/htmls/index.html"
+Icon=/usr/share/icons/Humanity/apps/48/www-browser.svg
+Type=Application
