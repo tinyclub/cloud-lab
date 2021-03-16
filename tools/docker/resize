@@ -13,6 +13,8 @@ if [ -n "$1" ]; then
   if [ $? -eq 0 ]; then
     SCREEN_SIZE=$1
     shift
+  else
+    LAB_NAME=$1
   fi
 fi
 
@@ -25,6 +27,9 @@ if [ -n "$2" ]; then
 fi
 
 if [ -z "$1" ]; then
+  SCREEN_SIZE=auto
+fi
+if [ -n "$LAB_NAME" -a -z "$2" ]; then
   SCREEN_SIZE=auto
 fi
 
