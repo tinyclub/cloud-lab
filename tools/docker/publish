@@ -24,13 +24,12 @@ touch_token_map
 
 [ ! -f "$LOCAL_TOKEN_MAP" ] && $SUDO sh -c "echo $map > $LOCAL_TOKEN_MAP" && exit 0
 
-grep -q "$map" "$LOCAL_TOKEN_MAP"
-if [ $? -ne 0 ]; then
-  grep ${VNC_TOKEN} -q "$LOCAL_TOKEN_MAP"
-  [ $? -eq 0 ] && $SUDO sed -i -e "/${VNC_TOKEN}: /d" "$LOCAL_TOKEN_MAP"
+# The token:ip mapping must be unique, so, clean up the old ones if they are there
+grep ${VNC_TOKEN} -q "$LOCAL_TOKEN_MAP"
+[ $? -eq 0 ] && $SUDO sed -i -e "/${VNC_TOKEN}: /d" "$LOCAL_TOKEN_MAP"
 
-  grep ${VNC_IP} -q "$LOCAL_TOKEN_MAP"
-  [ $? -eq 0 ] && $SUDO sed -i -e "/${VNC_IP}:/d" "$LOCAL_TOKEN_MAP"
+grep ${VNC_IP} -q "$LOCAL_TOKEN_MAP"
+[ $? -eq 0 ] && $SUDO sed -i -e "/${VNC_IP}:/d" "$LOCAL_TOKEN_MAP"
 
-  $SUDO sh -c "echo $map >> $LOCAL_TOKEN_MAP"
-fi
+# Append the new token:ip mapping
+$SUDO sh -c "echo $map >> $LOCAL_TOKEN_MAP"
