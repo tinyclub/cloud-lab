@@ -35,7 +35,7 @@ $TOP_DIR/tools/docker/rm-all
 
 # clean up the ip:token mappings for webvnc
 if [ -f "$LOCAL_TOKEN_MAP" -a -f "$REMOTE_TOKEN_MAP" -a "$LOCAL_TOKEN_DIR" != "/" ]; then
-  rm -rfv $LOCAL_TOKEN_DIR
+  rm -rf $LOCAL_TOKEN_DIR
 fi
 
 $DOCKER_RELEASE_CMD all >/dev/null 2>&1
