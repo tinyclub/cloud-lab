@@ -20,7 +20,10 @@ do_unlock
 # do_op "rm -f" LOCAL_DESKTOP_SHORTCUT
 
 # Remove the token map from .vnc-tokens/local_map
-[ -n "$VNC_TOKEN" ] && do_op "sed -i -e \"/$VNC_TOKEN/d\"" LOCAL_TOKEN_MAP
+if [ -n "$VNC_TOKEN" ]; then
+  do_op "sed -i -e \"/${VNC_TOKEN}:/d\"" LOCAL_TOKEN_MAP
+  do_op "sed -i -e \"/${VNC_IP}:/d\"" LOCAL_TOKEN_MAP
+fi
 
 find "$CONFIG_DOCKER_DIR" -iname ".[^.]*" -exec rm -rf "{}" \;
 
