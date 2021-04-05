@@ -22,8 +22,16 @@ if [ "x$HOST_OS" = "xDarwin" ]; then
   product=`system_profiler SPHardwareDataType | grep -i "Model" | cut -d ':' -f2 | tr '\n' ',' | sed -e 's/ ,    /,/g;s/,$//g'`
   echo "Product: Apple,$product";
 elif [ "x$HOST_OS" = "xLinux" ]; then
-  [ -f /sys/class/dmi/id/board_vendor ] && vendor="`cat /sys/class/dmi/id/board_vendor`"
-  [ -f /sys/class/dmi/id/board_name ] && board="`cat /sys/class/dmi/id/board_name`"
+  if [ -f /sys/class/dmi/id/board_vendor ]; then
+    vendor="`cat /sys/class/dmi/id/board_vendor`"
+  elif [ -f /sys/class/dmi/id/sys_vendor ]; then
+    vendor="`cat /sys/class/dmi/id/sys_vendor`"
+  fi
+  if [ -f /sys/class/dmi/id/board_name ]; then
+    board="`cat /sys/class/dmi/id/board_name`"
+  elif [ -f /sys/class/dmi/id/product_version ]; then
+    board="`cat /sys/class/dmi/id/product_version`"
+  fi
   product="`cat /sys/class/dmi/id/product_name`"
   echo "Product: $vendor, $board, $product"
 else # Windows
