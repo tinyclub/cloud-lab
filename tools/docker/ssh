@@ -16,7 +16,7 @@ SSH_CMD="$SSH_PASS ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=
 
 if [ -z "$SSH_PASS" ]; then
   echo
-  echo "LOG: Password required, please login with the following command:"
+  echo "LOG: Password '$UNIX_PWD' required, please login with the following command:"
   echo
   echo "  $SSH_CMD"
   echo

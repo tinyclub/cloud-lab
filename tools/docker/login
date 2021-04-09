@@ -105,4 +105,18 @@ echo "     $0 LOGIN_METHOD" | sed -e "s%$TOP_DIR/%%g"
 echo
 echo "LOG: Running '$LOGIN_TOOL'"
 echo
-$LOGIN_TOOL
+
+# bash and ssh require a virtual tty console
+case $LOGIN in
+  bash|ssh)
+    if [ -t 1 ]; then
+      $LOGIN_TOOL
+    else
+      get_xterm
+      $XTERM -e "$LOGIN_TOOL"
+    fi
+    ;;
+  *)
+     $LOGIN_TOOL
+     ;;
+esac
