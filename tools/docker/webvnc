@@ -142,7 +142,7 @@ if [ -d ~/Desktop -a -n "$REMOTE_DESKTOP_SHORTCUT" -a -f "$REMOTE_DESKTOP_SHORTC
       lab_desktop_shortcut=$(mktemp)
       echo '#!/usr/bin/env xdg-open' > $lab_desktop_shortcut
       cat "$REMOTE_DESKTOP_SHORTCUT" \
-        | sed "s%Exec=.*%Exec='$DOCKER_RUN_CMD' $LAB_NAME%g" \
+        | sed "s%Exec=.*%Exec=sg docker -c '$DOCKER_RUN_CMD $LAB_NAME'%g" \
         | sed "s%terminator.png%${WEB_BROWSER}.png%g;s%lxterminal.xpm%${WEB_BROWSER}.png%g" | tr '|' '&' \
 	  >> $lab_desktop_shortcut
 

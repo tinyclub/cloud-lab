@@ -67,4 +67,7 @@ fi
 $SUDO ifconfig docker0 down
 $SUDO brctl delbr docker0
 $SUDO service docker restart
-newgrp docker
+
+# FIXME: `newgrp` not work in script, perhaps should use 'sg' instead
+# see: https://unix.stackexchange.com/questions/18796/how-to-apply-changes-of-newly-added-user-groups-without-needing-to-reboot
+echo "LOG: Without reboot, please issue 'newgrp docker' to work in docker group" >&2
