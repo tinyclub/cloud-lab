@@ -91,7 +91,11 @@ if [ "$LOGIN" != "list" ]; then
   fi
 fi
 
-[ "$LOGIN" = "none" -o "$LOGIN" = "list" ] && login_config && set_var LOGIN
+if [ -t 1 ]; then
+  [ "$LOGIN" = "none" -o "$LOGIN" = "list" ] && login_config && set_var LOGIN
+else
+  LOGIN=webvnc
+fi
 
 LOGIN_TOOL="${TOP_DIR}/tools/docker/$LOGIN"
 
