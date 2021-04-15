@@ -91,10 +91,14 @@ if [ "$LOGIN" != "list" ]; then
   fi
 fi
 
-if [ -t 1 ]; then
-  [ "$LOGIN" = "none" -o "$LOGIN" = "list" ] && login_config && set_var LOGIN
-else
-  LOGIN=webvnc
+# use webvnc by default in non-interactive mode if no LOGIN method configured
+if [ "$LOGIN" = "none" -o "$LOGIN" = "list" ]; then
+  if [ -t 1 ]; then
+    login_config
+  else
+    LOGIN=webvnc
+  fi
+  set_var LOGIN
 fi
 
 LOGIN_TOOL="${TOP_DIR}/tools/docker/$LOGIN"
