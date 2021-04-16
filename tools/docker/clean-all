@@ -17,7 +17,7 @@ TOP_DIR="$(cd "$(dirname "$0")"/../../ && pwd $PWD_OPT)"
 
 for lab in $LABS
 do
-  CURRENT=$lab
+  current=$lab
   unset CONTAINER_NAME
   . "$TOP_DIR/tools/docker/config" >/dev/null 2>&1
 

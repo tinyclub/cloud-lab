@@ -30,7 +30,7 @@ get_lab_life () # TOP_DIR
 
 for lab in $labs
 do
-  CURRENT="$lab"
+  current="$lab"
   unset UNIX_USER UNIX_PWD VNC_PWD VNC_PWD_VIEWONLY CONTAINER_NAME VNC_IP VNC_TOKEN
   . "$TOP_DIR/tools/docker/config" >/dev/null 2>&1
 

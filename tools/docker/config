@@ -112,6 +112,7 @@ if [ -n "$IN_CONTAINER" ]; then
 else
   # Allow to pass lab name
   [ -z $CURRENT ] && CURRENT=$1
+  [ -n "$current" ] && CURRENT=$current
   LAB_CURRENT="$LAB_DIR/.current_lab"
 
   [ -n "$CURRENT" ] && ls "$CONFIGS_DIR" | tr -s ' ' | tr ' ' '\n' | grep -q ^$CURRENT$
@@ -122,7 +123,7 @@ else
       LAB_CURRENT_DIR="$LAB_DIR/$CURRENT"
     fi
   else
-    [ -n "$CURRENT" ] && echo $CURRENT | tr -d '\r' | tr -d '\n' > $LAB_CURRENT
+    [ -z "$current" -a -n "$CURRENT" ] && echo $CURRENT | tr -d '\r' | tr -d '\n' > $LAB_CURRENT
   fi
 
   # Container don't need this CURRENT
