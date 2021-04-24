@@ -12,7 +12,7 @@ TOP_DIR="$(cd "$(dirname "$0")"/../../ && pwd $PWD_OPT)"
 which sshpass >/dev/null 2>&1
 [ $? -eq 0 ] && SSH_PASS="sshpass -p '$UNIX_PWD'"
 
-SSH_CMD="$SSH_PASS ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -t ${UNIX_USER}@${VNC_IP} -p ${CONTAINER_SSH_PORT} 'cd $LAB_WORKDIR/$CURRENT && exec bash -l'"
+SSH_CMD="$SSH_PASS ssh -X -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -t ${UNIX_USER}@${VNC_IP} -p ${CONTAINER_SSH_PORT} 'cd $LAB_WORKDIR/$CURRENT && exec bash -l'"
 
 if [ -z "$SSH_PASS" ]; then
   echo
@@ -41,6 +41,21 @@ if [ -z "$SSH_PASS" ]; then
 EOF
 
 fi
+
+echo
+echo "LOG: Enabling X11 Forwarding support"
+echo
+
+which xhost >/dev/null 2>&1
+[ $? -eq 0 ] && xhost +
+
+cat <<EOF > ~/.ssh/ssh-x11-forward.config
+# X11 Forwarding Support
+Host *
+   ForwardAgent yes
+   ForwardX11 yes
+   ForwardX11Trusted yes
+EOF
 
 echo
 echo "LOG: Running '$SSH_CMD'"
