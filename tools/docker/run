@@ -27,6 +27,11 @@ if [ $? -eq 0 ]; then
   fi
 fi
 
+# Clean up old stopped containers if the saved environment has been cleaned up
+if [ ! -f $LAB_CONTAINER_ID ]; then
+  docker rm $(docker ps -a --filter="ancestor=$IMAGE" --filter "status=exited" | grep -v ^CONTAINER | cut -d' ' -f1)
+fi
+
 # Start the transparent proxy via tinylab/cloud-ubuntu-proxy_client_transparent container
 (docker ps -f name=$TPROXY_NAME -f status=exited | grep -q -v PORTS) \
   && echo "LOG: Resume the stopped $TPROXY_NAME" \
