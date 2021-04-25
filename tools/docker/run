@@ -29,8 +29,11 @@ fi
 
 # Clean up old stopped containers if the saved environment has been cleaned up
 if [ ! -f $LAB_CONTAINER_ID ]; then
-  unused_containers="$(docker ps -a --filter="ancestor=$IMAGE" --filter "status=exited" | grep -v ^CONTAINER | cut -d' ' -f1)"
-  [ -n "$unused_containers" ] && docker rm $unused_containers
+  for status in exited created
+  do
+    unused_containers="$(docker ps -a --filter="ancestor=$IMAGE" --filter "status=$status" | grep -v ^CONTAINER | cut -d' ' -f1)"
+    [ -n "$unused_containers" ] && docker rm $unused_containers
+  done
 fi
 
 # Start the transparent proxy via tinylab/cloud-ubuntu-proxy_client_transparent container
