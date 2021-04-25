@@ -360,6 +360,11 @@ REMOTE_TOKEN_MAP="$LOCAL_TOKEN_DIR/remote_map"
 #echo $LOCAL_TOKEN_MAP >&2
 #echo $REMOTE_TOKEN_MAP >&2
 
+# Init variable for export command
+HOST_RECORD_DIR="${TOP_RECORD_DIR}/$DEF_RECORD_DIR"
+HOST_RELEASE_DIR=${TOP_RELEASE_DIR}/$DEF_RELEASE_DIR
+HOST_TOKEN_DIR="${LOCAL_TOKEN_DIR}"
+
 ## Security related
 ### 0: with root permission by default, sharable, for private usage
 ### 1: highest security level, ssl, encrypted, https, no root, no sudo, not sharable, for security product
@@ -922,6 +927,21 @@ verify_cpus ()
 }
 
 # Override the token map generation in wproxy
+touch_record_file()
+{
+  [ ! -d "$HOST_RECORD_DIR" ] && mkdir -p "$HOST_RECORD_DIR"
+  #[ ! -f "$RECORD_FILE" ] && touch "$RECORD_FILE"
+
+  return 0
+}
+
+touch_release_file()
+{
+  [ ! -d "$HOST_RELEASE_DIR" ] && mkdir -p "$HOST_RELEASE_DIR"
+  [ ! -f "$RELEASE_FILE" ] && touch "$RELEASE_FILE"
+
+  return 0
+}
 
 touch_token_map ()
 {
@@ -929,6 +949,14 @@ touch_token_map ()
   [ ! -f "$LOCAL_TOKEN_MAP" ] && touch "$LOCAL_TOKEN_MAP"
 
   return 0
+}
+
+# run before container start to make sure the files' owner is normal user
+touch_export_files()
+{
+  touch_record_file
+  touch_release_file
+  touch_token_map
 }
 
 get_random_net ()

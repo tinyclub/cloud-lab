@@ -52,6 +52,7 @@ fi
 # Start the ssh/vnc proxy via tinylab/cloud-ubuntu-web container
 (docker ps -f name=$WPROXY_NAME -f status=exited | grep -q -v PORTS) \
   && echo "LOG: Resume the stopped $WPROXY_NAME" \
+  && touch_export_files \
   && docker start `docker ps -f name=$WPROXY_NAME -f status=exited -q`
 
 # Remove old non-running wproxy
@@ -61,7 +62,7 @@ fi
 # If no running exists, start one
 (docker ps -f name=$WPROXY_NAME -f status=running | grep -q -v PORTS) || \
   (echo "LOG: Start $WPROXY_NAME" \
-  && touch_token_map \
+  && touch_export_files \
   && "$DOCKER_EXPORT_CMD" $*)
 
 # If still not running, say failure
