@@ -414,6 +414,7 @@ DEF_USER=ubuntu
 
 ## screen size
 DEF_SCREEN_SIZE=1280x720
+DEF_MAX_SCREEN_SIZE=1920x1080
 
 # 16:10: 640x480 800x480 1280x800 1440x900 1680x1050 1920x1200 2560x1600
 # 16:9: 960x540 1280x720 1920x1080 2560x1440
@@ -432,6 +433,10 @@ if [ $xorg_exist -eq 0 -a $xrandr_exist -eq 0 -a -z "$SCREEN_SIZE" ]; then
     done
     SCREEN_SIZE=`xrandr --current 2>/dev/null | grep "^ [ 0-9]*x"  | grep "x$h" | tr -s ' ' | cut -d' ' -f2 | cut -d '_' -f1 | head -1 | tr -d -c '[0-9x]'`
   fi
+
+  MAX_SCREEN_SIZE=`xrandr --current 2>/dev/null | grep "^ .*" | tr -s ' ' | cut -d' ' -f2 | cut -d '_' -f1 | sort -u -g | tail -1 | tr -d -c '[0-9x]'`
+  width=$(echo $MAX_SCREEN_SIZE | cut -d'x' -f1)
+  [ $width -ge 1920 ] && MAX_SCREEN_SIZE=$DEF_MAX_SCREEN_SIZE
 fi
 
 [ -z "$SCREEN_SIZE" ] && SCREEN_SIZE=$DEF_SCREEN_SIZE

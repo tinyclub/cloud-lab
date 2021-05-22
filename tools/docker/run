@@ -81,7 +81,7 @@ if [ -n "$CONTAINER_NAME" ]; then
   if [ $? -eq 0 ]; then
      if [ "$LOGIN" != "none" ]; then
        echo "LOG: Open the running $LAB_NAME"
-       "$DOCKER_LOGIN_CMD"
+       "$DOCKER_LOGIN_CMD" $*
      fi
 
      exit $?
@@ -144,6 +144,10 @@ for var in $VARS; do
     __ENCRYPT_CMD="cat"
     # Available encrypt cmds: sha1sum, sha224sum, cksum, sha256sum, sha512sum, md5sum, sha384sum, sum
     value=$(eval echo \$${var})
+    # Maximize the screen size of container, allow resize to what user want
+    if [ "$var" = "SCREEN_SIZE" ]; then
+        value=$MAX_SCREEN_SIZE
+    fi
     echo "$var" | grep -q "_PWD"
     [ $? -eq 0 -a -n "$ENCRYPT" -a -n "$ENCRYPT_CMD" -a -n "$value" ] && __ENCRYPT_CMD=$ENCRYPT_CMD
     vars="$vars -e $var=$(echo $value | tr -d '\n' | $__ENCRYPT_CMD | cut -d' ' -f1)";

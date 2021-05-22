@@ -27,7 +27,11 @@ if [ -n "$2" ]; then
 fi
 
 if [ -z "$SCREEN_SIZE" ]; then
-  SCREEN_SIZE=auto
+  if [ -z "$SCREEN_RESIZE" ]; then
+    SCREEN_SIZE=auto
+  else
+    SCREEN_SIZE=$SCREEN_RESIZE
+  fi
 fi
 
 if [ "$SCREEN_SIZE" = "auto" -o "$SCREEN_SIZE" = "fullscreen" ]; then
@@ -74,7 +78,7 @@ do
   # If want to call this in desktop shortcut, must remove the -t option, otherwise, it will simply silence without any info and any action
   do_op "$WINPTY docker exec -i -w $LAB_WORKDIR/$CURRENT -u $UNIX_USER" CONTAINER_NAME "x11vnc -display :1 -R scale:$SCREEN_SIZE"
 
-  sleep 1
+  sleep 2
 
   scale=$(do_op "$WINPTY docker exec -i -w $LAB_WORKDIR/$CURRENT -u $UNIX_USER" CONTAINER_NAME "x11vnc -display :1 -query scale" | cut -d':' -f2)
 
