@@ -156,6 +156,22 @@ RUN apt-get -y update \
     && rm -rf /var/lib/apt/lists/* \
     && rm -rf /var/cache/apt/archives/*.deb
 
+# for qemu gui support
+RUN apt-get -y update \
+    && apt-get install -y --force-yes --no-install-recommends \
+        qemu-system-gui \
+        qemu-system-arm \
+        qemu-system-mips \
+        qemu-system-misc \
+        qemu-system-ppc \
+        qemu-system-s390x \
+        qemu-system-sparc \
+        qemu-system-x86 \
+    && apt-get autoclean -y \
+    && apt-get autoremove -y \
+    && rm -rf /var/lib/apt/lists/* \
+    && rm -rf /var/cache/apt/archives/*.deb
+
 EXPOSE 5900 22
 
 WORKDIR /labs/
