@@ -116,7 +116,7 @@ RUN apt-get -y update \
 
 RUN apt-get -y update \
     && apt-get install -y --force-yes --no-install-recommends \
-        linux-libc-dev:i386 \
+        linux-libc-dev-i386-cross \
     && apt-get autoclean -y \
     && apt-get autoremove -y \
     && rm -rf /var/lib/apt/lists/* \
