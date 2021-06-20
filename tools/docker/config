@@ -776,7 +776,7 @@ EOF
 
 get_xterm ()
 {
-   [ -z "$XTERM" ] && XTERM="`"$DOCKER_XTERM_CMD" terminator`"
+   [ -z "$XTERM" ] && XTERM="`"$DOCKER_XTERM_CMD" gnome-terminal`"
 }
 
 notify_user ()

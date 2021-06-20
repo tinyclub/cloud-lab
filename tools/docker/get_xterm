@@ -32,6 +32,13 @@ done
 XTERM=${XTERM:-$1}
 
 # reserve gnome-terminal for gnome-terminal-server
-XTERM=${XTERM%-*}
+if [ "$XTERM" = "gnome-terminal-server" ]; then
+  XTERM=${XTERM%-*}
+fi
 
-echo $XTERM
+which $XTERM >/dev/null
+if [ $? -ne 0 ]; then
+  XTERM=""
+else
+  echo $XTERM
+fi
