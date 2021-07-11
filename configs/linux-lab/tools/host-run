@@ -30,6 +30,11 @@ modules="$NFS"
 
 for m in $modules
 do
+  # allow loading target modules before running linux-lab
+  # modules can be added to /etc/modules
+  lsmod | grep -q $m
+  [ $? -eq 0 ] && continue
+
   sudo modprobe -n $m >/dev/null 2>&1
   [ $? -ne 0 ] && continue
 
