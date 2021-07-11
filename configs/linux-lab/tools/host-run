@@ -28,6 +28,21 @@ fi
 
 modules="$NFS"
 
+# load modules in host side to avoid run as root
+if [ -f /etc/modules-load.d/modules.conf ]; then
+  modules_conf=/etc/modules-load.d/modules.conf
+else
+  modules_conf=/etc/modules
+fi
+
+for m in $modules
+do
+  grep -q $m $modules_conf
+  if [ $? -ne 0 ]; then
+    sudo sh -c "echo $m >> $modules_conf"
+  fi
+done
+
 for m in $modules
 do
   # allow loading target modules before running linux-lab
