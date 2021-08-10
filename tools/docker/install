@@ -40,7 +40,7 @@ $SUDO apt-get -y update
 $SUDO apt-get install -y curl software-properties-common
 $SUDO curl -fsSL http://$DOCKER_MIRROR/docker-ce/linux/ubuntu/gpg | sudo apt-key add -
 ubuntu_version=$(lsb_release -cs)
-$SUDO add-apt-repository "deb [arch=amd64] http://$DOCKER_MIRROR/docker-ce/linux/ubuntu $ubuntu_version stable"
+$SUDO add-apt-repository -y "deb [arch=amd64] http://$DOCKER_MIRROR/docker-ce/linux/ubuntu $ubuntu_version stable"
 $SUDO apt-get -y update
 $SUDO apt-get -y install apt-transport-https ca-certificates
 $SUDO apt-get -y install bridge-utils
