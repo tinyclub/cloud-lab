@@ -39,6 +39,11 @@ fi
 which $XTERM >/dev/null
 if [ $? -ne 0 ]; then
   XTERM=""
+  for t in gnome-terminal deepin-terminal terminator
+  do
+    which $t
+    [ $? -eq 0 ] && XTERM=$t && break
+  done
 else
   echo $XTERM
 fi
