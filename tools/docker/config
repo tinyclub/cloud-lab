@@ -579,6 +579,7 @@ get_browser ()
   local macos_firefox=/Applications/Firefox.app/Contents/MacOS/firefox
   local linux_chrome=chromium-browser
   local linux_firefox=firefox
+  local deepin_browser=browser
   local win_chrome='/c/Program\ Files\ \(x86\)/Google/Chrome/Application/chrome.exe'
   local win_edge=start
 
@@ -588,8 +589,10 @@ get_browser ()
     [ -f "$macos_firefox" ] && DEF_WEB_BROWSER="$macos_firefox"
     [ -f "$macos_chrome" ] && DEF_WEB_BROWSER="$(echo $macos_chrome | tr ' ' '-')"
   elif [ "x$HOST_OS" = "xLinux" ]; then
-    which $linux_firefox >/dev/null 2>&1 && DEF_WEB_BROWSER=$linux_firefox
-    which $linux_chrome >/dev/null 2>&1 && DEF_WEB_BROWSER=$linux_chrome
+    for b in $linux_chrome $linux_firefox $deepin_browser
+    do
+      which $b >/dev/null 2>&1 && DEF_WEB_BROWSER=$b && break
+    done
   else
     DEF_WEB_BROWSER=$win_chrome
   fi
