@@ -10,14 +10,7 @@ TOP_DIR="$(cd "$(dirname "$0")"/../../ && pwd $PWD_OPT)"
 . "$TOP_DIR/tools/docker/config" $* >/dev/null
 
 if [ -z "$TAG" ]; then
-  TAG="$(echo $IMAGE: | cut -d ':' -f2)"
-
-  if [ -z "$TAG" ]; then
-    TAG=local-$(date +"%Y%m%d%H%M%S")
-  else
-    echo $TAG | grep -q "^local-[0-9][0-9]*"
-    [ $? -eq 0 ] && TAG=local-$(date +"%Y%m%d-%H%M%S")
-  fi
+  TAG=local-$(date +"%Y%m%d%H%M%S")
 fi
 
 IMAGE=$LAB_USER/$CURRENT:$TAG
