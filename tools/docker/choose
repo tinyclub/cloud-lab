@@ -19,14 +19,20 @@ OLD_LAB=$CURRENT
 # Fix up windows support
 config_casesensitive ()
 {
-   # should enable case sensitive for ntfs filesystem
-   uname | grep -q MINGW && fsutil file SetCaseSensitiveInfo $TOP_DIR enable >/dev/null 2>&1
+    # should enable case sensitive for ntfs filesystem
+    uname | grep -q MINGW && fsutil file SetCaseSensitiveInfo $TOP_DIR enable >/dev/null 2>&1
 }
 
 config_git ()
 {
     git config --global core.safecrlf true
-    git config --global core.autocrlf false
+
+    uname | grep -q MINGW
+    if [ $? -eq 0 ]; then
+      git config --global core.autocrlf true
+    else
+      git config --global core.autocrlf input
+    fi
 }
 
 download_submodule ()
