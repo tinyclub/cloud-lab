@@ -41,9 +41,9 @@ if [ $? -ne 0 ]; then
   XTERM=""
   for t in gnome-terminal deepin-terminal terminator
   do
-    which $t
+    which $t >/dev/null
     [ $? -eq 0 ] && XTERM=$t && break
   done
-else
-  echo $XTERM
 fi
+
+echo $XTERM
