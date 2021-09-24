@@ -172,6 +172,17 @@ RUN apt-get -y update \
     && rm -rf /var/lib/apt/lists/* \
     && rm -rf /var/cache/apt/archives/*.deb
 
+RUN wget -O - https://apt.llvm.org/llvm.sh | sudo bash -s -- 12; \
+    && apt-get autoclean -y \
+    && apt-get autoremove -y \
+    && rm -rf /var/lib/apt/lists/* \
+    && rm -rf /var/cache/apt/archives/*.deb
+
+RUN for t in clang clang-cpp clangd clang++ ld.lld; do ln -sf /usr/bin/$t-12 /usr/bin/$t; done; \
+    for t in ar as addr2line lto lto2 nm objcopy objdump ranlib readelf size strings strip; do \
+      ln -sf /usr/bin/llvm-$t-12 /usr/bin/llvm-$t; done
+
+
 EXPOSE 5900 22
 
 WORKDIR /labs/
