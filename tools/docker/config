@@ -1038,7 +1038,7 @@ if [ ! -n "$IN_CONTAINER" ]; then
   else
     docker info | grep -A2 -i Server >&2
     echo >&2
-    echo "ERR: Docker service is not active, Please install and let docker work at first" >&2
+    echo "ERR: Docker not work well, Please let docker work at first" >&2
     echo >&2
     exit 1
   fi
