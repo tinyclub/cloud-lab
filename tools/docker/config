@@ -1003,6 +1003,10 @@ create_cloud_lab_net ()
         sleep 1
       fi
     done
+    if [ $net_retry_count -eq $NET_RETRY_MAX ]; then
+      echo "ERR: Failed to create network with driver: bridge, subnet: $VNC_NET, gateway: $VNC_GATEWAY, retry: $net_retry_count/$NET_RETRY_MAX" >&2
+      exit 1
+    fi
   else
     VNC_NET=`docker inspect --format "{{ .IPAM.Config }}" $VNC_NET_NAME | grep -oE "\b([0-9]{1,3}\.){3}[0-9]{1,3}\b/[0-9]{1,2}"`
     VNC_NET_MASK=`echo $VNC_NET | cut -d'/' -f2`
@@ -1028,5 +1032,14 @@ create_cloud_lab_net ()
 
 # Create cloud lab subnet
 if [ ! -n "$IN_CONTAINER" ]; then
-  create_cloud_lab_net
+  docker info >/dev/null 2>&1
+  if [ $? -eq 0 ]; then
+    create_cloud_lab_net
+  else
+    docker info | grep -A2 -i Server >&2
+    echo >&2
+    echo "ERR: Docker service is not active, Please install and let docker work at first" >&2
+    echo >&2
+    exit 1
+  fi
 fi
