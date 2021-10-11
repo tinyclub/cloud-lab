@@ -1,5 +1,5 @@
 <!-- metadata start --><!--
-% Cloud Lab v0.4 中文手册
+% Cloud Lab v0.6 中文手册
 % [泰晓科技 | Tinylab.org](http://tinylab.org)
 % \today
 --><!-- metadata end -->
