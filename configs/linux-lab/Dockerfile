@@ -182,6 +182,12 @@ RUN for t in clang clang-cpp clangd clang++ ld.lld; do ln -sf /usr/bin/$t-12 /us
     for t in ar as addr2line lto lto2 nm objcopy objdump ranlib readelf size strings strip; do \
       ln -sf /usr/bin/llvm-$t-12 /usr/bin/llvm-$t; done
 
+# for mipsel gcc 4.3/4.7 support
+ADD mipsel-linux-gnu-gcc-4.x.tar.gz /
+RUN update-alternatives --install /usr/bin/mipsel-linux-gnu-gcc mipsel-linux-gnu-gcc /usr/local/bin/mipsel-linux-gnu-gcc-4.3 50 \
+    && update-alternatives --install /usr/bin/mipsel-linux-gnu-gcc mipsel-linux-gnu-gcc /usr/local/bin/mipsel-linux-gnu-gcc-4.7 55 \
+    && chmod a+rw /etc/alternatives/ \
+    && chmod a+rw /var/lib/dpkg/alternatives/
 
 EXPOSE 5900 22
 
