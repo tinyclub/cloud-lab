@@ -172,7 +172,7 @@ RUN apt-get -y update \
     && rm -rf /var/lib/apt/lists/* \
     && rm -rf /var/cache/apt/archives/*.deb
 
-RUN wget -O - https://apt.llvm.org/llvm.sh | sudo bash -s -- 12; \
+RUN wget -O - https://apt.llvm.org/llvm.sh | sudo bash -s -- 12 \
     && apt-get autoclean -y \
     && apt-get autoremove -y \
     && rm -rf /var/lib/apt/lists/* \
