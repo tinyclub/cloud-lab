@@ -135,7 +135,7 @@ if [ -d ~/Desktop -a -n "$REMOTE_DESKTOP_SHORTCUT" -a -f "$REMOTE_DESKTOP_SHORTC
     BROWSER_ICON=/usr/share/pixmaps/${WEB_BROWSER}.png
     DEFAULT_BROWSER_ICON=$BROWSER_ICON
     if [ ! -f "$BROWSER_ICON" ]; then
-      BROWSER_ICON=$(find /usr/share/ -name "${WEB_BROWSER}*.png" | egrep "hicolor" | head -1)
+      BROWSER_ICON=$(find /usr/share/ -name "${WEB_BROWSER}*.png" 2>/dev/null | egrep "hicolor" | head -1)
     fi
 
     if [ "x$LAB_DESKTOP_SHORTCUT" = "x1" -a ! -f "$LOCAL_DESKTOP_SHORTCUT" ]; then
@@ -172,8 +172,8 @@ if [ -d ~/Desktop -a -n "$REMOTE_DESKTOP_SHORTCUT" -a -f "$REMOTE_DESKTOP_SHORTC
       XTERM_ICON=/usr/share/icons/Humanity/apps/48/konsole.svg
     fi
     if [ ! -f "$XTERM_ICON" ]; then
-      XTERM_ICON=$(find /usr/share/ -name "${XTERM}*.png" | grep icon | head -1)
-      [ -z "$XTERM_ICON" ] && XTERM_ICON=$(find /usr/share/ -name "${XTERM}*.png" | head -1)
+      XTERM_ICON=$(find /usr/share/ -name "${XTERM}*.png" 2>/dev/null | grep icon | head -1)
+      [ -z "$XTERM_ICON" ] && XTERM_ICON=$(find /usr/share/ -name "${XTERM}*.png" 2>/dev/null | head -1)
     fi
 
     # For cloud lab
