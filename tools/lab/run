@@ -192,6 +192,16 @@ else
   [ $UNIX_IDENTIFY -eq 1 ] && passwd -u $UNIX_USER
 fi
 
+# create potential missing loop devices for some systems
+if [ ! -b /dev/loop0 ]; then
+  max_loop=$(cat /proc/cmdline | tr " " "\n" | grep max_loop | cut -d '=' -f2)
+  [ -z "$max_loop" ] && max_loop=7
+  for i in `seq 0 $max_loop`
+  do
+    mknod /dev/loop b 7 $i
+  done
+fi
+
 # mount tmpfs
 mount -t tmpfs none /tmp/
 
