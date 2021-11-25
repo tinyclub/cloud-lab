@@ -42,7 +42,7 @@ if [ -n "$XTERM" ]; then
   XTERM=""
 fi
 
-for t in gnome-terminal deepin-terminal terminator konsole
+for t in gnome-terminal deepin-terminal terminator konsole qterminal lxterminal
 do
   which $t > /dev/null
   [ $? -eq 0 ] && XTERM=$t && break

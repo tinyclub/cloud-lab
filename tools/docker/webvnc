@@ -144,7 +144,7 @@ if [ -d ~/Desktop -a -n "$REMOTE_DESKTOP_SHORTCUT" -a -f "$REMOTE_DESKTOP_SHORTC
       cat "$REMOTE_DESKTOP_SHORTCUT" \
         | sed "s%Exec=.*%Exec=sg docker -c '$DOCKER_RUN_CMD $LAB_NAME'%g" \
         | sed "s%terminator.png%${WEB_BROWSER}.png%g;s%lxterminal.xpm%${WEB_BROWSER}.png%g" | tr '|' '&' \
-	  >> $lab_desktop_shortcut
+          >> $lab_desktop_shortcut
 
       if [ -f "$LAB_LOGO" ]; then
         sed -i -e "s%Icon=[^$]*%Icon=$LAB_LOGO%g" $lab_desktop_shortcut
@@ -166,10 +166,14 @@ if [ -d ~/Desktop -a -n "$REMOTE_DESKTOP_SHORTCUT" -a -f "$REMOTE_DESKTOP_SHORTC
       XTERM_ICON=/usr/share/help/C/gnome-terminal/figures/gnome-terminal-icon.png
     fi
     # Add konsole support for KDE desktop
-    if [ "x$XTERM" = "xkonsole" ]; then
+    if [ "x$XTERM" = "xkonsole" -o "x$XTERM" = "xqterminal" ]; then
       XTERM_TITLE_OPTION=--title
       XTERM_WORKDIR_OPTION=--workdir
-      XTERM_ICON=/usr/share/icons/Humanity/apps/48/konsole.svg
+      if [ "x$XTERM" = "xkonsole" ]; then
+        XTERM_ICON=/usr/share/icons/Humanity/apps/48/konsole.svg
+      else
+        XTERM_ICON=/usr/share/icons/hicolor/64x64/apps/qterminal.png
+      fi
     fi
     if [ ! -f "$XTERM_ICON" ]; then
       XTERM_ICON=$(find /usr/share/ -name "${XTERM}*.png" 2>/dev/null | grep icon | head -1)
