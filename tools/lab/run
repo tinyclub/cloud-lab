@@ -193,7 +193,7 @@ else
 fi
 
 # create potential missing loop devices for some systems
-if [ ! -b /dev/loop0 ]; then
+if [ ! -b /dev/loop7 ]; then
   max_loop=$(cat /proc/cmdline | tr " " "\n" | grep max_loop | cut -d '=' -f2)
   [ -z "$max_loop" ] && max_loop=7
   for i in `seq 0 $max_loop`
