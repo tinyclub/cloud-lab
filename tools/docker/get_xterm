@@ -36,14 +36,16 @@ if [ "$XTERM" = "gnome-terminal-server" ]; then
   XTERM=${XTERM%-*}
 fi
 
-which $XTERM >/dev/null
-if [ $? -ne 0 ]; then
+if [ -n "$XTERM" ]; then
+  which "$XTERM" > /dev/null
+  [ $? -eq 0 ] && echo "$XTERM" && exit 0
   XTERM=""
-  for t in gnome-terminal deepin-terminal terminator konsole
-  do
-    which $t >/dev/null
-    [ $? -eq 0 ] && XTERM=$t && break
-  done
 fi
+
+for t in gnome-terminal deepin-terminal terminator konsole
+do
+  which $t > /dev/null
+  [ $? -eq 0 ] && XTERM=$t && break
+done
 
 echo $XTERM
