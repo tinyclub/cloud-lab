@@ -8,10 +8,10 @@
 # debug with DEBUG=1
 [ x$DEBUG = x"1" ] && set -x
 
-uname | grep -q MINGW && PWD_OPT="-W" && WINPTY=winpty
+uname | grep -q MINGW && WINPTY=winpty
 
-[ -z "$TOP_DIR" ] && TOP_DIR="$(cd "$(dirname "$0")"/../../ && pwd $PWD_OPT)"
-TOP_DIR="$(cd "$(dirname "$TOP_DIR/null")" && pwd $PWD_OPT)"
+[ -z "$TOP_DIR" ] && TOP_DIR="$(cd "$(dirname "$0")"/../../ && pwd)"
+TOP_DIR="$(cd "$(dirname "$TOP_DIR/null")" && pwd)"
 
 ## default encrypt command: use shasum instead of md5sum
 which shasum >/dev/null 2>&1 && DEF_ENCRYPT_CMD=shasum

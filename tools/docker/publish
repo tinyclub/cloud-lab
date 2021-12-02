@@ -5,8 +5,7 @@
 # Copyright (C) 2016-2021 Wu Zhangjin <falcon@ruma.tech>
 #
 
-uname | grep -q MINGW && PWD_OPT="-W"
-TOP_DIR="$(cd "$(dirname "$0")"/../../ && pwd $PWD_OPT)"
+TOP_DIR="$(cd "$(dirname "$0")"/../../ && pwd)"
 . "$TOP_DIR"/tools/docker/config $* >/dev/null
 
 do_unlock

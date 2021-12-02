@@ -7,8 +7,7 @@
 
 export RELEASE=0
 
-uname | grep -q MINGW && PWD_OPT="-W"
-TOP_DIR="$(cd "$(dirname "$0")"/../../ && pwd $PWD_OPT)"
+TOP_DIR="$(cd "$(dirname "$0")"/../../ && pwd)"
 . "$TOP_DIR"/tools/docker/config $* >/dev/null
 
 id_names=`docker ps -f status=running --format='{{.ID}},{{.Names}}' | sed '1!G;h;$!d'`

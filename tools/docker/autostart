@@ -5,8 +5,7 @@
 # TODO: need to update for "update-rc.d cloud-lab defaults 100"
 #
 
-uname | grep -q MINGW && PWD_OPT="-W"
-TOP_DIR="$(cd "$(dirname "$0")"/../../ && pwd $PWD_OPT)"
+TOP_DIR="$(cd "$(dirname "$0")"/../../ && pwd)"
 . "$TOP_DIR"/tools/docker/config $* >/dev/null
 
 [ "x$HOST_OS" != "xLinux" ] && echo "LOG: Only available for Linux currently." && exit 1

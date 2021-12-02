@@ -7,8 +7,7 @@
 
 [ -z $RELEASE ] && RELEASE=0
 
-uname | grep -q MINGW && PWD_OPT="-W"
-TOP_DIR="$(cd "$(dirname "$0")"/../../ && pwd $PWD_OPT)"
+TOP_DIR="$(cd "$(dirname "$0")"/../../ && pwd)"
 
 [ -z "$CLOUD_LAB_TOP_DIR" ] && CLOUD_LAB_TOP_DIR="$(echo "$TOP_DIR" | sed -e "s%/output/.*%%g")"
 

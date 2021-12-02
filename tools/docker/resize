@@ -62,8 +62,7 @@ if [ "$SCREEN_SIZE" = "auto" -o "$SCREEN_SIZE" = "fullscreen" ]; then
   fi
 fi
 
-uname | grep -q MINGW && PWD_OPT="-W"
-TOP_DIR="$(cd "$(dirname "$0")"/../../ && pwd $PWD_OPT)"
+TOP_DIR="$(cd "$(dirname "$0")"/../../ && pwd)"
 . "$TOP_DIR/tools/docker/config" $* >/dev/null
 
 docker ps -f name=$CONTAINER_NAME | grep -qv PORTS
