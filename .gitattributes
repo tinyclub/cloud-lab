@@ -5,4 +5,4 @@
 *.gz	binary
 *.bz2	binary
 *.xz	binary
-*.ko    binary
+*.ko	binary
