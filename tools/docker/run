@@ -167,7 +167,7 @@ container="--name $CONTAINER_NAME"
 if [ "x$HOST_OS" = "xLinux" ]; then
     UNIX_UID=`id -u $HOST_USER`
 fi
-[ "x$UNIX_UID" = "x0" -o -z "$UNIX_UID" ] && UNIX_UID=1000
+[ "x$UNIX_UID" = "x0" -o -z "$UNIX_UID" ] && UNIX_UID=$DEF_UID
 
 do_unlock
 set_var UNIX_UID
@@ -179,7 +179,7 @@ coredump="--ulimit core=-1"
 # use --ip command to record the ip address
 [ -n "$VNC_IP" ] && ip="--ip=$VNC_IP"
 net="$ip --network $VNC_NET_NAME"
-audio="-v //run/user/${UNIX_UID}/pulse://run/user/1000/pulse"
+audio="-v //run/user/${UNIX_UID}/pulse://run/user/$DEF_UID/pulse"
 
 CONTAINER_ID=$(eval docker run -d --privileged $coredump -h $LAB_NAME $net $audio $container $portmap $caps $dnss $devices $limits $volumemap $vars $EXTRA_ARGS $IMAGE)
 

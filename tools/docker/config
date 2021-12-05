@@ -417,6 +417,7 @@ fi
 
 ## Default user
 DEF_USER=ubuntu
+DEF_UID=1000
 
 ## screen size
 DEF_SCREEN_SIZE=1280x720
