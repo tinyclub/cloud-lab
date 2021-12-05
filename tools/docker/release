@@ -14,9 +14,9 @@ TOP_DIR="$(cd "$(dirname "$0")"/../../ && pwd)"
 [ "$TOP_DIR" != "$CLOUD_LAB_TOP_DIR" -a $RELEASE -eq 0 ] && echo "LOG: Please try following command:" \
 	&& echo "RELEASE=1 $0" | sed -e "s%$CLOUD_LAB_TOP_DIR/%%g" && exit 0
 
-. "$TOP_DIR/tools/docker/config" $* >/dev/null
+. "$TOP_DIR"/tools/docker/config $* >/dev/null
 
 filter=$1
 [ -n "$2" ] && filter=$2
 
-get_lab_info "$TOP_DIR/tools/docker/list" "$filter"
+get_lab_info "$DOCKER_LIST_CMD" "$filter"

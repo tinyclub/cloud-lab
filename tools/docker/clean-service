@@ -6,7 +6,7 @@
 #
 
 TOP_DIR="$(cd "$(dirname "$0")"/../../ && pwd)"
-. "$TOP_DIR/tools/docker/config" $* >/dev/null
+. "$TOP_DIR"/tools/docker/config $* >/dev/null
 
 # Fix up the port already used issue
 echo "LOG: Stopping docker-proxy"

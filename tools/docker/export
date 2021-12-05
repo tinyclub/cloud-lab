@@ -8,7 +8,7 @@
 #
 
 TOP_DIR="$(cd "$(dirname "$0")"/../../ && pwd)"
-. "$TOP_DIR/tools/docker/config" $* >/dev/null
+. "$TOP_DIR"/tools/docker/config $* >/dev/null
 
 IMAGE_NAME=tinylab/$WPROXY_IMAGE_NAME
 

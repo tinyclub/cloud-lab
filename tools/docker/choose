@@ -8,7 +8,7 @@
 NEW_LAB=$1
 
 TOP_DIR="$(cd "$(dirname "$0")"/../../ && pwd)"
-. "$TOP_DIR/tools/docker/config" $* >/dev/null
+. "$TOP_DIR"/tools/docker/config $* >/dev/null
 OLD_LAB=$CURRENT
 
 [ -z "$PULL" ] && PULL=0
@@ -19,7 +19,7 @@ OLD_LAB=$CURRENT
 config_casesensitive ()
 {
     # should enable case sensitive for ntfs filesystem
-    uname | grep -q MINGW && fsutil file SetCaseSensitiveInfo $TOP_DIR enable >/dev/null 2>&1
+    uname | grep -q MINGW && fsutil file SetCaseSensitiveInfo "$TOP_DIR" enable >/dev/null 2>&1
 }
 
 config_git ()
@@ -33,8 +33,8 @@ config_git ()
 
 download_submodule ()
 {
-    LAB_CURRENT_DIR="$LAB_DIR/$CURRENT"
-    LAB_LABS="$CONFIG_DIR/labs"
+    LAB_CURRENT_DIR="$LAB_DIR"/$CURRENT
+    LAB_LABS="$CONFIG_DIR"/labs
 
     if [ -n "$CURRENT" ]; then
       LABS=$CURRENT
@@ -43,12 +43,12 @@ download_submodule ()
     fi
 
     for lab in $LABS; do
-      LAB_CURRENT_DIR="$LAB_DIR/$lab"
+      LAB_CURRENT_DIR="$LAB_DIR"/$lab
       [ $SUBMODULE -eq 1 ] && \
 	RECURSIVE=" --recursive " && \
 	PULL_RECURSIVE=" --recurse-submodules=yes "
 
-      [ ! -f "$LAB_CURRENT_DIR/.git" ] \
+      [ ! -f "$LAB_CURRENT_DIR"/.git ] \
         && git submodule update --init --remote $RECURSIVE "$LAB_CURRENT_DIR" \
         && cd "$LAB_CURRENT_DIR" && git checkout $BRANCH
 
@@ -67,7 +67,7 @@ download_submodule ()
 }
 
 if [ -n "$NEW_LAB" ]; then
-    . "$TOP_DIR/tools/docker/config" $NEW_LAB >/dev/null
+    . "$TOP_DIR"/tools/docker/config $NEW_LAB >/dev/null
 
     set_var CURRENT
 

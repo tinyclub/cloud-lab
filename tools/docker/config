@@ -11,7 +11,7 @@
 uname | grep -q MINGW && WINPTY=winpty
 
 [ -z "$TOP_DIR" ] && TOP_DIR="$(cd "$(dirname "$0")"/../../ && pwd)"
-TOP_DIR="$(cd "$(dirname "$TOP_DIR/null")" && pwd)"
+TOP_DIR="$(cd "$(dirname "$TOP_DIR"/null)" && pwd)"
 
 ## default encrypt command: use shasum instead of md5sum
 which shasum >/dev/null 2>&1 && DEF_ENCRYPT_CMD=shasum
@@ -79,30 +79,30 @@ VARS="UNIX_USER UNIX_UID UNIX_PWD VNC_PWD VNC_PWD_VIEWONLY TPROXY VNC_SHARED SCR
 
 # Basic files/directories
 
-LAB_LOGIN="$TOP_DIR/.login_method"
-LAB_VNC="$TOP_DIR/.login_vnc"
-LAB_HOST="$TOP_DIR/.host_name"
-LAB_OUTPUT="$TOP_DIR/output"
+LAB_LOGIN="$TOP_DIR"/.login_method
+LAB_VNC="$TOP_DIR"/.login_vnc
+LAB_HOST="$TOP_DIR"/.host_name
+LAB_OUTPUT="$TOP_DIR"/output
 
-GIT_DIR="$TOP_DIR/.git"
+GIT_DIR="$TOP_DIR"/.git
 GIT_WORKDIR=//.git
 
-LAB_DIR="$TOP_DIR/labs"
+LAB_DIR="$TOP_DIR"/labs
 LAB_WORKDIR=//labs
 
-TOOL_DIR="$TOP_DIR/tools"
+TOOL_DIR="$TOP_DIR"/tools
 TOOL_WORKDIR=//tools
 
-CONFIGS_DIR="$TOP_DIR/configs/"
+CONFIGS_DIR="$TOP_DIR"/configs/
 CONFIG_WORKDIR=//configs
 
-BASE_DIR="$TOP_DIR/base"
-TPROXY_DIR="$BASE_DIR/tproxy"
-WPROXY_DIR="$BASE_DIR/wproxy"
+BASE_DIR="$TOP_DIR"/base
+TPROXY_DIR="$BASE_DIR"/tproxy
+WPROXY_DIR="$BASE_DIR"/wproxy
 
 # Some commands not require to specify the lab name
 CMD=`basename $0`
-echo "tproxy export choose unlock-all ip build-all pull-all git-pull-all push-all clean-all rm-all rm-full list release batch autostart release-all run-all stop-all start-all rerun-all renew-all " | grep "$CMD "
+echo "tproxy export choose unlock-all ip build-all pull-all git-pull-all push-all clean-all rm-all rm-full list release batch autostart release-all run-all stop-all start-all rerun-all renew-all " | grep "$CMD"
 [ $? -eq 0 ] && IGNORE_LAB_NAME=1
 
 if [ -n "$IN_CONTAINER" ]; then
@@ -111,93 +111,99 @@ if [ -n "$IN_CONTAINER" ]; then
   CONFIG_DIR="$CONFIG_WORKDIR"
 else
   # Allow to pass lab name
-  [ -z $CURRENT ] && CURRENT=$1
+  [ -z "$CURRENT" ] && CURRENT=$1
   [ -n "$current" ] && CURRENT=$current
-  LAB_CURRENT="$LAB_DIR/.current_lab"
+  LAB_CURRENT="$LAB_DIR"/.current_lab
 
   [ -n "$CURRENT" ] && ls "$CONFIGS_DIR" | tr -s ' ' | tr ' ' '\n' | grep -q ^$CURRENT$
   if [ $? -eq 1 -o -z "$CURRENT" ]; then
     CURRENT=""
     if [ -f "$LAB_CURRENT" ]; then
-      CURRENT="$(cat "$LAB_CURRENT")"
-      LAB_CURRENT_DIR="$LAB_DIR/$CURRENT"
+      CURRENT=$(cat "$LAB_CURRENT")
+      LAB_CURRENT_DIR="$LAB_DIR"/$CURRENT
     fi
   else
-    [ -z "$current" -a -n "$CURRENT" ] && echo $CURRENT | tr -d '\r' | tr -d '\n' > $LAB_CURRENT
+    [ -z "$current" -a -n "$CURRENT" ] && echo $CURRENT | tr -d '\r' | tr -d '\n' > "$LAB_CURRENT"
   fi
 
   # Container don't need this CURRENT
   [ -z "$CURRENT" -a -z "$IGNORE_LAB_NAME" ] && echo "LOG: Current lab not specified" && echo "$0 lab-name $1" >&2 && exit 1
   # [ -n "$CURRENT" ] && echo "LOG: Current Lab is $CURRENT" >&2
 
-  CONFIG_DIR="$TOP_DIR/configs/$CURRENT"
+  CONFIG_DIR="$TOP_DIR"/configs/$CURRENT
 fi
 
-CORE_SYSTEM_DIR="$TOOL_DIR/system"
+CORE_SYSTEM_DIR="$TOOL_DIR"/system
 
-CONFIG_TOOL_DIR="$CONFIG_DIR/tools"
-CONFIG_DOCKER_DIR="$CONFIG_DIR/docker"
-CONFIG_SYSTEM_DIR="$CONFIG_DIR/system"
+CONFIG_TOOL_DIR="$CONFIG_DIR"/tools
+CONFIG_DOCKER_DIR="$CONFIG_DIR"/docker
+CONFIG_SYSTEM_DIR="$CONFIG_DIR"/system
 
-DOCKER_DIR="$TOOL_DIR/docker"
-DOCKER_IDENTIFY_CMD="$DOCKER_DIR/identify"
-DOCKER_VNC_CMD="$DOCKER_DIR/vnc"
-DOCKER_WEBVNC_CMD="$DOCKER_DIR/webvnc"
-DOCKER_IP_CMD="$DOCKER_DIR/newip"
-DOCKER_RELEASE_CMD="$DOCKER_DIR/release"
-DOCKER_BASH_CMD="$DOCKER_DIR/bash"
-DOCKER_SSH_CMD="$DOCKER_DIR/ssh"
-DOCKER_WEBSSH_CMD="$DOCKER_DIR/webssh"
-DOCKER_LOGIN_CMD="$DOCKER_DIR/login"
-DOCKER_EXPORT_CMD="$DOCKER_DIR/export"
-DOCKER_RESIZE_CMD="$DOCKER_DIR/resize"
-DOCKER_PUBLISH_CMD="$DOCKER_DIR/publish"
-DOCKER_TPROXY_CMD="$DOCKER_DIR/tproxy"
-DOCKER_CLEAN_CMD="$DOCKER_DIR/clean"
-DOCKER_BUILD_CMD="$DOCKER_DIR/build"
-DOCKER_RM_CMD="$DOCKER_DIR/rm"
-DOCKER_RUN_CMD="$DOCKER_DIR/run"
-DOCKER_STOP_CMD="$DOCKER_DIR/stop"
-DOCKER_START_CMD="$DOCKER_DIR/start"
-DOCKER_START_ALL_CMD="$DOCKER_DIR/start-all"
-DOCKER_UNLOCK_CMD="$DOCKER_DIR/unlock"
-DOCKER_XTERM_CMD="$DOCKER_DIR/get_xterm"
-DOCKER_CMD_CMD="$DOCKER_DIR/cmd"
-DOCKER_NOTIFY_CMD="$DOCKER_DIR/notify"
-DOCKER_FILE="$CONFIG_DIR/Dockerfile"
+DOCKER_DIR="$TOOL_DIR"/docker
+DOCKER_IDENTIFY_CMD="$DOCKER_DIR"/identify
+DOCKER_VNC_CMD="$DOCKER_DIR"/vnc
+DOCKER_WEBVNC_CMD="$DOCKER_DIR"/webvnc
+DOCKER_IP_CMD="$DOCKER_DIR"/newip
+DOCKER_LIST_CMD="$DOCKER_DIR"/list
+DOCKER_RELEASE_CMD="$DOCKER_DIR"/release
+DOCKER_BASH_CMD="$DOCKER_DIR"/bash
+DOCKER_SSH_CMD="$DOCKER_DIR"/ssh
+DOCKER_WEBSSH_CMD="$DOCKER_DIR"/webssh
+DOCKER_LOGIN_CMD="$DOCKER_DIR"/login
+DOCKER_EXPORT_CMD="$DOCKER_DIR"/export
+DOCKER_RESIZE_CMD="$DOCKER_DIR"/resize
+DOCKER_PUBLISH_CMD="$DOCKER_DIR"/publish
+DOCKER_PULL_CMD="$DOCKER_DIR"/pull
+DOCKER_GIT_PULL_CMD="$DOCKER_DIR"/git-pull
+DOCKER_TPROXY_CMD="$DOCKER_DIR"/tproxy
+DOCKER_CLEAN_CMD="$DOCKER_DIR"/clean
+DOCKER_BUILD_CMD="$DOCKER_DIR"/build
+DOCKER_RM_CMD="$DOCKER_DIR"/rm
+DOCKER_RM_ALL_CMD="$DOCKER_DIR"/rm-all
+DOCKER_RMI_ALL_CMD="$DOCKER_DIR"/rmi-all
+DOCKER_RUN_CMD="$DOCKER_DIR"/run
+DOCKER_CHOOSE_CMD="$DOCKER_DIR"/choose
+DOCKER_STOP_CMD="$DOCKER_DIR"/stop
+DOCKER_START_CMD="$DOCKER_DIR"/start
+DOCKER_START_ALL_CMD="$DOCKER_DIR"/start-all
+DOCKER_UNLOCK_CMD="$DOCKER_DIR"/unlock
+DOCKER_XTERM_CMD="$DOCKER_DIR"/get_xterm
+DOCKER_CMD_CMD="$DOCKER_DIR"/cmd
+DOCKER_NOTIFY_CMD="$DOCKER_DIR"/notify
+DOCKER_FILE="$CONFIG_DIR"/Dockerfile
 
 # Common variables
 
-LAB_IMAGE="$CONFIG_DOCKER_DIR/name"
-LAB_ENVS="$CONFIG_DOCKER_DIR/envs"
-LAB_CAPS="$CONFIG_DOCKER_DIR/caps"
-LAB_DNS="$CONFIG_DOCKER_DIR/dns"
-LAB_DEVICES="$CONFIG_DOCKER_DIR/devices"
-LAB_LIMITS="$CONFIG_DOCKER_DIR/limits"
-LAB_PORTMAP="$CONFIG_DOCKER_DIR/portmap"
-LAB_VOLUMEMAP="$CONFIG_DOCKER_DIR/volumemap"
-LAB_BRANCH="$CONFIG_DOCKER_DIR/branch"
+LAB_IMAGE="$CONFIG_DOCKER_DIR"/name
+LAB_ENVS="$CONFIG_DOCKER_DIR"/envs
+LAB_CAPS="$CONFIG_DOCKER_DIR"/caps
+LAB_DNS="$CONFIG_DOCKER_DIR"/dns
+LAB_DEVICES="$CONFIG_DOCKER_DIR"/devices
+LAB_LIMITS="$CONFIG_DOCKER_DIR"/limits
+LAB_PORTMAP="$CONFIG_DOCKER_DIR"/portmap
+LAB_VOLUMEMAP="$CONFIG_DOCKER_DIR"/volumemap
+LAB_BRANCH="$CONFIG_DOCKER_DIR"/branch
 
-LAB_WEB_BROWSER="$CONFIG_DOCKER_DIR/.web_browser"
-LAB_CONTAINER_NAME="$CONFIG_DOCKER_DIR/.container_name"
-LAB_CONTAINER_ID="$CONFIG_DOCKER_DIR/.container_id"
-LAB_HOST_NAME="$CONFIG_DOCKER_DIR/.host_name"
-LAB_UNIX_USER="$CONFIG_DOCKER_DIR/.unix_user"
-LAB_UNIX_PWD="$CONFIG_DOCKER_DIR/.unix_pwd"
-LAB_UNIX_UID="$CONFIG_DOCKER_DIR/.unix_uid"
-LAB_VNC_PWD="$CONFIG_DOCKER_DIR/.vnc_pwd"
-LAB_VNC_PWD_VIEWONLY="$CONFIG_DOCKER_DIR/.vnc_pwd_viewonly"
-LAB_VNC_IP="$CONFIG_DOCKER_DIR/.vnc_ip"
-LAB_VNC_TOKEN="$CONFIG_DOCKER_DIR/.vnc_token"
-LAB_TPROXY="$CONFIG_DOCKER_DIR/.tproxy"
-LAB_SCREEN_SIZE="$CONFIG_DOCKER_DIR/.screen_size"
-LAB_VNC_SHARED="$CONFIG_DOCKER_DIR/.vnc_shared"
-LAB_VNC_IDENTIFY="$CONFIG_DOCKER_DIR/.vnc_identify"
-LAB_UNIX_IDENTIFY="$CONFIG_DOCKER_DIR/.unix_identify"
-LAB_SUDO_IDENTIFY="$CONFIG_DOCKER_DIR/.sudo_identify"
-LAB_TPROXY_LIMITS="$TPROXY_DIR/limits"
-LAB_WPROXY_LIMITS="$WPROXY_DIR/limits"
-LAB_LOGO="$CONFIG_DIR/lab-logo.png"
+LAB_WEB_BROWSER="$CONFIG_DOCKER_DIR"/.web_browser
+LAB_CONTAINER_NAME="$CONFIG_DOCKER_DIR"/.container_name
+LAB_CONTAINER_ID="$CONFIG_DOCKER_DIR"/.container_id
+LAB_HOST_NAME="$CONFIG_DOCKER_DIR"/.host_name
+LAB_UNIX_USER="$CONFIG_DOCKER_DIR"/.unix_user
+LAB_UNIX_PWD="$CONFIG_DOCKER_DIR"/.unix_pwd
+LAB_UNIX_UID="$CONFIG_DOCKER_DIR"/.unix_uid
+LAB_VNC_PWD="$CONFIG_DOCKER_DIR"/.vnc_pwd
+LAB_VNC_PWD_VIEWONLY="$CONFIG_DOCKER_DIR"/.vnc_pwd_viewonly
+LAB_VNC_IP="$CONFIG_DOCKER_DIR"/.vnc_ip
+LAB_VNC_TOKEN="$CONFIG_DOCKER_DIR"/.vnc_token
+LAB_TPROXY="$CONFIG_DOCKER_DIR"/.tproxy
+LAB_SCREEN_SIZE="$CONFIG_DOCKER_DIR"/.screen_size
+LAB_VNC_SHARED="$CONFIG_DOCKER_DIR"/.vnc_shared
+LAB_VNC_IDENTIFY="$CONFIG_DOCKER_DIR"/.vnc_identify
+LAB_UNIX_IDENTIFY="$CONFIG_DOCKER_DIR"/.unix_identify
+LAB_SUDO_IDENTIFY="$CONFIG_DOCKER_DIR"/.sudo_identify
+LAB_TPROXY_LIMITS="$TPROXY_DIR"/limits
+LAB_WPROXY_LIMITS="$WPROXY_DIR"/limits
+LAB_LOGO="$CONFIG_DIR"/lab-logo.png
 
 # Lock the important files for security
 __do_lock ()
@@ -318,13 +324,13 @@ if [ -z "$RELEASE_DIR" ]; then
     fi
   fi
 
-  RELEASE_DIR="$TOP_RELEASE_DIR/$DEF_RELEASE_DIR"
-  [ -n "$GROUP_RELEASE_DIR" ] && RELEASE_DIR="$RELEASE_DIR/$GROUP_RELEASE_DIR"
-  [ -n "$USER_RELEASE_DIR" ] && RELEASE_DIR="$RELEASE_DIR/$USER_RELEASE_DIR"
+  RELEASE_DIR="$TOP_RELEASE_DIR"/$DEF_RELEASE_DIR
+  [ -n "$GROUP_RELEASE_DIR" ] && RELEASE_DIR="$RELEASE_DIR"/$GROUP_RELEASE_DIR
+  [ -n "$USER_RELEASE_DIR" ] && RELEASE_DIR="$RELEASE_DIR"/$USER_RELEASE_DIR
 fi
 
 [ -z "$RELEASE_HTML" ] && RELEASE_HTML=index.html
-[ -z "$RELEASE_FILE" ] && RELEASE_FILE="${RELEASE_DIR}/$RELEASE_HTML"
+[ -z "$RELEASE_FILE" ] && RELEASE_FILE="$RELEASE_DIR"/$RELEASE_HTML
 
 ## Image and Container names
 TPROXY_IMAGE_NAME=cloud-ubuntu-proxy_client_transparent
@@ -336,13 +342,13 @@ WPROXY_NAME=cloud-ubuntu-web
 ### TODO: Check LOCAL_TOKEN_MAP and REMOTE_TOKEN_MAP path for Windows and macOS
 docker ps -f name=$WPROXY_NAME -f status=running 2>/dev/null | grep -q -v PORTS
 if [ $? -eq 0 ]; then
-  LOCAL_TOKEN_DIR=$(docker inspect -f '{{ .Mounts }}' $WPROXY_NAME | sed -e "s%.*[ \[]\([^ ]*/*$DEF_TOKEN_DIR[ :]/*$DEF_TOKEN_DIR\).*%\1%g" | awk -F ":| " '{ printf("%s\n",$1) }')
+  LOCAL_TOKEN_DIR="$(docker inspect -f '{{ .Mounts }}' $WPROXY_NAME | sed -e "s%.*[ \[]\([^ ]*/*$DEF_TOKEN_DIR[ :]/*$DEF_TOKEN_DIR\).*%\1%g" | awk -F ':| ' '{ printf("%s\n",$1) }')"
   [ $? -ne 0 ] && echo "ERR: Docker inspect failure" && exit 1
 
   if [ "x$HOST_OS" = "xDarwin" ]; then
     LOCAL_TOKEN_DIR=$(echo "$LOCAL_TOKEN_DIR" | sed -e "s%^/host_mnt%%g")
   elif [ "x$HOST_OS" = "xLinux" ]; then
-    LOCAL_TOKEN_DIR=$LOCAL_TOKEN_DIR
+    LOCAL_TOKEN_DIR="$LOCAL_TOKEN_DIR"
   else # Windows
     LOCAL_TOKEN_DIR=$(echo "$LOCAL_TOKEN_DIR" | sed -e "s%^/run/desktop/mnt/host%%g")
   fi
@@ -351,19 +357,19 @@ if [ $? -eq 0 ]; then
 fi
 
 if [ -z "$LOCAL_TOKEN_DIR" -o ! -d "$LOCAL_TOKEN_DIR" ]; then
-  LOCAL_TOKEN_DIR="${TOP_TOKEN_DIR}/$DEF_TOKEN_DIR"
+  LOCAL_TOKEN_DIR="$TOP_TOKEN_DIR"/$DEF_TOKEN_DIR
 fi
 
-LOCAL_TOKEN_MAP="$LOCAL_TOKEN_DIR/local_map"
-REMOTE_TOKEN_MAP="$LOCAL_TOKEN_DIR/remote_map"
+LOCAL_TOKEN_MAP="$LOCAL_TOKEN_DIR"/local_map
+REMOTE_TOKEN_MAP="$LOCAL_TOKEN_DIR"/remote_map
 
 #echo $LOCAL_TOKEN_MAP >&2
 #echo $REMOTE_TOKEN_MAP >&2
 
 # Init variable for export command
-HOST_RECORD_DIR="${TOP_RECORD_DIR}/$DEF_RECORD_DIR"
-HOST_RELEASE_DIR=${TOP_RELEASE_DIR}/$DEF_RELEASE_DIR
-HOST_TOKEN_DIR="${LOCAL_TOKEN_DIR}"
+HOST_RECORD_DIR="$TOP_RECORD_DIR"/$DEF_RECORD_DIR
+HOST_RELEASE_DIR="$TOP_RELEASE_DIR"/$DEF_RELEASE_DIR
+HOST_TOKEN_DIR="$LOCAL_TOKEN_DIR"
 
 ## Security related
 ### 0: with root permission by default, sharable, for private usage
@@ -473,8 +479,8 @@ CONTAINER_WEBSSH_PORT=443
 [ -z "$HOST_SSH_PORT" ] && HOST_SSH_PORT=2222
 [ -z "$HOST_WEBSSH_PORT" ] && HOST_WEBSSH_PORT=4433
 
-LAB_HOST_RUN="$CONFIG_TOOL_DIR/host-run"
-LAB_CONTAINER_RUN="$CONFIG_TOOL_DIR/container-run"
+LAB_HOST_RUN="$CONFIG_TOOL_DIR"/host-run
+LAB_CONTAINER_RUN="$CONFIG_TOOL_DIR"/container-run
 
 # Common functions
 
@@ -1025,7 +1031,7 @@ create_cloud_lab_net ()
     echo $VNC_NET | grep -q $VNC_IP_BASE
     if [ $? -ne 0 ]; then
       unset VNC_IP
-      rm $LAB_VNC_IP
+      rm "$LAB_VNC_IP"
     fi
   fi
 }

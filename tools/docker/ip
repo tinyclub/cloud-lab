@@ -6,7 +6,7 @@
 #
 
 TOP_DIR="$(cd "$(dirname "$0")"/../../ && pwd)"
-. "$TOP_DIR/tools/docker/config" $* >/dev/null
+. "$TOP_DIR"/tools/docker/config $* >/dev/null
 
 # Check status
 docker ps -f name=$CONTAINER_NAME | grep -qv PORTS

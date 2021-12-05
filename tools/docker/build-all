@@ -6,7 +6,7 @@
 #
 
 TOP_DIR=$(cd $(dirname $0)/../../ && pwd)
-. $TOP_DIR/tools/docker/config $* >/dev/null
+. "$TOP_DIR"/tools/docker/config $* >/dev/null
 
 # markdown-lab must be built before qing-lab
 
@@ -14,7 +14,7 @@ for lab in $LABS
 do
     echo "\n\n========== Building tinylab/$lab ==========\n\n"
 
-    $DOCKER_BUILD_CMD $lab
+    "$DOCKER_BUILD_CMD" $lab
 
     [ $? -ne 0 ] && exit 1
 done

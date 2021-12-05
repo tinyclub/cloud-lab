@@ -18,7 +18,7 @@ for lab in $LABS
 do
   current=$lab
   unset CONTAINER_NAME
-  . "$TOP_DIR/tools/docker/config" >/dev/null 2>&1
+  . "$TOP_DIR"/tools/docker/config >/dev/null 2>&1
 
   # Ignore the containers not exists
   [ -z "$CONTAINER_NAME" ] && continue
@@ -30,11 +30,11 @@ do
 
 done
 
-$TOP_DIR/tools/docker/rm-all
+"$DOCKER_RM_ALL_CMD"
 
 # clean up the ip:token mappings for webvnc
 if [ -f "$LOCAL_TOKEN_MAP" -a -f "$REMOTE_TOKEN_MAP" -a "$LOCAL_TOKEN_DIR" != "/" ]; then
-  rm -rf $LOCAL_TOKEN_DIR
+  rm -rf "$LOCAL_TOKEN_DIR"
 fi
 
-$DOCKER_RELEASE_CMD all >/dev/null 2>&1
+"$DOCKER_RELEASE_CMD" all >/dev/null 2>&1

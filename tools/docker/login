@@ -6,7 +6,7 @@
 #
 
 TOP_DIR="$(cd "$(dirname "$0")"/../../ && pwd)"
-. "$TOP_DIR/tools/docker/config" $* >/dev/null
+. "$TOP_DIR"/tools/docker/config $* >/dev/null
 
 verify_login()
 {
@@ -100,7 +100,7 @@ if [ "$LOGIN" = "none" -o "$LOGIN" = "list" ]; then
   set_var LOGIN
 fi
 
-LOGIN_TOOL="${TOP_DIR}/tools/docker/$LOGIN"
+LOGIN_TOOL="$TOP_DIR"/tools/docker/$LOGIN
 
 echo "LOG: Available login methods:"
 echo
@@ -117,13 +117,13 @@ echo
 case $LOGIN in
   bash|ssh)
     if [ -t 1 ]; then
-      $LOGIN_TOOL
+      "$LOGIN_TOOL"
     else
       get_xterm
       $XTERM -e "$LOGIN_TOOL"
     fi
     ;;
   *)
-     $LOGIN_TOOL
+     "$LOGIN_TOOL"
      ;;
 esac

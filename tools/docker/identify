@@ -17,7 +17,7 @@ ACCOUNT=$2
 [ -z "$ACCOUNT" ] && ACCOUNT=vnc
 
 do_unlock
-LAB_IDENTIFY="$CONFIG_DOCKER_DIR/.${ACCOUNT}_identify"
+LAB_IDENTIFY="$CONFIG_DOCKER_DIR"/.${ACCOUNT}_identify
 [ -z "$IDENTIFY" -a ! -f "$LAB_IDENTIFY" ] && IDENTIFY=1 && set_var IDENTIFY
 
 # Switch if no IDENTIFY argument pass

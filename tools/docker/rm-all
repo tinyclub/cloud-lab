@@ -8,7 +8,7 @@
 export RELEASE=0
 
 TOP_DIR="$(cd "$(dirname "$0")"/../../ && pwd)"
-. "$TOP_DIR/tools/docker/config" $* >/dev/null
+. "$TOP_DIR"/tools/docker/config $* >/dev/null
 
 id_names=`docker ps -f status=running -f status=exited --format='{{.ID}},{{.Names}}' | sed '1!G;h;$!d'`
 
@@ -33,10 +33,13 @@ do
 
     echo "Removing $name ..."
 
-    ls "${LAB_OUTPUT}/$name*/" >/dev/null 2>&1
-    if [ $? -eq 0 ]; then
-        "${LAB_OUTPUT}/$name*/tools/docker/rm" $lab
-    elif [ -d "${TOP_DIR}/configs/$lab" ]; then
+    ns="$(find \"$LAB_OUTPUT\" -type d -name \"$name*\" 2>/dev/null)"
+    if [ -n "$ns" ]; then
+        for n in $ns
+        do
+            "$LAB_OUTPUT"/$n/tools/docker/stop $lab
+        done
+    elif [ -d "$TOP_DIR"/configs/$lab ]; then
         "$DOCKER_RM_CMD" $lab
     else
         docker rm -f $id
@@ -48,4 +51,4 @@ done
 
 docker network rm cloud-lab-net
 
-$DOCKER_RELEASE_CMD all >/dev/null 2>&1
+"$DOCKER_RELEASE_CMD" all >/dev/null 2>&1

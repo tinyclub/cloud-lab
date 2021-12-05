@@ -23,11 +23,14 @@ do
 
     echo "Starting $name ..."
 
-    ls "${LAB_OUTPUT}/$name*/" >/dev/null 2>&1
+    ns="$(find \"$LAB_OUTPUT\" -type d -name \"$name*\" 2>/dev/null)"
 
-    if [ $? -eq 0 ]; then
-        "${LAB_OUTPUT}/$name*/tools/docker/start" $lab
-    elif [ -d "${TOP_DIR}/configs/$lab" ]; then
+    if [ -n "$ns" ]; then
+        for n in $ns
+        do
+            "$LAB_OUTPUT"/$n/tools/docker/stop $lab
+        done
+    elif [ -d "$TOP_DIR"/configs/$lab ]; then
         "$DOCKER_START_CMD" $lab
     else
         docker start $id

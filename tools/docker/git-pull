@@ -10,4 +10,4 @@ TOP_DIR="$(cd "$(dirname "$0")"/../../ && pwd)"
 
 echo "LOG: pulling repository: $LAB_NAME"
 
-cd "$LAB_DIR/$LAB_NAME" && git pull -v
+cd "$LAB_DIR"/$LAB_NAME && git pull -v

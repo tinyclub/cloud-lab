@@ -6,7 +6,7 @@
 #
 
 TOP_DIR="$(cd "$(dirname "$0")"/../../ && pwd)"
-. "$TOP_DIR/tools/docker/config" $* >/dev/null
+. "$TOP_DIR"/tools/docker/config $* >/dev/null
 
 # lab info
 show_lab()
@@ -111,7 +111,7 @@ if [ -d ~/Desktop -a -n "$REMOTE_DESKTOP_SHORTCUT" -a -f "$REMOTE_DESKTOP_SHORTC
   if [ "x$HOST_OS" = "xDarwin" ]; then
 
     if [ "x$LAB_DESKTOP_SHORTCUT" = "x1" -a ! -f "$LOCAL_DESKTOP_SHORTCUT" ]; then
-      echo "$DOCKER_RUN_CMD $LAB_NAME" > "$LOCAL_DESKTOP_SHORTCUT"
+      echo "'$DOCKER_RUN_CMD' $LAB_NAME" > "$LOCAL_DESKTOP_SHORTCUT"
 
       # ref: https://superuser.com/questions/479411/close-all-mac-terminal-windows-but-the-one-running-a-script
       echo 'osascript -e "do shell script \"osascript -e \\\\\"tell application \\\\\\\\\\\\\\"Terminal\\\\\\\\\\\\\\" \\\\\\" -e \\\\\\"set mainID to id of front window\\\\\\" -e \\\\\\" close (every window whose id = mainID)\\\\\\"  -e \\\\\\"end tell\\\\\\"   &> /dev/null &\""; exit' >> "$LOCAL_DESKTOP_SHORTCUT"
@@ -141,7 +141,7 @@ if [ -d ~/Desktop -a -n "$REMOTE_DESKTOP_SHORTCUT" -a -f "$REMOTE_DESKTOP_SHORTC
       lab_desktop_shortcut=$(mktemp)
       echo '#!/usr/bin/env xdg-open' > $lab_desktop_shortcut
       cat "$REMOTE_DESKTOP_SHORTCUT" \
-        | sed "s%Exec=.*%Exec=sg docker -c '$DOCKER_RUN_CMD $LAB_NAME'%g" \
+        | sed "s%Exec=.*%Exec=sg docker -c '\"$DOCKER_RUN_CMD\" $LAB_NAME'%g" \
         | sed "s%terminator.png%${WEB_BROWSER}.png%g;s%lxterminal.xpm%${WEB_BROWSER}.png%g" | tr '|' '&' \
           >> $lab_desktop_shortcut
 
@@ -205,15 +205,15 @@ EOF
   else # Windows
 
     if [ "x$LAB_DESKTOP_SHORTCUT" = "x1" -a ! -f "$LOCAL_DESKTOP_SHORTCUT" ]; then
-      RUN_BAT="$TOP_DIR/tools/windows/run.bat"
+      RUN_BAT="$TOP_DIR"/tools/windows/run.bat
 
-      mkdir -p "$TOP_DIR/tools/windows"
+      mkdir -p "$TOP_DIR"/tools/windows
 
-      GIT_BASH="$(echo $(cd / && pwd -W)/git-bash.exe | sed -e 's% %\" \"%g')"
-      WIN_CHROME="C:/Program\" \"Files\" \"(x86)/Google/Chrome/Application/chrome.exe"
-      WORK_DIR="$(echo $TOP_DIR | sed -e 's% %\" \"%g')"
-      echo "start $GIT_BASH -c '$WORK_DIR/tools/docker/run $LAB_NAME'" > $RUN_BAT
-      echo "start $WIN_CHROME \"$CONTAINER_WEB_URL\"" >> $RUN_BAT
+      GIT_BASH="$(echo $(cd / && pwd)/git-bash.exe)"
+      WIN_CHROME="/c/Program Files (x86)/Google/Chrome/Application/chrome.exe"
+      WORK_DIR="$TOP_DIR"
+      echo "start '$GIT_BASH' -c '\"$WORK_DIR/tools/docker/run\" $LAB_NAME'" > $RUN_BAT
+      echo "start '$WIN_CHROME' '$CONTAINER_WEB_URL'" >> $RUN_BAT
 
       cat <<EOF > "$LOCAL_DESKTOP_SHORTCUT"
 [InternetShortcut]
@@ -224,19 +224,19 @@ EOF
 
     # For cloud lab
     if [ ! -f "$MANAGE_DESKTOP_SHORTCUT" ]; then
-      MANAGE_BAT="$TOP_DIR/tools/windows/manage.bat"
+      MANAGE_BAT="$TOP_DIR"/tools/windows/manage.bat
 
-      mkdir -p "$TOP_DIR/tools/windows"
+      mkdir -p "$TOP_DIR"/tools/windows
 
-      GIT_BASH="$(echo $(cd / && pwd -W)/git-bash.exe | sed -e 's% %\" \"%g')"
-      WORK_DIR="$(echo $TOP_DIR | sed -e 's% %\" \"%g')"
-      echo "start $GIT_BASH --cd=$WORK_DIR" > $MANAGE_BAT
+      GIT_BASH="$(echo $(cd / && pwd)/git-bash.exe)"
+      WORK_DIR="$TOP_DIR"
+      echo "start '$GIT_BASH' --cd='$WORK_DIR'" > $MANAGE_BAT
 
       cat <<EOF > "$MANAGE_DESKTOP_SHORTCUT"
 [InternetShortcut]
 URL="$MANAGE_BAT"
 IconIndex=0
-IconFile=D:\Program" "Files\Git\git-bash.exe
+IconFile="$GIT_BASH"
 EOF
     fi
 
@@ -251,7 +251,7 @@ fi
 
 # Allow Launching for Ubuntu 20.04
 if [ "x$HOST_OS" = "xLinux" ]; then
-  for sc in $LOCAL_DESKTOP_SHORTCUT $MANAGE_DESKTOP_SHORTCUT $BROWSE_DESKTOP_SHORTCUT
+  for sc in "$LOCAL_DESKTOP_SHORTCUT" "$MANAGE_DESKTOP_SHORTCUT" "$BROWSE_DESKTOP_SHORTCUT"
   do
     [ ! -f "$sc" ] && continue
 
@@ -271,11 +271,11 @@ fi
 [ `id -u` -eq 0 ] && echo "ERR: Web browsers can not run as root user, please run as normal user." && exit 1
 
 if [ "x$HOST_OS" = "xDarwin" ]; then
-  (eval $__WEB_BROWSER '$CONTAINER_WEB_URL' >/dev/null 2>&1 &)>/dev/null 2>&1
+  (eval "$__WEB_BROWSER" '$CONTAINER_WEB_URL' >/dev/null 2>&1 &)>/dev/null 2>&1
 else
   (eval nohup "'$__WEB_BROWSER'" "'$CONTAINER_WEB_URL'" >/dev/null 2>&1 &)>/dev/null 2>&1
 fi
 
 # Resize the screen
 [ -f /etc/environment.d/90linux-lab-disk.conf ] && . /etc/environment.d/90linux-lab-disk.conf
-[ -n "$SCREEN_RESIZE" ] && (sleep 0.5; $DOCKER_RESIZE_CMD $LAB_NAME $SCREEN_RESIZE >/dev/null 2>&1)&
+[ -n "$SCREEN_RESIZE" ] && (sleep 0.5; "$DOCKER_RESIZE_CMD" $LAB_NAME $SCREEN_RESIZE >/dev/null 2>&1)&

@@ -6,7 +6,7 @@
 #
 
 TOP_DIR="$(cd "$(dirname "$0")"/../../ && pwd)"
-. "$TOP_DIR/tools/docker/config" $* >/dev/null 2>&1
+. "$TOP_DIR"/tools/docker/config $* >/dev/null 2>&1
 
 filter=$1
 [ -n "$2" ] && filter=$2
@@ -31,7 +31,7 @@ for lab in $labs
 do
   current="$lab"
   unset UNIX_USER UNIX_PWD VNC_PWD VNC_PWD_VIEWONLY CONTAINER_NAME VNC_IP VNC_TOKEN
-  . "$TOP_DIR/tools/docker/config" >/dev/null 2>&1
+  . "$TOP_DIR"/tools/docker/config >/dev/null 2>&1
 
   echo "$TOP_DIR" | grep -q "/$lab-"
   [ $? -eq 0 ] && lab_life="`get_lab_life "$TOP_DIR"`"

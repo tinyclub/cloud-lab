@@ -9,9 +9,9 @@ TOP_DIR="$(cd "$(dirname "$0")"/../../ && pwd)"
 . "$TOP_DIR"/tools/docker/config $* >/dev/null
 
 # Check and download the lab source
-if [ ! -f "$TOP_DIR/labs/$LAB_NAME/.git" ]; then
+if [ ! -f "$TOP_DIR"/labs/$LAB_NAME/.git ]; then
   echo "LOG: pulling git repo: $LAB_NAME"
-  "${TOP_DIR}/tools/docker/choose" $LAB_NAME
+  "$DOCKER_CHOOSE_CMD" $LAB_NAME
 fi
 
 # Notify for X11 system
@@ -20,14 +20,14 @@ if [ $? -eq 0 ]; then
   notice_summary="$LAB_NAME is loading ..."
   notice_body="Welcome to the world of $LAB_NAME!"
   if [ -f "$LAB_LOGO" ]; then
-    notify-send -i $LAB_LOGO "$notice_summary" "$notice_body"
+    notify-send -i "$LAB_LOGO" "$notice_summary" "$notice_body"
   else
     notify-send "$notice_summary" "$notice_body"
   fi
 fi
 
 # Clean up old stopped containers if the saved environment has been cleaned up
-if [ ! -f $LAB_CONTAINER_ID ]; then
+if [ ! -f "$LAB_CONTAINER_ID" ]; then
   for status in exited created
   do
     unused_containers="$(docker ps -a --filter="ancestor=$IMAGE" --filter "status=$status" | grep -v ^CONTAINER | cut -d' ' -f1)"
@@ -134,8 +134,8 @@ limits=$LIMITS
 [ -z "$RANDOM_IP" ] && RANDOM_IP=1
 if [ $RANDOM_IP -eq 1 ]; then
   if [ -z "$VNC_IP" -o "$VNC_IP" = "$DEF_VNC_IP" ]; then
-    VNC_IP=`$DOCKER_IP_CMD`
-    [ $? -ne 0 ] && echo "LOG: $DOCKER_IP_CMD: get ip address error." && exit 1
+    VNC_IP=`"$DOCKER_IP_CMD"`
+    [ $? -ne 0 ] && echo "LOG: \"$DOCKER_IP_CMD\": get ip address error." && exit 1
   fi
 fi
 
@@ -148,7 +148,7 @@ for var in $VARS; do
         value=$MAX_SCREEN_SIZE
     fi
     echo "$var" | grep -q "_PWD"
-    [ $? -eq 0 -a -n "$ENCRYPT" -a -n "$ENCRYPT_CMD" -a -n "$value" ] && __ENCRYPT_CMD=$ENCRYPT_CMD
+    [ $? -eq 0 -a -n "$ENCRYPT" -a -n "$ENCRYPT_CMD" -a -n "$value" ] && __ENCRYPT_CMD="$ENCRYPT_CMD"
     vars="$vars -e $var=$(echo $value | tr -d '\n' | $__ENCRYPT_CMD | cut -d' ' -f1)";
 done
 for env in $ENVS; do vars="$vars -e $env"; done
