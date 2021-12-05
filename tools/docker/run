@@ -164,7 +164,9 @@ for map in $VOLUMEMAP; do volumemap="$volumemap -v $map"; done
 container="--name $CONTAINER_NAME"
 
 # Sync UID before running
-UNIX_UID=`id -u $HOST_USER`
+if [ "x$HOST_OS" = "xLinux" ]; then
+    UNIX_UID=`id -u $HOST_USER`
+fi
 [ "x$UNIX_UID" = "x0" -o -z "$UNIX_UID" ] && UNIX_UID=1000
 
 do_unlock
