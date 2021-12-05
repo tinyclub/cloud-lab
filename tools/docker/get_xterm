@@ -44,7 +44,7 @@ fi
 
 for t in gnome-terminal deepin-terminal terminator konsole qterminal lxterminal
 do
-  which $t > /dev/null
+  which $t > /dev/null 2>&1
   [ $? -eq 0 ] && XTERM=$t && break
 done
 
