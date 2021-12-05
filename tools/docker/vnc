@@ -58,14 +58,16 @@ vnc_config()
   # Let user choose one
   read -p 'LOG: Choose the vnc client: ' client
 
-  [ -z "$client" ] && echo "\nERR: No client specified.\n" && exit 1
+  [ -z "$client" ] && echo "ERR: No client specified." && exit 1
 
   number=0
   verify_vnc $client
-  [ $? -ne 0 ] && echo "\nERR: No valid client specified.\n" && exit 1
+  [ $? -ne 0 ] && echo "ERR: No valid client specified." && exit 1
 
   VNC_CLIENT=`echo $INSTALLED_VNC_CLIENTS | tr ' ' '\n' | head -$number | tail -1`
-  echo "\n     $number\t$VNC_CLIENT\n"
+  echo
+  echo $INSTALLED_VNC_CLIENTS | tr ' ' '\n' | nl -v 1 | grep "$number"
+  echo
   
   VNC=$VNC_CLIENT
 
@@ -117,7 +119,7 @@ INSTALLED_VNC_CLIENTS=`vnc_clients`
 if [ "$VNC" != "list" ]; then
   if [ -n "$VNC" ]; then
     which $VNC >/dev/null 2>&1
-    [ $? -ne 0 ] && echo "\nERR: client $VNC is not installed.\n" && exit 1
+    [ $? -ne 0 ] && echo "ERR: client $VNC is not installed." && exit 1
     set_var VNC
   else
     get_var VNC none

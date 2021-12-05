@@ -43,21 +43,23 @@ login_config()
   echo
   echo $LOGIN_METHODS | tr ' ' '\n' | nl -v 1
   echo
-  
+
   # Let user choose one
   read -p 'LOG: Choose the login method: ' method
 
-  [ -z "$method" ] && echo "\nERR: No method specified.\n" && exit 1
-  
+  [ -z "$method" ] && echo "ERR: No method specified." && exit 1
+
   number=0
   verify_login $method
-  [ $? -ne 0 ] && echo "\nERR: No valid method specified.\n" && exit 1
-  
+  [ $? -ne 0 ] && echo "ERR: No valid method specified." && exit 1
+
   LOGIN_METHOD=`echo $LOGIN_METHODS | tr ' ' '\n' | head -$number | tail -1`
-  echo "\n     $number\t$LOGIN_METHOD\n"
-  
+  echo
+  echo $LOGIN_METHODS | tr ' ' '\n' | nl -v 1 | grep "$number"
+  echo
+
   LOGIN=$LOGIN_METHOD
-  
+
   set_var LOGIN
 } # login_config
 
@@ -80,8 +82,11 @@ if [ "$LOGIN" != "list" ]; then
 
     verify_login $LOGIN
     if [ $? -ne 0 ]; then
-      echo "\nERR: $LOGIN is not valid login method, avilable methods:\n"
-      echo "    $LOGIN_METHODS.\n"
+      echo
+      echo "ERR: $LOGIN is not valid login method, avilable methods:"
+      echo
+      echo "    $LOGIN_METHODS."
+      echo
       exit 1
     fi
     set_var LOGIN

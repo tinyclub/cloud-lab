@@ -22,7 +22,8 @@ echo "  Password: $UNIX_PWD"
 echo "   Workdir: $LAB_WORKDIR/$CURRENT"
 echo
 
-echo "LOG: Or access via web browser:\n  $WEBSSH_URL"
+echo "LOG: Or access via web browser:"
+echo "  $WEBSSH_URL"
 echo
 
 # Get web browser
@@ -36,6 +37,7 @@ get_browser
 
 if [ -n "$LOCALHOST" ]; then
     _WEBSSH_URL="$(echo "$WEBSSH_URL" | sed -e "s%localhost%$LOCALHOST%g" )"
-    echo "LOG: Or access it outside via:\n  $_WEBSSH_URL"
+    echo "LOG: Or access it outside via:"
+    echo "  $_WEBSSH_URL"
     echo
 fi

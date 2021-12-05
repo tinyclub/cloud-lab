@@ -12,7 +12,11 @@ TOP_DIR=$(cd $(dirname $0)/../../ && pwd)
 
 for lab in $LABS
 do
-    echo "\n\n========== Building tinylab/$lab ==========\n\n"
+    echo
+    echo
+    echo "========== Building tinylab/$lab =========="
+    echo
+    echo
 
     "$DOCKER_BUILD_CMD" $lab
 

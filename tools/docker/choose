@@ -75,21 +75,26 @@ if [ -n "$NEW_LAB" ]; then
     download_submodule && exit 0
 fi
 
-echo "LOG: Available Labs:\n"
-echo $LABS | tr ' ' '\n' | cat -n
-echo ""
+echo "LOG: Available Labs:"
+echo
+echo $LABS | tr ' ' '\n' | nl -v 1
+echo
 
 read -p 'LOG: Choose the lab number: ' number
 
-[ -z "$number" ] && echo "\nERR: No valid number specified.\n" && exit 1
+[ -z "$number" ] && echo "ERR: No valid number specified." && exit 1
 
 CURRENT=`echo $LABS | tr ' ' '\n' | head -$number | tail -1`
 
-echo "\n     $number\t$CURRENT\n"
+echo
+echo $LABS | tr ' ' '\n' | nl -v 1 | grep "$number"
+echo
 
 set_var CURRENT
 
-echo "\nLOG: Download the lab...\n"
+echo
+echo "LOG: Download the lab..."
+echo
 
 # Hacking for windows support, disable autocrlf switch
 config_git
