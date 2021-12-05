@@ -212,8 +212,8 @@ EOF
       GIT_BASH="$(echo $(cd / && pwd)/git-bash.exe)"
       WIN_CHROME="/c/Program Files (x86)/Google/Chrome/Application/chrome.exe"
       WORK_DIR="$TOP_DIR"
-      echo "start '$GIT_BASH' -c '\"$WORK_DIR/tools/docker/run\" $LAB_NAME'" > $RUN_BAT
-      echo "start '$WIN_CHROME' '$CONTAINER_WEB_URL'" >> $RUN_BAT
+      echo "start '$GIT_BASH' -c '\"$WORK_DIR/tools/docker/run\" $LAB_NAME'" > "$RUN_BAT"
+      echo "start '$WIN_CHROME' '$CONTAINER_WEB_URL'" >> "$RUN_BAT"
 
       cat <<EOF > "$LOCAL_DESKTOP_SHORTCUT"
 [InternetShortcut]
@@ -230,7 +230,7 @@ EOF
 
       GIT_BASH="$(echo $(cd / && pwd)/git-bash.exe)"
       WORK_DIR="$TOP_DIR"
-      echo "start '$GIT_BASH' --cd='$WORK_DIR'" > $MANAGE_BAT
+      echo "start '$GIT_BASH' --cd='$WORK_DIR'" > "$MANAGE_BAT"
 
       cat <<EOF > "$MANAGE_DESKTOP_SHORTCUT"
 [InternetShortcut]
