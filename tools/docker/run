@@ -124,10 +124,13 @@ dnss=""
 devs=""
 vars="-e LAB_SECURITY=$LAB_SECURITY"
 envs=""
-volumemap="-v '$GIT_DIR':'$GIT_WORKDIR'"
-volumemap="$volumemap -v '$LAB_DIR':'$LAB_WORKDIR'"
-volumemap="$volumemap -v '$TOOL_DIR':'$TOOL_WORKDIR'"
-volumemap="$volumemap -v '$CONFIG_DIR':'$CONFIG_WORKDIR'"
+
+# Fixed up for docker toolbox in windows
+# ref: https://headsigned.com/posts/mounting-docker-volumes-with-docker-toolbox-for-windows/
+volumemap="-v '/$GIT_DIR':'$GIT_WORKDIR'"
+volumemap="$volumemap -v '/$LAB_DIR':'$LAB_WORKDIR'"
+volumemap="$volumemap -v '/$TOOL_DIR':'$TOOL_WORKDIR'"
+volumemap="$volumemap -v '/$CONFIG_DIR':'$CONFIG_WORKDIR'"
 limits=$LIMITS
 
 # Get a new ip for our new container
