@@ -66,7 +66,7 @@ vnc_config()
 
   VNC_CLIENT=`echo $INSTALLED_VNC_CLIENTS | tr ' ' '\n' | head -$number | tail -1`
   echo
-  echo $INSTALLED_VNC_CLIENTS | tr ' ' '\n' | nl -v 1 | grep "$number"
+  echo $INSTALLED_VNC_CLIENTS | tr ' ' '\n' | nl -v 1 | grep " $number"
   echo
   
   VNC=$VNC_CLIENT

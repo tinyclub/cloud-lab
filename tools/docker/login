@@ -55,7 +55,7 @@ login_config()
 
   LOGIN_METHOD=`echo $LOGIN_METHODS | tr ' ' '\n' | head -$number | tail -1`
   echo
-  echo $LOGIN_METHODS | tr ' ' '\n' | nl -v 1 | grep "$number"
+  echo $LOGIN_METHODS | tr ' ' '\n' | nl -v 1 | grep " $number"
   echo
 
   LOGIN=$LOGIN_METHOD

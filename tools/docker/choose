@@ -87,7 +87,7 @@ read -p 'LOG: Choose the lab number: ' number
 CURRENT=`echo $LABS | tr ' ' '\n' | head -$number | tail -1`
 
 echo
-echo $LABS | tr ' ' '\n' | nl -v 1 | grep "$number"
+echo $LABS | tr ' ' '\n' | nl -v 1 | grep " $number"
 echo
 
 set_var CURRENT
