@@ -213,6 +213,8 @@ EOF
     GIT_BASH="$(cd / && pwd -W | sed -e 's% %\" \"%g')/git-bash.exe"
     WORK_DIR="$(cd $TOP_DIR && pwd -W | sed -e 's% %\" \"%g')"
     DESKTOP_DIR="$(cd ~/Desktop && pwd -W)"
+    CMD_ICON="$( cd /c/Windows/System32/ && pwd -W)/cmd.exe"
+    TOOLS_DIR="$WORK_DIR"/tools/windows
 
     mkdir -p "$TOP_DIR"/tools/windows
 
@@ -223,8 +225,9 @@ EOF
       echo "start $GIT_BASH -c '\"$WORK_DIR/tools/docker/run\" $LAB_NAME'" > "$RUN_BAT"
       echo "start $WIN_CHROME \"$CONTAINER_WEB_URL\"" >> "$RUN_BAT"
 
+      # Ref: https://stackoverflow.com/questions/30028709/how-do-i-create-a-shortcut-via-command-line-in-windows
       LOCAL_DESKTOP_SHORTCUT="$DESKTOP_DIR/$(basename $LOCAL_DESKTOP_SHORTCUT)"
-      winpty powershell "\$s=(New-Object -COM WScript.Shell).CreateShortcut('$LOCAL_DESKTOP_SHORTCUT');\$s.TargetPath='$WORK_DIR/tools/windows/run.bat';\$s.IconLocation='$GIT_BASH';\$s.Save()"
+      winpty powershell "\$s=(New-Object -COM WScript.Shell).CreateShortcut('$LOCAL_DESKTOP_SHORTCUT');\$s.TargetPath='$TOOLS_DIR/run.bat';\$s.IconLocation='$CMD_ICON';\$s.Save()"
     fi
 
     # For cloud lab
@@ -234,7 +237,7 @@ EOF
       echo "start $GIT_BASH --cd=\"$WORK_DIR\"" > "$MANAGE_BAT"
 
       MANAGE_DESKTOP_SHORTCUT="$DESKTOP_DIR/$(basename $MANAGE_DESKTOP_SHORTCUT)"
-      winpty powershell "\$s=(New-Object -COM WScript.Shell).CreateShortcut('$MANAGE_DESKTOP_SHORTCUT');\$s.TargetPath='$WORK_DIR/tools/windows/manage.bat';\$s.IconLocation='$GIT_BASH';\$s.Save()"
+      winpty powershell "\$s=(New-Object -COM WScript.Shell).CreateShortcut('$MANAGE_DESKTOP_SHORTCUT');\$s.TargetPath='$TOOLS_DIR/manage.bat';\$s.IconLocation='$CMD_ICON';\$s.Save()"
     fi
 
     [ ! -f "$BROWSE_DESKTOP_SHORTCUT" ] && cat <<EOF > "$BROWSE_DESKTOP_SHORTCUT"
