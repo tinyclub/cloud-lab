@@ -75,6 +75,23 @@ if [ ! -n "$IN_CONTAINER" ]; then
   fi
 fi
 
+# Check docker service
+if [ "x$HOST_OS" = "xWindows" ]; then
+  which docker-machine >/dev/null 2>&1
+  if [ $? -eq 0 ]; then
+    # Prepare docker machine
+    docker-machine ls | grep -q default
+    if [ $? -ne 0 ]; then
+      echo "ERR: Please start docker service with 'Docker QuickStart Terminal'."
+      exit 1
+    fi
+    status=$(docker-machine status)
+    if [ "$status" != "Running" ]; then
+      timeout -k 2 5 docker-machine start default >&2
+    fi
+  fi
+fi
+
 [ -z "$TPROXY" ] && TPROXY=0
 [ -z "$LAB_SECURITY" ] && LAB_SECURITY=0
 
