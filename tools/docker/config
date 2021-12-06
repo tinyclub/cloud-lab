@@ -485,8 +485,8 @@ elif [ "x$HOST_OS" = "xLinux" ]; then
   MANAGE_DESKTOP_SHORTCUT=~/Desktop/lab-manager.desktop
   BROWSE_DESKTOP_SHORTCUT=~/Desktop/lab-browser.desktop
 else
-  LOCAL_DESKTOP_SHORTCUT=~/Desktop/${LAB_NAME}.url
-  MANAGE_DESKTOP_SHORTCUT=~/Desktop/lab-manager.url
+  LOCAL_DESKTOP_SHORTCUT=~/Desktop/${LAB_NAME}.lnk
+  MANAGE_DESKTOP_SHORTCUT=~/Desktop/lab-manager.lnk
   BROWSE_DESKTOP_SHORTCUT=~/Desktop/lab-browser.url
 fi
 

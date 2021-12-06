@@ -210,9 +210,11 @@ EOF
 
   else # Windows
 
-    GIT_BASH="$(echo $(cd / && pwd -W)/git-bash.exe | sed -e 's% %\" \"%g')"
+    GIT_BASH="$(cd / && pwd -W | sed -e 's% %\" \"%g')/git-bash.exe"
+    WORK_DIR="$(cd $TOP_DIR && pwd -W | sed -e 's% %\" \"%g')"
+    DESKTOP_DIR="$(cd ~/Desktop && pwd -W)"
+
     mkdir -p "$TOP_DIR"/tools/windows
-    WORK_DIR="$(echo $(cd $TOP_DIR && pwd -W) | sed -e 's% %\" \"%g')"
 
     if [ "x$LAB_DESKTOP_SHORTCUT" = "x1" -a ! -f "$LOCAL_DESKTOP_SHORTCUT" ]; then
       RUN_BAT="$TOP_DIR"/tools/windows/run.bat
@@ -221,11 +223,8 @@ EOF
       echo "start $GIT_BASH -c '\"$WORK_DIR/tools/docker/run\" $LAB_NAME'" > "$RUN_BAT"
       echo "start $WIN_CHROME \"$CONTAINER_WEB_URL\"" >> "$RUN_BAT"
 
-      cat <<EOF > "$LOCAL_DESKTOP_SHORTCUT"
-[InternetShortcut]
-URL="$RUN_BAT"
-IconIndex=0
-EOF
+      LOCAL_DESKTOP_SHORTCUT="$DESKTOP_DIR/$(basename $LOCAL_DESKTOP_SHORTCUT)"
+      winpty powershell "\$s=(New-Object -COM WScript.Shell).CreateShortcut('$LOCAL_DESKTOP_SHORTCUT');\$s.TargetPath='$WORK_DIR/tools/windows/run.bat';\$s.IconLocation='$GIT_BASH';\$s.Save()"
     fi
 
     # For cloud lab
@@ -234,12 +233,8 @@ EOF
 
       echo "start $GIT_BASH --cd=\"$WORK_DIR\"" > "$MANAGE_BAT"
 
-      cat <<EOF > "$MANAGE_DESKTOP_SHORTCUT"
-[InternetShortcut]
-URL="$MANAGE_BAT"
-IconIndex=0
-IconFile="$GIT_BASH"
-EOF
+      MANAGE_DESKTOP_SHORTCUT="$DESKTOP_DIR/$(basename $MANAGE_DESKTOP_SHORTCUT)"
+      winpty powershell "\$s=(New-Object -COM WScript.Shell).CreateShortcut('$MANAGE_DESKTOP_SHORTCUT');\$s.TargetPath='$WORK_DIR/tools/windows/manage.bat';\$s.IconLocation='$GIT_BASH';\$s.Save()"
     fi
 
     [ ! -f "$BROWSE_DESKTOP_SHORTCUT" ] && cat <<EOF > "$BROWSE_DESKTOP_SHORTCUT"
