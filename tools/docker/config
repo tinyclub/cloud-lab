@@ -446,20 +446,24 @@ MAX_SCREEN_SIZE=$DEF_SCREEN_SIZE
 
 # 16:10: 640x480 800x480 1280x800 1440x900 1680x1050 1920x1200 2560x1600
 # 16:9: 960x540 1280x720 1920x1080 2560x1440
-which xrandr >/dev/null 2>&1
-xrandr_exist=$?
-pgrep Xorg >/dev/null 2>&1
-xorg_exist=$?
-if [ $xorg_exist -eq 0 -a $xrandr_exist -eq 0 -a -z "$SCREEN_SIZE" ]; then
-  SCREEN_SIZE=`xrandr --current 2>/dev/null | grep "^ .*\*" | tr -s ' ' | cut -d' ' -f2 | cut -d '_' -f1 | head -1 | tr -d -c '[0-9x]'`
-  if [ $? -eq 0 ]; then
-    current_height=`echo $SCREEN_SIZE | cut -d 'x' -f2 | tr -d -c '[0-9]'`
-    for h in `xrandr --current 2>/dev/null | grep "^ [ 0-9]*x" | cut -d'x' -f2 | cut -d' ' -f1`
-    do
-      h=$(echo $h | tr -d -c '[0-9]')
-      [ $h -lt $current_height ] && break
-    done
-    SCREEN_SIZE=`xrandr --current 2>/dev/null | grep "^ [ 0-9]*x"  | grep "x$h" | tr -s ' ' | cut -d' ' -f2 | cut -d '_' -f1 | head -1 | tr -d -c '[0-9x]'`
+if [ "x$HOST_OS" = "xWindows" ]; then
+  SCREEN_SIZE=$(wmic path Win32_VideoController get CurrentHorizontalResolution,CurrentVerticalResolution /format:value | sed -ne "s/.*=\([0-9]*\)/\1/gp" | tr '\r\n' 'x' | tr -s 'x' | cut -d'x' -f1-2 | tr -d '\r\n')
+else
+  which xrandr >/dev/null 2>&1
+  xrandr_exist=$?
+  pgrep Xorg >/dev/null 2>&1
+  xorg_exist=$?
+  if [ $xorg_exist -eq 0 -a $xrandr_exist -eq 0 -a -z "$SCREEN_SIZE" ]; then
+    SCREEN_SIZE=`xrandr --current 2>/dev/null | grep "^ .*\*" | tr -s ' ' | cut -d' ' -f2 | cut -d '_' -f1 | head -1 | tr -d -c '[0-9x]'`
+    if [ $? -eq 0 ]; then
+      current_height=`echo $SCREEN_SIZE | cut -d 'x' -f2 | tr -d -c '[0-9]'`
+      for h in `xrandr --current 2>/dev/null | grep "^ [ 0-9]*x" | cut -d'x' -f2 | cut -d' ' -f1`
+      do
+        h=$(echo $h | tr -d -c '[0-9]')
+        [ $h -lt $current_height ] && break
+      done
+      SCREEN_SIZE=`xrandr --current 2>/dev/null | grep "^ [ 0-9]*x"  | grep "x$h" | tr -s ' ' | cut -d' ' -f2 | cut -d '_' -f1 | head -1 | tr -d -c '[0-9x]'`
+    fi
   fi
 fi
 
