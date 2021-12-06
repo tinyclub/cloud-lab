@@ -154,8 +154,9 @@ if [ "x$HOST_OS" = "xWindows" ]; then
         fi
       fi
 
-      "$VBVM" sharedfolder remove default --name="$sharedname"
+      #"$VBVM" sharedfolder remove default --name="$sharedname"
       "$VBVM" sharedfolder add default --name="$sharedname" --hostpath="$hostpath" --automount --auto-mount-point="$remotepath"
+      #"$VBVM" setextradata default VBoxInternal2/SharedFoldersEnableSymlinksCreate/$sharedname 1
 
       # Restart to let new added sharedfolder work
       which docker-machine >/dev/null 2>&1
