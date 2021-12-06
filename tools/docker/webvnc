@@ -210,16 +210,16 @@ EOF
 
   else # Windows
 
+    GIT_BASH="$(echo $(cd / && pwd -W)/git-bash.exe | sed -e 's% %\" \"%g')"
+    mkdir -p "$TOP_DIR"/tools/windows
+    WORK_DIR="$(echo $(cd $TOP_DIR && pwd -W) | sed -e 's% %\" \"%g')"
+
     if [ "x$LAB_DESKTOP_SHORTCUT" = "x1" -a ! -f "$LOCAL_DESKTOP_SHORTCUT" ]; then
       RUN_BAT="$TOP_DIR"/tools/windows/run.bat
 
-      mkdir -p "$TOP_DIR"/tools/windows
-
-      GIT_BASH="$(echo $(cd / && pwd)/git-bash.exe)"
-      WIN_CHROME="/c/Program Files (x86)/Google/Chrome/Application/chrome.exe"
-      WORK_DIR="$TOP_DIR"
-      echo "start '$GIT_BASH' -c '\"$WORK_DIR/tools/docker/run\" $LAB_NAME'" > "$RUN_BAT"
-      echo "start '$WIN_CHROME' '$CONTAINER_WEB_URL'" >> "$RUN_BAT"
+      WIN_CHROME="C:/Program\" \"Files\" \"(x86)/Google/Chrome/Application/chrome.exe"
+      echo "start $GIT_BASH -c '\"$WORK_DIR/tools/docker/run\" $LAB_NAME'" > "$RUN_BAT"
+      echo "start $WIN_CHROME \"$CONTAINER_WEB_URL\"" >> "$RUN_BAT"
 
       cat <<EOF > "$LOCAL_DESKTOP_SHORTCUT"
 [InternetShortcut]
@@ -232,11 +232,7 @@ EOF
     if [ ! -f "$MANAGE_DESKTOP_SHORTCUT" ]; then
       MANAGE_BAT="$TOP_DIR"/tools/windows/manage.bat
 
-      mkdir -p "$TOP_DIR"/tools/windows
-
-      GIT_BASH="$(echo $(cd / && pwd)/git-bash.exe)"
-      WORK_DIR="$TOP_DIR"
-      echo "start '$GIT_BASH' --cd='$WORK_DIR'" > "$MANAGE_BAT"
+      echo "start $GIT_BASH --cd=\"$WORK_DIR\"" > "$MANAGE_BAT"
 
       cat <<EOF > "$MANAGE_DESKTOP_SHORTCUT"
 [InternetShortcut]
