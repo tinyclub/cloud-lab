@@ -26,7 +26,7 @@ config_git ()
 {
     git config --global core.safecrlf true
     if [ "x$HOST_OS" = "xWindows" ]; then
-        git config core.autocrlf false
+        git config --global core.autocrlf false
     fi
 }
 
