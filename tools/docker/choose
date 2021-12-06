@@ -19,14 +19,13 @@ OLD_LAB=$CURRENT
 config_casesensitive ()
 {
     # should enable case sensitive for ntfs filesystem
-    uname | grep -q MINGW && fsutil file SetCaseSensitiveInfo "$TOP_DIR" enable >/dev/null 2>&1
+    [ "x$HOST_OS" = "xWindows" ] && fsutil file SetCaseSensitiveInfo "$TOP_DIR" enable >/dev/null 2>&1
 }
 
 config_git ()
 {
     git config --global core.safecrlf true
-    uname | grep -q MINGW
-    if [ $? -eq 0 ]; then
+    if [ "x$HOST_OS" = "xWindows" ]; then
         git config core.autocrlf false
     fi
 }

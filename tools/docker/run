@@ -218,6 +218,14 @@ sleep 2
 
 do_unlock
 
+# Get Host ip for !Linux system (the ip address of the virtualbox machine)
+if [ "x$HOST_OS" = "xWindows" ]; then
+  if [ -z "$HOST" -o "x$HOST" = "xlocalhost" ]; then
+    HOST="`docker-machine ip default`"
+    [ $? -ne 0 ] && HOST="localhost"
+  fi
+fi
+
 # Save the lab's information (for restore the container for 'docker start')
 vars="$LAB_VARS"
 for var in $vars; do set_var $var; done

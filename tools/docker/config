@@ -8,8 +8,6 @@
 # debug with DEBUG=1
 [ x$DEBUG = x"1" ] && set -x
 
-uname | grep -q MINGW && WINPTY=winpty
-
 [ -z "$TOP_DIR" ] && TOP_DIR="$(cd "$(dirname "$0")"/../../ && pwd)"
 TOP_DIR="$(cd "$(dirname "$TOP_DIR"/null)" && pwd)"
 
@@ -25,7 +23,13 @@ UUID=$(echo "$TOP_DIR" | $DEF_ENCRYPT_CMD | cut -c 1-$DEF_UUID_LEN)
 HOST_USER=`whoami`
 [ "x$HOST_USER" = "xroot" -a -n "$SUDO_USER" ] && HOST_USER=$SUDO_USER
 
-HOST_OS=$(uname)
+uname | grep -q MINGW
+if [ $? -eq 0 ]; then
+  WINPTY="winpty"
+  HOST_OS="Windows"
+else
+  HOST_OS=$(uname)
+fi
 
 [ `id -u` -ne 0 ] && SUDO=sudo
 
@@ -239,7 +243,7 @@ do_unlock ()
 
 # Variables initialization from config file if exist
 
-LAB_VARS="CURRENT IMAGE ENVS CAPS DNS DEVICES LIMITS PORTMAP VOLUMEMAP BRANCH"
+LAB_VARS="HOST CURRENT IMAGE ENVS CAPS DNS DEVICES LIMITS PORTMAP VOLUMEMAP BRANCH"
 
 LAB_VARS="$LAB_VARS WEB_BROWSER HOST"
 LAB_VARS="$LAB_VARS CONTAINER_NAME CONTAINER_ID HOST HOST_NAME"
