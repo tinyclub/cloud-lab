@@ -23,12 +23,15 @@ UUID=$(echo "$TOP_DIR" | $DEF_ENCRYPT_CMD | cut -c 1-$DEF_UUID_LEN)
 HOST_USER=`whoami`
 [ "x$HOST_USER" = "xroot" -a -n "$SUDO_USER" ] && HOST_USER=$SUDO_USER
 
-uname | grep -q MINGW
-if [ $? -eq 0 ]; then
-  WINPTY="winpty"
-  HOST_OS="Windows"
-else
-  HOST_OS=$(uname)
+# HOST_OS must get from host machine
+if [ ! -n "$IN_CONTAINER" ]; then
+  uname | grep -q MINGW
+  if [ $? -eq 0 ]; then
+    WINPTY="winpty"
+    HOST_OS="Windows"
+  else
+    HOST_OS=$(uname)
+  fi
 fi
 
 [ `id -u` -ne 0 ] && SUDO=sudo
