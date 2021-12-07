@@ -218,13 +218,14 @@ EOF
 
     mkdir -p "$TOP_DIR"/tools/windows
 
+    # The url should be updated with the latest info every time
+    RUN_BAT="$TOP_DIR"/tools/windows/run.bat
+    WIN_CHROME="C:/Program\" \"Files\" \"(x86)/Google/Chrome/Application/chrome.exe"
+    echo "start $GIT_BASH -c '\"$WORK_DIR/tools/docker/run\" $LAB_NAME'" > "$RUN_BAT"
+    #echo "start $WIN_CHROME \"$CONTAINER_WEB_URL\"" >> "$RUN_BAT"
+
+
     if [ "x$LAB_DESKTOP_SHORTCUT" = "x1" -a ! -f "$LOCAL_DESKTOP_SHORTCUT" ]; then
-      RUN_BAT="$TOP_DIR"/tools/windows/run.bat
-
-      WIN_CHROME="C:/Program\" \"Files\" \"(x86)/Google/Chrome/Application/chrome.exe"
-      echo "start $GIT_BASH -c '\"$WORK_DIR/tools/docker/run\" $LAB_NAME'" > "$RUN_BAT"
-      echo "start $WIN_CHROME \"$CONTAINER_WEB_URL\"" >> "$RUN_BAT"
-
       # Ref: https://stackoverflow.com/questions/30028709/how-do-i-create-a-shortcut-via-command-line-in-windows
       LOCAL_DESKTOP_SHORTCUT="$DESKTOP_DIR/$(basename $LOCAL_DESKTOP_SHORTCUT)"
       winpty powershell "\$s=(New-Object -COM WScript.Shell).CreateShortcut('$LOCAL_DESKTOP_SHORTCUT');\$s.TargetPath='$TOOLS_DIR/run.bat';\$s.IconLocation='$CMD_ICON';\$s.Save()"
@@ -240,7 +241,7 @@ EOF
       winpty powershell "\$s=(New-Object -COM WScript.Shell).CreateShortcut('$MANAGE_DESKTOP_SHORTCUT');\$s.TargetPath='$TOOLS_DIR/manage.bat';\$s.IconLocation='$CMD_ICON';\$s.Save()"
     fi
 
-    [ ! -f "$BROWSE_DESKTOP_SHORTCUT" ] && cat <<EOF > "$BROWSE_DESKTOP_SHORTCUT"
+    cat <<EOF > "$BROWSE_DESKTOP_SHORTCUT"
 [InternetShortcut]
 URL="$LABS_WEB_URL"
 IconIndex=0
