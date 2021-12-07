@@ -26,7 +26,16 @@ which docker > /dev/null 2>&1 && exit 0
 if [ $? -eq 0 ]; then
     echo "LOG: Install docker-ce with $0"
 else
-    echo "LOG: Please install docker-ce with doc: https://docs.docker.com/install/"
+    echo
+    echo "Warning: Docker is missing, but it's required by Linux Lab, please prepare one:"
+    echo
+    echo "1. Install docker-ce with doc: https://docs.docker.com/install/, README.md or README_zh.md"
+    echo "2. Or get a preinstalled Linux Lab Disk from https://shop155917374.taobao.com/, it's ready to compile and boot a new linux kernel in 5 minutes."
+    echo
+    echo "Contact us via wechat: tinylab."
+    echo
+    echo "And free courses are available from: https://www.cctalk.com/m/group/88948325"
+    echo
     exit 1
 fi
 
