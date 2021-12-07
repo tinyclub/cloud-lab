@@ -28,8 +28,8 @@ fi
 
 if [ "x$HOST_OS" = "xWindows" ]; then
   # Share current working directory to virtualbox
-  hostpath="\\\\?\\$(cd $TOP_DIR | pwd -W | cut -d '/' -f1)\\"
-  sharedname="$(cd $TOP_DIR | pwd | cut -d '/' -f2)"
+  hostpath="\\\\?\\$(cd $TOP_DIR && pwd -W | cut -d '/' -f1)\\"
+  sharedname="$(cd $TOP_DIR && pwd | cut -d '/' -f2)"
   remotepath="/$sharedname"
 
   # Get path of vbvm
