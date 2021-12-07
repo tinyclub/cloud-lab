@@ -26,6 +26,45 @@ if [ $? -eq 0 ]; then
   fi
 fi
 
+if [ "x$HOST_OS" = "xWindows" ]; then
+  # Share current working directory to virtualbox
+  hostpath="\\\\?\\$(cd $TOP_DIR | pwd -W | cut -d '/' -f1)\\"
+  sharedname="$(cd $TOP_DIR | pwd | cut -d '/' -f2)"
+  remotepath="/$sharedname"
+
+  # Get path of vbvm
+  VBVM="/$(reg query HKEY_LOCAL_MACHINE\\SOFTWARE\\Oracle\\VirtualBox //v InstallDir | grep InstallDir | awk '{print substr($0, index($0,$3))}' | sed 's/\\/\//g' | sed 's/://')VBoxManage.exe"
+
+  if [ $? -eq 0 -a -n "$VBVM" -a -f "$VBVM" ]; then
+    "$VBVM" showvminfo default | grep -i -A10 "Shared folders" | grep -q "Name: '$sharedname', Host path:"
+    if [ $? -ne 0 ]; then
+      # Restart to let new added sharedfolder work
+      which docker-machine >/dev/null 2>&1
+      if [ $? -eq 0 ]; then
+        status=$(docker-machine status)
+        if [ "$status" = "Running" ]; then
+          docker-machine stop default >&2
+        fi
+      fi
+
+      #"$VBVM" sharedfolder remove default --name="$sharedname"
+      "$VBVM" sharedfolder add default --name="$sharedname" --hostpath="$hostpath" --automount --auto-mount-point="$remotepath"
+      #"$VBVM" setextradata default VBoxInternal2/SharedFoldersEnableSymlinksCreate/$sharedname 1
+
+      # Restart to let new added sharedfolder work
+      which docker-machine >/dev/null 2>&1
+      if [ $? -eq 0 ]; then
+        timeout -k 2 5 docker-machine start default >&2
+      fi
+    fi
+  else
+    echo "ERR: Can not find virtualbox, did you install it?" >&2
+    echo "ERR: If there is a virtualbox, please add '$hostpath' as sharedfolder for virtualbox and mount it as '$remotepath' as automount and permanently." >&2
+    exit 1
+  fi
+
+fi
+
 # Clean up old stopped containers if the saved environment has been cleaned up
 if [ ! -f "$LAB_CONTAINER_ID" ]; then
   for status in exited created
@@ -132,45 +171,6 @@ volumemap="$volumemap -v '/$LAB_DIR':'$LAB_WORKDIR'"
 volumemap="$volumemap -v '/$TOOL_DIR':'$TOOL_WORKDIR'"
 volumemap="$volumemap -v '/$CONFIG_DIR':'$CONFIG_WORKDIR'"
 limits=$LIMITS
-
-if [ "x$HOST_OS" = "xWindows" ]; then
-  # Share current working directory to virtualbox
-  hostpath="\\\\?\\$(cd $TOP_DIR | pwd -W | cut -d '/' -f1)\\"
-  sharedname="$(cd $TOP_DIR | pwd | cut -d '/' -f2)"
-  remotepath="/$sharedname"
-
-  # Get path of vbvm
-  VBVM="/$(reg query HKEY_LOCAL_MACHINE\\SOFTWARE\\Oracle\\VirtualBox //v InstallDir | grep InstallDir | awk '{print substr($0, index($0,$3))}' | sed 's/\\/\//g' | sed 's/://')VBoxManage.exe"
-
-  if [ $? -eq 0 -a -n "$VBVM" -a -f "$VBVM" ]; then
-    "$VBVM" showvminfo default | grep -i -A10 "Shared folders" | grep -q "Name: '$sharedname', Host path:"
-    if [ $? -ne 0 ]; then
-      # Restart to let new added sharedfolder work
-      which docker-machine >/dev/null 2>&1
-      if [ $? -eq 0 ]; then
-        status=$(docker-machine status)
-        if [ "$status" = "Running" ]; then
-          docker-machine stop default >&2
-        fi
-      fi
-
-      #"$VBVM" sharedfolder remove default --name="$sharedname"
-      "$VBVM" sharedfolder add default --name="$sharedname" --hostpath="$hostpath" --automount --auto-mount-point="$remotepath"
-      #"$VBVM" setextradata default VBoxInternal2/SharedFoldersEnableSymlinksCreate/$sharedname 1
-
-      # Restart to let new added sharedfolder work
-      which docker-machine >/dev/null 2>&1
-      if [ $? -eq 0 ]; then
-        timeout -k 2 5 docker-machine start default >&2
-      fi
-    fi
-  else
-    echo "ERR: Can not find virtualbox, did you install it?" >&2
-    echo "ERR: If there is a virtualbox, please add '$hostpath' as sharedfolder for virtualbox and mount it as '$remotepath' as automount and permanently." >&2
-    exit 1
-  fi
-
-fi
 
 # Get a new ip for our new container
 [ -z "$RANDOM_IP" ] && RANDOM_IP=1
