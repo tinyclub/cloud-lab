@@ -182,7 +182,7 @@ for var in $VARS; do
     # Available encrypt cmds: sha1sum, sha224sum, cksum, sha256sum, sha512sum, md5sum, sha384sum, sum
     value=$(eval echo \$${var})
     # Maximize the screen size of container, allow resize to what user want
-    if [ "$var" = "SCREEN_SIZE" ]; then
+    if [ "$var" = "SCREEN_SIZE" -a -n "$HOST_VIRTUAL" ]; then
         value=$MAX_SCREEN_SIZE
     fi
     echo "$var" | grep -q "_PWD"

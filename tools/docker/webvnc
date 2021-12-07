@@ -279,5 +279,4 @@ fi
 
 # Resize the screen
 [ -f /etc/environment.d/90linux-lab-disk.conf ] && . /etc/environment.d/90linux-lab-disk.conf
-[ "x$HOST_OS" = "xWindows" ] && SCREEN_RESIZE="fullscreen"
 [ -n "$SCREEN_RESIZE" ] && (sleep 0.5; "$DOCKER_RESIZE_CMD" $LAB_NAME $SCREEN_RESIZE >/dev/null 2>&1)&

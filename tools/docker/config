@@ -29,8 +29,14 @@ if [ ! -n "$IN_CONTAINER" ]; then
   if [ $? -eq 0 ]; then
     WINPTY="winpty"
     HOST_OS="Windows"
+    powershell "get-wmiobject win32_computersystem | fl model" | tr -d ' ' |  cut -d ':' -f2 | egrep -iq "vmware|virtualbox|qemu|virtual"
+    [ $? -eq 0 ] && HOST_VIRTUAL=1
   else
     HOST_OS=$(uname)
+    if [ "x$HOST_OS" = "xLinux" ]; then
+      cat /sys/class/dmi/id/{product_name,sys_vendor} | egrep -iq "vmware|virtualbox|qemu"
+      [ $? -eq 0 ] && HOST_VIRTUAL=1
+    fi
   fi
 fi
 
