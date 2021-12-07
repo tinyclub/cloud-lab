@@ -27,6 +27,8 @@ if [ $? -eq 0 ]; then
 fi
 
 if [ "x$HOST_OS" = "xWindows" ]; then
+ if [ -n "$DOCKER_TOOLBOX" -a -n "$DOCKER_MACHINE" ]; then
+
   # Share current working directory to virtualbox
   hostpath="\\\\?\\$(cd $TOP_DIR && pwd -W | cut -d '/' -f1)\\"
   sharedname="$(cd $TOP_DIR && pwd | cut -d '/' -f2)"
@@ -38,13 +40,8 @@ if [ "x$HOST_OS" = "xWindows" ]; then
     "$VBVM" showvminfo default | grep -i -A10 "Shared folders" | grep -q "Name: '$sharedname', Host path:"
     if [ $? -ne 0 ]; then
       # Restart to let new added sharedfolder work
-      which docker-machine >/dev/null 2>&1
-      if [ $? -eq 0 ]; then
-        status=$(docker-machine status)
-        if [ "$status" = "Running" ]; then
-          docker-machine stop default >&2
-        fi
-      fi
+      status=$(docker-machine status)
+      [ "$status" = "Running" ] && docker-machine stop default >&2
 
       # Add current working volume as sharedfolder and let it automount
       "$VBVM" sharedfolder add default --name="$sharedname" --hostpath="$hostpath" --automount
@@ -53,10 +50,7 @@ if [ "x$HOST_OS" = "xWindows" ]; then
       "$VBVM" setextradata default VBoxInternal2/SharedFoldersEnableSymlinksCreate/$sharedname 1
 
       # Restart to let new added sharedfolder work
-      which docker-machine >/dev/null 2>&1
-      if [ $? -eq 0 ]; then
-        timeout -k 2 5 docker-machine start default >&2
-      fi
+      timeout -k 2 5 docker-machine start default >&2
     fi
   else
     echo "ERR: Can not find virtualbox, did you install it?" >&2
@@ -64,6 +58,7 @@ if [ "x$HOST_OS" = "xWindows" ]; then
     exit 1
   fi
 
+ fi
 fi
 
 # Clean up old stopped containers if the saved environment has been cleaned up
@@ -260,8 +255,10 @@ do_unlock
 
 # Get Host ip for !Linux system (the ip address of the virtualbox machine)
 if [ "x$HOST_OS" = "xWindows" ]; then
-  HOST="`docker-machine ip default`"
-  [ $? -ne 0 ] && HOST="localhost"
+  if [ -n "$DOCKER_TOOLBOX" -a -n "$DOCKER_MACHINE" ]; then
+    HOST="`docker-machine ip default`"
+    [ $? -ne 0 ] && HOST="localhost"
+  fi
 fi
 
 # Save the lab's information (for restore the container for 'docker start')

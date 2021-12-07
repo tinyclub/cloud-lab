@@ -80,12 +80,17 @@ fi
 
 # Check docker service
 if [ "x$HOST_OS" = "xWindows" ]; then
+  which docker | grep -iq 'Docker Toolbox' >/dev/null 2>&1
+  [ $? -eq 0 ] && DOCKER_TOOLBOX=1
+
   which docker-machine >/dev/null 2>&1
-  if [ $? -eq 0 ]; then
+  [ $? -eq 0 ] && DOCKER_MACHINE=1
+
+  if [ -n "$DOCKER_MACHINE" -a -n "$DOCKER_TOOLBOX" ]; then
     # Prepare docker machine
     docker-machine ls | grep -q default
     if [ $? -ne 0 ]; then
-      echo "ERR: Please start docker service with 'Docker QuickStart Terminal'."
+      echo "ERR: Please start docker service with 'Docker QuickStart Terminal'." >&2
       exit 1
     fi
     status=$(docker-machine status)
