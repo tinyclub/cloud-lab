@@ -447,7 +447,9 @@ MAX_SCREEN_SIZE=$DEF_SCREEN_SIZE
 # 16:10: 640x480 800x480 1280x800 1440x900 1680x1050 1920x1200 2560x1600
 # 16:9: 960x540 1280x720 1920x1080 2560x1440
 if [ "x$HOST_OS" = "xWindows" ]; then
-  SCREEN_SIZE=$(wmic path Win32_VideoController get CurrentHorizontalResolution,CurrentVerticalResolution /format:value | sed -ne "s/.*=\([0-9]*\)/\1/gp" | tr '\r\n' 'x' | tr -s 'x' | cut -d'x' -f1-2 | tr -d '\r\n')
+  if [ -z "$SCREEN_SIZE" ]; then
+    SCREEN_SIZE=$(wmic path Win32_VideoController get CurrentHorizontalResolution,CurrentVerticalResolution /format:value | sed -ne "s/.*=\([0-9]*\)/\1/gp" | tr '\r\n' 'x' | tr -s 'x' | cut -d'x' -f1-2 | tr -d '\r\n')
+  fi
 else
   which xrandr >/dev/null 2>&1
   xrandr_exist=$?

@@ -56,6 +56,14 @@ if [ "$SCREEN_SIZE" = "auto" -o "$SCREEN_SIZE" = "fullscreen" ]; then
     SCREEN_SIZE=`xrandr --current 2>/dev/null | grep "^ [ 0-9]*x"  | grep "x$h" | tr -s ' ' | cut -d' ' -f2 | cut -d '_' -f1 | head -1 | tr -d -c '[0-9x]'`
   fi
 
+  which wmic >/dev/null 2>&1
+  if [ $? -eq 0 ]; then
+    if [ -z "$SCREEN_SIZE" ]; then
+      SCREEN_SIZE=$(wmic path Win32_VideoController get CurrentHorizontalResolution,CurrentVerticalResolution /format:value | sed -ne "s/.*=\([0-9]*\)/\1/gp" | tr '\r\n' 'x' | tr -s 'x' | cut -d'x' -f1-2 | tr -d '\r\n')
+      ret=$?
+    fi
+  fi
+
   if [ $ret -ne 0 -o "$SCREEN_SIZE" = "" ]; then
     echo "Usage: $0 screen_widthxscreen_height"
     echo "   ex. $0 1920x1080"
