@@ -30,7 +30,6 @@ if [ "x$HOST_OS" = "xWindows" ]; then
   # Share current working directory to virtualbox
   hostpath="\\\\?\\$(cd $TOP_DIR && pwd -W | cut -d '/' -f1)\\"
   sharedname="$(cd $TOP_DIR && pwd | cut -d '/' -f2)"
-  remotepath="/$sharedname"
 
   # Get path of vbvm
   VBVM="/$(reg query HKEY_LOCAL_MACHINE\\SOFTWARE\\Oracle\\VirtualBox //v InstallDir | grep InstallDir | awk '{print substr($0, index($0,$3))}' | sed 's/\\/\//g' | sed 's/://')VBoxManage.exe"
@@ -47,9 +46,11 @@ if [ "x$HOST_OS" = "xWindows" ]; then
         fi
       fi
 
-      #"$VBVM" sharedfolder remove default --name="$sharedname"
-      "$VBVM" sharedfolder add default --name="$sharedname" --hostpath="$hostpath" --automount --auto-mount-point="$remotepath"
-      #"$VBVM" setextradata default VBoxInternal2/SharedFoldersEnableSymlinksCreate/$sharedname 1
+      # Add current working volume as sharedfolder and let it automount
+      "$VBVM" sharedfolder add default --name="$sharedname" --hostpath="$hostpath" --automount
+
+      # Enable symlink
+      "$VBVM" setextradata default VBoxInternal2/SharedFoldersEnableSymlinksCreate/$sharedname 1
 
       # Restart to let new added sharedfolder work
       which docker-machine >/dev/null 2>&1
