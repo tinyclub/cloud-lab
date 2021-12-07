@@ -221,8 +221,8 @@ EOF
     # The url should be updated with the latest info every time
     RUN_BAT="$TOP_DIR"/tools/windows/run.bat
     WIN_CHROME="C:/Program\" \"Files\" \"(x86)/Google/Chrome/Application/chrome.exe"
-    echo "start $GIT_BASH -c '\"$WORK_DIR/tools/docker/run\" $LAB_NAME'" > "$RUN_BAT"
-    #echo "start $WIN_CHROME \"$CONTAINER_WEB_URL\"" >> "$RUN_BAT"
+    echo "start /wait $GIT_BASH -c '\"$WORK_DIR/tools/docker/run\" $LAB_NAME'" > "$RUN_BAT"
+    echo "start $WIN_CHROME \"$CONTAINER_WEB_URL\"" >> "$RUN_BAT"
 
 
     if [ "x$LAB_DESKTOP_SHORTCUT" = "x1" -a ! -f "$LOCAL_DESKTOP_SHORTCUT" ]; then
