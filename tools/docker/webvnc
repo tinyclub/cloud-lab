@@ -211,7 +211,7 @@ EOF
   else # Windows
 
     GIT_BASH="$(cd / && pwd -W | sed -e 's% %\" \"%g')/git-bash.exe"
-    WORK_DIR="$(cd $TOP_DIR && pwd -W | sed -e 's% %\" \"%g')"
+    WORK_DIR="$(cd "$TOP_DIR" && pwd -W)"
     DESKTOP_DIR="$(cd ~/Desktop && pwd -W)"
     CMD_ICON="$(cd /c/Windows/System32/ && pwd -W)/cmd.exe"
     TOOLS_DIR="$WORK_DIR"/tools/windows
