@@ -274,7 +274,7 @@ if [ "x$HOST_OS" = "xDarwin" ]; then
 elif [ "x$HOST_OS" = "xLinux" ]; then
   (eval nohup "'$__WEB_BROWSER'" "'$CONTAINER_WEB_URL'" >/dev/null 2>&1 &)>/dev/null 2>&1
 else
-  "$__WEB_BROWSER" "$CONTAINER_WEB_URL"
+  start "$__WEB_BROWSER" "$CONTAINER_WEB_URL"
 fi
 
 # Resize the screen
