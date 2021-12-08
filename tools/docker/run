@@ -29,14 +29,20 @@ fi
 if [ "x$HOST_OS" = "xWindows" ]; then
  if [ -n "$DOCKER_TOOLBOX" -a -n "$DOCKER_MACHINE" ]; then
 
-  # Share current working directory to virtualbox
-  hostpath="\\\\?\\$(cd $TOP_DIR && pwd -W | cut -d '/' -f1)\\"
-  sharedname="$(cd $TOP_DIR && pwd | cut -d '/' -f2)"
-
   # Get path of vbvm
-  VBVM="/$(reg query HKEY_LOCAL_MACHINE\\SOFTWARE\\Oracle\\VirtualBox //v InstallDir | grep InstallDir | awk '{print substr($0, index($0,$3))}' | sed 's/\\/\//g' | sed 's/://')VBoxManage.exe"
+  if [ -n "$VBOX_MSI_INSTALL_PATH" ]; then
+    VBOX="$VBOX_MSI_INSTALL_PATH"
+  else
+    VBOX="$(reg query HKEY_LOCAL_MACHINE\\SOFTWARE\\Oracle\\VirtualBox //v InstallDir | grep InstallDir | awk '{print substr($0, index($0,$3))}')"
+  fi
+  VBVM="/$(echo $VBOX | sed 's/\\/\//g' | sed 's/://')VBoxManage.exe"
 
-  if [ $? -eq 0 -a -n "$VBVM" -a -f "$VBVM" ]; then
+  if [ -f "$VBVM" ]; then
+
+    # Share current working directory to virtualbox
+    hostpath="\\\\?\\$(cd "$TOP_DIR" && pwd -W | cut -d '/' -f1)\\"
+    sharedname="$(cd "$TOP_DIR" && pwd | cut -d '/' -f2)"
+
     "$VBVM" showvminfo default | grep -i -A10 "Shared folders" | grep -q "Name: '$sharedname', Host path:"
     if [ $? -ne 0 ]; then
       # Restart to let new added sharedfolder work
@@ -46,7 +52,7 @@ if [ "x$HOST_OS" = "xWindows" ]; then
       # Add current working volume as sharedfolder and let it automount
       "$VBVM" sharedfolder add default --name="$sharedname" --hostpath="$hostpath" --automount
 
-      # Enable symlink
+      # Enable symlink, still need to set with secpol.msc (may missing, require to run tools/windows/gpedit-enabler.bat as administrator)
       "$VBVM" setextradata default VBoxInternal2/SharedFoldersEnableSymlinksCreate/$sharedname 1
 
       # Restart to let new added sharedfolder work
