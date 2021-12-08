@@ -34,8 +34,13 @@ if [ ! -n "$IN_CONTAINER" ]; then
   else
     HOST_OS=$(uname)
     if [ "x$HOST_OS" = "xLinux" ]; then
-      cat /sys/class/dmi/id/{product_name,sys_vendor} | egrep -iq "vmware|virtualbox|qemu"
-      [ $? -eq 0 ] && HOST_VIRTUAL=1
+      for t in product_name sys_vendor
+      do
+	if [ -f /sys/class/dmi/id/$t ]; then
+          cat /sys/class/dmi/id/$t | egrep -iq "vmware|virtualbox|qemu"
+          [ $? -eq 0 ] && HOST_VIRTUAL=1 && break
+        fi
+      done
     fi
   fi
 fi
