@@ -37,4 +37,8 @@ if [ -f "$LOCAL_TOKEN_MAP" -a -f "$REMOTE_TOKEN_MAP" -a "$LOCAL_TOKEN_DIR" != "/
   rm -rf "$LOCAL_TOKEN_DIR"
 fi
 
+rm -rf "$LAB_LOGIN"
+rm -rf "$LAB_VNC"
+rm -rf "$LAB_HOST"
+
 "$DOCKER_RELEASE_CMD" all >/dev/null 2>&1
