@@ -192,6 +192,20 @@ else
   [ $UNIX_IDENTIFY -eq 1 ] && passwd -u $UNIX_USER
 fi
 
+# update owner for the mapped volumes
+volumes="$GIT_WORKDIR $LAB_WORKDIR $TOOL_WORKDIR $CONFIG_WORKDIR"
+UNIX_GID=`id -g $UNIX_USER`
+for v in $volumes
+do
+  user=$(stat -c '%U' $v)
+  if [ "$user" != "$UNIX_USER" ]; then
+    uid=$(stat -c '%u' $v)
+    if [ "$uid" != "$UNIX_UID" ]; then
+      (eval nohup chown $UNIX_UID:$UNIX_GID -R $v >/dev/null 2>&1 &)>/dev/null 2>&1
+    fi
+  fi
+done
+
 # create potential missing loop devices for some systems
 if [ ! -b /dev/loop7 ]; then
   max_loop=$(cat /proc/cmdline | tr " " "\n" | grep max_loop | cut -d '=' -f2)
