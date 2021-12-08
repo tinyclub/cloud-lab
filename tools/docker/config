@@ -1092,18 +1092,8 @@ create_cloud_lab_net ()
 # Create cloud lab subnet
 if [ ! -n "$IN_CONTAINER" ]; then
   if [ "x$HOST_OS" = "xWindows" ]; then
-    sc query com.docker.service | grep -q RUNNING >/dev/null 2>&1
+    docker ps >/dev/null 2>&1
     docker_exists_code=$?
-    if [ $docker_exists_code -ne 0 ]; then
-      if [ -n "$DOCKER_MACHINE" ]; then
-        status=$(docker-machine status default 2>/dev/null)
-        if [ "$status" != "Running" ]; then
-          docker_exists_code=1
-	else
-          docker_exists_code=0
-	fi
-      fi
-    fi
   else
     docker info >/dev/null 2>&1
     docker_exists_code=$?
