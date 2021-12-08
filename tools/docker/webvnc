@@ -221,9 +221,7 @@ EOF
     # The url should be updated with the latest info every time
     RUN_BAT="$TOP_DIR"/tools/windows/run.bat
     WIN_CHROME="C:/Program\" \"Files\" \"(x86)/Google/Chrome/Application/chrome.exe"
-    echo "start /wait $GIT_BASH -c '\"$WORK_DIR/tools/docker/run\" $LAB_NAME'" > "$RUN_BAT"
-    echo "start $WIN_CHROME \"$CONTAINER_WEB_URL\"" >> "$RUN_BAT"
-
+    echo "start $GIT_BASH -c '\"$WORK_DIR/tools/docker/run\" $LAB_NAME'" > "$RUN_BAT"
 
     if [ "x$LAB_DESKTOP_SHORTCUT" = "x1" -a ! -f "$LOCAL_DESKTOP_SHORTCUT" ]; then
       # Ref: https://stackoverflow.com/questions/30028709/how-do-i-create-a-shortcut-via-command-line-in-windows
@@ -273,8 +271,10 @@ fi
 
 if [ "x$HOST_OS" = "xDarwin" ]; then
   (eval "$__WEB_BROWSER" '$CONTAINER_WEB_URL' >/dev/null 2>&1 &)>/dev/null 2>&1
-else
+elif [ "x$HOST_OS" = "xLinux" ]; then
   (eval nohup "'$__WEB_BROWSER'" "'$CONTAINER_WEB_URL'" >/dev/null 2>&1 &)>/dev/null 2>&1
+else
+  "$__WEB_BROWSER" "$CONTAINER_WEB_URL"
 fi
 
 # Resize the screen
