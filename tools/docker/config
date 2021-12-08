@@ -455,7 +455,7 @@ DEF_UID=1000
 
 ## screen size
 DEF_SCREEN_SIZE=1280x720
-MAX_SCREEN_SIZE=$DEF_SCREEN_SIZE
+MAX_SCREEN_SIZE=1920x1080
 
 # 16:10: 640x480 800x480 1280x800 1440x900 1680x1050 1920x1200 2560x1600
 # 16:9: 960x540 1280x720 1920x1080 2560x1440
@@ -480,6 +480,11 @@ else
       SCREEN_SIZE=`xrandr --current 2>/dev/null | grep "^ [ 0-9]*x"  | grep "x$h" | tr -s ' ' | cut -d' ' -f2 | cut -d '_' -f1 | head -1 | tr -d -c '[0-9x]'`
     fi
   fi
+fi
+
+# Get the real maximum screen size
+if [ $(($(echo "$SCREN_SIZE" | tr 'x' '*'))) -gt $(($(echo "$MAX_SCREEN_SIZE" | tr 'x' '*'))) ]; then
+  MAX_SCREEN_SIZE=$SCREEN_SIZE
 fi
 
 [ -z "$SCREEN_SIZE" ] && SCREEN_SIZE=$DEF_SCREEN_SIZE
