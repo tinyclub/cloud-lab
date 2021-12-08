@@ -2,6 +2,6 @@
 Encoding=UTF-8
 Name=Linux Lab
 Comment=A Friendly Lab for Linux Learning
-Exec=/usr/bin/terminator --working-directory=/labs/linux-lab/ -T "Linux Lab"
+Exec=/usr/bin/qterminal --workdir /labs/linux-lab/ --title "Linux Lab"
 Icon=/configs/lab-logo.png
 Type=Application
