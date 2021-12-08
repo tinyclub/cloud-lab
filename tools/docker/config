@@ -96,8 +96,7 @@ if [ "x$HOST_OS" = "xWindows" ]; then
     # Prepare docker machine
     docker-machine ls | grep -q default
     if [ $? -ne 0 ]; then
-      echo "ERR: Please start docker service with 'Docker QuickStart Terminal'." >&2
-      exit 1
+      docker-machine create -d virtualbox default
     fi
     status=$(docker-machine status)
     if [ "$status" != "Running" ]; then
