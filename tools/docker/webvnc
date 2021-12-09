@@ -220,7 +220,6 @@ EOF
 
     # The url should be updated with the latest info every time
     RUN_BAT="$TOP_DIR"/tools/windows/run.bat
-    WIN_CHROME="C:/Program\" \"Files\" \"(x86)/Google/Chrome/Application/chrome.exe"
     echo "start $GIT_BASH -c '\"$WORK_DIR/tools/docker/run\" $LAB_NAME'" > "$RUN_BAT"
 
     if [ "x$LAB_DESKTOP_SHORTCUT" = "x1" -a ! -f "$LOCAL_DESKTOP_SHORTCUT" ]; then
@@ -239,11 +238,16 @@ EOF
       winpty powershell "\$s=(New-Object -COM WScript.Shell).CreateShortcut('$MANAGE_DESKTOP_SHORTCUT');\$s.TargetPath='$TOOLS_DIR/manage.bat';\$s.IconLocation='$CMD_ICON';\$s.Save()"
     fi
 
-    cat <<EOF > "$BROWSE_DESKTOP_SHORTCUT"
-[InternetShortcut]
-URL="$LABS_WEB_URL"
-IconIndex=0
-EOF
+    if [ ! -f "$BROWSE_DESKTOP_SHORTCUT" ]; then
+      BROWSE_BAT="$TOP_DIR"/tools/windows/browse.bat
+      BROWSE_CMD="$(cd "$(dirname "$__WEB_BROWSER")" && pwd -W | sed -e 's% %\" \"%g')/$(basename "$__WEB_BROWSER")"
+      BROWSE_ICON="$(echo $BROWSE_CMD | tr -d '\"')"
+
+      echo "start $BROWSE_CMD \"$LABS_WEB_URL\"" > "$BROWSE_BAT"
+
+      BROWSE_DESKTOP_SHORTCUT="$DESKTOP_DIR/$(basename $BROWSE_DESKTOP_SHORTCUT)"
+      winpty powershell "\$s=(New-Object -COM WScript.Shell).CreateShortcut('$BROWSE_DESKTOP_SHORTCUT');\$s.TargetPath='$TOOLS_DIR/browse.bat';\$s.IconLocation='$BROWSE_ICON';\$s.Save()"
+    fi
 
   fi
 fi
@@ -271,10 +275,8 @@ fi
 
 if [ "x$HOST_OS" = "xDarwin" ]; then
   (eval "$__WEB_BROWSER" '$CONTAINER_WEB_URL' >/dev/null 2>&1 &)>/dev/null 2>&1
-elif [ "x$HOST_OS" = "xLinux" ]; then
-  (eval nohup "'$__WEB_BROWSER'" "'$CONTAINER_WEB_URL'" >/dev/null 2>&1 &)>/dev/null 2>&1
 else
-  start "$__WEB_BROWSER" "$CONTAINER_WEB_URL"
+  (eval nohup "'$__WEB_BROWSER'" "'$CONTAINER_WEB_URL'" >/dev/null 2>&1 &)>/dev/null 2>&1
 fi
 
 # Resize the screen

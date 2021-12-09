@@ -516,7 +516,7 @@ elif [ "x$HOST_OS" = "xLinux" ]; then
 else
   LOCAL_DESKTOP_SHORTCUT=~/Desktop/${LAB_NAME}.lnk
   MANAGE_DESKTOP_SHORTCUT=~/Desktop/lab-manager.lnk
-  BROWSE_DESKTOP_SHORTCUT=~/Desktop/lab-browser.url
+  BROWSE_DESKTOP_SHORTCUT=~/Desktop/lab-browser.lnk
 fi
 
 
@@ -552,7 +552,7 @@ get_var () #VAR #defval
     eval `eval echo \\$VAR='$var_value'`
     var_value="`eval echo '$'${VAR}`"
   fi
-  [ -z "$var_value" ] && eval `eval echo \\$VAR=$defval`
+  [ -z "$var_value" ] && eval `eval echo \\$VAR='$defval'`
 
   #echo `eval echo "LOG: GET: $VAR=\\$${VAR}"` >&2
 }
@@ -639,7 +639,8 @@ get_browser ()
   local linux_chrome=chromium-browser
   local linux_firefox=firefox
   local deepin_browser=browser
-  local win_chrome='/c/Program\ Files\ \(x86\)/Google/Chrome/Application/chrome.exe'
+  local win_firefox='/c/Program Files/Mozilla Firefox/firefox.exe'
+  local win_chrome='/c/Program Files (x86)/Google/Chrome/Application/chrome.exe'
   local win_edge=start
 
   local DEF_WEB_BROWSER=firefox
@@ -653,7 +654,10 @@ get_browser ()
       which $b >/dev/null 2>&1 && DEF_WEB_BROWSER=$b && break
     done
   else
-    DEF_WEB_BROWSER=$win_chrome
+    for b in "$win_chrome" "$win_firefox" "$win_edge"
+    do
+      which "$b" >/dev/null 2>&1 && DEF_WEB_BROWSER="$b" && break
+    done
   fi
 
   do_unlock
@@ -691,7 +695,7 @@ get_browser ()
         exit 1
       else
         echo "LOG: No "$WEB_BROWSER" found, try edge instead."
-        WEB_BROWSER=$win_edge
+        WEB_BROWSER="$win_edge"
         which "$WEB_BROWSER" >/dev/null 2>&1
         [ $? -eq 1 ] && echo "ERR: No "$WEB_BROWSER" found too." && exit 2
       fi
