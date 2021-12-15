@@ -6,13 +6,13 @@
 #
 
 TOP_DIR="$(cd "$(dirname "$0")"/../../ && pwd)"
-. "$TOP_DIR"/tools/docker/config $* >/dev/null
+. "$TOP_DIR"/tools/docker/config >/dev/null
 
 if [ -z "$TAG" ]; then
   TAG=local-$(date +"%Y%m%d%H%M%S")
 fi
 
-IMAGE=$LAB_USER/$CURRENT:$TAG
+IMAGE=`get_lab_user`/$CURRENT:$TAG
 
 do_op "docker commit" CONTAINER_NAME "$IMAGE"
 

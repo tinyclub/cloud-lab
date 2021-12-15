@@ -6,7 +6,28 @@
 #
 
 TOP_DIR="$(cd "$(dirname "$0")"/../../ && pwd)"
-. "$TOP_DIR"/tools/docker/config $* >/dev/null
+. "$TOP_DIR"/tools/docker/config >/dev/null
+
+[ -z "$LAB_DESKTOP_SHORTCUT" ] && LAB_DESKTOP_SHORTCUT=1
+if [ "x$HOST_OS" = "xDarwin" ]; then
+  LOCAL_DESKTOP_SHORTCUT=~/Desktop/${LAB_NAME}.command
+  MANAGE_DESKTOP_SHORTCUT=~/Desktop/lab-manager.command
+  BROWSE_DESKTOP_SHORTCUT=~/Desktop/lab-browser.command
+elif [ "x$HOST_OS" = "xLinux" ]; then
+  LOCAL_DESKTOP_SHORTCUT=~/Desktop/${LAB_NAME}.desktop
+  MANAGE_DESKTOP_SHORTCUT=~/Desktop/lab-manager.desktop
+  BROWSE_DESKTOP_SHORTCUT=~/Desktop/lab-browser.desktop
+else
+  LOCAL_DESKTOP_SHORTCUT=~/Desktop/${LAB_NAME}.lnk
+  MANAGE_DESKTOP_SHORTCUT=~/Desktop/lab-manager.lnk
+  BROWSE_DESKTOP_SHORTCUT=~/Desktop/lab-browser.lnk
+fi
+
+
+[ -d "$CONFIG_SYSTEM_DIR" ] \
+  && REMOTE_DESKTOP_SHORTCUT="`find "$CONFIG_SYSTEM_DIR" -maxdepth 4 -name "lab.desktop"`"
+
+get_vars HOST VNC_IP VNC_TOKEN VNC_PWD VNC_PWD_VIEWONLY
 
 # lab info
 show_lab()
@@ -39,11 +60,13 @@ echo
 if [ "x$HOST_OS" = "xLinux" ]; then
   ps -eo args | grep -v grep | grep -q "sshpass"
   if [ $? -eq 0 ]; then
+    [ -z "$REMOTE_TOKEN_MAP" ] && prepare_export_files
+
     # Get across access address
     VNC_TOKEN_ACROSS=$(sed -ne "`echo $VNC_IP | cut -d '.' -f4`p" $REMOTE_TOKEN_MAP | cut -d ':' -f1)
     ACROSSHOST=$(ps -eo args | grep -v grep | grep "sshpass"  | head -1 | sed -e "s/.*ubuntu@\([^ ]*\) .*/\1/g")
-    HOST_WEB_URL_ACROSS="$(echo "$HOST_WEB_URL" | sed -e "s%$VNC_TOKEN%$VNC_TOKEN_ACROSS%g;s%localhost%$ACROSSHOST%g")"
-    HOST_WEB_URL_VIEWONLY_ACROSS="$(echo "$HOST_WEB_URL_VIEWONLY" | sed -e "s%$VNC_TOKEN%$VNC_TOKEN_ACROSS%g;s%localhost%$ACROSSHOST%g")"
+    HOST_WEB_URL_ACROSS="$(echo "$HOST_WEB_URL" | sed -e "s%$VNC_TOKEN%$VNC_TOKEN_ACROSS%g;s%$HOST%$ACROSSHOST%g")"
+    HOST_WEB_URL_VIEWONLY_ACROSS="$(echo "$HOST_WEB_URL_VIEWONLY" | sed -e "s%$VNC_TOKEN%$VNC_TOKEN_ACROSS%g;s%$HOST%$ACROSSHOST%g")"
 
     echo
     echo "Across URL:"
@@ -54,24 +77,12 @@ if [ "x$HOST_OS" = "xLinux" ]; then
   fi
 fi
 
-if [ -n "$LOCALHOST" ]; then
-    # Get external access address
-    _HOST_WEB_URL="$(echo "$HOST_WEB_URL" | sed -e "s%localhost%$LOCALHOST%g")"
-    _HOST_WEB_URL_VIEWONLY="$(echo "$HOST_WEB_URL_VIEWONLY" | sed -e "s%localhost%$LOCALHOST%g")"
-
-    echo "Remote URL:"
-    echo
-    echo "  * Normal: $_HOST_WEB_URL"
-    echo "  *   View: $_HOST_WEB_URL_VIEWONLY"
-    echo
-else
-    echo "Note: Please make sure this lab network is connectable outside,"
-    echo "      If so, use external ip or domain name instead of 'localhost':"
-    echo
-    echo "      $ echo \$ip > $LAB_HOST"
-    echo "      Or"
-    echo "      $ echo \$domain_name > $LAB_HOST"
-fi
+echo "Note: Please make sure this lab network is connectable outside,"
+echo "      If so, use external ip or domain name instead of 'localhost':"
+echo
+echo "      $ echo \$ip > $LAB_HOST"
+echo "      Or"
+echo "      $ echo \$domain_name > $LAB_HOST"
 
 echo
 echo "Note: firefox, safari and edge work, but google chrome web browser is preferable."
@@ -79,26 +90,19 @@ echo
 }
 
 # Check status
-docker ps -f name=$CONTAINER_NAME | grep -qv PORTS
-[ $? -ne 0 ] && echo "LOG: $LAB_NAME is not running." && exit 1
+lab_id=$(docker ps -f name=$CONTAINER_NAME -f status=running)
+[ -z "$lab_id" ] && echo "LOG: $LAB_NAME is not running." && exit 1
 
 # Enable autoconnect by default
 [ -z "$VNC_AUTOCONNECT" ] && VNC_AUTOCONNECT=1
 
-# Get vnc page
-CONTAINER_WEB_URL="$WEB_HTTP://localhost:${HOST_VNC_PORT}/?u=$VNC_TOKEN&p=$VNC_PWD"
-HOST_WEB_URL="$WEB_HTTP://${HOST}:${HOST_VNC_PORT}/?u=$VNC_TOKEN&p=$VNC_PWD"
-HOST_WEB_URL_VIEWONLY="$WEB_HTTP://${HOST}:${HOST_VNC_PORT}/?r=${VNC_TOKEN}${VNC_PWD_VIEWONLY}"
-
-if [ "x$HOST" != "xlocalhost" ]; then
-  CONTAINER_WEB_URL="$HOST_WEB_URL"
-  LABS_WEB_URL="$WEB_HTTP://${HOST}:${HOST_VNC_PORT}/labs/$RELEASE_HTML"
-else
-  LABS_WEB_URL="$WEB_HTTP://localhost:${HOST_VNC_PORT}/labs/$RELEASE_HTML"
-fi
-
 [ $VNC_AUTOCONNECT -eq 1 ] && \
-  CONTAINER_WEB_URL="$CONTAINER_WEB_URL&autoconnect=1"
+  AUTOCONNECT="&autoconnect=1"
+
+# Get vnc page
+HOST_WEB_URL="$WEB_HTTP://${HOST}:${HOST_VNC_PORT}/?u=$VNC_TOKEN&p=$VNC_PWD$AUTOCONNECT"
+HOST_WEB_URL_VIEWONLY="$WEB_HTTP://${HOST}:${HOST_VNC_PORT}/?r=${VNC_TOKEN}${VNC_PWD_VIEWONLY}"
+LABS_WEB_URL="$WEB_HTTP://${HOST}:${HOST_VNC_PORT}/labs/$RELEASE_HTML"
 
 # Show lab info
 show_lab
@@ -274,9 +278,9 @@ fi
 [ `id -u` -eq 0 ] && echo "ERR: Web browsers can not run as root user, please run as normal user." && exit 1
 
 if [ "x$HOST_OS" = "xDarwin" ]; then
-  (eval "$__WEB_BROWSER" '$CONTAINER_WEB_URL' >/dev/null 2>&1 &)>/dev/null 2>&1
+  (eval "$__WEB_BROWSER" '$HOST_WEB_URL' >/dev/null 2>&1 &)>/dev/null 2>&1
 else
-  (eval nohup "'$__WEB_BROWSER'" "'$CONTAINER_WEB_URL'" >/dev/null 2>&1 &)>/dev/null 2>&1
+  (eval nohup "'$__WEB_BROWSER'" "'$HOST_WEB_URL'" >/dev/null 2>&1 &)>/dev/null 2>&1
 fi
 
 # Resize the screen

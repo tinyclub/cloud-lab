@@ -6,7 +6,7 @@
 #
 
 TOP_DIR="$(cd "$(dirname "$0")"/../../ && pwd)"
-. "$TOP_DIR"/tools/docker/config $* >/dev/null 2>&1
+. "$TOP_DIR"/tools/docker/config >/dev/null 2>&1
 
 filter=$1
 [ -n "$2" ] && filter=$2
@@ -31,7 +31,7 @@ for lab in $labs
 do
   current="$lab"
   unset UNIX_USER UNIX_PWD VNC_PWD VNC_PWD_VIEWONLY CONTAINER_NAME VNC_IP VNC_TOKEN
-  . "$TOP_DIR"/tools/docker/config >/dev/null 2>&1
+  . "$TOP_DIR"/tools/docker/config>/dev/null 2>&1
 
   echo "$TOP_DIR" | grep -q "/$lab-"
   [ $? -eq 0 ] && lab_life="`get_lab_life "$TOP_DIR"`"
@@ -39,8 +39,8 @@ do
   # Ignore the containers not running
   [ -z "$CONTAINER_NAME" ] && continue
 
-  docker ps -f name=$CONTAINER_NAME | grep -qv PORTS
-  [ $? -ne 0 ] && continue
+  lab_id=$(docker ps -f name=$CONTAINER_NAME -f status=running -q)
+  [ -z "$lab_id" ] && continue
 
   start_time=`docker inspect $CONTAINER_NAME --format '{{.Created}}'`
   if [ "x$HOST_OS" = "xLinux" ]; then
@@ -49,6 +49,8 @@ do
     lab_start=`docker exec $CONTAINER_NAME //bin/bash -c "date '+%Y%m%d %H:%M:%S' --date $start_time"`
   fi
   lab_end=`get_endtime "$lab_start" $lab_life`
+
+  get_vars UNIX_USER UNIX_PWD VNC_PWD VNC_PWD_VIEWONLY CONTAINER_NAME VNC_IP VNC_TOKEN
   echo $lab $UNIX_USER $HOST $HOST_VNC_PORT $VNC_TOKEN $VNC_PWD $VNC_PWD_VIEWONLY $VNC_IP $HOST_WEBSSH_PORT $UNIX_PWD $CONTAINER_NAME \
 	$lab_life $lab_start $lab_end
 

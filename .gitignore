@@ -1,5 +1,6 @@
 output
 .host_name
+.host_os
 recordings
 releasings
 .vnc-tokens

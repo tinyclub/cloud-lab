@@ -12,19 +12,16 @@ read -p 'This command is dangerous, are you sure? (Yes/No) ' sure
 [ "x$sure" != 'xyes' -a "x$sure" != 'xY' -a "x$sure" != 'xy' -a "x$sure" != 'xYES' ] && exit 0
 
 TOP_DIR="$(cd "$(dirname "$0")"/../../ && pwd)"
-. "$TOP_DIR"/tools/docker/config $* >/dev/null
+. "$TOP_DIR"/tools/docker/config >/dev/null
 
-for lab in $LABS
+for lab in `get_labs`
 do
   current=$lab
   unset CONTAINER_NAME
-  . "$TOP_DIR"/tools/docker/config >/dev/null 2>&1
+  . "$TOP_DIR"/tools/docker/config>/dev/null 2>&1
 
   # Ignore the containers not exists
   [ -z "$CONTAINER_NAME" ] && continue
-
-  #docker ps -f name=$CONTAINER_NAME | grep -qv PORTS
-  #[ $? -ne 0 ] && continue
 
   "$DOCKER_CLEAN_CMD" $lab
 
@@ -33,6 +30,7 @@ done
 "$DOCKER_RM_ALL_CMD"
 
 # clean up the ip:token mappings for webvnc
+[ -z "$LOCAL_TOKEN_MAP" -o "$REMOTE_TOKEN_MAP" ] && prepare_export_files
 if [ -f "$LOCAL_TOKEN_MAP" -a -f "$REMOTE_TOKEN_MAP" -a "$LOCAL_TOKEN_DIR" != "/" ]; then
   rm -rf "$LOCAL_TOKEN_DIR"
 fi

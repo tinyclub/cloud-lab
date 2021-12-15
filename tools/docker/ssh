@@ -6,7 +6,9 @@
 #
 
 TOP_DIR="$(cd "$(dirname "$0")"/../../ && pwd)"
-. "$TOP_DIR"/tools/docker/config $* >/dev/null
+. "$TOP_DIR"/tools/docker/config >/dev/null
+
+get_vars UNIX_PWD UNIX_USER VNC_IP
 
 which sshpass >/dev/null 2>&1
 [ $? -eq 0 ] && SSH_PASS="sshpass -p '$UNIX_PWD'"

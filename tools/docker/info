@@ -6,11 +6,13 @@
 #
 
 TOP_DIR="$(cd "$(dirname "$0")"/../../ && pwd)"
-. "$TOP_DIR"/tools/docker/config $* >/dev/null
+. "$TOP_DIR"/tools/docker/config >/dev/null
 
 # Check status
-docker ps -f name=$CONTAINER_NAME | grep -qv PORTS
-[ $? -ne 0 ] && echo "LOG: $LAB_NAME is not running." && exit 1
+lab_id=$(docker ps -f name=$CONTAINER_NAME -f status=running -q)
+[ -z "$lab_id" ] && echo "LOG: $LAB_NAME is not running." && exit 1
+
+get_vars VNC_IP VNC_TOKEN VNC_PWD VNC_PWD_VIEWONLY UNIX_USER UNIX_PWD
 
 echo
 echo "IP: $VNC_IP"

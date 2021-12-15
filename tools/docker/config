@@ -6,123 +6,12 @@
 #
 
 # debug with DEBUG=1
-[ x$DEBUG = x"1" ] && set -x
+[ "x$DEBUG" = x"1" ] && set -x
 
 [ -z "$TOP_DIR" ] && TOP_DIR="$(cd "$(dirname "$0")"/../../ && pwd)"
 TOP_DIR="$(cd "$(dirname "$TOP_DIR"/null)" && pwd)"
 
-## default encrypt command: use shasum instead of md5sum
-which shasum >/dev/null 2>&1 && DEF_ENCRYPT_CMD=shasum
-which sha1sum >/dev/null 2>&1 && DEF_ENCRYPT_CMD=sha1sum
-
-# uuid for unique Namespace
-DEF_UUID_LEN=6
-UUID=$(echo "$TOP_DIR" | $DEF_ENCRYPT_CMD | cut -c 1-$DEF_UUID_LEN)
-
-# Basic variables
-HOST_USER=`whoami`
-[ "x$HOST_USER" = "xroot" -a -n "$SUDO_USER" ] && HOST_USER=$SUDO_USER
-
-# HOST_OS must get from host machine
-if [ ! -n "$IN_CONTAINER" ]; then
-  uname | grep -q MINGW
-  if [ $? -eq 0 ]; then
-    WINPTY="winpty"
-    HOST_OS="Windows"
-    powershell "get-wmiobject win32_computersystem | fl model" | tr -d ' ' |  cut -d ':' -f2 | egrep -iq "vmware|virtualbox|qemu|virtual"
-    [ $? -eq 0 ] && HOST_VIRTUAL=1
-  else
-    HOST_OS=$(uname)
-    if [ "x$HOST_OS" = "xLinux" ]; then
-      for t in product_name sys_vendor
-      do
-	if [ -f /sys/class/dmi/id/$t ]; then
-          cat /sys/class/dmi/id/$t | egrep -iq "vmware|virtualbox|qemu"
-          [ $? -eq 0 ] && HOST_VIRTUAL=1 && break
-        fi
-      done
-    fi
-  fi
-fi
-
-[ `id -u` -ne 0 ] && SUDO=sudo
-
-# set boot timeout, 1 minute should be enough for modern computer
-[ -z "$BOOT_TIMEOUT" ] && BOOT_TIMEOUT=60
-
-# Basic requirement: docker and let docker run without sudo
-if [ ! -n "$IN_CONTAINER" ]; then
-  DOCKER_INSTALL_CMD="$TOP_DIR"/tools/docker/install
-  "$DOCKER_INSTALL_CMD" >&2 || exit 1
-  which groups >/dev/null 2>&1 && which usermod >/dev/null 2>&1
-  if [ $? -eq 0 ]; then
-    groups $HOST_USER | grep -q docker
-    if [ $? -ne 0 ]; then
-      echo >&2
-      read -p 'LOG: Restart X Server to use docker without sudo ? (yes/no) ' sure
-      if [ "x$sure" = "xyes" -o "x$sure" = "xy" -o "x$sure" = "xY" -o "x$sure" = "xYES" ]; then
-        $SUDO usermod -aG docker $HOST_USER
-        echo >&2
-        time_to_reboot=5
-        for i in `seq 0 $time_to_reboot`
-        do
-          echo "Time left to reboot:" $((time_to_reboot-i)) >&2
-          sleep 1
-        done
-        $SUDO pkill X
-        exit 0
-      else
-        echo >&2
-        echo "LOG: Without reboot, please run 'newgrp docker' to work in docker group." >&2
-        echo >&2
-        exit 1
-      fi
-    else
-      # Check if really running as docker group
-      groups | grep -q docker
-      if [ $? -ne 0 ]; then
-        echo >&2
-        echo "LOG: Without reboot, please issue 'newgrp docker' to work in docker group." >&2
-        exit 1
-      fi
-    fi
-  fi
-fi
-
-# Check docker service
-if [ "x$HOST_OS" = "xWindows" ]; then
-  which docker | grep -iq 'Docker Toolbox' >/dev/null 2>&1
-  [ $? -eq 0 ] && DOCKER_TOOLBOX=1
-
-  which docker-machine >/dev/null 2>&1
-  [ $? -eq 0 ] && DOCKER_MACHINE=1
-
-  if [ -n "$DOCKER_MACHINE" -a -n "$DOCKER_TOOLBOX" ]; then
-    # Prepare docker machine
-    docker-machine ls | grep -q default
-    if [ $? -ne 0 ]; then
-      docker-machine create -d virtualbox default
-    fi
-    status=$(docker-machine status)
-    if [ "$status" != "Running" ]; then
-      timeout -k 2 5 docker-machine start default >&2
-    fi
-  fi
-fi
-
-[ -z "$TPROXY" ] && TPROXY=0
-[ -z "$LAB_SECURITY" ] && LAB_SECURITY=0
-
-# Variables need to pass to the container from our environment variables
-VARS="UNIX_USER UNIX_UID UNIX_PWD VNC_PWD VNC_PWD_VIEWONLY TPROXY VNC_SHARED SCREEN_SIZE HOST_NAME UNIX_IDENTIFY VNC_IDENTIFY SUDO_IDENTIFY VNC_IP VNC_TOKEN TPROXY_IP HOST_OS"
-
 # Basic files/directories
-
-LAB_LOGIN="$TOP_DIR"/.login_method
-LAB_VNC="$TOP_DIR"/.login_vnc
-LAB_HOST="$TOP_DIR"/.host_name
-LAB_OUTPUT="$TOP_DIR"/output
-
 GIT_DIR="$TOP_DIR"/.git
 GIT_WORKDIR=//.git
 
@@ -139,36 +28,38 @@ BASE_DIR="$TOP_DIR"/base
 TPROXY_DIR="$BASE_DIR"/tproxy
 WPROXY_DIR="$BASE_DIR"/wproxy
 
-# Some commands not require to specify the lab name
-CMD=`basename $0`
-echo "tproxy export choose unlock-all ip build-all pull-all git-pull-all push-all clean-all rm-all rm-full list release batch autostart release-all run-all stop-all start-all rerun-all renew-all " | grep "$CMD"
-[ $? -eq 0 ] && IGNORE_LAB_NAME=1
+LAB_CURRENT="$LAB_DIR"/.current_lab
+
+get_current()
+{
+  # Allow to pass lab name
+  [ -z "$CURRENT" ] && CURRENT=$1
+  [ -n "$current" ] && CURRENT=$current
+
+  [ -n "$CURRENT" ] && ls -1 "$CONFIGS_DIR" | grep -q ^$CURRENT$
+  if [ $? -eq 1 -o -z "$CURRENT" ]; then
+    CURRENT=""
+    [ -f "$LAB_CURRENT" ] && CURRENT=$(cat "$LAB_CURRENT")
+  elif [ -z "$current" -a -n "$CURRENT" ]; then
+    echo $CURRENT | tr -d '\r\n' > "$LAB_CURRENT"
+  fi
+
+  # Container don't need this CURRENT
+  CMD=`basename $0`
+  echo "tproxy export choose unlock-all ip build-all pull-all git-pull-all push-all clean-all rm-all rm-full list release batch autostart release-all run-all stop-all start-all rerun-all renew-all " \
+          | grep -q "$CMD"
+  [ -z "$CURRENT" -a $? -ne 0 ] && echo "LOG: Current lab not specified" && echo "$0 lab-name $1" >&2 && exit 1
+  # [ -n "$CURRENT" ] && echo "LOG: Current Lab is $CURRENT" >&2
+
+  echo $CURRENT
+}
 
 if [ -n "$IN_CONTAINER" ]; then
   LAB_DIR="$LAB_WORKDIR"
   TOOL_DIR="$TOOL_WORKDIR"
   CONFIG_DIR="$CONFIG_WORKDIR"
 else
-  # Allow to pass lab name
-  [ -z "$CURRENT" ] && CURRENT=$1
-  [ -n "$current" ] && CURRENT=$current
-  LAB_CURRENT="$LAB_DIR"/.current_lab
-
-  [ -n "$CURRENT" ] && ls "$CONFIGS_DIR" | tr -s ' ' | tr ' ' '\n' | grep -q ^$CURRENT$
-  if [ $? -eq 1 -o -z "$CURRENT" ]; then
-    CURRENT=""
-    if [ -f "$LAB_CURRENT" ]; then
-      CURRENT=$(cat "$LAB_CURRENT")
-      LAB_CURRENT_DIR="$LAB_DIR"/$CURRENT
-    fi
-  else
-    [ -z "$current" -a -n "$CURRENT" ] && echo $CURRENT | tr -d '\r' | tr -d '\n' > "$LAB_CURRENT"
-  fi
-
-  # Container don't need this CURRENT
-  [ -z "$CURRENT" -a -z "$IGNORE_LAB_NAME" ] && echo "LOG: Current lab not specified" && echo "$0 lab-name $1" >&2 && exit 1
-  # [ -n "$CURRENT" ] && echo "LOG: Current Lab is $CURRENT" >&2
-
+  CURRENT=`get_current $1`
   CONFIG_DIR="$TOP_DIR"/configs/$CURRENT
 fi
 
@@ -178,52 +69,65 @@ CONFIG_TOOL_DIR="$CONFIG_DIR"/tools
 CONFIG_DOCKER_DIR="$CONFIG_DIR"/docker
 CONFIG_SYSTEM_DIR="$CONFIG_DIR"/system
 
-DOCKER_DIR="$TOOL_DIR"/docker
-DOCKER_IDENTIFY_CMD="$DOCKER_DIR"/identify
-DOCKER_VNC_CMD="$DOCKER_DIR"/vnc
-DOCKER_WEBVNC_CMD="$DOCKER_DIR"/webvnc
-DOCKER_IP_CMD="$DOCKER_DIR"/newip
-DOCKER_LIST_CMD="$DOCKER_DIR"/list
-DOCKER_RELEASE_CMD="$DOCKER_DIR"/release
-DOCKER_BASH_CMD="$DOCKER_DIR"/bash
-DOCKER_SSH_CMD="$DOCKER_DIR"/ssh
-DOCKER_WEBSSH_CMD="$DOCKER_DIR"/webssh
-DOCKER_LOGIN_CMD="$DOCKER_DIR"/login
-DOCKER_EXPORT_CMD="$DOCKER_DIR"/export
-DOCKER_RESIZE_CMD="$DOCKER_DIR"/resize
-DOCKER_PUBLISH_CMD="$DOCKER_DIR"/publish
-DOCKER_PULL_CMD="$DOCKER_DIR"/pull
-DOCKER_GIT_PULL_CMD="$DOCKER_DIR"/git-pull
-DOCKER_TPROXY_CMD="$DOCKER_DIR"/tproxy
-DOCKER_CLEAN_CMD="$DOCKER_DIR"/clean
-DOCKER_BUILD_CMD="$DOCKER_DIR"/build
-DOCKER_RM_CMD="$DOCKER_DIR"/rm
-DOCKER_RM_ALL_CMD="$DOCKER_DIR"/rm-all
-DOCKER_RMI_ALL_CMD="$DOCKER_DIR"/rmi-all
-DOCKER_RUN_CMD="$DOCKER_DIR"/run
-DOCKER_CHOOSE_CMD="$DOCKER_DIR"/choose
-DOCKER_STOP_CMD="$DOCKER_DIR"/stop
-DOCKER_START_CMD="$DOCKER_DIR"/start
-DOCKER_START_ALL_CMD="$DOCKER_DIR"/start-all
-DOCKER_UNLOCK_CMD="$DOCKER_DIR"/unlock
-DOCKER_XTERM_CMD="$DOCKER_DIR"/get_xterm
-DOCKER_CMD_CMD="$DOCKER_DIR"/cmd
-DOCKER_NOTIFY_CMD="$DOCKER_DIR"/notify
-DOCKER_FILE="$CONFIG_DIR"/Dockerfile
+if [ ! -n "$IN_CONTAINER" ]; then
+  LAB_LOGIN="$TOP_DIR"/.login_method
+  LAB_VNC="$TOP_DIR"/.login_vnc
+  LAB_HOST="$TOP_DIR"/.host_name
+  LAB_HOST_OS="$TOP_DIR"/.host_os
+  LAB_OUTPUT="$TOP_DIR"/output
 
-# Common variables
+  DOCKER_DIR="$TOOL_DIR"/docker
+  DOCKER_IDENTIFY_CMD="$DOCKER_DIR"/identify
+  DOCKER_VNC_CMD="$DOCKER_DIR"/vnc
+  DOCKER_WEBVNC_CMD="$DOCKER_DIR"/webvnc
+  DOCKER_IP_CMD="$DOCKER_DIR"/newip
+  DOCKER_LIST_CMD="$DOCKER_DIR"/list
+  DOCKER_RELEASE_CMD="$DOCKER_DIR"/release
+  DOCKER_BASH_CMD="$DOCKER_DIR"/bash
+  DOCKER_SSH_CMD="$DOCKER_DIR"/ssh
+  DOCKER_WEBSSH_CMD="$DOCKER_DIR"/webssh
+  DOCKER_LOGIN_CMD="$DOCKER_DIR"/login
+  DOCKER_EXPORT_CMD="$DOCKER_DIR"/export
+  DOCKER_RESIZE_CMD="$DOCKER_DIR"/resize
+  DOCKER_PUBLISH_CMD="$DOCKER_DIR"/publish
+  DOCKER_PULL_CMD="$DOCKER_DIR"/pull
+  DOCKER_GIT_PULL_CMD="$DOCKER_DIR"/git-pull
+  DOCKER_TPROXY_CMD="$DOCKER_DIR"/tproxy
+  DOCKER_CLEAN_CMD="$DOCKER_DIR"/clean
+  DOCKER_BUILD_CMD="$DOCKER_DIR"/build
+  DOCKER_RM_CMD="$DOCKER_DIR"/rm
+  DOCKER_RM_ALL_CMD="$DOCKER_DIR"/rm-all
+  DOCKER_RMI_ALL_CMD="$DOCKER_DIR"/rmi-all
+  DOCKER_RUN_CMD="$DOCKER_DIR"/run
+  DOCKER_CHOOSE_CMD="$DOCKER_DIR"/choose
+  DOCKER_STOP_CMD="$DOCKER_DIR"/stop
+  DOCKER_START_CMD="$DOCKER_DIR"/start
+  DOCKER_START_ALL_CMD="$DOCKER_DIR"/start-all
+  DOCKER_UNLOCK_CMD="$DOCKER_DIR"/unlock
+  DOCKER_XTERM_CMD="$DOCKER_DIR"/get_xterm
+  DOCKER_CMD_CMD="$DOCKER_DIR"/cmd
+  DOCKER_NOTIFY_CMD="$DOCKER_DIR"/notify
+  DOCKER_LIBS="$DOCKER_DIR"/libs
+  DOCKER_FILE="$CONFIG_DIR"/Dockerfile
 
-LAB_IMAGE="$CONFIG_DOCKER_DIR"/name
-LAB_ENVS="$CONFIG_DOCKER_DIR"/envs
-LAB_CAPS="$CONFIG_DOCKER_DIR"/caps
-LAB_DNS="$CONFIG_DOCKER_DIR"/dns
-LAB_DEVICES="$CONFIG_DOCKER_DIR"/devices
-LAB_LIMITS="$CONFIG_DOCKER_DIR"/limits
-LAB_PORTMAP="$CONFIG_DOCKER_DIR"/portmap
-LAB_VOLUMEMAP="$CONFIG_DOCKER_DIR"/volumemap
-LAB_BRANCH="$CONFIG_DOCKER_DIR"/branch
+  LAB_IMAGE="$CONFIG_DOCKER_DIR"/name
+  LAB_ENVS="$CONFIG_DOCKER_DIR"/envs
+  LAB_CAPS="$CONFIG_DOCKER_DIR"/caps
+  LAB_DNS="$CONFIG_DOCKER_DIR"/dns
+  LAB_DEVICES="$CONFIG_DOCKER_DIR"/devices
+  LAB_LIMITS="$CONFIG_DOCKER_DIR"/limits
+  LAB_PORTMAP="$CONFIG_DOCKER_DIR"/portmap
+  LAB_VOLUMEMAP="$CONFIG_DOCKER_DIR"/volumemap
+  LAB_BRANCH="$CONFIG_DOCKER_DIR"/branch
+  LAB_WEB_BROWSER="$CONFIG_DOCKER_DIR"/.web_browser
 
-LAB_WEB_BROWSER="$CONFIG_DOCKER_DIR"/.web_browser
+  LAB_TPROXY_LIMITS="$TPROXY_DIR"/limits
+  LAB_WPROXY_LIMITS="$WPROXY_DIR"/limits
+
+  LAB_LOGO="$CONFIG_DIR"/lab-logo.png
+  LAB_HOST_RUN="$CONFIG_TOOL_DIR"/host-run
+fi
+
 LAB_CONTAINER_NAME="$CONFIG_DOCKER_DIR"/.container_name
 LAB_CONTAINER_ID="$CONFIG_DOCKER_DIR"/.container_id
 LAB_HOST_NAME="$CONFIG_DOCKER_DIR"/.host_name
@@ -235,33 +139,65 @@ LAB_VNC_PWD_VIEWONLY="$CONFIG_DOCKER_DIR"/.vnc_pwd_viewonly
 LAB_VNC_IP="$CONFIG_DOCKER_DIR"/.vnc_ip
 LAB_VNC_TOKEN="$CONFIG_DOCKER_DIR"/.vnc_token
 LAB_TPROXY="$CONFIG_DOCKER_DIR"/.tproxy
+LAB_TPROXY_IP="$CONFIG_DOCKER_DIR"/.tproxy_ip
 LAB_SCREEN_SIZE="$CONFIG_DOCKER_DIR"/.screen_size
 LAB_VNC_SHARED="$CONFIG_DOCKER_DIR"/.vnc_shared
 LAB_VNC_IDENTIFY="$CONFIG_DOCKER_DIR"/.vnc_identify
 LAB_UNIX_IDENTIFY="$CONFIG_DOCKER_DIR"/.unix_identify
 LAB_SUDO_IDENTIFY="$CONFIG_DOCKER_DIR"/.sudo_identify
-LAB_TPROXY_LIMITS="$TPROXY_DIR"/limits
-LAB_WPROXY_LIMITS="$WPROXY_DIR"/limits
-LAB_LOGO="$CONFIG_DIR"/lab-logo.png
+LAB_CONTAINER_RUN="$CONFIG_TOOL_DIR"/container-run
+
+# Default variables
+[ -z "$LAB_SECURITY" ] && LAB_SECURITY=0
+DEF_USER=ubuntu
+DEF_UID=1000
+
+DEF_PWD_LENGTH=6
+DEF_PWD_TOTAL=100
+
+DEF_TOKEN_LENGTH=6
+[ -z "$TOKEN_LENGTH" ] && TOKEN_LENGTH=$DEF_TOKEN_LENGTH
+[ -z "$DEF_TOKEN_DIR" ] && DEF_TOKEN_DIR=.vnc-tokens
+DEF_VNC_IP="0.0.0.0"
+
+for cs in sha1sum shasum; do
+  which $cs >/dev/null 2>&1 && DEF_ENCRYPT_CMD=$cs && break
+done
+[ -z "$ENCRYPT_CMD" ] && ENCRYPT_CMD=$DEF_ENCRYPT_CMD
+
+# Security related
+# 0: with root permission by default, sharable, for private usage
+# 1: highest security level, ssl, encrypted, https, no root, no sudo, not sharable, for security product
+# 2: second security level, nossl, not encrypted, http, no root, no sudo, not sharable, for normal product
+# 3: third security leve, nossl, not encrypted, http, root available with sudo and password, sharable
 
 # Lock the important files for security
 __do_lock ()
 {
-  # echo "LOG: __do_lock"
+  echo "LOG: __do_lock"
+  get_sudo
 
   [ -d "$CONFIG_DOCKER_DIR" ] && \
     $SUDO find "$CONFIG_DOCKER_DIR" -iname ".[^.]*" -exec chmod -f -R a-rw "{}" \;
-  which chattr >/dev/null 2>&1 && $SUDO chattr -R +i "$CONFIGS_DIR"
-  which chattr >/dev/null 2>&1 && $SUDO chattr -R +i "$TOOL_DIR"
+
+  which chattr >/dev/null 2>&1
+  if [ $? -eq 0 ]; then
+    $SUDO chattr -R +i "$CONFIGS_DIR"
+    $SUDO chattr -R +i "$TOOL_DIR"
+  fi
 }
 
 # Unlock the important files for configuration
 __do_unlock ()
 {
-  # echo "LOG: __do_unlock"
+  echo "LOG: __do_unlock"
+  get_sudo
 
-  which chattr >/dev/null 2>&1 && $SUDO chattr -R -i "$CONFIGS_DIR"
-  which chattr >/dev/null 2>&1 && $SUDO chattr -R -i "$TOOL_DIR"
+  which chattr >/dev/null 2>&1
+  if [ $? -eq 0 ]; then
+    $SUDO chattr -R -i "$CONFIGS_DIR"
+    $SUDO chattr -R -i "$TOOL_DIR"
+  fi
   [ -d "$CONFIG_DOCKER_DIR" ] && \
     $SUDO find "$CONFIG_DOCKER_DIR" -iname ".[^.]*" -exec chmod -f -R 664 "{}" \;
 }
@@ -276,145 +212,6 @@ do_unlock ()
   [ $LAB_SECURITY -ge 1 ] && __do_unlock
 }
 
-# Variables initialization from config file if exist
-
-LAB_VARS="HOST CURRENT IMAGE ENVS CAPS DNS DEVICES LIMITS PORTMAP VOLUMEMAP BRANCH"
-
-LAB_VARS="$LAB_VARS WEB_BROWSER HOST"
-LAB_VARS="$LAB_VARS CONTAINER_NAME CONTAINER_ID HOST HOST_NAME"
-LAB_VARS="$LAB_VARS UNIX_USER UNIX_PWD VNC_PWD VNC_PWD_VIEWONLY TPROXY UNIX_UID UNIX_IDENTIFY VNC_IDENTIFY SUDO_IDENTIFY VNC_IP VNC_TOKEN"
-LAB_VARS="$LAB_VARS VNC_SHARED SCREEN_SIZE"
-LAB_VARS="$LAB_VARS WPROXY_LIMITS TPROXY_LIMITS"
-
-do_unlock
-
-# Prefer user input to the one saved in config file
-
-for VAR in $LAB_VARS
-do
-  var_file="`eval echo \\${LAB_$VAR}`"
-  # Accesspt ENV
-  var=`eval echo \\$${VAR}`
-
-  # echo $VAR $var
-  # echo "LOG: Get $VAR from $var_file"
-
-  var_value=""
-  if [ -n "$var_file" -a -f "$var_file" -a -z "$var" ]; then
-    var_value='$(grep -v "#" "$var_file" | tr -d "\r" | tr "\n" " " | sed -e "s%^[[:space:]]*$%%g;s%[[:space:]]\{1,\}$%%g")'
-    eval `eval echo \\$VAR='$var_value'`
-  fi
-
-  #echo `eval echo "LOG: $VAR=\\$${VAR}"` >&2
-done
-
-do_lock
-
-# Default variables
-
-if [ ! -n "$IN_CONTAINER" ]; then
-  [ -z "$HOST" ] && HOST=localhost
-fi
-
-# supported login methods
-LOGIN_METHODS="bash vnc ssh webssh webvnc"
-VNC_CLIENTS="vinagre xvnc4viewer gvncviewer xtightvncviewer krdc"
-DEF_LOGIN="vnc"
-
-## main branch
-DEF_BRANCH=master
-[ -z "$BRANCH" ] && BRANCH=$DEF_BRANCH
-
-## password
-DEF_PWD_LENGTH=6
-DEF_PWD_TOTAL=100
-
-## tokens/ip
-DEF_TOKEN_LENGTH=6
-[ -z "$TOKEN_LENGTH" ] && TOKEN_LENGTH=$DEF_TOKEN_LENGTH
-[ -z "$DEF_TOKEN_DIR" ] && DEF_TOKEN_DIR=.vnc-tokens
-DEF_VNC_IP="0.0.0.0"
-
-[ -z "$ENCRYPT_CMD" ] && ENCRYPT_CMD=$DEF_ENCRYPT_CMD
-
-[ -z "$CLOUD_LAB_TOP_DIR" ] && CLOUD_LAB_TOP_DIR="$(echo $TOP_DIR | sed -e "s%/output/.*%%g")"
-
-[ -z "$MAIN_CLOUD_LAB" ] && MAIN_CLOUD_LAB="$CLOUD_LAB_TOP_DIR"
-
-[ -z "$TOP_TOKEN_DIR" ] && TOP_TOKEN_DIR="$MAIN_CLOUD_LAB"
-[ -z "$TOP_RECORD_DIR" ] && TOP_RECORD_DIR="$MAIN_CLOUD_LAB"
-[ -z "$TOP_RELEASE_DIR" ] && TOP_RELEASE_DIR="$MAIN_CLOUD_LAB"
-
-[ -z "$DEF_RECORD_DIR" ] && DEF_RECORD_DIR=recordings
-[ -z "$DEF_RELEASE_DIR" ] && DEF_RELEASE_DIR=releasings
-
-if [ -z "$RELEASE_DIR" ]; then
-  GROUP_RELEASE_DIR=""
-  if [ "$MAIN_CLOUD_LAB" != "$CLOUD_LAB_TOP_DIR" ]; then
-    GROUP_LAB_DIR="`basename "$CLOUD_LAB_TOP_DIR"`"
-    GROUP_RELEASE_DIR="${GROUP_LAB_DIR##*-}"
-  fi
-
-  USER_RELEASE_DIR=""
-  if [ -n "$CURRENT" ]; then
-    if [ "$CLOUD_LAB_TOP_DIR" != "$TOP_DIR" ]; then
-      USER_LAB_DIR="`basename "$TOP_DIR"`"
-      USER_RELEASE_DIR="${USER_LAB_DIR%%+*}-$(echo ${USER_LAB_DIR##*+} | cut -d'-' -f1)"
-    fi
-  fi
-
-  RELEASE_DIR="$TOP_RELEASE_DIR"/$DEF_RELEASE_DIR
-  [ -n "$GROUP_RELEASE_DIR" ] && RELEASE_DIR="$RELEASE_DIR"/$GROUP_RELEASE_DIR
-  [ -n "$USER_RELEASE_DIR" ] && RELEASE_DIR="$RELEASE_DIR"/$USER_RELEASE_DIR
-fi
-
-[ -z "$RELEASE_HTML" ] && RELEASE_HTML=index.html
-[ -z "$RELEASE_FILE" ] && RELEASE_FILE="$RELEASE_DIR"/$RELEASE_HTML
-
-## Image and Container names
-TPROXY_IMAGE_NAME=cloud-ubuntu-proxy_client_transparent
-WPROXY_IMAGE_NAME=cloud-ubuntu-web
-TPROXY_NAME=proxy-client
-WPROXY_NAME=cloud-ubuntu-web
-
-## Share running wproxy
-### TODO: Check LOCAL_TOKEN_MAP and REMOTE_TOKEN_MAP path for Windows and macOS
-docker ps -f name=$WPROXY_NAME -f status=running 2>/dev/null | grep -q -v PORTS
-if [ $? -eq 0 ]; then
-  LOCAL_TOKEN_DIR="$(docker inspect -f '{{ .Mounts }}' $WPROXY_NAME | sed -e "s%.*[ \[]\([^ ]*/*$DEF_TOKEN_DIR[ :]/*$DEF_TOKEN_DIR\).*%\1%g" | awk -F ':| ' '{ printf("%s\n",$1) }')"
-  [ $? -ne 0 ] && echo "ERR: Docker inspect failure" && exit 1
-
-  if [ "x$HOST_OS" = "xDarwin" ]; then
-    LOCAL_TOKEN_DIR=$(echo "$LOCAL_TOKEN_DIR" | sed -e "s%^/host_mnt%%g")
-  elif [ "x$HOST_OS" = "xLinux" ]; then
-    LOCAL_TOKEN_DIR="$LOCAL_TOKEN_DIR"
-  else # Windows
-    LOCAL_TOKEN_DIR=$(echo "$LOCAL_TOKEN_DIR" | sed -e "s%^/run/desktop/mnt/host%%g")
-  fi
-
-  #echo $LOCAL_TOKEN_DIR >&2
-fi
-
-if [ -z "$LOCAL_TOKEN_DIR" -o ! -d "$LOCAL_TOKEN_DIR" ]; then
-  LOCAL_TOKEN_DIR="$TOP_TOKEN_DIR"/$DEF_TOKEN_DIR
-fi
-
-LOCAL_TOKEN_MAP="$LOCAL_TOKEN_DIR"/local_map
-REMOTE_TOKEN_MAP="$LOCAL_TOKEN_DIR"/remote_map
-
-#echo $LOCAL_TOKEN_MAP >&2
-#echo $REMOTE_TOKEN_MAP >&2
-
-# Init variable for export command
-HOST_RECORD_DIR="$TOP_RECORD_DIR"/$DEF_RECORD_DIR
-HOST_RELEASE_DIR="$TOP_RELEASE_DIR"/$DEF_RELEASE_DIR
-HOST_TOKEN_DIR="$LOCAL_TOKEN_DIR"
-
-## Security related
-### 0: with root permission by default, sharable, for private usage
-### 1: highest security level, ssl, encrypted, https, no root, no sudo, not sharable, for security product
-### 2: second security level, nossl, not encrypted, http, no root, no sudo, not sharable, for normal product
-### 3: third security leve, nossl, not encrypted, http, root available with sudo and password, sharable
 
 if [ $LAB_SECURITY -eq 1 ]; then
   WEB_NOSSL=0
@@ -454,87 +251,6 @@ else
   [ -z "$VNC_SHARED" ] && VNC_SHARED=1
 fi
 
-## Default user
-DEF_USER=ubuntu
-DEF_UID=1000
-
-## screen size
-DEF_SCREEN_SIZE=1280x720
-MAX_SCREEN_SIZE=1920x1080
-
-# 16:10: 640x480 800x480 1280x800 1440x900 1680x1050 1920x1200 2560x1600
-# 16:9: 960x540 1280x720 1920x1080 2560x1440
-if [ "x$HOST_OS" = "xWindows" ]; then
-  if [ -z "$SCREEN_SIZE" ]; then
-    SCREEN_SIZE=$(wmic path Win32_VideoController get CurrentHorizontalResolution,CurrentVerticalResolution /format:value | sed -ne "s/.*=\([0-9]*\)/\1/gp" | tr '\r\n' 'x' | tr -s 'x' | cut -d'x' -f1-2 | tr -d '\r\n')
-  fi
-else
-  which xrandr >/dev/null 2>&1
-  xrandr_exist=$?
-  pgrep Xorg >/dev/null 2>&1
-  xorg_exist=$?
-  if [ $xorg_exist -eq 0 -a $xrandr_exist -eq 0 -a -z "$SCREEN_SIZE" ]; then
-    SCREEN_SIZE=`xrandr --current 2>/dev/null | grep "^ .*\*" | tr -s ' ' | cut -d' ' -f2 | cut -d '_' -f1 | head -1 | tr -d -c '[0-9x]'`
-    if [ $? -eq 0 ]; then
-      current_height=`echo $SCREEN_SIZE | cut -d 'x' -f2 | tr -d -c '[0-9]'`
-      for h in `xrandr --current 2>/dev/null | grep "^ [ 0-9]*x" | cut -d'x' -f2 | cut -d' ' -f1`
-      do
-        h=$(echo $h | tr -d -c '[0-9]')
-        [ $h -lt $current_height ] && break
-      done
-      SCREEN_SIZE=`xrandr --current 2>/dev/null | grep "^ [ 0-9]*x"  | grep "x$h" | tr -s ' ' | cut -d' ' -f2 | cut -d '_' -f1 | head -1 | tr -d -c '[0-9x]'`
-    fi
-  fi
-fi
-
-[ -z "$SCREEN_SIZE" ] && SCREEN_SIZE=$DEF_SCREEN_SIZE
-
-# Get the real maximum screen size
-if [ $(($(echo "$SCREEN_SIZE" | tr 'x' '*'))) -gt $(($(echo "$MAX_SCREEN_SIZE" | tr 'x' '*'))) ]; then
-  MAX_SCREEN_SIZE=$SCREEN_SIZE
-fi
-
-## Fixme: It is not possible to run here.
-[ -z "$IMAGE" ] && IMAGE=tinylab/$CURRENT
-LAB_USER="`dirname $IMAGE`"
-LAB_NAME=$CURRENT
-
-# More variables
-
-IMAGES=`find "$CONFIGS_DIR" -name "name" | xargs -I{} cat "{}" | sort -u`
-LABS="`ls "$CONFIGS_DIR" | tr -s ' '`"
-
-[ -z "$LAB_DESKTOP_SHORTCUT" ] && LAB_DESKTOP_SHORTCUT=1
-if [ "x$HOST_OS" = "xDarwin" ]; then
-  LOCAL_DESKTOP_SHORTCUT=~/Desktop/${LAB_NAME}.command
-  MANAGE_DESKTOP_SHORTCUT=~/Desktop/lab-manager.command
-  BROWSE_DESKTOP_SHORTCUT=~/Desktop/lab-browser.command
-elif [ "x$HOST_OS" = "xLinux" ]; then
-  LOCAL_DESKTOP_SHORTCUT=~/Desktop/${LAB_NAME}.desktop
-  MANAGE_DESKTOP_SHORTCUT=~/Desktop/lab-manager.desktop
-  BROWSE_DESKTOP_SHORTCUT=~/Desktop/lab-browser.desktop
-else
-  LOCAL_DESKTOP_SHORTCUT=~/Desktop/${LAB_NAME}.lnk
-  MANAGE_DESKTOP_SHORTCUT=~/Desktop/lab-manager.lnk
-  BROWSE_DESKTOP_SHORTCUT=~/Desktop/lab-browser.lnk
-fi
-
-
-[ -d "$CONFIG_SYSTEM_DIR" ] \
-  && REMOTE_DESKTOP_SHORTCUT="`find "$CONFIG_SYSTEM_DIR" -maxdepth 4 -name "lab.desktop"`"
-
-CONTAINER_VNC_PORT=6080
-CONTAINER_SSH_PORT=22
-CONTAINER_WEBSSH_PORT=443
-[ -z "$HOST_VNC_PORT" ] && HOST_VNC_PORT=6080
-[ -z "$HOST_SSH_PORT" ] && HOST_SSH_PORT=2222
-[ -z "$HOST_WEBSSH_PORT" ] && HOST_WEBSSH_PORT=4433
-
-LAB_HOST_RUN="$CONFIG_TOOL_DIR"/host-run
-LAB_CONTAINER_RUN="$CONFIG_TOOL_DIR"/container-run
-
-# Common functions
-
 get_var () #VAR #defval
 {
   local var_value
@@ -544,17 +260,28 @@ get_var () #VAR #defval
   VAR=$1
   defval=$2
 
+  # Get potential variable cache file
   var_file="`eval echo \\${LAB_$VAR}`"
-  var_value=""
 
-  if [ -n "$var_file" -a -f "$var_file" ]; then
+  # Init it as user input
+  var_value=`eval echo \\$${VAR}`
+
+  # Load from variable cached file, if no user input specified
+  if [ -n "$var_file" -a -f "$var_file" -a -z "$var_value" ]; then
     var_value='$(grep -v "#" "$var_file" | tr -d "\r" | tr "\n" " " | sed -e "s%^[[:space:]]*$%%g;s%[[:space:]]\{1,\}$%%g")'
     eval `eval echo \\$VAR='$var_value'`
     var_value="`eval echo '$'${VAR}`"
   fi
-  [ -z "$var_value" ] && eval `eval echo \\$VAR='$defval'`
+
+  # If no variable specified or cached, use the default value if specified, otherwise, reserve empty
+  [ -z "$var_value" -a -n "$defval" ] && eval `eval echo \\$VAR='$defval'`
 
   #echo `eval echo "LOG: GET: $VAR=\\$${VAR}"` >&2
+}
+
+get_vars ()
+{
+  for var in $@; do get_var $var; done
 }
 
 set_var () #VAR
@@ -575,540 +302,40 @@ set_var () #VAR
   fi
 }
 
-do_op () #op $ARG $args
+set_vars ()
 {
-  local op
-  local ARG
-  local arg
-  local args
-
-  op="$1"
-  ARG="$2"
-  args="$3"
-
-  arg="'`eval echo "\\$${ARG}"`'"
-
-  [ -z "$arg" ] && echo "LOG: '$ARG' required for '$op'" && exit 1
-
-  #echo
-  #echo "LOG: Running ' $op $arg $args'"
-  #echo
-
-  eval $op $arg $args
+  for var in $@; do set_var $var; done
 }
 
-get_time ()
-{
-   local t=`date '+%N'`
-
-   [ $t = "N" ] && t=`date '+%s'`
-
-   echo $t | sed -e 's%^0*%%g'
-}
-
-get_random ()
-{
-  local random=$RANDOM
-
-  if [ -n "$random" ]; then
-      echo $random
-  else
-      random=`get_time`
-      echo $(( random % 65535 ))
-  fi
-}
-
-get_random_pwd ()
-{
-  local random
-
-  which pwgen >/dev/null 2>&1 && pwgen -c -n -s -1 50 && exit 0
-
-  random=$RANDOM
-  [ -z "$random" ] && random=`get_time`
-
-  echo $((random % 89273831 * 513793917553423 / 3))
-}
-
-get_browser ()
-{
-  # Get the best web browser for different system
-  local macos_chrome='/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'
-  local macos_safari=/Applications/Safari.app/Contents/MacOS/Safari
-  local macos_firefox=/Applications/Firefox.app/Contents/MacOS/firefox
-  local linux_chrome=chromium-browser
-  local linux_firefox=firefox
-  local deepin_browser=browser
-  local win_firefox='/c/Program Files/Mozilla Firefox/firefox.exe'
-  local win_chrome='/c/Program Files (x86)/Google/Chrome/Application/chrome.exe'
-  local win_edge=start
-
-  local DEF_WEB_BROWSER=firefox
-  if [ "x$HOST_OS" = "xDarwin" ]; then
-    [ -f "$macos_safari" ] && DEF_WEB_BROWSER="$macos_safari"
-    [ -f "$macos_firefox" ] && DEF_WEB_BROWSER="$macos_firefox"
-    [ -f "$macos_chrome" ] && DEF_WEB_BROWSER="$(echo $macos_chrome | tr ' ' '-')"
-  elif [ "x$HOST_OS" = "xLinux" ]; then
-    for b in $linux_chrome $linux_firefox $deepin_browser
-    do
-      which $b >/dev/null 2>&1 && DEF_WEB_BROWSER=$b && break
-    done
-  else
-    for b in "$win_chrome" "$win_firefox" "$win_edge"
-    do
-      which "$b" >/dev/null 2>&1 && DEF_WEB_BROWSER="$b" && break
-    done
-  fi
-
-  do_unlock
-  [ -z "$WEB_BROWSER" ] && get_var WEB_BROWSER "'$DEF_WEB_BROWSER'"
-  do_lock
-
-  if [ "x$HOST_OS" = "xDarwin" ]; then
-    WEB_BROWSER="$(echo $WEB_BROWSER | tr '-' ' ')"
-    if [ ! -f "$WEB_BROWSER" ]; then
-      web_browser=`ls /Applications/*/Contents/MacOS/* | grep -i "$WEB_BROWSER$"`
-      if [ $? -eq 0 ]; then
-        WEB_BROWSER="$web_browser"
-      else
-        echo "LOG: No $WEB_BROWSER found, use safari instead." && WEB_BROWSER=$macos_safari
-      fi
-    fi
-  elif [ "x$HOST_OS" = "xLinux" ]; then
-    which "$WEB_BROWSER" >/dev/null 2>&1
-    if [ $? -eq 1 ]; then
-      if [ x"$WEB_BROWSER" = "xfirefox" ]; then
-        echo "ERR: No web browser found, are you running me in cloud? please open the 'Normal' url yourself."
-        exit 1
-      else
-        echo "LOG: No "$WEB_BROWSER" found, try firefox instead."
-        WEB_BROWSER=firefox
-        which "$WEB_BROWSER" >/dev/null 2>&1
-        [ $? -eq 1 ] && echo "ERR: No "$WEB_BROWSER" found too." && exit 2
-      fi
-    fi
-  else # Windows
-    which "$WEB_BROWSER" >/dev/null 2>&1
-    if [ $? -eq 1 ]; then
-      if [ x"$WEB_BROWSER" = "xstart" ]; then
-        echo "ERR: No web browser found, are you running me in cloud? please open the 'Normal' url yourself."
-        exit 1
-      else
-        echo "LOG: No "$WEB_BROWSER" found, try edge instead."
-        WEB_BROWSER="$win_edge"
-        which "$WEB_BROWSER" >/dev/null 2>&1
-        [ $? -eq 1 ] && echo "ERR: No "$WEB_BROWSER" found too." && exit 2
-      fi
-    fi
-
-  fi
-
-  __WEB_BROWSER="$WEB_BROWSER"
-
-  if [ "x$HOST_OS" = "xDarwin" ]; then
-    __WEB_BROWSER="/usr/bin/open -a '$WEB_BROWSER'"
-  fi
-}
-
-get_lab_info ()
-{
-  local tmp=`mktemp`
-  local list="$1"
-  local filter="$2"
-
-  [ -z "$prompt" ] && prompt="Hello, Cloud Lab !"
-  [ -z "$empty_prompt" ] && empty_prompt="当前没有任何 Lab 在线运行!"
-
-  [ -n "$list" ] && "$list" $filter | grep -v "LOG:" > "$tmp"
-
-  cat "$tmp" | awk 'BEGIN{FS=" "}{ \
-	printf("Lab: %s, User: %s\n", $11, $2); \
-	printf("  * VNC (Normal): '$WEB_HTTP'://%s:%s/?u=%s&p=%s\n", $3, $4, $5, $6); \
-	printf("  * VNC   (View): '$WEB_HTTP'://%s:%s/?r=%s%s\n", $3, $4, $5, $7); \
-	printf("  * SSH    (Web): '$WEB_HTTP'://%s:%s/?ssh=ssh://%s:%s@%s:22\n", $3, $9, $2, $10, $8); \
-	}'
-  echo
-
-  [ ! -d "$RELEASE_DIR" ] && mkdir -p "$RELEASE_DIR"
-
-  echo "LOG: Released to: $RELEASE_FILE"
-  echo "LOG: Labs online: `echo $RELEASE_FILE | sed -e \"s%$MAIN_CLOUD_LAB/$DEF_RELEASE_DIR%$WEB_HTTP://$HOST:$HOST_VNC_PORT/labs%g\"`"
-  echo
-
-  cat << EOF > "$RELEASE_FILE"
-<html>
-<body>
-<head>
- <meta charset="UTF-8">
- <title>Cloud Lab | 泰晓实验云台</title>
-
- <style type="text/css">
-  body { padding: 1.2em; margin: auto; overflow: auto; text-align: center; max-width: 960px; font-family: 'Lucida Grande', 'Helvetica Neue', Arial, 'Hiragino Sans GB', 'Microsoft YaHei', '微软雅黑', 'WenQuanYi Micro Hei', sans-serif, 'SimSun', "宋体", 'Heiti', "黑体"; font-size: 1em; *font-size: small; -moz-transform: scale(1.0); -moz-transform-origin: center top 0; zoom: 1.0; }
-
-  h1 { font-weight: 600; }
-  a { text-decoration: none; outline: none; }
-  p { text-align: center; }
-  p.empty { line-height: 300px; }
-
-  table { border: 1px solid #333; border-spacing: 0; border-collapse: collapse; width: 100%; }
-  th, td { font-size: 95%; padding-left: 2px; padding-right: 2px; padding-top: 10px; padding-bottom: 10px;
-     border: 1px solid #aaa; display: table-cell;
-     text-align: center; max-width: 100px; }
-  td { overflow: hidden; text-overflow: ellipsis }
-  td.time { font-size: 92%; }
-  tr.head { background-color: #ccc; }
-  tr.odd { background-color: #eee; }
-  tr.even { background-color: #fff; }
-  th { font-weight: 600; }
-
-  @media (max-width: 999px) {
-    body {
-        -moz-transform: scale(1.5);
-        -moz-transform-origin: center top 0;
-        zoom: 1.5
-    }
-  }
- </style>
-</head>
-
-<h1><a target="_blank" href="${WEB_HTTP}://${HOST}:6080">Cloud Lab | 泰晓实验云台</a></h1>
-EOF
-
-  # No lab running
-  if [ `cat "$tmp" | wc -c | tr -d ' '` -eq 0 ]; then
-    cat <<EOF >> "$RELEASE_FILE"
-<p class="empty">$empty_prompt</p>
-EOF
-
-  # Labs exist
-  else
-
-    cat <<EOF >> "$RELEASE_FILE"
-<p>$prompt</p>
-EOF
-
-    cat <<EOF >> "$RELEASE_FILE"
-<br/>
-<div style="padding-left: 30%">
-<p style="text-align: left">1. <a href="https://www.cctalk.com/m/group/88948325" target="_blank">免费学习 Linux Lab 视频公开课，快速上手</a></p>
-<p style="text-align: left">2. <a href="https://shop155917374.taobao.com" target="_blank">淘宝检索 “Linux Lab真盘” 购买开机即用版，免安装，无忧体验</a></p>
-</div>
-<br/>
-EOF
-
-    cat << EOF >> "$RELEASE_FILE"
-<table>
-<tr class="head"><th></th><th>Lab</th><th>VNC</th><th>VIEW</th><th>SSH</th><th>Start</th><th>End</th></tr>
-EOF
-
-    cat "$tmp" | awk 'BEGIN {FS=" "; }{ 			\
-	printf("<tr class=\"%s\">\n", (FNR%2 == 0) ? "odd" : "even"); \
-	printf("  <td>%d</td>\n", FNR); \
-	printf("  <td><a title=\"Project Homepage and Usage\" target=\"_blank\" href=\"http://tinylab.org/%s\">%s</a></td>\n", $1, $1); \
-	printf("  <td><a target=\"_blank\" href=\"'$WEB_HTTP'://%s:%s/?u=%s&p=%s\">Login</a></td>\n", \
-		$3, $4, $5, $6); \
-	printf("  <td><a target=\"_blank\" href=\"'$WEB_HTTP'://%s:%s/?r=%s%s\">Login</a></td>\n", \
-		$3, $4, $5, $7); \
-	printf("  <td><a target=\"_blank\" href=\"'$WEB_HTTP'://%s:%s/?ssh=ssh://%s:%s@%s:22\">Login</a></td>\n", \
-		$3, $9, $2, $10, $8); \
-	printf("  <td class=\"time\">%s<br>%s</td>\n", $13, $14); \
-	printf("  <td class=\"time\">%s<br>%s</td>\n", $15, $16); \
-	printf("</tr>\n"); \
-     }' >> "$RELEASE_FILE"
-
-
-    cat <<EOF >> "$RELEASE_FILE"
-</table>
-EOF
-
-  # Labs running or not, end if
-  fi
-
-  cat <<EOF >> "$RELEASE_FILE"
-<div style="position:absolute; top:1em; right:1em; font-size:10px;"><img width="90px;" src="http://tinylab.org/images/sponsor/wechat-pay-admin-9.68.jpg"><br>微信扫码,赞助我们</div>
-<p>Powered by <a target="_blank" href="http://tinylab.org/cloud-lab">Cloud Lab</a> !</p>
-
-<script type="text/javascript">var _hmt = _hmt || [];(function() {var hm = document.createElement("script");hm.src = "//hm.baidu.com/hm.js?15260089f8e103dc1cca30bcc1957b7c";var s = document.getElementsByTagName("script")[0]; s.parentNode.insertBefore(hm, s);
-})();</script>
-
-</body>
-</html>
-EOF
-
-  #sync
-
-  rm "$tmp"
-}
-
-get_xterm ()
-{
-   [ -z "$XTERM" ] && XTERM="`"$DOCKER_XTERM_CMD"`"
-}
-
-notify_user ()
-{
-    # Notify users
-    [ -z "$NOTIFY_WAIT" ] && NOTIFY_WAIT=$1
-    [ -z "$NOTIFY_MSG" ] && NOTIFY_MSG="$2"
-    [ $NOTIFY_WAIT -gt 0 ] && NOTIFY_MSG="$NOTIFY_MSG in $NOTIFY_WAIT seconds."
-    [ -z "$LAB_NAME" ] && LAB_NAME=$3
-
-    "$DOCKER_NOTIFY_CMD" $LAB_NAME "$NOTIFY_MSG"
-    [ $NOTIFY_WAIT -gt 0 ] && sleep $NOTIFY_WAIT
-}
-
-# time_to_seconds "10D"
-time_to_seconds ()
-{
-  local time=$1
-  local format=`echo $time | tr -d '[0-9]'`
-
-  time=`echo $time | tr -c -d '[0-9]'`
-  case $format in
-    "Y" | "y")
-      echo $((time * 360 * 24 * 60 * 60))
-      ;;
-    "M")
-      echo $((time * 30 * 24 * 60 * 60))
-      ;;
-    "D" | "d")
-      echo $((time * 24 * 60 * 60))
-      ;;
-    "H" | "h")
-      echo $((time * 60 * 60))
-      ;;
-    "m")
-      echo $((time * 60))
-      ;;
-    *)
-      echo $time
-      ;;
-  esac
-}
-
-# time_to_seconds "10D"
-time_to_strings ()
-{
-  local time=$1
-  local format=`echo $time | tr -d '[0-9]'`
-  local time=`echo $time | tr -c -d '[0-9]'`
-
-  case $format in
-    "Y" | "y")
-      format='years'
-      ;;
-    "M")
-      format='months'
-      ;;
-    "D" | "d")
-      format='days'
-      ;;
-    "H" | "h")
-      format='hours'
-      ;;
-    "m")
-      format='minutes'
-      ;;
-    *)
-      format='seconds'
-      ;;
-  esac
-
-  echo "$time $format"
-}
-# get_starttime "20170633092133" -> "20170633 09:21:33"
-get_starttime()
-{
-  local lab_start="$1"
-
-  echo $lab_start | sed -e "s/\([0-9]\{8\}\)\([0-9]\{2\}\)\([0-9]\{2\}\)\([0-9]\{2\}\)/\1 \2:\3:\4/g"
-}
-
-# get_endtime "20171120 09:23:20" "1D" -> "20171121 09:23:20"
-get_endtime ()
-{
-  # "20171120 09:23:20"
-  local lab_start="$1"
-  # 30D, 24H, 1Y, 12H, 10M
-  local lab_life="$2"
-
-  [ "$lab_life" = "0" ] && echo && exit 0
-
-  if [ "x$HOST_OS" = "xDarwin" ]; then
-    lab_start_seconds=`date -j -f "%Y%m%d %H:%M:%S" "$lab_start" "+%s"`
-  else
-    lab_start_seconds=`date --date="$lab_start" "+%s"`
-  fi
-
-  #echo "start_seconds: "$lab_start_seconds
-
-  lab_life_seconds=`time_to_seconds $lab_life`
-
-  #echo "life_seconds:" $lab_life_seconds
-
-  lab_seconds=$((lab_start_seconds + lab_life_seconds))
-
-  #echo "seconds: " $lab_seconds
-
-  if [ "x$HOST_OS" = "xDarwin" ]; then
-    date -j -f "%s" "$lab_seconds" "+%Y%m%d %H:%M:%S"
-  else
-    date "+%Y%m%d %H:%M:%S" --date="@$lab_seconds"
-  fi
-}
-
-get_lab_list ()
-{
-  local dir="$1"
-  local filter="$2"
-
-  if [ -z "$filter" ]; then
-     filter=$LAB_NAME
-  else
-     [ "$filter" = "all" ] && filter=".*"
-  fi
-
-  find "$dir" -maxdepth 1 -mindepth 1 -type d | grep "$filter" | sort -k 1
-}
-
-get_lab_bases ()
-{
-  local dir="$1"
-  local filter="$2"
-
-  get_lab_list "$dir" $filter | xargs -I{} basename "{}"
-}
-
-verify_cpus ()
-{
-  local cpus=$1
-
-  if [ "x$HOST_OS" = "xDarwin" ]; then
-    total=`sysctl -n hw.ncpu`
-  else
-    total=`grep -c processor /proc/cpuinfo`
-  fi
-
-  echo "$cpus" | egrep -v "`seq $total 100` | tr ' ' '|'" > /dev/null
-  [ $? -ne 0 ] && echo "LOG: cpuset $cpus invalid" && exit 1
-}
-
-# Override the token map generation in wproxy
-touch_record_file()
-{
-  [ ! -d "$HOST_RECORD_DIR" ] && mkdir -p "$HOST_RECORD_DIR"
-  #[ ! -f "$RECORD_FILE" ] && touch "$RECORD_FILE"
-
-  return 0
-}
-
-touch_release_file()
-{
-  [ ! -d "$HOST_RELEASE_DIR" ] && mkdir -p "$HOST_RELEASE_DIR"
-  [ ! -f "$RELEASE_FILE" ] && touch "$RELEASE_FILE"
-
-  return 0
-}
-
-touch_token_map ()
-{
-  [ ! -d "$LOCAL_TOKEN_DIR" ] && mkdir -p "$LOCAL_TOKEN_DIR"
-  [ ! -f "$LOCAL_TOKEN_MAP" ] && touch "$LOCAL_TOKEN_MAP"
-
-  return 0
-}
-
-# run before container start to make sure the files' owner is normal user
-touch_export_files()
-{
-  touch_record_file
-  touch_release_file
-  touch_token_map
-}
-
-get_random_net ()
-{
-  # use one of the net in (172.16.0.0 - 172.31.255.255  (172.16/12 prefix)
-
-  subnet=$((19 + $((`get_random` % 12))))
-  echo 172.${subnet}.19.0
-}
-
-create_cloud_lab_net ()
-{
-  # Configure subnet info
-  [ -z "$VNC_NET_NAME" ] && VNC_NET_NAME=cloud-lab-net
-
-  docker network inspect $VNC_NET_NAME >/dev/null 2>&1
-  if [ $? -ne 0 ]; then
-    [ -z "$VNC_NET_MASK" ] && VNC_NET_MASK=16
-
-    net_retry_count=0
-    NET_RETRY_MAX=10
-    while [ $net_retry_count -lt $NET_RETRY_MAX ]; do
-      if [ -z "$VNC_NET" ]; then
-        # Init one for the first try
-        VNC_NET=172.20.19.0/$VNC_NET_MASK
-      else
-        # If old not work, use a random one
-        VNC_NET=`get_random_net`/$VNC_NET_MASK
-      fi
-      VNC_NET_PREFIX=$(echo $VNC_NET | cut -d'/' -f1 | cut -d '.' -f1-$((5-$VNC_NET_MASK/8)))
-      VNC_GATEWAY=${VNC_NET_PREFIX}.1
-
-      docker network create --driver bridge --subnet=$VNC_NET --gateway=$VNC_GATEWAY $VNC_NET_NAME
-      if [ $? -eq 0 ]; then
-        echo "LOG: Created network with driver: bridge, subnet: $VNC_NET, gateway: $VNC_GATEWAY" >&2
-        break
-      else
-        echo "WARN: Failed to create network with driver: bridge, subnet: $VNC_NET, gateway: $VNC_GATEWAY, retry: $net_retry_count/$NET_RETRY_MAX" >&2
-        net_retry_count=`expr $net_retry_count + 1`
-        sleep 1
-      fi
-    done
-    if [ $net_retry_count -eq $NET_RETRY_MAX ]; then
-      echo "ERR: Failed to create network with driver: bridge, subnet: $VNC_NET, gateway: $VNC_GATEWAY, retry: $net_retry_count/$NET_RETRY_MAX" >&2
-      exit 1
-    fi
-  else
-    VNC_NET=`docker inspect --format "{{ .IPAM.Config }}" $VNC_NET_NAME | grep -oE "\b([0-9]{1,3}\.){3}[0-9]{1,3}\b/[0-9]{1,2}"`
-    VNC_NET_MASK=`echo $VNC_NET | cut -d'/' -f2`
-    VNC_NET_PREFIX=$(echo $VNC_NET | cut -d'/' -f1 | cut -d '.' -f1-$((5-$VNC_NET_MASK/8)))
-    VNC_GATEWAY=${VNC_NET_PREFIX}.1
-  fi
-
-  # Set gateway, wproxy and tproxy
-  [ -z "$WPROXY_IP" ] && WPROXY_IP=${VNC_NET_PREFIX}.2
-  [ -z "$TPROXY_IP" ] && TPROXY_IP=${VNC_NET_PREFIX}.3
-
-  ## If saved ip is not in the new net ip range of docker, remove it for new generation
-  get_var VNC_IP
-  if [ -n "$VNC_IP" ]; then
-    VNC_IP_BASE=`echo $VNC_IP | cut -d '.' -f1,2`
-    echo $VNC_NET | grep -q $VNC_IP_BASE
-    if [ $? -ne 0 ]; then
-      unset VNC_IP
-      rm "$LAB_VNC_IP"
-    fi
-  fi
-}
-
-# Create cloud lab subnet
+# start host support part
 if [ ! -n "$IN_CONTAINER" ]; then
-  if [ "x$HOST_OS" = "xWindows" ]; then
-    docker ps >/dev/null 2>&1
-    docker_exists_code=$?
-  else
-    docker info >/dev/null 2>&1
-    docker_exists_code=$?
-  fi
-  if [ $docker_exists_code -eq 0 ]; then
-    create_cloud_lab_net
-  else
-    docker info | grep -A2 -i Server >&2
-    echo >&2
-    echo "ERR: Docker not work well, Please let docker work at first" >&2
-    echo >&2
-    exit 1
-  fi
-fi
+
+. "$DOCKER_LIBS"
+
+get_host_os
+prepare_docker
+
+[ -z "$HOST" ] && HOST=localhost
+[ -z "$TPROXY" ] && TPROXY=0
+# Configure subnet info
+[ -z "$VNC_NET_NAME" ] && VNC_NET_NAME=cloud-lab-net
+
+CONTAINER_VNC_PORT=6080
+CONTAINER_SSH_PORT=22
+CONTAINER_WEBSSH_PORT=443
+[ -z "$HOST_VNC_PORT" ] && HOST_VNC_PORT=6080
+[ -z "$HOST_SSH_PORT" ] && HOST_SSH_PORT=2222
+[ -z "$HOST_WEBSSH_PORT" ] && HOST_WEBSSH_PORT=4433
+
+TPROXY_IMAGE_NAME=cloud-ubuntu-proxy_client_transparent
+WPROXY_IMAGE_NAME=cloud-ubuntu-web
+TPROXY_NAME=proxy-client
+WPROXY_NAME=cloud-ubuntu-web
+
+get_vars CONTAINER_NAME CONTAINER_ID IMAGE
+
+[ -z "$IMAGE" ] && IMAGE=tinylab/$CURRENT
+get_lab_user() { dirname $IMAGE; }
+LAB_NAME=$CURRENT
+
+fi # finish host support part

@@ -6,7 +6,7 @@
 #
 
 TOP_DIR="$(cd "$(dirname "$0")"/../../ && pwd)"
-. "$TOP_DIR"/tools/docker/config $* >/dev/null
+. "$TOP_DIR"/tools/docker/config >/dev/null
 
 # Must rerun wproxy and tproxy too
 docker rm -f $WPROXY_NAME $TPROXY_NAME >/dev/null 2>&1

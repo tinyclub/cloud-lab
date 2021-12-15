@@ -8,14 +8,20 @@
 #
 
 TOP_DIR="$(cd "$(dirname "$0")"/../../ && pwd)"
-. "$TOP_DIR"/tools/docker/config $* >/dev/null
+. "$TOP_DIR"/tools/docker/config >/dev/null
+
+# dedup
+if [ -z "$VNC_NET" -o -z "$IP_USED" ]; then
+  prepare_cloud_lab_net
+  IP_USED="$VNC_GATEWAY $WPROXY_IP $TPROXY_IP"
+fi
 
 used=`find "$CONFIGS_DIR" -name .vnc_ip -exec cat {} \;`
 
 net=`echo $VNC_NET | grep -oE "\b([0-9]{1,3}\.){3}[0-9]{1,3}\b/[0-9]{1,2}"`
 base=${net%/*}
 mask=${net#*/}
-used="$used $VNC_GATEWAY $WPROXY_IP $TPROXY_IP"
+used="$used $IP_USED"
 
 get_suffix ()
 {

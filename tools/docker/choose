@@ -8,12 +8,18 @@
 NEW_LAB=$1
 
 TOP_DIR="$(cd "$(dirname "$0")"/../../ && pwd)"
-. "$TOP_DIR"/tools/docker/config $* >/dev/null
+
+[ $# -gt 0 ] && shift
+. "$TOP_DIR"/tools/docker/config >/dev/null
 OLD_LAB=$CURRENT
 
 [ -z "$PULL" ] && PULL=0
 
 [ -z "$SUBMODULE" ] && SUBMODULE=0
+
+# main branch
+DEF_BRANCH=master
+[ -z "$BRANCH" ] && BRANCH=$DEF_BRANCH
 
 # Fix up windows support
 config_casesensitive ()
@@ -33,12 +39,11 @@ config_git ()
 download_submodule ()
 {
     LAB_CURRENT_DIR="$LAB_DIR"/$CURRENT
-    LAB_LABS="$CONFIG_DIR"/labs
 
     if [ -n "$CURRENT" ]; then
       LABS=$CURRENT
     else
-      get_var LABS $CURRENT
+      LABS=`get_labs`
     fi
 
     for lab in $LABS; do
@@ -66,7 +71,9 @@ download_submodule ()
 }
 
 if [ -n "$NEW_LAB" ]; then
-    . "$TOP_DIR"/tools/docker/config $NEW_LAB >/dev/null
+    CURRENT=$NEW_LAB
+
+    . "$TOP_DIR"/tools/docker/config >/dev/null
 
     set_var CURRENT
 
@@ -76,17 +83,17 @@ fi
 
 echo "LOG: Available Labs:"
 echo
-echo $LABS | tr ' ' '\n' | nl -v 1
+get_labs | tr ' ' '\n' | nl -v 1
 echo
 
 read -p 'LOG: Choose the lab number: ' number
 
 [ -z "$number" ] && echo "ERR: No valid number specified." && exit 1
 
-CURRENT=`echo $LABS | tr ' ' '\n' | head -$number | tail -1`
+CURRENT=`get_labs | tr ' ' '\n' | head -$number | tail -1`
 
 echo
-echo $LABS | tr ' ' '\n' | nl -v 1 | grep " $number"
+get_labs | tr ' ' '\n' | nl -v 1 | grep " $number"
 echo
 
 set_var CURRENT

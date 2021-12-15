@@ -6,7 +6,11 @@
 #
 
 TOP_DIR="$(cd "$(dirname "$0")"/../../ && pwd)"
-. "$TOP_DIR"/tools/docker/config $* >/dev/null
+. "$TOP_DIR"/tools/docker/config >/dev/null
+
+get_vars VNC_IP VNC_PWD VNC_PWD_VIEWONLY
+
+VNC_CLIENTS="vinagre xvnc4viewer gvncviewer xtightvncviewer krdc"
 
 vnc_clients()
 {

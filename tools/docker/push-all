@@ -6,9 +6,9 @@
 #
 
 TOP_DIR="$(cd "$(dirname "$0")"/../../ && pwd)"
-. "$TOP_DIR"/tools/docker/config $* >/dev/null
+. "$TOP_DIR"/tools/docker/config >/dev/null
 
-for IMAGE in $IMAGES
+for IMAGE in `get_images`
 do
     do_op "docker push" IMAGE
 done
