@@ -60,7 +60,11 @@ prepare_docker_toolbox ()
 
     if [ -n "$DOCKER_MACHINE" -a -n "$DOCKER_TOOLBOX" ]; then
       docker-machine ls | grep -q default
-      [ $? -ne 0 ] && docker-machine create -d virtualbox default
+      if [ $? -ne 0 ]; then
+        log_print "Start docker toolbox"
+        "$(dirname "$(which docker-machine)")"/start.sh uname
+        log_end
+      fi
       if [ "$(docker-machine status)" != "Running" ]; then
         log_print "Start default docker machine"
         timeout -k 2 10 docker-machine start default >&2
