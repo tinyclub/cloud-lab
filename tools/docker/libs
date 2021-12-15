@@ -740,5 +740,18 @@ add_sharedfolder ()
   fi
 }
 
+get_host ()
+{
+  get_var HOST localhost
+  oldhost=$HOST
+
+  # Update ip address for docker toolbox
+  HOST="localhost"
+  [ "x$HOST_OS" = "xWindows" -a -n "$DOCKER_TOOLBOX" -a -n "$DOCKER_MACHINE" ] && HOST="`docker-machine ip default`"
+
+  # host requires to update if it changes
+  [ "x$HOST" != "x$oldhost" ] && set_var HOST
+}
+
 get_images() { find "$CONFIGS_DIR" -name "name" | xargs -I{} cat "{}" | sort -u; }
 get_labs() { ls "$CONFIGS_DIR" | tr -s ' '; }
