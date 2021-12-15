@@ -133,6 +133,7 @@ else
 
   [ -z "$UNIX_PWD" ] && get_var UNIX_PWD
   [ -z "$VNC_PWD" ] && get_var VNC_PWD
+  [ -z "$VNC_PWD_VIEWONLY" ] && get_var VNC_PWD_VIEWONLY
 
   [ -z "$PWD_LENGTH" ] && get_var PWD_LENGTH $DEF_PWD_LENGTH
   [ -z "$PWD_TOTAL" ] && get_var PWD_TOTAL $DEF_PWD_TOTAL
