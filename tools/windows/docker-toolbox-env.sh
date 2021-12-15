@@ -23,4 +23,6 @@ if [ -f "$DOCKER_TOOLBOX_PATH"/docker-machine.exe ]; then
   echo "LOG: Check and start docker toolbox"
   docker-machine ls | grep -q default
   [ $? -ne 0 ] && "$DOCKER_TOOLBOX_PATH"/start.sh uname
+else
+  echo "ERR: No Docker Toolbox found, you can try Docker Desktop with tools/windows/docker-desktop-env.sh"
 fi

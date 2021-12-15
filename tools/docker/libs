@@ -56,7 +56,7 @@ prepare_docker_toolbox ()
     # the path of docker.exe may be the one from docker desktop, use
     # docker-machine as a check here. the new docker desktop didn't provide docker-machine.
 
-    (which docker-machine | grep -iq 'Docker Toolbox' >/dev/null 2>&1) && DOCKER_MACHINE=1 && DOCKER_TOOLBOX=1
+    (which docker-machine 2>/dev/null | grep -iq 'Docker Toolbox' >/dev/null 2>&1) && DOCKER_MACHINE=1 && DOCKER_TOOLBOX=1
 
     if [ -n "$DOCKER_MACHINE" -a -n "$DOCKER_TOOLBOX" ]; then
       docker-machine ls | grep -q default
