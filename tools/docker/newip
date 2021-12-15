@@ -96,7 +96,7 @@ get_new_ip ()
     t=$((t+=1))
   done
 
-  [ $t -gt $max ] && echo "LOG: No available ip found." && exit 1
+  [ $t -gt $max ] && err_print "No available ip found." && exit 1
 
   echo $ip
 }

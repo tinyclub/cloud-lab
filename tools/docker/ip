@@ -10,7 +10,7 @@ TOP_DIR="$(cd "$(dirname "$0")"/../../ && pwd)"
 
 # Check status
 lab_id=$(docker ps -f name=$CONTAINER_NAME -f status=running -q)
-[ -z "$lab_id" ] && echo "LOG: $LAB_NAME is not running." && exit 1
+[ -z "$lab_id" ] && err_print "$LAB_NAME is not running." && exit 1
 
 get_var VNC_IP
 

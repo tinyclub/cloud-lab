@@ -41,13 +41,13 @@ verify_login()
 login_config()
 {
   # List available login methods
-  echo "Please choose one of the login methods:"
+  echo "INFO: Please choose one of the login methods:"
   echo
   echo $LOGIN_METHODS | tr ' ' '\n' | nl -v 1
   echo
 
   # Let user choose one
-  read -p 'LOG: Choose the login method: ' method
+  read -p 'INFO: Choose the login method: ' method
 
   [ -z "$method" ] && echo "ERR: No method specified." && exit 1
 
@@ -109,15 +109,15 @@ fi
 
 LOGIN_TOOL="$TOP_DIR"/tools/docker/$LOGIN
 
-echo "LOG: Available login methods:"
+info_print "Available login methods:"
 echo
 echo "     $LOGIN_METHODS" | egrep --color "[^a-z]$LOGIN"
 echo
-echo "LOG: Switch to another method:"
+info_print "Switch to another method:"
 echo
 echo "     $0 LOGIN_METHOD" | sed -e "s%$TOP_DIR/%%g"
 echo
-echo "LOG: Running '$LOGIN_TOOL'"
+info_print "Running '$LOGIN_TOOL'"
 echo
 
 # bash and ssh require a virtual tty console

@@ -1,135 +1,93 @@
 #!/bin/sh
 
-get_host_user()
+get_host_user ()
 {
   HOST_USER=`whoami`
   [ "x$HOST_USER" = "xroot" -a -n "$SUDO_USER" ] && HOST_USER=$SUDO_USER
 }
 
-get_sudo()
+get_host_os ()
 {
-  [ `id -u` -ne 0 ] && SUDO=sudo
+  HOST_OS="Windows"
+  [ -z "$MSYSTEM" ] && HOST_OS=$(uname)
 }
 
-
-get_host_os()
+get_host_virtual ()
 {
   HOST_VIRTUAL=0
-  uname | grep -q MINGW
-  if [ $? -eq 0 ]; then
-    WINPTY="winpty"
-    HOST_OS="Windows"
-    powershell "get-wmiobject win32_computersystem | fl model" | tr -d ' ' |  cut -d ':' -f2 | egrep -iq "vmware|virtualbox|qemu|virtual"
-    [ $? -eq 0 ] && HOST_VIRTUAL=1
-  else
-    HOST_OS=$(uname)
-    if [ "x$HOST_OS" = "xLinux" ]; then
-      for t in product_name sys_vendor
-      do
-        if [ -f /sys/class/dmi/id/$t ]; then
-          cat /sys/class/dmi/id/$t | egrep -iq "vmware|virtualbox|qemu"
-          [ $? -eq 0 ] && HOST_VIRTUAL=1 && break
-        fi
-      done
-    fi
-  fi
+
+  [ "x$HOST_OS" != "xLinux" ] && return
+
+  for t in product_name sys_vendor; do
+    f=/sys/class/dmi/id/$t && [ -f $f ] && egrep -iq "vmware|virtualbox|qemu" $f && HOST_VIRTUAL=1 && break
+  done
 }
 
-prepare_docker()
+prepare_docker ()
 {
-  DOCKER_INSTALL_CMD="$TOP_DIR"/tools/docker/install
-  "$DOCKER_INSTALL_CMD" >&2 || exit 1
+  "$TOP_DIR"/tools/docker/install >&2 || exit 1
 
   which groups >/dev/null 2>&1 && which usermod >/dev/null 2>&1
   if [ $? -eq 0 ]; then
-    get_sudo
     get_host_user
 
     groups $HOST_USER | grep -q docker
     if [ $? -ne 0 ]; then
-      echo >&2
-      read -p 'LOG: Restart X Server to use docker without sudo ? (yes/no) ' sure
-      if [ "x$sure" = "xyes" -o "x$sure" = "xy" -o "x$sure" = "xY" -o "x$sure" = "xYES" ]; then
-        $SUDO usermod -aG docker $HOST_USER
-        echo >&2
-        time_to_reboot=5
-        for i in `seq 0 $time_to_reboot`
-        do
-          echo "Time left to reboot:" $((time_to_reboot-i)) >&2
-          sleep 1
-        done
-        $SUDO pkill X
-        exit 0
-      else
-        echo >&2
-        echo "LOG: Without reboot, please run 'newgrp docker' to work in docker group." >&2
-        echo >&2
-        exit 1
-      fi
+      echo "ERR: $HOST_USER is not in docker group, please add it, and logout or reboot to let it take effect:" >&2
+      echo "     $ sudo usermod -aG docker $HOST_USER" >&2
+      exit 1
     else
-      # Check if really running as docker group
       groups | grep -q docker
       if [ $? -ne 0 ]; then
-        echo >&2
-        echo "LOG: Without reboot, please issue 'newgrp docker' to work in docker group." >&2
+        echo "ERR: Not work as docker group, please logout or reboot" >&2
+        echo "     Without logout or reboot, please issue 'newgrp docker' as a temp solution." >&2
         exit 1
       fi
     fi
   fi
 
   if [ "x$HOST_OS" = "xWindows" ]; then
-    which docker | grep -iq 'Docker Toolbox' >/dev/null 2>&1
-    [ $? -eq 0 ] && DOCKER_TOOLBOX=1
+    (which docker | grep -iq 'Docker Toolbox' >/dev/null 2>&1) && DOCKER_TOOLBOX=1
 
-    which docker-machine >/dev/null 2>&1
-    [ $? -eq 0 ] && DOCKER_MACHINE=1
+    which docker-machine >/dev/null 2>&1 && DOCKER_MACHINE=1
 
     if [ -n "$DOCKER_MACHINE" -a -n "$DOCKER_TOOLBOX" ]; then
-      # Prepare docker machine
       docker-machine ls | grep -q default
-      if [ $? -ne 0 ]; then
-        docker-machine create -d virtualbox default
-      fi
-      status=$(docker-machine status)
-      if [ "$status" != "Running" ]; then
-        timeout -k 2 5 docker-machine start default >&2
-      fi
+      [ $? -ne 0 ] && docker-machine create -d virtualbox default
+      [ "$(docker-machine status)" != "Running" ] && timeout -k 2 5 docker-machine start default >&2
     fi
   fi
 }
 
-get_screen_size()
+get_screen_size ()
 {
-  DEF_SCREEN_SIZE=1280x720
+  [ -n "$SCREEN_SIZE" ] && return
 
   # 16:10: 640x480 800x480 1280x800 1440x900 1680x1050 1920x1200 2560x1600
   # 16:9: 960x540 1280x720 1920x1080 2560x1440
+  DEF_SCREEN_SIZE=1280x720
+
   if [ "x$HOST_OS" = "xWindows" ]; then
-    if [ -z "$SCREEN_SIZE" ]; then
-      SCREEN_SIZE=$(wmic path Win32_VideoController get CurrentHorizontalResolution,CurrentVerticalResolution /format:value | sed -ne "s/.*=\([0-9]*\)/\1/gp" | tr '\r\n' 'x' | tr -s 'x' | cut -d'x' -f1-2 | tr -d '\r\n')
-    fi
+    SCREEN_SIZE=$(wmic path Win32_VideoController get CurrentHorizontalResolution,CurrentVerticalResolution /format:value | sed -e ':a;N;$!ba;s/\r\n/_/g;s/[^0-9_]//g;s/_\{2,\}//g;s/_/x/g')
   else
     which xrandr >/dev/null 2>&1
-    xrandr_exist=$?
+    [ $? -ne 0 ] && SCREEN_SIZE=$DEF_SCREEN_SIZE && return
     pgrep Xorg >/dev/null 2>&1
-    xorg_exist=$?
-    if [ $xorg_exist -eq 0 -a $xrandr_exist -eq 0 -a -z "$SCREEN_SIZE" ]; then
-      SCREEN_SIZE=`xrandr --current 2>/dev/null | grep "^ .*\*" | tr -s ' ' | cut -d' ' -f2 | cut -d '_' -f1 | head -1 | tr -d -c '[0-9x]'`
-      if [ $? -eq 0 ]; then
-        current_height=`echo $SCREEN_SIZE | cut -d 'x' -f2 | tr -d -c '[0-9]'`
-        for h in `xrandr --current 2>/dev/null | grep "^ [ 0-9]*x" | cut -d'x' -f2 | cut -d' ' -f1`
-        do
-          h=$(echo $h | tr -d -c '[0-9]')
-          [ $h -lt $current_height ] && break
-        done
-        SCREEN_SIZE=`xrandr --current 2>/dev/null | grep "^ [ 0-9]*x"  | grep "x$h" | tr -s ' ' | cut -d' ' -f2 | cut -d '_' -f1 | head -1 | tr -d -c '[0-9x]'`
-      fi
-    fi
+    [ $? -ne 0 ] && SCREEN_SIZE=$DEF_SCREEN_SIZE && return
+
+    SCREEN_SIZE=`xrandr --current 2>/dev/null | grep "^ .*\*" | tr -s ' ' | cut -d' ' -f2 | cut -d '_' -f1 | head -1 | tr -d -c '[0-9x]'`
+    [ $? -ne 0 ] && SCREEN_SIZE=$DEF_SCREEN_SIZE && return
+
+    current_height=`echo $SCREEN_SIZE | cut -d 'x' -f2 | tr -d -c '[0-9]'`
+    for h in `xrandr --current 2>/dev/null | grep "^ [ 0-9]*x" | cut -d'x' -f2 | cut -d' ' -f1`
+    do
+      h=$(echo $h | tr -d -c '[0-9]')
+      [ $h -lt $current_height ] && break
+    done
+    SCREEN_SIZE=`xrandr --current 2>/dev/null | grep "^ [ 0-9]*x"  | grep "x$h" | tr -s ' ' | cut -d' ' -f2 | cut -d '_' -f1 | head -1 | tr -d -c '[0-9x]'`
   fi
 
   [ -z "$SCREEN_SIZE" ] && SCREEN_SIZE=$DEF_SCREEN_SIZE
-
-  echo $SCREEN_SIZE
 }
 
 do_op () #op $ARG $args
@@ -145,22 +103,20 @@ do_op () #op $ARG $args
 
   arg="'`eval echo "\\$${ARG}"`'"
 
-  [ -z "$arg" ] && echo "LOG: '$ARG' required for '$op'" && exit 1
+  [ -z "$arg" ] && err_print "'$ARG' required for '$op'" && exit 1
 
-  #echo
-  #echo "LOG: Running ' $op $arg $args'"
-  #echo
+  debug_print "Running ' $op $arg $args'"
 
   eval $op $arg $args
 }
 
 get_time ()
 {
-   local t=`date '+%N'`
+  local t=`date '+%N'`
 
-   [ $t = "N" ] && t=`date '+%s'`
+  [ $t = "N" ] && t=`date '+%s'`
 
-   echo $t | sed -e 's%^0*%%g'
+  echo $t | sed -e 's%^0*%%g'
 }
 
 get_random ()
@@ -189,7 +145,8 @@ get_random_pwd ()
 
 get_browser ()
 {
-  # Get the best web browser for different system
+  log_print "Get web browser"
+
   local macos_chrome='/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'
   local macos_safari=/Applications/Safari.app/Contents/MacOS/Safari
   local macos_firefox=/Applications/Firefox.app/Contents/MacOS/firefox
@@ -228,43 +185,44 @@ get_browser ()
       if [ $? -eq 0 ]; then
         WEB_BROWSER="$web_browser"
       else
-        echo "LOG: No $WEB_BROWSER found, use safari instead." && WEB_BROWSER=$macos_safari
+        info_print "No $WEB_BROWSER found, use safari instead." && WEB_BROWSER=$macos_safari
       fi
     fi
   elif [ "x$HOST_OS" = "xLinux" ]; then
     which "$WEB_BROWSER" >/dev/null 2>&1
-    if [ $? -eq 1 ]; then
+    if [ $? -ne 0 ]; then
       if [ x"$WEB_BROWSER" = "xfirefox" ]; then
         echo "ERR: No web browser found, are you running me in cloud? please open the 'Normal' url yourself."
         exit 1
       else
-        echo "LOG: No "$WEB_BROWSER" found, try firefox instead."
+        info_print "No "$WEB_BROWSER" found, try firefox instead."
         WEB_BROWSER=firefox
         which "$WEB_BROWSER" >/dev/null 2>&1
-        [ $? -eq 1 ] && echo "ERR: No "$WEB_BROWSER" found too." && exit 2
+        [ $? -ne 0 ] && echo "ERR: No "$WEB_BROWSER" found too." && exit 2
       fi
     fi
   else # Windows
     which "$WEB_BROWSER" >/dev/null 2>&1
-    if [ $? -eq 1 ]; then
+    if [ $? -ne 0 ]; then
       if [ x"$WEB_BROWSER" = "xstart" ]; then
         echo "ERR: No web browser found, are you running me in cloud? please open the 'Normal' url yourself."
         exit 1
       else
-        echo "LOG: No "$WEB_BROWSER" found, try edge instead."
+        info_print "No "$WEB_BROWSER" found, try edge instead."
         WEB_BROWSER="$win_edge"
         which "$WEB_BROWSER" >/dev/null 2>&1
-        [ $? -eq 1 ] && echo "ERR: No "$WEB_BROWSER" found too." && exit 2
+        [ $? -ne 0 ] && echo "ERR: No "$WEB_BROWSER" found too." && exit 2
       fi
     fi
 
   fi
 
-  __WEB_BROWSER="$WEB_BROWSER"
-
   if [ "x$HOST_OS" = "xDarwin" ]; then
     __WEB_BROWSER="/usr/bin/open -a '$WEB_BROWSER'"
+  else
+    __WEB_BROWSER="$WEB_BROWSER"
   fi
+  log_end
 }
 
 get_lab_info ()
@@ -289,8 +247,8 @@ get_lab_info ()
 
   [ ! -d "$RELEASE_DIR" ] && mkdir -p "$RELEASE_DIR"
 
-  echo "LOG: Released to: $RELEASE_FILE"
-  echo "LOG: Labs online: `echo $RELEASE_FILE | sed -e \"s%$MAIN_CLOUD_LAB/$DEF_RELEASE_DIR%$WEB_HTTP://$HOST:$HOST_VNC_PORT/labs%g\"`"
+  info_print "Released to: $RELEASE_FILE"
+  info_print "Labs online: `echo $RELEASE_FILE | sed -e \"s%$MAIN_CLOUD_LAB/$DEF_RELEASE_DIR%$WEB_HTTP://$HOST:$HOST_VNC_PORT/labs%g\"`"
   echo
 
   cat << EOF > "$RELEASE_FILE"
@@ -400,7 +358,9 @@ EOF
 
 get_xterm ()
 {
+   log_print "Get terminal"
    [ -z "$XTERM" ] && XTERM="`"$DOCKER_XTERM_CMD"`"
+   log_end
 }
 
 notify_user ()
@@ -411,8 +371,10 @@ notify_user ()
     [ $NOTIFY_WAIT -gt 0 ] && NOTIFY_MSG="$NOTIFY_MSG in $NOTIFY_WAIT seconds."
     [ -z "$LAB_NAME" ] && LAB_NAME=$3
 
+    log_print "send '$NOTIFY_MSG' to $LAB_NAME"
     "$DOCKER_NOTIFY_CMD" $LAB_NAME "$NOTIFY_MSG"
-    [ $NOTIFY_WAIT -gt 0 ] && sleep $NOTIFY_WAIT
+    [ $? -eq 0 -a $NOTIFY_WAIT -gt 0 ] && sleep $NOTIFY_WAIT
+    log_end
 }
 
 # time_to_seconds "10D"
@@ -475,7 +437,7 @@ time_to_strings ()
   echo "$time $format"
 }
 # get_starttime "20170633092133" -> "20170633 09:21:33"
-get_starttime()
+get_starttime ()
 {
   local lab_start="$1"
 
@@ -537,47 +499,26 @@ get_lab_bases ()
   get_lab_list "$dir" $filter | xargs -I{} basename "{}"
 }
 
-verify_cpus ()
-{
-  local cpus=$1
-
-  if [ "x$HOST_OS" = "xDarwin" ]; then
-    total=`sysctl -n hw.ncpu`
-  else
-    total=`grep -c processor /proc/cpuinfo`
-  fi
-
-  echo "$cpus" | egrep -v "`seq $total 100` | tr ' ' '|'" > /dev/null
-  [ $? -ne 0 ] && echo "LOG: cpuset $cpus invalid" && exit 1
-}
-
 # Override the token map generation in wproxy
-touch_record_file()
+touch_record_file ()
 {
   [ ! -d "$HOST_RECORD_DIR" ] && mkdir -p "$HOST_RECORD_DIR"
-  #[ ! -f "$RECORD_FILE" ] && touch "$RECORD_FILE"
-
-  return 0
 }
 
-touch_release_file()
+touch_release_file ()
 {
   [ ! -d "$HOST_RELEASE_DIR" ] && mkdir -p "$HOST_RELEASE_DIR"
   [ ! -f "$RELEASE_FILE" ] && touch "$RELEASE_FILE"
-
-  return 0
 }
 
 touch_token_map ()
 {
   [ ! -d "$LOCAL_TOKEN_DIR" ] && mkdir -p "$LOCAL_TOKEN_DIR"
   [ ! -f "$LOCAL_TOKEN_MAP" ] && touch "$LOCAL_TOKEN_MAP"
-
-  return 0
 }
 
 # run before container start to make sure the files' owner is normal user
-touch_export_files()
+touch_export_files ()
 {
   touch_record_file
   touch_release_file
@@ -600,7 +541,7 @@ get_random_net ()
 
 create_cloud_lab_net ()
 {
-  docker network inspect $VNC_NET_NAME >/dev/null 2>&1
+  docker network ls | grep -q $VNC_NET_NAME >/dev/null 2>&1
   if [ $? -ne 0 ]; then
     [ -z "$VNC_NET_MASK" ] && VNC_NET_MASK=16
 
@@ -619,10 +560,10 @@ create_cloud_lab_net ()
 
       docker network create --driver bridge --subnet=$VNC_NET --gateway=$VNC_GATEWAY $VNC_NET_NAME
       if [ $? -eq 0 ]; then
-        echo "LOG: Created network with driver: bridge, subnet: $VNC_NET, gateway: $VNC_GATEWAY" >&2
+        info_print "Created network with driver: bridge, subnet: $VNC_NET, gateway: $VNC_GATEWAY" >&2
         break
       else
-        echo "WARN: Failed to create network with driver: bridge, subnet: $VNC_NET, gateway: $VNC_GATEWAY, retry: $net_retry_count/$NET_RETRY_MAX" >&2
+        warn_print "Failed to create network with driver: bridge, subnet: $VNC_NET, gateway: $VNC_GATEWAY, retry: $net_retry_count/$NET_RETRY_MAX" >&2
         net_retry_count=`expr $net_retry_count + 1`
         sleep 1
       fi
@@ -657,7 +598,6 @@ create_cloud_lab_net ()
 prepare_export_files ()
 {
   [ -z "$CLOUD_LAB_TOP_DIR" ] && CLOUD_LAB_TOP_DIR="$(echo $TOP_DIR | sed -e "s%/output/.*%%g")"
-
   [ -z "$MAIN_CLOUD_LAB" ] && MAIN_CLOUD_LAB="$CLOUD_LAB_TOP_DIR"
 
   [ -z "$TOP_TOKEN_DIR" ] && TOP_TOKEN_DIR="$MAIN_CLOUD_LAB"
@@ -715,9 +655,6 @@ prepare_export_files ()
   LOCAL_TOKEN_MAP="$LOCAL_TOKEN_DIR"/local_map
   REMOTE_TOKEN_MAP="$LOCAL_TOKEN_DIR"/remote_map
 
-  #echo $LOCAL_TOKEN_MAP >&2
-  #echo $REMOTE_TOKEN_MAP >&2
-
   # Init variable for export command
   HOST_RECORD_DIR="$TOP_RECORD_DIR"/$DEF_RECORD_DIR
   HOST_RELEASE_DIR="$TOP_RELEASE_DIR"/$DEF_RELEASE_DIR
@@ -745,7 +682,7 @@ prepare_cloud_lab_net ()
   fi
 }
 
-add_sharedfolder()
+add_sharedfolder ()
 {
   # Get path of vbvm
   if [ -n "$VBOX_MSI_INSTALL_PATH" ]; then

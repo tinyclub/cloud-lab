@@ -12,6 +12,7 @@ TOP_DIR="$(cd "$(dirname "$0")"/../../ && pwd)"
 
 [ -z "$WPROXY_IP" ] && prepare_cloud_lab_net
 
+WPROXY_IMAGE_NAME=cloud-ubuntu-web
 IMAGE_NAME=tinylab/$WPROXY_IMAGE_NAME
 
 [ -z "$PULL" ] && PULL=0
@@ -23,6 +24,9 @@ id=$(docker ps -a -f name=$WPROXY_NAME -f status=running -q)
 [ -n "$id" ] && echo "ERR: $WPROXY_NAME has already been created" && exit 0
 
 prepare_export_files
+
+CONTAINER_VNC_PORT=6080
+CONTAINER_WEBSSH_PORT=443
 
 DEFAULT_PORT_MAP=" -p $HOST_VNC_PORT:$CONTAINER_VNC_PORT -p $HOST_SSH_PORT:$CONTAINER_SSH_PORT -p $HOST_WEBSSH_PORT:$CONTAINER_WEBSSH_PORT "
 
@@ -55,13 +59,13 @@ CONTAINER_TOKEN_DIR=//$VNC_TOKENS
 # Fixed up for docker toolbox in windows
 # ref: https://headsigned.com/posts/mounting-docker-volumes-with-docker-toolbox-for-windows/
 VOLUME_MAP=" -v '/$HOST_RECORD_DIR':'$CONTAINER_RECORD_DIR'"
-echo "LOG: VNC screen recorded in $HOST_RECORD_DIR"
+debug_print "VNC screen recorded in $HOST_RECORD_DIR"
 
 VOLUME_MAP="$VOLUME_MAP -v '/$HOST_RELEASE_DIR':'$CONTAINER_RELEASE_DIR'"
-echo "LOG: VNC pages released in $HOST_RELEASE_DIR"
+debug_print "VNC pages released in $HOST_RELEASE_DIR"
 
 VOLUME_MAP="$VOLUME_MAP -v '/$HOST_TOKEN_DIR':'$CONTAINER_TOKEN_DIR'"
-echo "LOG: VNC tokens stored in $HOST_TOKEN_DIR"
+debug_print "VNC tokens stored in $HOST_TOKEN_DIR"
 
 [ -n "$WPROXY_IP" ] && ip="--ip=$WPROXY_IP"
 WPROXY_NET="$ip --network $VNC_NET_NAME"

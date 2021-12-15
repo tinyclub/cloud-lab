@@ -13,11 +13,16 @@ notify_user 2 "Lab will be removed"
 # Remove desktop shortcut
 # do_op "rm -f" LOCAL_DESKTOP_SHORTCUT
 
-# Remove container
+log_print "Remove container"
 do_op "docker rm -f" CONTAINER_NAME
+log_end
 
-# Disconnect docket network
+log_print "Disconnect $CONTAINER_NAME from cloud-lab-net"
 do_op "docker network disconnect -f cloud-lab-net" CONTAINER_NAME 2>/dev/null
 
 # Update lab list
-[ "$RELEASE" != '0' ] && "$DOCKER_RELEASE_CMD" all >/dev/null 2>&1
+if [ "$RELEASE" != '0' ]; then
+  log_print "Update release page"
+  "$DOCKER_RELEASE_CMD" all >/dev/null 2>&1
+  log_end
+fi

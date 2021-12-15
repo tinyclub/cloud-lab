@@ -10,6 +10,12 @@ TOP_DIR="$(cd "$(dirname "$0")"/../../ && pwd)"
 
 notify_user 2 "Lab will be stopped"
 
+log_print "Stop $CONTAINER_NAME"
 do_op "docker stop" CONTAINER_NAME
+log_end
 
-[ "$RELEASE" != '0' ] && "$DOCKER_RELEASE_CMD" all >/dev/null 2>&1
+if [ "$RELEASE" != '0' ]; then
+  log_print "Update release page"
+  "$DOCKER_RELEASE_CMD" all >/dev/null 2>&1
+  log_end
+fi

@@ -7,27 +7,36 @@
 
 export RELEASE=0
 
-read -p 'This command is dangerous, are you sure? (Yes/No) ' sure
+read -p 'WARN: This command is dangerous, are you sure? (Yes/No) ' sure
 
 [ "x$sure" != 'xyes' -a "x$sure" != 'xY' -a "x$sure" != 'xy' -a "x$sure" != 'xYES' ] && exit 0
 
 TOP_DIR="$(cd "$(dirname "$0")"/../../ && pwd)"
 . "$TOP_DIR"/tools/docker/config >/dev/null
 
-for lab in `get_labs`
+log_print "Get all of the labs"
+labs=`get_labs`
+log_end
+
+for lab in $labs
 do
   current=$lab
   unset CONTAINER_NAME
-  . "$TOP_DIR"/tools/docker/config>/dev/null 2>&1
+  log_print "Check status of $lab"
+  . "$TOP_DIR"/tools/docker/config >/dev/null 2>&1
 
   # Ignore the containers not exists
   [ -z "$CONTAINER_NAME" ] && continue
 
+  log_print "Clean $lab"
   "$DOCKER_CLEAN_CMD" $lab
+  log_end
 
 done
 
-"$DOCKER_RM_ALL_CMD"
+log_print "Remove containers"
+RELEASE=0 "$DOCKER_RM_ALL_CMD"
+log_end
 
 # clean up the ip:token mappings for webvnc
 [ -z "$LOCAL_TOKEN_MAP" -o "$REMOTE_TOKEN_MAP" ] && prepare_export_files
@@ -39,4 +48,8 @@ rm -rf "$LAB_LOGIN"
 rm -rf "$LAB_VNC"
 rm -rf "$LAB_HOST"
 
+[ -z "$labs" ] && info_print "No lab is found." && exit 0
+
+log_print "Update release page"
 "$DOCKER_RELEASE_CMD" all >/dev/null 2>&1
+log_end

@@ -8,9 +8,15 @@
 TOP_DIR="$(cd "$(dirname "$0")"/../../ && pwd)"
 . "$TOP_DIR"/tools/docker/config >/dev/null
 
+log_print "Check status of $CONTAINER_NAME"
 lab_id=$(docker ps -f name=$CONTAINER_NAME -f status=running -q)
-[ -z "$lab_id" ] && echo "LOG: $LAB_NAME is not running." && exit 1
+[ -z "$lab_id" ] && err_print "$LAB_NAME is not running." && exit 1
+log_end
 
+log_print "Get cached data"
 [ -z "$UNIX_USER" ] && get_var UNIX_USER $DEF_USER
+[ "x$HOST_OS" = x"Windows" ] && WINPTY="winpty"
+log_end
 
+log_print "Running docker bash of $CONTAINER_NAME"
 do_op "$WINPTY docker exec -it -w $LAB_WORKDIR/$CURRENT -u $UNIX_USER" CONTAINER_NAME "//bin/bash"

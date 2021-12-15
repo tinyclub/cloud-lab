@@ -9,10 +9,12 @@ TOP_DIR="$(cd "$(dirname "$0")"/../../ && pwd)"
 . "$TOP_DIR"/tools/docker/config >/dev/null
 
 # Check and download the lab source
+log_print "Check source code of $LAB_NAME ..."
 if [ ! -f "$TOP_DIR"/labs/$LAB_NAME/.git ]; then
-  echo "LOG: pulling git repo: $LAB_NAME"
+  info_print "pulling git repo: $LAB_NAME"
   "$DOCKER_CHOOSE_CMD" $LAB_NAME
 fi
+log_end
 
 # Notify for X11 system
 which notify-send >/dev/null 2>&1
@@ -27,6 +29,7 @@ if [ $? -eq 0 ]; then
 fi
 
 # Clean up old stopped containers if the saved environment has been cleaned up
+log_print "Check deprecated containers ..."
 if [ ! -f "$LAB_CONTAINER_ID" ]; then
   for status in exited created
   do
@@ -34,36 +37,42 @@ if [ ! -f "$LAB_CONTAINER_ID" ]; then
     [ -n "$unused_containers" ] && docker rm -f "$unused_containers"
   done
 fi
+log_end
 
 # Prepare container net
+log_print "Check networking ..."
 prepare_cloud_lab_net
+log_end
 
 # Start the transparent proxy via tinylab/cloud-ubuntu-proxy_client_transparent container
 if [ $TPROXY -eq 1 ]; then
+  log_print "Prepare transparant proxy service ..."
   tproxy_id=$(docker ps -f name=$TPROXY_NAME -f status=exited -q)
-  [ -n "$tproxy_id" ] && echo "LOG: Resume the stopped $TPROXY_NAME" && docker start $tproxy_id
+  [ -n "$tproxy_id" ] && info_print "Resume the stopped $TPROXY_NAME" && docker start $tproxy_id
 
   tproxy_id=$(docker ps -f name=$TPROXY_NAME -f status=running -q)
   if [ -z "$tproxy_id" ]; then
     docker rm -f $TPROXY_NAME 2>/dev/null
 
     if [ -n "$PROXY_SERVER" -a -n "$PROXY_PWD" -a -n "$ENCRYPT_CMD" ]; then
-      echo "LOG: Start $TPROXY_NAME"
+      info_print "Start $TPROXY_NAME"
       TPROXY_IP=$TPROXY_IP PROXY_SERVER="$PROXY_SERVER" PROXY_PWD="$PROXY_PWD" ENCRYPT_CMD="$ENCRYPT_CMD" PROXY_LIMIT=$PROXY_LIMIT "$DOCKER_TPROXY_CMD" $*
       [ $? -ne 0 ] && echo "ERR: Failed to run $TPROXY_NAME" >&2 && exit 1
     fi
   fi
-  
+
   TPROXY_IP=`docker inspect --format '{{ .NetworkSettings.IPAddress }}' $TPROXY_NAME`
   do_unlock
   set_var TPROXY_IP
   do_lock
+  log_end
 fi
 
 # Start the ssh/vnc proxy via tinylab/cloud-ubuntu-web container
+log_print "Prepare web proxy service ..."
 wproxy_id=$(docker ps -f name=$WPROXY_NAME -f status=exited -q)
 if [ -n "$wproxy_id" ]; then
-  echo "LOG: Resume the stopped $WPROXY_NAME"
+  info_print "Resume the stopped $WPROXY_NAME"
   prepare_and_touch_export_files
   docker start $wproxy_id
 fi
@@ -72,18 +81,20 @@ wproxy_id=$(docker ps -f name=$WPROXY_NAME -f status=running -q)
 if [ -z "$wproxy_id" ]; then
   docker rm -f $WPROXY_NAME 2>/dev/null
 
-  echo "LOG: Start $WPROXY_NAME"
+  info_print "Start $WPROXY_NAME"
   prepare_and_touch_export_files
   WPROXY_IP=$WPROXY_IP "$DOCKER_EXPORT_CMD" $*
   [ $? -ne 0 ] && echo "ERR: Failed to run $WPROXY_NAME" >&2 && exit 1
 fi
+log_end
 
 if [ -n "$CONTAINER_NAME" ]; then
   # If already there and running, open it
+  log_print "Check status of $CONTAINER_NAME"
   lab_id=$(docker ps -f name=$CONTAINER_NAME -f status=running -q)
   if [ -n "$lab_id" ]; then
     if [ "$LOGIN" != "none" ]; then
-      echo "LOG: Open the running $LAB_NAME"
+      info_print "Open the running $LAB_NAME"
       LOGIN=$LOGIN "$DOCKER_LOGIN_CMD" $*
     fi
     exit $?
@@ -92,10 +103,10 @@ if [ -n "$CONTAINER_NAME" ]; then
   # If already there and stopped, start and open it
   lab_id=$(docker ps -f name=$CONTAINER_NAME -f status=exited -q)
   if [ -n "$lab_id" ]; then
-    echo "LOG: Resume the stopped $LAB_NAME"
+    info_print "Resume the stopped $LAB_NAME"
     "$DOCKER_START_CMD" $LAB_NAME
-    echo "LOG: Wait for lab resuming..."
-    while :; do 
+    info_print "Wait for lab resuming..."
+    while :; do
       boot_completed=`docker logs $CONTAINER_NAME 2>/dev/null | grep boot_completed`;
       sleep 2;
       [ -n "$boot_completed" ] && break
@@ -108,9 +119,10 @@ if [ -n "$CONTAINER_NAME" ]; then
 
   lab_id=$(docker ps -f name=$CONTAINER_NAME -f status=running -q)
   [ -z "$lab_id" ] && docker rm -f $CONTAINER_NAME 2>/dev/null
+  log_end
 
 else
-  # Generate an unique container name
+  log_print "Generate container name"
   DEF_UUID_LEN=6 && UUID=$(echo "$TOP_DIR" | $DEF_ENCRYPT_CMD | cut -c 1-$DEF_UUID_LEN)
 
   while :;
@@ -119,10 +131,15 @@ else
     ids=$(docker ps -a -q -f name=$CONTAINER_NAME)
     [ -z "$ids" ] && break
   done
+  log_end
 fi
 
 # Require to prepare some environment for docker containers in host
-[ -f "$LAB_HOST_RUN" ] && "$LAB_HOST_RUN"
+if [ -f "$LAB_HOST_RUN" ]; then
+  log_print "Run $LAB_HOST_RUN"
+  "$LAB_HOST_RUN"
+  log_end
+fi
 
 # Run the lab via start a lab container
 caps=""
@@ -141,42 +158,57 @@ limits=$LIMITS
 
 # Get a new ip for our new container if no one cached
 if [ -z "$VNC_IP" -o "$VNC_IP" = "$DEF_VNC_IP" ]; then
+  log_print "Get a new ip address"
   VNC_IP=`VNC_NET=$VNC_NET IP_USED="$VNC_GATEWAY $WPROXY_IP $TPROXY_IP" "$DOCKER_IP_CMD"`
-  [ $? -ne 0 ] && echo "LOG: \"$DOCKER_IP_CMD\": get ip address error." >&2 && exit 1
+  [ $? -ne 0 ] && err_print "\"$DOCKER_IP_CMD\": get ip address error." >&2 && exit 1
+  log_print "DONE"
 fi
 
 # Get screen size if no one cached
-get_var SCREEN_SIZE $(get_screen_size)
+log_print "Get SCREEN_SIZE"
+get_var SCREEN_SIZE
+[ -z "$SCREEN_SIZE" ] && get_screen_size
+log_end
 
 # Sync UID before running
 [ "x$HOST_OS" = "xLinux" ] && UNIX_UID=$(id -u `get_host_user`)
 [ "x$UNIX_UID" = "x0" -o -z "$UNIX_UID" ] && UNIX_UID=$DEF_UID
 
 # Build vars passed to container
+log_print "Build variables for $CONTAINER_NAME"
 VARS="UNIX_USER UNIX_UID UNIX_PWD VNC_PWD VNC_PWD_VIEWONLY VNC_IP VNC_TOKEN TPROXY_IP TPROXY VNC_SHARED SCREEN_SIZE HOST_NAME UNIX_IDENTIFY VNC_IDENTIFY SUDO_IDENTIFY HOST_OS"
 for var in $VARS; do
-    __ENCRYPT_CMD="cat"
-
     # Available encrypt cmds: sha1sum, sha224sum, cksum, sha256sum, sha512sum, md5sum, sha384sum, sum
     value=$(eval echo \$${var})
     # Maximize the screen size of container, allow resize to what user want
-    if [ "$var" = "SCREEN_SIZE" -a $HOST_VIRTUAL -eq 1 ]; then
-      # Get the real maximum screen size
-      MAX_SCREEN_SIZE=1920x1080
-      if [ $(($(echo "$SCREEN_SIZE" | tr 'x' '*'))) -gt $(($(echo "$MAX_SCREEN_SIZE" | tr 'x' '*'))) ]; then
-        MAX_SCREEN_SIZE=$SCREEN_SIZE
-      fi
+    if [ "$var" = "SCREEN_SIZE" ]; then
+      get_host_virtual
 
-      value=$MAX_SCREEN_SIZE
+      if [ $HOST_VIRTUAL -eq 1 ]; then
+        MAX_SCREEN_SIZE=1920x1080
+        if [ $(($(echo "$SCREEN_SIZE" | tr 'x' '*'))) -gt $(($(echo "$MAX_SCREEN_SIZE" | tr 'x' '*'))) ]; then
+          MAX_SCREEN_SIZE=$SCREEN_SIZE
+        fi
+
+        value=$MAX_SCREEN_SIZE
+      fi
     fi
     echo "$var" | grep -q "_PWD"
-    [ $? -eq 0 -a -n "$ENCRYPT" -a -n "$ENCRYPT_CMD" -a -n "$value" ] && __ENCRYPT_CMD="$ENCRYPT_CMD"
-
-    vars="$vars -e $var=$(echo $value | tr -d '\n' | $__ENCRYPT_CMD | cut -d' ' -f1)";
+    if [ $? -eq 0 -a -n "$ENCRYPT" -a -n "$ENCRYPT_CMD" -a -n "$value" ]; then
+      vars="$vars -e $var=$(echo $value | tr -d '\n' | $ENCRYPT_CMD | cut -d' ' -f1)";
+    else
+      vars="$vars -e $var=$(echo $value | tr -d '\n' | cut -d' ' -f1)";
+    fi
 done
+log_end
 
 # Get configured settings
-get_vars ENVS CAPS DNS DEVICES PORTMAP VOLUMEMAP
+log_print "Building more arguments ..."
+if [ "x$HOST_OS" = "xWindows" ]; then
+  get_vars CAPS DEVICES VOLUMEMAP
+else
+  get_vars ENVS CAPS DNS DEVICES PORTMAP VOLUMEMAP
+fi
 
 for env in $ENVS; do vars="$vars -e $env"; done
 for cap in $CAPS; do caps="$caps --cap-add $cap"; done
@@ -184,6 +216,7 @@ for dns in $DNS; do dnss="$dnss --dns $dns"; done
 for dev in $DEVICES; do devs="$devs --device $dev"; done
 for map in $PORTMAP; do portmap="$portmap -p $map"; done
 for map in $VOLUMEMAP; do volumemap="$volumemap -v $map"; done
+log_end
 
 # Build container name
 container="--name $CONTAINER_NAME"
@@ -198,15 +231,15 @@ net="$ip --network $VNC_NET_NAME"
 [ "x$HOST_OS" = "xLinux" ] && audio="-v //run/user/${UNIX_UID}/pulse://run/user/${UNIX_UID}/pulse"
 [ "x$HOST_OS" = "xWindows" -a -n "$DOCKER_TOOLBOX" -a -n "$DOCKER_MACHINE" ] && add_sharedfolder
 
+info_print "Wait for lab launching..."
+
 lab_id=$(eval docker run -d --privileged $coredump -h $LAB_NAME $net $audio $container $portmap $caps $dnss $devices $limits $volumemap $vars $EXTRA_ARGS $IMAGE)
 
-[ $? -ne 0 ] && echo "LOG: docker running error." && exit 1
+[ $? -ne 0 ] && err_print "docker running error." && exit 1
 
 CONTAINER_ID=`echo $lab_id | cut -c-12`
 
 trap 'echo "  Please wait for a while, to really stop me, please press 'CTRL+z' and fire: kill -9 $$"' 2
-
-echo "LOG: Wait for lab launching..."
 
 # Set boot timeout, 1 minute should be enough for modern computer
 [ -z "$BOOT_TIMEOUT" ] && BOOT_TIMEOUT=60
@@ -222,11 +255,11 @@ while :; do
     if [ $boot_time -gt $BOOT_TIMEOUT ]; then
        echo "ERR: Booting $CONTAINER_NAME Timeout, exit."
        echo
-       echo "LOG: Booting log is below:"
+       err_print "Booting log is below:"
        echo
        docker logs $CONTAINER_NAME
        echo
-       echo "LOG: Removing not completed $CONTAINER_NAME"
+       err_print "Removing not completed $CONTAINER_NAME"
        docker rm -f $CONTAINER_NAME
        exit 1
     fi
@@ -249,9 +282,9 @@ do_lock
 
 trap 'exit 0' 2
 
-echo "LOG: Container ID: ${CONTAINER_ID} Container Name: ${CONTAINER_NAME}"
+info_print "Container ID: ${CONTAINER_ID} Container Name: ${CONTAINER_NAME}"
 password=`docker logs $CONTAINER_NAME 2>/dev/null | grep Password`
-echo "LOG: $password"
+info_print "$password"
 
 # Publish vnc port
 "$DOCKER_PUBLISH_CMD" $*

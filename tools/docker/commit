@@ -20,4 +20,4 @@ do_unlock
 set_var IMAGE
 do_lock
 
-echo "LOG: new image name saved to $IMAGE"
+info_print "new image name saved to $IMAGE"

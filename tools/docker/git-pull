@@ -8,6 +8,6 @@
 TOP_DIR="$(cd "$(dirname "$0")"/../../ && pwd)"
 . "$TOP_DIR"/tools/docker/config >/dev/null
 
-echo "LOG: pulling repository: $LAB_NAME"
+info_print "pulling repository: $LAB_NAME"
 
 cd "$LAB_DIR"/$LAB_NAME && git pull -v

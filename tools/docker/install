@@ -24,10 +24,10 @@ which docker > /dev/null 2>&1 && exit 0
 
 [ -f /etc/issue ] && grep -qi ubuntu /etc/issue
 if [ $? -eq 0 ]; then
-    echo "LOG: Install docker-ce with $0"
+    echo "INFO: Install docker-ce with $0"
 else
     echo
-    echo "Warning: Docker is missing, but it is required by Linux Lab, please prepare one:"
+    echo "WARN: Docker is missing, but it is required by Linux Lab, please prepare one:"
     echo
     echo "1. Get a preinstalled Linux Lab Disk from https://shop155917374.taobao.com/"
     echo
@@ -80,4 +80,4 @@ $SUDO service docker restart
 
 # FIXME: 'newgrp' not work in script, perhaps should use 'sg' instead
 # see: https://unix.stackexchange.com/questions/18796/how-to-apply-changes-of-newly-added-user-groups-without-needing-to-reboot
-echo "LOG: Without reboot, please issue 'newgrp docker' to work in docker group" >&2
+echo "INFO: Without reboot, please issue 'newgrp docker' to work in docker group" >&2

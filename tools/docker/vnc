@@ -54,13 +54,13 @@ vnc_config()
   client=$1
 
   # List available vnc clients
-  echo "Available VNC Clients:"
+  echo "INFO: Available VNC Clients:"
   echo
   echo $INSTALLED_VNC_CLIENTS | tr ' ' '\n' | nl -v 1
   echo
   
   # Let user choose one
-  read -p 'LOG: Choose the vnc client: ' client
+  read -p 'INFO: Choose the vnc client: ' client
 
   [ -z "$client" ] && echo "ERR: No client specified." && exit 1
 
@@ -95,7 +95,7 @@ show_vnc()
 show_usage()
 {
   # Report if no vnc client specified
-  echo "LOG: No vnc client found, please configure one with one of the following methods:"
+  info_print "No vnc client found, please configure one with one of the following methods:"
   echo
   echo "1. Specify via: $0 VNC_CLIENT"
   echo "2. Or install any one you prefer and add it to $LAB_VNC"
@@ -132,7 +132,7 @@ fi
 
 # show vnc info
 echo
-echo "LOG: VNC login information:"
+info_print "VNC login information:"
 show_vnc
 
 # show usage
@@ -162,7 +162,7 @@ which xclip >/dev/null 2>&1
 which xsel >/dev/null 2>&1
 [ $? -eq 0 ] && echo $VNC_PWD | tr -d '\n' | xsel -b
 
-echo "LOG: Running '$VNC_LOGIN'"
+info_print "Running '$VNC_LOGIN'"
 echo
 
 nohup $VNC_LOGIN >/dev/null 2>&1 &

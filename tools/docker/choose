@@ -56,17 +56,17 @@ download_submodule ()
         && git submodule update --init --remote $RECURSIVE "$LAB_CURRENT_DIR" \
         && cd "$LAB_CURRENT_DIR" && git checkout $BRANCH
 
-      [ $PULL -eq 1 ] && echo "LOG: Pulling repository: $lab" \
+      [ $PULL -eq 1 ] && info_print "Pulling repository: $lab" \
         && git pull -v && git submodule sync && git pull $PULL_RECURSIVE -v
 
-      [ $SUBMODULE -eq 1 ] && echo "LOG: Pulling submodules of $lab" \
+      [ $SUBMODULE -eq 1 ] && info_print "Pulling submodules of $lab" \
 	&& git submodule update --init --remote $RECURSIVE .
 
       # Convert absolute path to relative path for gitdir in .git of submodules
       [ $SUBMODULE -eq 1 ] && \
         git submodule foreach --recursive '[ -f .git ] && gitdir=$(cut -d" " -f2 .git) && (echo $gitdir | grep -q ^/) && dir=$(echo $gitdir | sed -e 's%$TOP_DIR/%%') && relpath=$(echo $PWD | sed -e 's%$TOP_DIR%%g' | tr -c -d '/' | sed -e 's%/%../%g') && echo "gitdir: $(echo $relpath)$dir" > .git || :'
 
-      echo "LOG: Source code downloaded to $LAB_CURRENT_DIR"
+      info_print "Source code downloaded to $LAB_CURRENT_DIR"
     done
 }
 
@@ -77,16 +77,16 @@ if [ -n "$NEW_LAB" ]; then
 
     set_var CURRENT
 
-    [ -n "$OLD_LAB" -a "$OLD_LAB" != "$CURRENT" ] && echo "LOG: Switch from $OLD_LAB to $CURRENT"
+    [ -n "$OLD_LAB" -a "$OLD_LAB" != "$CURRENT" ] && info_print "Switch from $OLD_LAB to $CURRENT"
     download_submodule && exit 0
 fi
 
-echo "LOG: Available Labs:"
+info_print "Available Labs:"
 echo
 get_labs | tr ' ' '\n' | nl -v 1
 echo
 
-read -p 'LOG: Choose the lab number: ' number
+read -p 'INFO: Choose the lab number: ' number
 
 [ -z "$number" ] && echo "ERR: No valid number specified." && exit 1
 
@@ -99,7 +99,7 @@ echo
 set_var CURRENT
 
 echo
-echo "LOG: Download the lab..."
+info_print "Download the lab..."
 echo
 
 # Hacking for windows support, disable autocrlf switch

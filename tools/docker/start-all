@@ -10,7 +10,11 @@ export RELEASE=0
 TOP_DIR="$(cd "$(dirname "$0")"/../../ && pwd)"
 . "$TOP_DIR"/tools/docker/config >/dev/null
 
+log_print "Check exited containers"
 id_names=`docker ps -f status=exited --format='{{.ID}},{{.Names}}' | sed '1!G;h;$!d'`
+log_end
+
+[ -z "$id_names" ] && info_print "No exited container found."  && exit 0
 
 for id_name in $id_names
 do
@@ -21,22 +25,30 @@ do
     echo `get_labs` $WPROXY_NAME $TPROXY_NAME | tr ' ' '\n' | grep -q ^$lab$
     [ $? -ne 0 ] && continue
 
-    echo "Starting $name ..."
-
     ns="$(find \"$LAB_OUTPUT\" -type d -name \"$name*\" 2>/dev/null)"
 
     if [ -n "$ns" ]; then
         for n in $ns
         do
-            "$LAB_OUTPUT"/$n/tools/docker/stop $lab
+            log_print "Start $lab ..."
+            "$LAB_OUTPUT"/$n/tools/docker/start $lab
+            log_end
         done
     elif [ -d "$TOP_DIR"/configs/$lab ]; then
+        log_print "Start $lab ..."
         "$DOCKER_START_CMD" $lab
+        log_end
     else
+        log_print "Start $lab ..."
         docker start $id
+        log_end
     fi
 done
 
+log_print "Wait for lab launching"
 sleep 5
+log_end
 
+log_print "Update release page"
 "$DOCKER_RELEASE_CMD" all >/dev/null 2>&1
+log_end

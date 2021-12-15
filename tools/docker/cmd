@@ -15,6 +15,6 @@ cmd="$1"
 [ -n "$2" ] && cmd="$2"
 
 lab_id=$(docker ps -f name=$CONTAINER_NAME -f status=running -q)
-[ -z "$lab_id" ] && echo "LOG: $LAB_NAME is not running." && exit 1
+[ -z "$lab_id" ] && err_print "$LAB_NAME is not running." && exit 1
 
 do_op "docker exec" CONTAINER_NAME "$cmd"

@@ -5,11 +5,11 @@
 # Copyright (C) 2016-2021 Wu Zhangjin <falcon@ruma.tech>
 #
 
-# debug with DEBUG=1
-[ "x$DEBUG" = x"1" ] && set -x
-
-[ -z "$TOP_DIR" ] && TOP_DIR="$(cd "$(dirname "$0")"/../../ && pwd)"
-TOP_DIR="$(cd "$(dirname "$TOP_DIR"/null)" && pwd)"
+if [ -z "$TOP_DIR" ]; then
+  TOP_DIR="$(cd "$(dirname "$0")"/../../ && pwd)"
+else
+  TOP_DIR="$(cd "$(dirname "$TOP_DIR"/null)" && pwd)"
+fi
 
 # Basic files/directories
 GIT_DIR="$TOP_DIR"/.git
@@ -33,25 +33,20 @@ LAB_CURRENT="$LAB_DIR"/.current_lab
 get_current()
 {
   # Allow to pass lab name
-  [ -z "$CURRENT" ] && CURRENT=$1
-  [ -n "$current" ] && CURRENT=$current
-
-  [ -n "$CURRENT" ] && ls -1 "$CONFIGS_DIR" | grep -q ^$CURRENT$
-  if [ $? -eq 1 -o -z "$CURRENT" ]; then
-    CURRENT=""
-    [ -f "$LAB_CURRENT" ] && CURRENT=$(cat "$LAB_CURRENT")
-  elif [ -z "$current" -a -n "$CURRENT" ]; then
-    echo $CURRENT | tr -d '\r\n' > "$LAB_CURRENT"
+  if [ ! -n "$current" ]; then
+    [ -z "$CURRENT" ] && CURRENT=$1
+  else
+    CURRENT=$current
   fi
 
-  # Container don't need this CURRENT
-  CMD=`basename $0`
-  echo "tproxy export choose unlock-all ip build-all pull-all git-pull-all push-all clean-all rm-all rm-full list release batch autostart release-all run-all stop-all start-all rerun-all renew-all " \
-          | grep -q "$CMD"
-  [ -z "$CURRENT" -a $? -ne 0 ] && echo "LOG: Current lab not specified" && echo "$0 lab-name $1" >&2 && exit 1
-  # [ -n "$CURRENT" ] && echo "LOG: Current Lab is $CURRENT" >&2
+  if [ -z "$CURRENT" ]; then
+    [ -f "$LAB_CURRENT" ] && CURRENT=$(cat "$LAB_CURRENT")
+  else
+    ls -1 "$CONFIGS_DIR" | grep -q ^$CURRENT$
+    [ $? -ne 0 -a -f "$LAB_CURRENT" ] && CURRENT=$(cat "$LAB_CURRENT")
 
-  echo $CURRENT
+    [ -z "$current" ] && echo $CURRENT | tr -d '\r\n' > "$LAB_CURRENT" &
+  fi
 }
 
 if [ -n "$IN_CONTAINER" ]; then
@@ -59,7 +54,7 @@ if [ -n "$IN_CONTAINER" ]; then
   TOOL_DIR="$TOOL_WORKDIR"
   CONFIG_DIR="$CONFIG_WORKDIR"
 else
-  CURRENT=`get_current $1`
+  get_current $1
   CONFIG_DIR="$TOP_DIR"/configs/$CURRENT
 fi
 
@@ -73,7 +68,6 @@ if [ ! -n "$IN_CONTAINER" ]; then
   LAB_LOGIN="$TOP_DIR"/.login_method
   LAB_VNC="$TOP_DIR"/.login_vnc
   LAB_HOST="$TOP_DIR"/.host_name
-  LAB_HOST_OS="$TOP_DIR"/.host_os
   LAB_OUTPUT="$TOP_DIR"/output
 
   DOCKER_DIR="$TOOL_DIR"/docker
@@ -165,6 +159,42 @@ for cs in sha1sum shasum; do
 done
 [ -z "$ENCRYPT_CMD" ] && ENCRYPT_CMD=$DEF_ENCRYPT_CMD
 
+debug_print ()
+{
+  [ "x$DEBUG" = "x1" ] && echo "DEBUG: $1"
+}
+
+debug_end ()
+{
+  debug_print "Done"
+}
+
+
+log_print ()
+{
+  [ "x$LOGGING" = "x1" ] && echo "LOG: $1"
+}
+
+log_end ()
+{
+  log_print "Done"
+}
+
+info_print ()
+{
+  echo "INFO: $1"
+}
+
+warn_print ()
+{
+  echo "WARN: $1"
+}
+
+err_print ()
+{
+  echo "ERR: $1"
+}
+
 # Security related
 # 0: with root permission by default, sharable, for private usage
 # 1: highest security level, ssl, encrypted, https, no root, no sudo, not sharable, for security product
@@ -174,8 +204,9 @@ done
 # Lock the important files for security
 __do_lock ()
 {
-  echo "LOG: __do_lock"
-  get_sudo
+  log_print "__do_lock"
+
+  [ `id -u` -ne 0 ] && SUDO=sudo
 
   [ -d "$CONFIG_DOCKER_DIR" ] && \
     $SUDO find "$CONFIG_DOCKER_DIR" -iname ".[^.]*" -exec chmod -f -R a-rw "{}" \;
@@ -190,8 +221,9 @@ __do_lock ()
 # Unlock the important files for configuration
 __do_unlock ()
 {
-  echo "LOG: __do_unlock"
-  get_sudo
+  log_print "__do_unlock"
+
+  [ `id -u` -ne 0 ] && SUDO=sudo
 
   which chattr >/dev/null 2>&1
   if [ $? -eq 0 ]; then
@@ -267,8 +299,8 @@ get_var () #VAR #defval
   var_value=`eval echo \\$${VAR}`
 
   # Load from variable cached file, if no user input specified
-  if [ -n "$var_file" -a -f "$var_file" -a -z "$var_value" ]; then
-    var_value='$(grep -v "#" "$var_file" | tr -d "\r" | tr "\n" " " | sed -e "s%^[[:space:]]*$%%g;s%[[:space:]]\{1,\}$%%g")'
+  if [ -f "$var_file" -a -z "$var_value" ]; then
+    eval var_value=\\\'$\(sed -e \'':a;N;$!ba;s/\r//g;s/\n/ /g;s/#[^ ]* //g;s%^\s*$%%g;s%\s\{1,\}$%%g'\' \'$var_file\'\)\\\'
     eval `eval echo \\$VAR='$var_value'`
     var_value="`eval echo '$'${VAR}`"
   fi
@@ -276,12 +308,16 @@ get_var () #VAR #defval
   # If no variable specified or cached, use the default value if specified, otherwise, reserve empty
   [ -z "$var_value" -a -n "$defval" ] && eval `eval echo \\$VAR='$defval'`
 
-  #echo `eval echo "LOG: GET: $VAR=\\$${VAR}"` >&2
+  debug_print "`eval echo GET: $VAR=\\$${VAR}`"
 }
 
 get_vars ()
 {
-  for var in $@; do get_var $var; done
+  for var in $@; do
+    debug_print "Reading $var"
+    get_var $var
+    debug_end
+  done
 }
 
 set_var () #VAR
@@ -295,47 +331,55 @@ set_var () #VAR
   var=`eval echo \\$${VAR} | egrep -v "^$|^ *$"`
   var_file="`eval echo \\${LAB_$VAR}`"
 
-  #echo "LOG: SET: Save '$var' to $var_file"
+  debug_print "SET: Save '$var' to $var_file"
 
-  if [ -n "$var" ]; then
-    echo "$var" | tr -d '\r' | sed -e "s%^[[:space:]]*$%%g;s%[[:space:]]\{1,\}$%%g" | tr ' ' '\n' > "$var_file"
-  fi
+  [ -n "$var" ] && echo "$var" | sed -e ':a;N;$!ba;s/\r//g;s%^\s*$%%g;s%\s\{1,\}$%%g;s/ /\n/g' > "$var_file"
 }
 
 set_vars ()
 {
-  for var in $@; do set_var $var; done
+  for var in $@; do
+    debug_print "Saving $var"
+    set_var $var
+    debug_end
+  done
 }
 
-# start host support part
-if [ ! -n "$IN_CONTAINER" ]; then
+host_init()
+{
+  . "$DOCKER_LIBS"
 
-. "$DOCKER_LIBS"
+  get_host_os
 
-get_host_os
-prepare_docker
+  # Shell scripts is very slow in Windows, enable more logging to increase the responsibility
+  if [ -z "$LOGGING" ]; then
+    if [ "x$HOST_OS" = "xWindows" ]; then
+      LOGGING=1
+    else
+      LOGGING=0
+    fi
+  fi
 
-[ -z "$HOST" ] && HOST=localhost
-[ -z "$TPROXY" ] && TPROXY=0
-# Configure subnet info
-[ -z "$VNC_NET_NAME" ] && VNC_NET_NAME=cloud-lab-net
+  which docker >/dev/null 2>&1
+  [ $? -ne 0 ] && prepare_docker
 
-CONTAINER_VNC_PORT=6080
-CONTAINER_SSH_PORT=22
-CONTAINER_WEBSSH_PORT=443
-[ -z "$HOST_VNC_PORT" ] && HOST_VNC_PORT=6080
-[ -z "$HOST_SSH_PORT" ] && HOST_SSH_PORT=2222
-[ -z "$HOST_WEBSSH_PORT" ] && HOST_WEBSSH_PORT=4433
+  [ -z "$HOST" ] && HOST=localhost
+  [ -z "$TPROXY" ] && TPROXY=0
+  [ -z "$VNC_NET_NAME" ] && VNC_NET_NAME=cloud-lab-net
 
-TPROXY_IMAGE_NAME=cloud-ubuntu-proxy_client_transparent
-WPROXY_IMAGE_NAME=cloud-ubuntu-web
-TPROXY_NAME=proxy-client
-WPROXY_NAME=cloud-ubuntu-web
+  CONTAINER_SSH_PORT=22
+  [ -z "$HOST_VNC_PORT" ] && HOST_VNC_PORT=6080
+  [ -z "$HOST_SSH_PORT" ] && HOST_SSH_PORT=2222
+  [ -z "$HOST_WEBSSH_PORT" ] && HOST_WEBSSH_PORT=4433
 
-get_vars CONTAINER_NAME CONTAINER_ID IMAGE
+  TPROXY_NAME=proxy-client
+  WPROXY_NAME=cloud-ubuntu-web
 
-[ -z "$IMAGE" ] && IMAGE=tinylab/$CURRENT
-get_lab_user() { dirname $IMAGE; }
-LAB_NAME=$CURRENT
+  get_vars CONTAINER_NAME CONTAINER_ID IMAGE
 
-fi # finish host support part
+  [ -z "$IMAGE" ] && IMAGE=tinylab/$CURRENT
+  get_lab_user() { dirname $IMAGE; }
+  LAB_NAME=$CURRENT
+}
+
+[ ! -n "$IN_CONTAINER" ] && host_init

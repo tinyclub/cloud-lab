@@ -8,14 +8,28 @@
 TOP_DIR="$(cd "$(dirname "$0")"/../../ && pwd)"
 . "$TOP_DIR"/tools/docker/config >/dev/null
 
+log_print "Check status of $CONTAINER_NAME"
 lab_id=$(docker ps -f name=$CONTAINER_NAME -f status=running -q)
-[ -z "$lab_id" ] && echo "LOG: $LAB_NAME is not running." && exit 1
+[ -z "$lab_id" ] && err_print "$LAB_NAME is not running." && exit 1
+log_end
 
+log_print "Get cached data"
 get_vars HOST VNC_IP UNIX_USER UNIX_PWD
+log_end
+
+# Exit if running as root
+[ `id -u` -eq 0 ] && echo "ERR: Web browsers can not run as root user, please run as normal user." && exit 1
 
 WEBSSH_URL="$WEB_HTTP://${HOST}:${HOST_WEBSSH_PORT}?ssh=ssh://$UNIX_USER:$UNIX_PWD@$VNC_IP:$CONTAINER_SSH_PORT"
 
-echo "LOG: Please login via ssh client with:"
+# Get web browser
+get_browser
+[ $? -ne 0 ] && echo "ERR: Give up browser launching for no web browser found" && exit 1
+
+log_print "Open '$WEBSSH_URL' with '$__WEB_BROWSER' ..."
+(eval "'$__WEB_BROWSER'" "'$WEBSSH_URL'" >/dev/null 2>&1 &) >/dev/null 2>&1
+
+info_print "Please login via ssh client with:"
 echo
 echo "    SSH_IP: $VNC_IP"
 echo "  SSH_PORT: $CONTAINER_SSH_PORT"
@@ -24,19 +38,10 @@ echo "  Password: $UNIX_PWD"
 echo "   Workdir: $LAB_WORKDIR/$CURRENT"
 echo
 
-echo "LOG: Or access via web browser:"
+info_print "Or access via web browser:"
 echo "  $WEBSSH_URL"
 echo
 
-# Get web browser
-get_browser
-[ $? -ne 0 ] && echo "ERR: Give up browser launching for no web browser found" && exit 1
-
-# Exit if running as root
-[ `id -u` -eq 0 ] && echo "ERR: Web browsers can not run as root user, please run as normal user." && exit 1
-
-(eval "'$__WEB_BROWSER'" "'$WEBSSH_URL'" >/dev/null 2>&1 &) >/dev/null 2>&1
-
-echo "LOG: Or access it outside via:"
-echo "  $WEBSSH_URL"
+info_print "Or access it outside via:"
+echo "  HOST=ip $0"
 echo

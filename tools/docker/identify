@@ -34,4 +34,4 @@ set_var IDENTIFY
 do_lock
 
 OP="Disable" && [ -n "$IDENTIFY" -a "x$IDENTIFY" = "x1" ] && OP="Enable"
-echo "LOG: ${OP} password of $ACCOUNT"
+info_print "${OP} password of $ACCOUNT"

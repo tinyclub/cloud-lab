@@ -11,7 +11,9 @@ TOP_DIR="$(cd "$(dirname "$0")"/../../ && pwd)"
 filter=$1
 [ -n "$2" ] && filter=$2
 
+log_print "Getting all of the labs" >&2
 labs="`get_lab_bases "$LAB_DIR" $filter`"
+log_end >&2
 
 [ -z "$lab_life" ] && lab_life=0
 
@@ -30,8 +32,9 @@ get_lab_life () # TOP_DIR
 for lab in $labs
 do
   current="$lab"
+  log_print "Geting data of $lab" >&2
   unset UNIX_USER UNIX_PWD VNC_PWD VNC_PWD_VIEWONLY CONTAINER_NAME VNC_IP VNC_TOKEN
-  . "$TOP_DIR"/tools/docker/config>/dev/null 2>&1
+  . "$TOP_DIR"/tools/docker/config >/dev/null 2>&1
 
   echo "$TOP_DIR" | grep -q "/$lab-"
   [ $? -eq 0 ] && lab_life="`get_lab_life "$TOP_DIR"`"
@@ -54,4 +57,5 @@ do
   echo $lab $UNIX_USER $HOST $HOST_VNC_PORT $VNC_TOKEN $VNC_PWD $VNC_PWD_VIEWONLY $VNC_IP $HOST_WEBSSH_PORT $UNIX_PWD $CONTAINER_NAME \
 	$lab_life $lab_start $lab_end
 
+  log_end >&2
 done

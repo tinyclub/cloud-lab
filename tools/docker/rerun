@@ -9,8 +9,13 @@ TOP_DIR="$(cd "$(dirname "$0")"/../../ && pwd)"
 . "$TOP_DIR"/tools/docker/config >/dev/null
 
 # Must rerun wproxy and tproxy too
+log_print "Remove $WPROXY_NAME and $TPROXY_NAME"
 docker rm -f $WPROXY_NAME $TPROXY_NAME >/dev/null 2>&1
+log_end
 
+log_print "Remove $LAB_NAME"
 "$DOCKER_RM_CMD" $LAB_NAME
+log_end
 
+log_print "Restart $LAB_NAME"
 "$DOCKER_RUN_CMD" $LAB_NAME
