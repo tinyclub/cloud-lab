@@ -14,7 +14,8 @@ lab_id=$(docker ps -f name=$CONTAINER_NAME -f status=running -q)
 log_end
 
 log_print "Get cached data"
-get_vars HOST VNC_IP UNIX_USER UNIX_PWD
+get_vars VNC_IP UNIX_USER UNIX_PWD
+get_var HOST localhost
 log_end
 
 # Exit if running as root

@@ -363,7 +363,6 @@ host_init()
   which docker >/dev/null 2>&1
   [ $? -ne 0 ] && prepare_docker
 
-  [ -z "$HOST" ] && HOST=localhost
   [ -z "$TPROXY" ] && TPROXY=0
   [ -z "$VNC_NET_NAME" ] && VNC_NET_NAME=cloud-lab-net
 

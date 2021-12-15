@@ -45,7 +45,10 @@ prepare_docker ()
       fi
     fi
   fi
+}
 
+prepare_docker_toolbox ()
+{
   if [ "x$HOST_OS" = "xWindows" ]; then
     (which docker | grep -iq 'Docker Toolbox' >/dev/null 2>&1) && DOCKER_TOOLBOX=1
 
@@ -54,7 +57,11 @@ prepare_docker ()
     if [ -n "$DOCKER_MACHINE" -a -n "$DOCKER_TOOLBOX" ]; then
       docker-machine ls | grep -q default
       [ $? -ne 0 ] && docker-machine create -d virtualbox default
-      [ "$(docker-machine status)" != "Running" ] && timeout -k 2 5 docker-machine start default >&2
+      if [ "$(docker-machine status)" != "Running" ]; then
+        log_print "Start default docker machine"
+        timeout -k 2 10 docker-machine start default >&2
+        log_end
+      fi
     fi
   fi
 }
@@ -247,6 +254,7 @@ get_lab_info ()
 
   [ ! -d "$RELEASE_DIR" ] && mkdir -p "$RELEASE_DIR"
 
+  get_var HOST localhost
   info_print "Released to: $RELEASE_FILE"
   info_print "Labs online: `echo $RELEASE_FILE | sed -e \"s%$MAIN_CLOUD_LAB/$DEF_RELEASE_DIR%$WEB_HTTP://$HOST:$HOST_VNC_PORT/labs%g\"`"
   echo
@@ -713,7 +721,9 @@ add_sharedfolder ()
       "$VBVM" setextradata default VBoxInternal2/SharedFoldersEnableSymlinksCreate/$sharedname 1
 
       # Restart to let new added sharedfolder work
-      timeout -k 2 5 docker-machine start default >&2
+      log_print "Start default docker machine"
+      timeout -k 2 10 docker-machine start default >&2
+      log_end
     fi
   else
     echo "ERR: Can not find virtualbox, did you install it?" >&2

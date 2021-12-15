@@ -17,6 +17,7 @@ log_end
 
 log_print "Get cached data"
 get_vars UNIX_PWD UNIX_USER VNC_IP
+get_var HOST localhost
 log_end
 
 which sshpass >/dev/null 2>&1

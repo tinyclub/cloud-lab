@@ -289,7 +289,8 @@ log_end
   AUTOCONNECT="&autoconnect=1"
 
 log_print "Get cached data"
-get_vars HOST VNC_IP VNC_TOKEN VNC_PWD VNC_PWD_VIEWONLY
+get_vars VNC_IP VNC_TOKEN VNC_PWD VNC_PWD_VIEWONLY
+get_var HOST localhost
 log_end
 
 # Get vnc page
@@ -297,11 +298,11 @@ HOST_WEB_URL="$WEB_HTTP://${HOST}:${HOST_VNC_PORT}/?u=$VNC_TOKEN&p=$VNC_PWD$AUTO
 HOST_WEB_URL_VIEWONLY="$WEB_HTTP://${HOST}:${HOST_VNC_PORT}/?r=${VNC_TOKEN}${VNC_PWD_VIEWONLY}"
 LABS_WEB_URL="$WEB_HTTP://${HOST}:${HOST_VNC_PORT}/labs/$RELEASE_HTML"
 
+show_lab &
+
 # Get web browser
 get_browser
 [ $? -ne 0 ] && echo "ERR: Give up browser launching for no web browser found" && exit 1
-
-show_lab &
 
 start_browser
 
