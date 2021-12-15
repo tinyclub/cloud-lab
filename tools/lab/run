@@ -3,7 +3,7 @@
 # Copyright (C) 2016-2021 Wu Zhangjin <falcon@ruma.tech>
 #
 
-# Please next run it manually
+# Please don't run it manually
 if [ ! -d /labs -o ! -d /.git ]; then
     echo "ERR: Please don't run this manually, do you mean tools/docker/run ?"
     exit 1
@@ -212,7 +212,7 @@ if [ ! -b /dev/loop7 ]; then
   [ -z "$max_loop" ] && max_loop=7
   for i in `seq 0 $max_loop`
   do
-    mknod /dev/loop$i b 7 $i
+    mknod /dev/loop$i b 7 $i &
   done
 fi
 
@@ -220,22 +220,21 @@ fi
 mount -t tmpfs none /tmp/
 
 # Run Lab specific tasks
-[ -x $LAB_CONTAINER_RUN ] && UNIX_USER=$UNIX_USER $LAB_CONTAINER_RUN
+[ -x $LAB_CONTAINER_RUN ] && UNIX_USER=$UNIX_USER $LAB_CONTAINER_RUN &
 
 # Detect lxqt
-which startlxqt
+which startlxqt >/dev/null 2>&1
 [ $? -eq 0 ] && ln -sf /usr/bin/lxqt-session /usr/bin/lxsession
 
 # Run image built-in tasks
 for f in /etc/startup.aux/*.sh
 do
-    . $f
+    $f
 done
 
 # Report boot_completed
 echo "boot_completed"
 
 # Launch supervisor tasks
-
 SYSTEM_SUPERVISORD_CONF=/etc/supervisor/supervisord.conf
 /usr/bin/supervisord -n -c $SYSTEM_SUPERVISORD_CONF
