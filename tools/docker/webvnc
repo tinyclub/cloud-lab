@@ -309,3 +309,6 @@ start_browser
 create_shortcuts &
 
 resize_screen
+
+# wait for background task finish
+sleep 0.1
