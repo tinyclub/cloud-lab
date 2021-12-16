@@ -14,7 +14,7 @@ log_print "Get cached data"
 get_vars VNC_IP VNC_PWD VNC_PWD_VIEWONLY
 log_end
 
-VNC_CLIENTS="vinagre xvnc4viewer gvncviewer xtightvncviewer krdc"
+VNC_CLIENTS="vinagre xvnc4viewer gvncviewer xtightvncviewer krdc mstsc"
 
 vnc_clients()
 {
@@ -155,16 +155,36 @@ case $VNC in
   vinagre)
       VNC_LOGIN="$VNC --vnc-scale --geometry 800x600 $VNC_IP"
       ;;
+  mstsc)
+      VNC_LOGIN="$VNC //v:$VNC_IP"
+      ;;
   *)
       VNC_LOGIN="$VNC $VNC_IP"
       ;;
 esac
 
 # Easier login
-which xclip >/dev/null 2>&1
-[ $? -eq 0 ] && echo $VNC_PWD | tr -d '\n' | xclip -selection clipboard
-which xsel >/dev/null 2>&1
-[ $? -eq 0 ] && echo $VNC_PWD | tr -d '\n' | xsel -b
+copy2clipboard ()
+{
+  [ -z "$1" ] && return 1
+
+  clip=""
+  for c in xsel xclip clip
+  do
+    which $c >/dev/null 2>&1 && clip=$c && break
+  done
+
+  case "$clip" in
+    xsel)  clip_cmd="$clip -b" ;;
+    xclip) clip_cmd="$clip -selection clipboard" ;;
+    clip)  clip_cmd="$clip" ;;
+    *)     err_print "No clipboard command found" && return 1 ;;
+  esac
+
+  echo "$1" | tr -d '\r\n' | eval "$clip_cmd"
+}
+
+copy2clipboard "$VNC_PWD"
 
 info_print "Running '$VNC_LOGIN'"
 echo
