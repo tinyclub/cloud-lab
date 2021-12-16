@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# commit -- commit/save a running lab container to image
+# save -- save a running lab container to image
 #
 # Copyright (C) 2016-2021 Wu Zhangjin <falcon@ruma.tech>
 #
@@ -8,9 +8,7 @@
 TOP_DIR="$(cd "$(dirname "$0")"/../../ && pwd)"
 . "$TOP_DIR"/tools/docker/config >/dev/null
 
-if [ -z "$TAG" ]; then
-  TAG=local-$(date +"%Y%m%d%H%M%S")
-fi
+[ -z "$TAG" ] && TAG=local-$(date +"%Y%m%d%H%M%S")
 
 IMAGE=`get_lab_user`/$CURRENT:$TAG
 
