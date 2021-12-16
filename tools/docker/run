@@ -181,7 +181,7 @@ if [ -z "$VNC_IP" -o "$VNC_IP" = "$DEF_VNC_IP" ]; then
 fi
 
 # Get screen size if no one cached
-log_print "Get SCREEN_SIZE"
+log_print "Get screen size"
 get_var SCREEN_SIZE
 [ -z "$SCREEN_SIZE" ] && get_screen_size
 log_end
