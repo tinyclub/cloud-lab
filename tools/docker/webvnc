@@ -204,7 +204,7 @@ EOF
     if [ "x$LAB_DESKTOP_SHORTCUT" = "x1" -a ! -f "$LOCAL_DESKTOP_SHORTCUT" ]; then
       # Ref: https://stackoverflow.com/questions/30028709/how-do-i-create-a-shortcut-via-command-line-in-windows
       LOCAL_DESKTOP_SHORTCUT="$DESKTOP_DIR/$(basename $LOCAL_DESKTOP_SHORTCUT)"
-      winpty powershell "\$s=(New-Object -COM WScript.Shell).CreateShortcut('$LOCAL_DESKTOP_SHORTCUT');\$s.TargetPath='$TOOLS_DIR/run.bat';\$s.IconLocation='$CMD_ICON';\$s.Save()"
+      powershell "\$s=(New-Object -COM WScript.Shell).CreateShortcut('$LOCAL_DESKTOP_SHORTCUT');\$s.TargetPath='$TOOLS_DIR/run.bat';\$s.IconLocation='$CMD_ICON';\$s.Save()"
     fi
 
     # For cloud lab
@@ -214,7 +214,7 @@ EOF
       echo "start $GIT_BASH --cd=\"$WORK_DIR\"" > "$MANAGE_BAT"
 
       MANAGE_DESKTOP_SHORTCUT="$DESKTOP_DIR/$(basename $MANAGE_DESKTOP_SHORTCUT)"
-      winpty powershell "\$s=(New-Object -COM WScript.Shell).CreateShortcut('$MANAGE_DESKTOP_SHORTCUT');\$s.TargetPath='$TOOLS_DIR/manage.bat';\$s.IconLocation='$CMD_ICON';\$s.Save()"
+      powershell "\$s=(New-Object -COM WScript.Shell).CreateShortcut('$MANAGE_DESKTOP_SHORTCUT');\$s.TargetPath='$TOOLS_DIR/manage.bat';\$s.IconLocation='$CMD_ICON';\$s.Save()"
     fi
 
     if [ ! -f "$BROWSE_DESKTOP_SHORTCUT" ]; then
@@ -225,7 +225,7 @@ EOF
       echo "start $BROWSE_CMD \"$LABS_WEB_URL\"" > "$BROWSE_BAT"
 
       BROWSE_DESKTOP_SHORTCUT="$DESKTOP_DIR/$(basename $BROWSE_DESKTOP_SHORTCUT)"
-      winpty powershell "\$s=(New-Object -COM WScript.Shell).CreateShortcut('$BROWSE_DESKTOP_SHORTCUT');\$s.TargetPath='$TOOLS_DIR/browse.bat';\$s.IconLocation='$BROWSE_ICON';\$s.Save()"
+      powershell "\$s=(New-Object -COM WScript.Shell).CreateShortcut('$BROWSE_DESKTOP_SHORTCUT');\$s.TargetPath='$TOOLS_DIR/browse.bat';\$s.IconLocation='$BROWSE_ICON';\$s.Save()"
     fi
 
   fi
