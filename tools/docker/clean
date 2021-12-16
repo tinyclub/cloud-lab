@@ -8,21 +8,30 @@
 TOP_DIR="$(cd "$(dirname "$0")"/../../ && pwd)"
 . "$TOP_DIR"/tools/docker/config >/dev/null
 
-notify_user 2 "Lab will be removed"
-
 do_unlock
 
 # Remove container
-[ -n "$CONTAINER_NAME" ] && do_op "docker rm -f" CONTAINER_NAME
+if [ -n "$CONTAINER_NAME" ]; then
+  notify_user 2 "Lab will be removed"
+  log_print "Remove container"
+  do_op "docker rm -f" CONTAINER_NAME
+  log_end
+fi
 
 # Remove desktop shortcut
-# do_op "rm -f" LOCAL_DESKTOP_SHORTCUT
+do_op "rm -f" LOCAL_DESKTOP_SHORTCUT
 
 # Remove the token map from .vnc-tokens/local_map
 [ -n "$VNC_TOKEN" ] && do_op "sed -i -e \"/${VNC_TOKEN}:/d\"" LOCAL_TOKEN_MAP
 [ -n "$VNC_IP" ] && do_op "sed -i -e \"/${VNC_IP}:/d\"" LOCAL_TOKEN_MAP
 
+log_print "Remove cached data"
 find "$CONFIG_DOCKER_DIR" -iname ".[^.]*" -exec rm -rf "{}" \;
+log_end
 
 # Update lab list
-[ "$RELEASE" != '0' ] && "$DOCKER_RELEASE_CMD" all >/dev/null 2>&1
+if [ "$RELEASE" != '0' ]; then
+  log_print "Update release page"
+  "$DOCKER_RELEASE_CMD" all >/dev/null 2>&1
+  log_end
+fi

@@ -8,10 +8,9 @@
 TOP_DIR="$(cd "$(dirname "$0")"/../../ && pwd)"
 . "$TOP_DIR"/tools/docker/config >/dev/null
 
-notify_user 2 "Lab will be removed"
+[ -z "$CONTAINER_NAME" ] && info_print "No lab container found." && exit 0
 
-# Remove desktop shortcut
-# do_op "rm -f" LOCAL_DESKTOP_SHORTCUT
+notify_user 2 "Lab will be removed"
 
 log_print "Remove container"
 do_op "docker rm -f" CONTAINER_NAME

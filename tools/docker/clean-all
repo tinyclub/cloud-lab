@@ -38,15 +38,23 @@ log_print "Remove containers"
 RELEASE=0 "$DOCKER_RM_ALL_CMD"
 log_end
 
-# clean up the ip:token mappings for webvnc
+log_print "clean up for webvnc"
 [ -z "$LOCAL_TOKEN_MAP" -o "$REMOTE_TOKEN_MAP" ] && prepare_export_files
 if [ -f "$LOCAL_TOKEN_MAP" -a -f "$REMOTE_TOKEN_MAP" -a "$LOCAL_TOKEN_DIR" != "/" ]; then
-  rm -rf "$LOCAL_TOKEN_DIR"
+  do_op "rm -rf" LOCAL_TOKEN_DIR
 fi
+log_end
 
-rm -rf "$LAB_LOGIN"
-rm -rf "$LAB_VNC"
-rm -rf "$LAB_HOST"
+log_print "Remove general cached data"
+for f in LAB_LOGIN LAB_VNC LAB_HOST LAB_CURRENT
+do
+  do_op "rm -rf" $f
+done
+log_end
+
+log_print "Remove lab manager and browser shotcuts"
+remove_shortcuts
+log_end
 
 [ -z "$labs" ] && info_print "No lab is found." && exit 0
 
