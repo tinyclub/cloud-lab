@@ -22,13 +22,12 @@ which sshpass >/dev/null 2>&1
 
 if [ "x$HOST_OS" != "xWindows" ]; then
   SSH_X=-X
-  IP=$VNC_IP
-  SSH_PORT=$CONTAINER_SSH_PORT
 else
   WINPTY="winpty"
-  IP=$HOST
-  SSH_PORT=$HOST_SSH_PORT
 fi
+
+IP=$VNC_IP
+SSH_PORT=$CONTAINER_SSH_PORT
 
 SSH_CMD="$WINPTY $SSH_PASS ssh $SSH_X -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -t ${UNIX_USER}@${IP} -p ${SSH_PORT} 'cd $LAB_WORKDIR/$CURRENT && exec bash -l'"
 
