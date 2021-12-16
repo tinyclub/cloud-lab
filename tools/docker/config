@@ -68,6 +68,7 @@ if [ ! -n "$IN_CONTAINER" ]; then
   LAB_LOGIN="$TOP_DIR"/.login_method
   LAB_VNC="$TOP_DIR"/.login_vnc
   LAB_HOST="$TOP_DIR"/.host_name
+  LAB_DOCKER="$TOP_DIR"/.docker_name
   LAB_OUTPUT="$TOP_DIR"/output
 
   DOCKER_DIR="$TOOL_DIR"/docker
@@ -364,6 +365,8 @@ host_init()
 
   which docker >/dev/null 2>&1
   [ $? -ne 0 ] && prepare_docker
+
+  [ "x$HOST_OS" = "xWindows" ] && prepare_docker_for_windows >&2
 
   [ -z "$TPROXY" ] && TPROXY=0
   [ -z "$VNC_NET_NAME" ] && VNC_NET_NAME=cloud-lab-net

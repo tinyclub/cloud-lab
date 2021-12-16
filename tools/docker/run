@@ -28,18 +28,6 @@ if [ $? -eq 0 ]; then
   fi
 fi
 
-# Docker Toolbox require to add extra sharedfolder if not work in /c/Users/
-if [ "x$HOST_OS" = "xWindows" ]; then
-  log_print "Check Docker Toolbox"
-  prepare_docker_toolbox
-  log_end
-  if [ -n "$DOCKER_TOOLBOX" -a -n "$DOCKER_MACHINE" ]; then
-    log_print "Add sharedfolder"
-    add_sharedfolder
-    log_end
-  fi
-fi
-
 # Clean up old stopped containers if the saved environment has been cleaned up
 log_print "Check deprecated containers ..."
 if [ ! -f "$LAB_CONTAINER_ID" ]; then

@@ -9,3 +9,4 @@ branch
 .gitconfig
 .login_method
 .login_vnc
+.docker_name

@@ -27,6 +27,7 @@ prepare_docker ()
 {
   "$TOP_DIR"/tools/docker/install >&2 || exit 1
 
+  # For others
   which groups >/dev/null 2>&1 && which usermod >/dev/null 2>&1
   if [ $? -eq 0 ]; then
     get_host_user
@@ -47,30 +48,60 @@ prepare_docker ()
   fi
 }
 
-prepare_docker_toolbox ()
+prepare_docker_for_windows ()
 {
-  if [ "x$HOST_OS" = "xWindows" ]; then
-    (which docker | grep -iq 'Docker Toolbox' >/dev/null 2>&1) && DOCKER_TOOLBOX=1
+  # get the docker tool which is using, empty means first start, need to choose one
+  get_var DOCKER
 
-    # Workaround: if both of docker toolbox and docker desktop are installed,
-    # the path of docker.exe may be the one from docker desktop, use
-    # docker-machine as a check here. the new docker desktop didn't provide docker-machine.
+  # running here means docker is there, but we don't know which one is used: toolbox or desktop
+  DOCKER_PATH="$(dirname "$(which docker)")"
 
-    (which docker-machine 2>/dev/null | grep -iq 'Docker Toolbox' >/dev/null 2>&1) && DOCKER_MACHINE=1 && DOCKER_TOOLBOX=1
+  # get the one currently in the path
+  echo "$DOCKER_PATH" | grep -q "Docker Toolbox" >/dev/null 2>&1
+  if [ $? -eq 0 ]; then
+    log_print "Found docker toolbox in $DOCKER_PATH"
+    CURRENT_DOCKER="toolbox"
+  else
+    log_print "Found docker desktop in $DOCKER_PATH"
+    CURRENT_DOCKER="desktop"
+  fi
 
-    if [ -n "$DOCKER_MACHINE" -a -n "$DOCKER_TOOLBOX" ]; then
+  if [ -z "$DOCKER" ]; then
+    DOCKER="$CURRENT_DOCKER"
+  fi
+
+  # save docker setting
+  log_print "Use $DOCKER for this instance"
+  set_var DOCKER &
+
+  if [ "$DOCKER" = "desktop" ]; then
+    if [ "$CURRENT_DOCKER" = "toolbox" -o -n "$DOCKER_TOOLBOX_INSTALL_PATH" ]; then
+      log_print "Load environment for docker toolbox"
+      . "$TOP_DIR"/tools/windows/docker-desktop-env.sh
+      log_end
+    fi
+
+  else # toolbox path
+    if [ "$CURRENT_DOCKER" = "desktop" -o -z "$DOCKER_TOOLBOX_INSTALL_PATH" ]; then
+        log_print "Load environment for docker toolbox"
+	. "$TOP_DIR"/tools/windows/docker-toolbox-env.sh
+	log_end
+    else
       docker-machine ls | grep -q default
       if [ $? -ne 0 ]; then
         log_print "Start docker toolbox"
         "$(dirname "$(which docker-machine)")"/start.sh uname
         log_end
       fi
-      if [ "$(docker-machine status)" != "Running" ]; then
-        log_print "Start default docker machine"
-        timeout -k 2 10 docker-machine start default >&2
-        log_end
-      fi
     fi
+
+    if [ "$(docker-machine status)" != "Running" ]; then
+      log_print "Start default docker machine"
+      timeout -k 2 10 docker-machine start default >&2
+      log_end
+    fi
+
+    do_vm_setting
   fi
 }
 
@@ -750,7 +781,7 @@ prepare_cloud_lab_net ()
   fi
 }
 
-add_sharedfolder ()
+get_vm_path ()
 {
   # Get path of vbvm
   if [ -n "$VBOX_MSI_INSTALL_PATH" ]; then
@@ -761,35 +792,100 @@ add_sharedfolder ()
     VBOX="$(reg query HKEY_LOCAL_MACHINE\\SOFTWARE\\Oracle\\VirtualBox //v InstallDir | grep InstallDir | awk '{print substr($0, index($0,$3))}')"
   fi
   VBVM="/$(echo $VBOX | sed 's/\\/\//g' | sed 's/://')VBoxManage.exe"
+}
 
-  if [ -f "$VBVM" ]; then
+do_vm_setting ()
+{
+  get_vm_path
 
-    # Share current working directory to virtualbox
-    hostpath="\\\\?\\$(cd "$TOP_DIR" && pwd -W | cut -d '/' -f1)\\"
-    sharedname="$(cd "$TOP_DIR" && pwd | cut -d '/' -f2)"
-
-    "$VBVM" showvminfo default | grep -i -A10 "Shared folders" | grep -q "Name: '$sharedname', Host path:"
-    if [ $? -ne 0 ]; then
-      # Restart to let new added sharedfolder work
-      status=$(docker-machine status)
-      [ "$status" = "Running" ] && docker-machine stop default >&2
-
-      # Add current working volume as sharedfolder and let it automount
-      "$VBVM" sharedfolder add default --name="$sharedname" --hostpath="$hostpath" --automount
-
-      # Enable symlink, still need to set with secpol.msc (may missing, require to run tools/windows/gpedit-enabler.bat as administrator)
-      "$VBVM" setextradata default VBoxInternal2/SharedFoldersEnableSymlinksCreate/$sharedname 1
-
-      # Restart to let new added sharedfolder work
-      log_print "Start default docker machine"
-      timeout -k 2 10 docker-machine start default >&2
-      log_end
-    fi
-  else
-    echo "ERR: Can not find virtualbox, did you install it?" >&2
-    echo "ERR: If there is a virtualbox, please add '$hostpath' as sharedfolder for virtualbox and mount it as '$remotepath' as automount and permanently." >&2
-    exit 1
+  if [ ! -f "$VBVM" ]; then
+    err_print "Can not find virtualbox."
+    return 1
   fi
+
+  # Share current working directory to virtualbox
+  hostpath="\\\\?\\$(cd "$TOP_DIR" && pwd -W | cut -d '/' -f1)"'\'
+  sharedname="$(cd "$TOP_DIR" && pwd | cut -d '/' -f2)"
+
+  "$VBVM" showvminfo default | grep -i -A10 "Shared folders" | grep -q "Name: '$sharedname', Host path:"
+  [ $? -ne 0 ] && add_sharedfolder=1
+  
+  cpu_total=$NUMBER_OF_PROCESSORS
+  [ -z "$cpu_total" ] && cpu_total=4
+
+  if [ $cpu_total -ge 16 ]; then
+    cpus=4
+  elif [ $cpu_total -ge 8 ]; then
+    cpus=3
+  elif [ $cpu_total -ge 4 ]; then
+    cpus=2
+  else
+    cpus=2
+  fi
+
+  cur_cpus=$("$VBVM" showvminfo default | grep -i "Number of CPUS" | tr -d -c '[0-9]')
+  if [ $? -eq 0 -a -n "$cur_cpus" ]; then
+    if [ $cur_cpus -lt $cpus ]; then
+      log_print "Current cpus is $cur_cpus, new is $cpus"
+      set_cpu=1
+    else
+      mem=$cur_cpus
+    fi
+  fi
+
+  mem_total="$(($(wmic memorychip get Capacity | tr -d -c '[0-9]')/1024/1024/1024))"
+
+  if [ $mem_total -ge 16 ]; then
+    mem=4
+  elif [ $mem_total -ge 8 ]; then
+    mem=3
+  elif [ $mem_total -ge 4 ]; then
+    mem=2
+  else:
+    mem=2
+  fi
+
+  mem=$((mem*1024))
+
+  cur_mem=$("$VBVM" showvminfo default | grep -i "Memory Size" | tr -d -c '[0-9]')
+  if [ $? -eq 0 -a -n "$cur_mem" ]; then
+    if [ $cur_mem -lt $mem ]; then
+      log_print "Current mem is $cur_mem, new is $mem"
+      set_mem=1
+    else
+      mem=$cur_mem
+    fi
+  fi
+
+  [ -z "$add_sharedfolder" -a -z "$set_cpu" -a -z "$set_mem" ] && return 0
+
+  status=$(docker-machine status)
+  if [ "$status" = "Running" ]; then
+    log_print "Restart to let new vm setting take effect"
+    docker-machine stop default >&2
+    log_end
+  fi
+
+  if [ -n "$add_sharedfolder" ]; then
+    log_print "Add '$hostpath' as sharedfolder"
+    # Add current working volume as sharedfolder and let it automount
+    "$VBVM" sharedfolder add default --name="$sharedname" --hostpath="$hostpath" --automount
+
+    # Enable symlink, still need to set with secpol.msc (may missing, require to run tools/windows/gpedit-enabler.bat as administrator)
+    "$VBVM" setextradata default VBoxInternal2/SharedFoldersEnableSymlinksCreate/$sharedname 1
+    log_end
+  fi
+
+  if [ -n "$set_cpu" -o -n "$set_mem" ]; then
+    log_print "Set cpu to $cpus and mem to ${mem}MB"
+    "$VBVM" modifyvm default --rtcuseutc on --cpus $cpus  --ioapic on --memory $mem
+    log_end
+  fi
+
+  # Restart to let new added sharedfolder work
+  log_print "Start default docker machine"
+  timeout -k 2 10 docker-machine start default >&2
+  log_end
 }
 
 get_host ()
@@ -799,7 +895,7 @@ get_host ()
 
   # Update ip address for docker toolbox
   HOST="localhost"
-  [ "x$HOST_OS" = "xWindows" -a -n "$DOCKER_TOOLBOX" -a -n "$DOCKER_MACHINE" ] && HOST="`docker-machine ip default`"
+  [ "x$HOST_OS" = "xWindows" -a "$DOCKER" = "toolbox" ] && HOST="`docker-machine ip default`"
 
   # host requires to update if it changes
   [ "x$HOST" != "x$oldhost" ] && set_var HOST

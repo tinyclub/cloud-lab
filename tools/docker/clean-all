@@ -46,7 +46,7 @@ fi
 log_end
 
 log_print "Remove general cached data"
-for f in LAB_LOGIN LAB_VNC LAB_HOST LAB_CURRENT
+for f in LAB_LOGIN LAB_VNC LAB_HOST LAB_CURRENT LAB_DOCKER
 do
   do_op "rm -rf" $f
 done
