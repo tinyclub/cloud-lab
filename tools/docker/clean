@@ -19,7 +19,10 @@ if [ -n "$CONTAINER_NAME" ]; then
 fi
 
 # Remove desktop shortcut
+log_print "Remove lab shortcut"
+init_shortcuts
 do_op "rm -f" LOCAL_DESKTOP_SHORTCUT
+log_end
 
 # Remove the token map from .vnc-tokens/local_map
 [ -n "$VNC_TOKEN" ] && do_op "sed -i -e \"/${VNC_TOKEN}:/d\"" LOCAL_TOKEN_MAP
