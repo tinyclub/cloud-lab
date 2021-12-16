@@ -259,7 +259,14 @@ start_browser ()
   if [ "x$HOST_OS" = "xDarwin" ]; then
     (eval "$__WEB_BROWSER" '$HOST_WEB_URL' >/dev/null 2>&1 &)>/dev/null 2>&1
   else
-    (eval nohup "'$__WEB_BROWSER'" "'$HOST_WEB_URL'" >/dev/null 2>&1 &)>/dev/null 2>&1
+    # Allow browser continue running even if the terminal exit
+    if [ "x$HOST_OS" = "xWindows" ]; then
+      __WEB_BROWSER="$(basename "$__WEB_BROWSER")"
+      [ "$__WEB_BROWSER" != "start" ] && __WEB_BROWSER="start $__WEB_BROWSER"
+      (eval "$__WEB_BROWSER '$HOST_WEB_URL'" >/dev/null 2>&1 &) >/dev/null 2>&1
+    else
+      (eval nohup "'$__WEB_BROWSER'" "'$HOST_WEB_URL'" >/dev/null 2>&1 &) >/dev/null 2>&1
+    fi
   fi
 }
 
