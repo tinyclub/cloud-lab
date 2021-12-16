@@ -10,10 +10,7 @@
 TOP_DIR="$(cd "$(dirname "$0")"/../../ && pwd)"
 . "$TOP_DIR"/tools/docker/config >/dev/null
 
-log_print "Check status of $CONTAINER_NAME"
-lab_id=$(docker ps -f name=$CONTAINER_NAME -f status=running -q)
-[ -z "$lab_id" ] && err_print "$LAB_NAME is not running." && exit 1
-log_end
+prepare_login || exit 0
 
 log_print "Get cached data"
 get_vars UNIX_PWD UNIX_USER VNC_IP

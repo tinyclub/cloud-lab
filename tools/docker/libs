@@ -74,6 +74,31 @@ prepare_docker_toolbox ()
   fi
 }
 
+run_prompt ()
+{
+  info_print ""
+  info_print "Please run one with the following command:"
+  info_print ""
+  info_print "  $ $DOCKER_RUN_CMD <LAB_NAME>"
+  info_print ""
+  info_print "Available labs:"
+  info_print ""
+  for lab in `get_labs`
+  do
+    info_print "  $lab"
+  done
+}
+
+prepare_login ()
+{
+  [ -z "$CONTAINER_NAME" ] && info_print "No lab container recorded." && run_prompt && return 1
+
+  log_print "Check status of $CONTAINER_NAME"
+  lab_id=$(docker ps -f name=$CONTAINER_NAME -f status=running -q)
+  [ -z "$lab_id" ] && info_print "$LAB_NAME is not running." && run_prompt && return 1
+  log_end
+}
+
 get_screen_size ()
 {
   [ -n "$SCREEN_SIZE" ] && return

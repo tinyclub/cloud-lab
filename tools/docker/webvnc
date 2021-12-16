@@ -263,11 +263,7 @@ start_browser ()
   fi
 }
 
-# Check status
-log_print "Check status of $CONTAINER_NAME"
-lab_id=$(docker ps -f name=$CONTAINER_NAME -f status=running)
-[ -z "$lab_id" ] && err_print "$LAB_NAME is not running." && exit 1
-log_end
+prepare_login || exit 0
 
 # Exit if running as root
 [ `id -u` -eq 0 ] && echo "ERR: Web browsers can not run as root user, please run as normal user." && exit 1
