@@ -5,8 +5,6 @@
 # Copyright (C) 2016-2021 Wu Zhangjin <falcon@ruma.tech>
 #
 
-# FIXME: This doesn't work on Windows currently.
-
 TOP_DIR="$(cd "$(dirname "$0")"/../../ && pwd)"
 . "$TOP_DIR"/tools/docker/config >/dev/null
 
@@ -14,7 +12,7 @@ prepare_login || exit 0
 
 log_print "Get cached data"
 get_vars UNIX_PWD UNIX_USER VNC_IP
-get_var HOST localhost
+get_host
 log_end
 
 which sshpass >/dev/null 2>&1

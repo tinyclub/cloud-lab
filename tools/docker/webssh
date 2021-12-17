@@ -12,7 +12,7 @@ prepare_login || exit 0
 
 log_print "Get cached data"
 get_vars VNC_IP UNIX_USER UNIX_PWD
-get_var HOST localhost
+get_host
 log_end
 
 # Exit if running as root

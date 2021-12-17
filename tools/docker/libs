@@ -50,8 +50,13 @@ prepare_docker ()
 
 prepare_docker_for_windows ()
 {
-  # get the docker tool which is using, empty means first start, need to choose one
-  get_var DOCKER
+  # accept tmp docker setting with low case 'docker' variable
+  if [ -n "$docker" ]; then
+    DOCKER=$docker
+  else
+    # get the docker tool which is using, empty means first start, need to choose one
+    get_var DOCKER
+  fi
 
   # running here means docker is there, but we don't know which one is used: toolbox or desktop
   DOCKER_PATH="$(dirname "$(which docker)")"
@@ -76,7 +81,7 @@ prepare_docker_for_windows ()
 
   # save docker setting
   log_print "Use 'docker $DOCKER' for this instance"
-  set_var DOCKER &
+  [ -z "$docker" ] && set_var DOCKER &
 
   if [ "$DOCKER" = "desktop" ]; then
     if [ "$CURRENT_DOCKER" = "toolbox" -o -n "$DOCKER_TOOLBOX_INSTALL_PATH" ]; then
@@ -322,7 +327,8 @@ get_lab_info ()
 
   [ ! -d "$RELEASE_DIR" ] && mkdir -p "$RELEASE_DIR"
 
-  get_var HOST localhost
+  get_host
+
   info_print "Released to: $RELEASE_FILE"
   info_print "Labs online: `echo $RELEASE_FILE | sed -e \"s%$MAIN_CLOUD_LAB/$DEF_RELEASE_DIR%$WEB_HTTP://$HOST:$HOST_VNC_PORT/labs%g\"`"
   echo
@@ -894,15 +900,16 @@ do_vm_setting ()
 
 get_host ()
 {
+  [ -n "$host" ] && HOST=$host && return 0
+
   get_var HOST localhost
   oldhost=$HOST
 
   # Update ip address for docker toolbox
-  HOST="localhost"
   [ "x$HOST_OS" = "xWindows" -a "$DOCKER" = "toolbox" ] && HOST="`docker-machine ip default`"
 
   # host requires to update if it changes
-  [ "x$HOST" != "x$oldhost" ] && set_var HOST
+  [ "x$HOST" != "x$oldhost" -a -z "$host" ] && set_var HOST
 }
 
 get_images() { find "$CONFIGS_DIR" -name "name" | xargs -I{} cat "{}" | sort -u; }
