@@ -54,6 +54,8 @@ do
   lab_end=`get_endtime "$lab_start" $lab_life`
 
   get_vars UNIX_USER UNIX_PWD VNC_PWD VNC_PWD_VIEWONLY CONTAINER_NAME VNC_IP VNC_TOKEN
+  get_host
+
   echo $lab $UNIX_USER $HOST $HOST_VNC_PORT $VNC_TOKEN $VNC_PWD $VNC_PWD_VIEWONLY $VNC_IP $HOST_WEBSSH_PORT $UNIX_PWD $CONTAINER_NAME \
 	$lab_life $lab_start $lab_end
 

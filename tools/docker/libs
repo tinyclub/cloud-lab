@@ -322,7 +322,7 @@ get_lab_info ()
 
   cat "$tmp" | awk 'BEGIN{FS=" "}{ \
         printf("Lab: %s, User: %s\n", $11, $2); \
-        printf("  * VNC (Normal): '$WEB_HTTP'://%s:%s/?u=%s&p=%s\n", $3, $4, $5, $6); \
+        printf("  * VNC (Normal): '$WEB_HTTP'://%s:%s/?u=%s&p=%s&autoconnect=1\n", $3, $4, $5, $6); \
         printf("  * VNC   (View): '$WEB_HTTP'://%s:%s/?r=%s%s\n", $3, $4, $5, $7); \
         printf("  * SSH    (Web): '$WEB_HTTP'://%s:%s/?ssh=ssh://%s:%s@%s:22\n", $3, $9, $2, $10, $8); \
         }'
@@ -406,7 +406,7 @@ EOF
         printf("<tr class=\"%s\">\n", (FNR%2 == 0) ? "odd" : "even"); \
         printf("  <td>%d</td>\n", FNR); \
         printf("  <td><a title=\"Project Homepage and Usage\" target=\"_blank\" href=\"http://tinylab.org/%s\">%s</a></td>\n", $1, $1); \
-        printf("  <td><a target=\"_blank\" href=\"'$WEB_HTTP'://%s:%s/?u=%s&p=%s\">Login</a></td>\n", \
+        printf("  <td><a target=\"_blank\" href=\"'$WEB_HTTP'://%s:%s/?u=%s&p=%s&autoconnect=1\">Login</a></td>\n", \
                 $3, $4, $5, $6); \
         printf("  <td><a target=\"_blank\" href=\"'$WEB_HTTP'://%s:%s/?r=%s%s\">Login</a></td>\n", \
                 $3, $4, $5, $7); \
@@ -709,7 +709,7 @@ create_cloud_lab_net ()
 
 prepare_export_files ()
 {
-  [ -z "$CLOUD_LAB_TOP_DIR" ] && CLOUD_LAB_TOP_DIR="$(echo $TOP_DIR | sed -e "s%/output/.*%%g")"
+  [ -z "$CLOUD_LAB_TOP_DIR" ] && CLOUD_LAB_TOP_DIR="$TOP_DIR"
   [ -z "$MAIN_CLOUD_LAB" ] && MAIN_CLOUD_LAB="$CLOUD_LAB_TOP_DIR"
 
   [ -z "$TOP_TOKEN_DIR" ] && TOP_TOKEN_DIR="$MAIN_CLOUD_LAB"

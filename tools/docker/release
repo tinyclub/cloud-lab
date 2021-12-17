@@ -8,12 +8,6 @@
 [ -z $RELEASE ] && RELEASE=0
 
 TOP_DIR="$(cd "$(dirname "$0")"/../../ && pwd)"
-
-[ -z "$CLOUD_LAB_TOP_DIR" ] && CLOUD_LAB_TOP_DIR="$(echo "$TOP_DIR" | sed -e "s%/output/.*%%g")"
-
-[ "$TOP_DIR" != "$CLOUD_LAB_TOP_DIR" -a $RELEASE -eq 0 ] && err_print "Please try following command:" \
-	&& echo "RELEASE=1 $0" | sed -e "s%$CLOUD_LAB_TOP_DIR/%%g" && exit 0
-
 . "$TOP_DIR"/tools/docker/config >/dev/null
 
 filter=$1
