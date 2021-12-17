@@ -48,6 +48,14 @@ do
         log_print "Remove $lab ..."
         "$DOCKER_RM_CMD" $lab
         log_end
+
+        log_print "Remove more $lab not recorded ..."
+        for lab_id in $(docker ps -f name=$lab -q)
+        do
+          docker rm -f $lab_id
+          docker network disconnect -f cloud-lab-net $lab_id 2>/dev/null
+        done
+        log_end
     else
         log_print "Remove $lab ..."
         docker rm -f $id
