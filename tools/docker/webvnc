@@ -97,7 +97,7 @@ create_shortcuts ()
 
     # For cloud lab
     if [ ! -f "$MANAGE_DESKTOP_SHORTCUT" ]; then
-      echo "/usr/bin/open -a 'Terminal' '"$CLOUD_LAB_TOP_DIR"'" > "$MANAGE_DESKTOP_SHORTCUT"
+      echo "/usr/bin/open -a 'Terminal' '"$TOP_DIR"'" > "$MANAGE_DESKTOP_SHORTCUT"
       echo 'osascript -e "do shell script \"osascript -e \\\\\"tell application \\\\\\\\\\\\\\"Terminal\\\\\\\\\\\\\\" \\\\\\" -e \\\\\\"set mainID to id of second window\\\\\\" -e \\\\\\" close (every window whose id = mainID)\\\\\\"  -e \\\\\\"end tell\\\\\\"   &> /dev/null &\""; exit' >> "$MANAGE_DESKTOP_SHORTCUT"
     fi
 
@@ -124,6 +124,7 @@ create_shortcuts ()
         && REMOTE_DESKTOP_SHORTCUT="`find "$CONFIG_SYSTEM_DIR" -maxdepth 4 -name "lab.desktop"`"
 
       [ -f "$REMOTE_DESKTOP_SHORTCUT" ] && cat "$REMOTE_DESKTOP_SHORTCUT" \
+        | sed "s%Name=.*%Name=$LAB_NAME GUI%g" \
         | sed "s%Exec=.*%Exec=sg docker -c '\"$DOCKER_RUN_CMD\" $LAB_NAME'%g" \
         | sed "s%terminator.png%${WEB_BROWSER}.png%g;s%lxterminal.xpm%${WEB_BROWSER}.png%g" | tr '|' '&' \
           >> $lab_desktop_shortcut
@@ -171,7 +172,7 @@ create_shortcuts ()
 Encoding=UTF-8
 Name=Cloud Lab Manager
 Comment=Cloud Lab Manage Center
-Exec="$XTERM" $XTERM_WORKDIR_OPTION "$CLOUD_LAB_TOP_DIR" $XTERM_TITLE_OPTION 'Cloud Lab -- http://tinylab.org/cloud-lab'
+Exec="$XTERM" $XTERM_WORKDIR_OPTION "$TOP_DIR" $XTERM_TITLE_OPTION 'Cloud Lab -- http://tinylab.org/cloud-lab'
 Icon=$XTERM_ICON
 Type=Application
 EOF
