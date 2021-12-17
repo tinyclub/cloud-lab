@@ -219,7 +219,7 @@ EOF
 
     if [ ! -f "$BROWSE_DESKTOP_SHORTCUT" ]; then
       BROWSE_BAT="$TOP_DIR"/tools/windows/browse.bat
-      BROWSE_CMD="$(cd "$(dirname "$__WEB_BROWSER")" && pwd -W | sed -e 's% %\" \"%g')/$(basename "$__WEB_BROWSER")"
+      BROWSE_CMD="$(cd "$(dirname "$WEB_BROWSER")" && pwd -W | sed -e 's% %\" \"%g')/$(basename "$WEB_BROWSER")"
       BROWSE_ICON="$(echo $BROWSE_CMD | tr -d '\"')"
 
       echo "start $BROWSE_CMD \"$LABS_WEB_URL\"" > "$BROWSE_BAT"
@@ -261,8 +261,6 @@ start_browser ()
   else
     # Allow browser continue running even if the terminal exit
     if [ "x$HOST_OS" = "xWindows" ]; then
-      __WEB_BROWSER="$(basename "$__WEB_BROWSER")"
-      [ "$__WEB_BROWSER" != "start" ] && __WEB_BROWSER="start $__WEB_BROWSER"
       (eval "$__WEB_BROWSER '$HOST_WEB_URL'" >/dev/null 2>&1 &) >/dev/null 2>&1
     else
       (eval nohup "'$__WEB_BROWSER'" "'$HOST_WEB_URL'" >/dev/null 2>&1 &) >/dev/null 2>&1

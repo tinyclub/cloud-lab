@@ -299,6 +299,9 @@ get_browser ()
 
   if [ "x$HOST_OS" = "xDarwin" ]; then
     __WEB_BROWSER="/usr/bin/open -a '$WEB_BROWSER'"
+  elif [ "x$HOST_OS" = "xWindows" ]; then
+    __WEB_BROWSER="$(basename "$WEB_BROWSER")"
+    [ "$__WEB_BROWSER" != "start" ] && __WEB_BROWSER="start $__WEB_BROWSER"
   else
     __WEB_BROWSER="$WEB_BROWSER"
   fi
