@@ -45,13 +45,6 @@ if [ -f "$LOCAL_TOKEN_MAP" -a -f "$REMOTE_TOKEN_MAP" -a "$LOCAL_TOKEN_DIR" != "/
 fi
 log_end
 
-log_print "Remove general cached data"
-for f in LAB_LOGIN LAB_VNC LAB_HOST LAB_CURRENT LAB_DOCKER
-do
-  do_op "rm -rf" $f
-done
-log_end
-
 log_print "Remove lab manager and browser shotcuts"
 remove_shortcuts
 log_end
@@ -60,4 +53,11 @@ log_end
 
 log_print "Update release page"
 "$DOCKER_RELEASE_CMD" all >/dev/null 2>&1
+log_end
+
+log_print "Remove general cached data"
+for f in LAB_LOGIN LAB_VNC LAB_HOST LAB_CURRENT LAB_DOCKER
+do
+  do_op "rm -rf" $f
+done
 log_end
