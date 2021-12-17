@@ -291,11 +291,11 @@ HOST_WEB_URL="$WEB_HTTP://${HOST}:${HOST_VNC_PORT}/?u=$VNC_TOKEN&p=$VNC_PWD$AUTO
 HOST_WEB_URL_VIEWONLY="$WEB_HTTP://${HOST}:${HOST_VNC_PORT}/?r=${VNC_TOKEN}${VNC_PWD_VIEWONLY}"
 LABS_WEB_URL="$WEB_HTTP://${HOST}:${HOST_VNC_PORT}/labs/$RELEASE_HTML"
 
-show_lab &
-
 # Get web browser
 get_browser
 [ $? -ne 0 ] && echo "ERR: Give up browser launching for no web browser found" && exit 1
+
+show_lab &
 
 start_browser
 
