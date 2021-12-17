@@ -59,19 +59,23 @@ prepare_docker_for_windows ()
   # get the one currently in the path
   echo "$DOCKER_PATH" | grep -q "Docker Toolbox" >/dev/null 2>&1
   if [ $? -eq 0 ]; then
-    log_print "Found docker toolbox in $DOCKER_PATH"
     CURRENT_DOCKER="toolbox"
   else
-    log_print "Found docker desktop in $DOCKER_PATH"
     CURRENT_DOCKER="desktop"
   fi
+  log_print "Found 'docker $CURRENT_DOCKER' in $DOCKER_PATH"
 
   if [ -z "$DOCKER" ]; then
     DOCKER="$CURRENT_DOCKER"
+  else
+    if [ "$DOCKER" != "toolbox" -a "$DOCKER" != "desktop" ]; then
+      log_print "Not support '$DOCKER' setting for DOCKER, use 'docker $CURRENT_DOCKER' instead"
+      DOCKER="$CURRENT_DOCKER"
+    fi
   fi
 
   # save docker setting
-  log_print "Use $DOCKER for this instance"
+  log_print "Use 'docker $DOCKER' for this instance"
   set_var DOCKER &
 
   if [ "$DOCKER" = "desktop" ]; then
