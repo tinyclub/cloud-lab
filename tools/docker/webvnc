@@ -200,12 +200,13 @@ EOF
 
 
     if [ "x$LAB_DESKTOP_SHORTCUT" = "x1" -a ! -f "$LOCAL_DESKTOP_SHORTCUT" ]; then
-      RUN_BAT="$TOP_DIR"/tools/windows/run.bat
-      echo "start $GIT_BASH -c '\"$WORK_DIR/tools/docker/run\" $LAB_NAME'" > "$RUN_BAT"
+      LAB_RUN_BAT="${LAB_NAME}.run.bat"
+      RUN_BAT="$TOP_DIR"/tools/windows/$LAB_RUN_BAT
+      echo "start $GIT_BASH -c '\"$WORK_DIR/tools/docker/run\" $LAB_NAME'" >> "$RUN_BAT"
 
       # Ref: https://stackoverflow.com/questions/30028709/how-do-i-create-a-shortcut-via-command-line-in-windows
       LOCAL_DESKTOP_SHORTCUT="$DESKTOP_DIR/$(basename $LOCAL_DESKTOP_SHORTCUT)"
-      powershell "\$s=(New-Object -COM WScript.Shell).CreateShortcut('$LOCAL_DESKTOP_SHORTCUT');\$s.TargetPath='$TOOLS_DIR/run.bat';\$s.IconLocation='$CMD_ICON';\$s.Save()"
+      powershell "\$s=(New-Object -COM WScript.Shell).CreateShortcut('$LOCAL_DESKTOP_SHORTCUT');\$s.TargetPath='$TOOLS_DIR/$LAB_RUN_BAT';\$s.IconLocation='$CMD_ICON';\$s.Save()"
     fi
 
     # For cloud lab
