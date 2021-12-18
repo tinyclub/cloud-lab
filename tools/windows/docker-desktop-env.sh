@@ -38,7 +38,6 @@ if [ -d "$DOCKER_DESKTOP_PATH" ]; then
   if [ -f "$DOCKER_DESKTOP" ]; then
     echo "LOG: Start Docker Desktop"
     "$DOCKER_DESKTOP"
-    echo "LOG: Done"
 
     echo $PATH | grep -q "$DOCKER_DESKTOP_PATH"
     if [ $? -ne 0 ]; then
