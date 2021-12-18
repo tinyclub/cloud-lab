@@ -16,6 +16,10 @@ if [ -n "$CONTAINER_NAME" ]; then
   log_print "Remove container"
   do_op "docker rm -f" CONTAINER_NAME
   log_end
+
+  log_print "Disconnect $name from cloud-lab-net"
+  docker network disconnect -f cloud-lab-net $name 2>/dev/null
+  log_end
 fi
 
 # Remove desktop shortcut

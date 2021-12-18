@@ -18,25 +18,47 @@ log_print "Get all of the labs"
 labs=`get_labs`
 log_end
 
-for lab in $labs
+log_print "Get all of the containers"
+id_names=`docker ps --format='{{.ID}},{{.Names}}' | sed '1!G;h;$!d' | tr '\n' ' '`
+
+for id_name in $id_names
 do
-  current=$lab
-  unset CONTAINER_NAME
+  id=$(echo $id_name | cut -d ',' -f1)
+  name=$(echo $id_name | cut -d ',' -f2)
+
+  if [ "$name" = "$WPROXY_NAME" -o "$name" = "$TPROXY_NAME" ]; then
+      log_print "Remove $name ..."
+      docker rm -f $name
+
+      log_print "Disconnect $name from cloud-lab-net"
+      docker network disconnect -f cloud-lab-net $name 2>/dev/null
+      continue
+  fi
+
+  lab=`echo $name | sed -e "s%-[0-9]*-[0-9a-zA-Z]\{6,6\}$%%g"`
+  echo $labs | tr ' ' '\n' | grep -q ^$lab$
+  [ $? -ne 0 ] && continue
+
+  current="$lab"
+  log_print "Get data of $lab" >&2
+  unset CONTAINER_NAME CONTAINER_ID
   log_print "Check status of $lab"
   . "$TOP_DIR"/tools/docker/config >/dev/null 2>&1
 
-  # Ignore the containers not exists
-  [ -z "$CONTAINER_NAME" ] && continue
-
-  log_print "Clean $lab"
-  "$DOCKER_CLEAN_CMD" $lab
-  log_end
-
+  if [ -n "$CONTAINER_NAME" ]; then
+    log_print "Clean $lab"
+    "$DOCKER_CLEAN_CMD" $lab
+    log_end
+  else
+    log_print "Clean $name"
+    docker rm -f $name
+    docker network disconnect -f cloud-lab-net $name 2>/dev/null
+    log_end
+  fi
 done
 
-log_print "Remove containers"
-RELEASE=0 "$DOCKER_RM_ALL_CMD"
-log_end
+log_print "Clean cloud-lab-net"
+docker network rm cloud-lab-net
 
 log_print "clean up for webvnc"
 [ -z "$LOCAL_TOKEN_MAP" -o "$REMOTE_TOKEN_MAP" ] && prepare_export_files

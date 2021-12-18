@@ -14,8 +14,8 @@ fi
 TOP_DIR="$(cd "$(dirname "$0")"/../../ && pwd)"
 . "$TOP_DIR"/tools/docker/config >/dev/null
 
-log_print "Get all of containers in running or exited status"
-id_names=`docker ps -f status=running -f status=exited --format='{{.ID}},{{.Names}}' | sed '1!G;h;$!d'`
+log_print "Get all of containers"
+id_names=`docker ps --format='{{.ID}},{{.Names}}' | sed '1!G;h;$!d'`
 log_end
 
 for id_name in $id_names
@@ -59,6 +59,7 @@ do
     else
         log_print "Remove $lab ..."
         docker rm -f $id
+        docker network disconnect -f cloud-lab-net $id 2>/dev/null
         log_end
     fi
 
