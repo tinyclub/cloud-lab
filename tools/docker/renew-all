@@ -10,6 +10,10 @@ TOP_DIR="$(cd "$(dirname "$0")"/../../ && pwd)"
 
 id_names=`docker ps -f status=running -f status=exited --format='{{.ID}},{{.Names}}' -q`
 
+# Must rerun wproxy and tproxy too
+info_print "Remove $WPROXY_NAME and $TPROXY_NAME"
+docker rm -f $WPROXY_NAME $TPROXY_NAME >/dev/null 2>&1
+
 for id_name in $id_names
 do
     id=$(echo $id_name | cut -d ',' -f1)
