@@ -25,7 +25,9 @@ DEF_BRANCH=master
 config_casesensitive ()
 {
     # should enable case sensitive for ntfs filesystem
-    [ "x$HOST_OS" = "xWindows" ] && fsutil file SetCaseSensitiveInfo "$TOP_DIR" enable >/dev/null 2>&1
+    if [ "x$HOST_OS" = "xWindows" ]; then
+      echo "LOG: Please enable case sensitive as administrator: fsutil file SetCaseSensitiveInfo '$(cd "$TOP_DIR" && pwd -W | sed -e 's%/%\\%g')' enable"
+    fi
 }
 
 config_git ()
