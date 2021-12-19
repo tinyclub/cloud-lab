@@ -363,7 +363,6 @@ host_init()
     fi
   fi
 
-  log_print "Check docker" >&2
   which docker >/dev/null 2>&1
   [ $? -ne 0 ] && prepare_docker
 

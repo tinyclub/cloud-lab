@@ -5,6 +5,8 @@
 # Copyright (C) 2016-2021 Wu Zhangjin <falcon@ruma.tech>
 #
 
+echo "LOG: Init docker environment ..."
+
 TOP_DIR="$(cd "$(dirname "$0")"/../../ && pwd)"
 . "$TOP_DIR"/tools/docker/config >/dev/null
 
