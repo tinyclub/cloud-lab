@@ -1043,9 +1043,9 @@ do_vm_setting ()
   [ -z "$cpu_total" ] && cpu_total=4
 
   if [ $cpu_total -ge 16 ]; then
-    cpus=4
+    cpus=8
   elif [ $cpu_total -ge 8 ]; then
-    cpus=3
+    cpus=4
   elif [ $cpu_total -ge 4 ]; then
     cpus=2
   else
@@ -1062,7 +1062,7 @@ do_vm_setting ()
     fi
   fi
 
-  mem_total="$(($(wmic memorychip get Capacity | tr -d -c '[0-9]')/1024/1024/1024))"
+  mem_total="$(($(wmic memorychip get Capacity | tr -d -c '[0-9]')/1024/1024/1024+1))"
 
   if [ $mem_total -ge 16 ]; then
     mem=4
