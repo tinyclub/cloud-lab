@@ -8,7 +8,7 @@
 TOP_DIR="$(cd "$(dirname "$0")"/../../ && pwd)"
 . "$TOP_DIR"/tools/docker/config >/dev/null
 
-id_names=`docker ps -f status=running -f status=exited --format='{{.ID}},{{.Names}}' | sed '1!G;h;$!d'`
+id_names=`docker ps -f status=running -f status=exited --format='{{.ID}},{{.Names}}' -q`
 
 for id_name in $id_names
 do

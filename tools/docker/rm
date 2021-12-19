@@ -12,9 +12,8 @@ TOP_DIR="$(cd "$(dirname "$0")"/../../ && pwd)"
 
 notify_user 2 "Lab will be removed"
 
-log_print "Remove container"
+info_print "Remove $CONTAINER_NAME"
 do_op "docker rm -f" CONTAINER_NAME
-log_end
 
 log_print "Disconnect $CONTAINER_NAME from cloud-lab-net"
 do_op "docker network disconnect -f cloud-lab-net" CONTAINER_NAME 2>/dev/null

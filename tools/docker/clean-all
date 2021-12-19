@@ -19,7 +19,7 @@ labs=`get_labs`
 log_end
 
 log_print "Get all of the containers"
-id_names=`docker ps --format='{{.ID}},{{.Names}}' | sed '1!G;h;$!d' | tr '\n' ' '`
+id_names=`docker ps --format='{{.ID}},{{.Names}}' -a -q`
 
 for id_name in $id_names
 do

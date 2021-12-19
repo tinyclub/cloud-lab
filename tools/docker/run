@@ -33,7 +33,7 @@ log_print "Check deprecated containers ..."
 if [ ! -f "$LAB_CONTAINER_ID" ]; then
   for status in exited created
   do
-    unused_containers="$(docker ps -a --filter="ancestor=$IMAGE" --filter "status=$status" -q)"
+    unused_containers="$(docker ps -a -f ancestor=$IMAGE -f status=$status -q)"
     [ -n "$unused_containers" ] && docker rm -f "$unused_containers"
   done
 fi

@@ -23,9 +23,9 @@ log_end >&2
 
 log_print "Check the running containers"
 if [ -z "$filter" -o "$filter" = "all" ]; then
-  id_names=`docker ps -f status=running --format='{{.ID}},{{.Names}}' | sed '1!G;h;$!d' | tr '\n' ' '`
+  id_names=`docker ps -f status=running --format='{{.ID}},{{.Names}}' -q | tr '\n' ' '`
 else
-  id_names=`docker ps -f status=running -f name=$filter --format='{{.ID}},{{.Names}}' | sed '1!G;h;$!d' | tr '\n' ' '`
+  id_names=`docker ps -f status=running -f name=$filter --format='{{.ID}},{{.Names}}' -q | tr '\n' ' '`
 fi
 log_print "$id_names" >&2
 log_end >&2

@@ -11,7 +11,7 @@ TOP_DIR="$(cd "$(dirname "$0")"/../../ && pwd)"
 . "$TOP_DIR"/tools/docker/config >/dev/null
 
 log_print "Check running containers"
-id_names=`docker ps -f status=running --format='{{.ID}},{{.Names}}' | sed '1!G;h;$!d'`
+id_names=`docker ps -f status=running --format='{{.ID}},{{.Names}}' -q`
 log_end
 
 [ -z "$id_names" ] && info_print "No running containers found." && exit 0

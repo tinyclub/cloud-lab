@@ -450,16 +450,18 @@ get_xterm ()
 
 notify_user ()
 {
+    ids=$(docker ps -f status=running -f name=$LAB_NAME -q 2>/dev/null)
+    [ -z "$ids" ] && return 0
+
     # Notify users
     [ -z "$NOTIFY_WAIT" ] && NOTIFY_WAIT=$1
     [ -z "$NOTIFY_MSG" ] && NOTIFY_MSG="$2"
     [ $NOTIFY_WAIT -gt 0 ] && NOTIFY_MSG="$NOTIFY_MSG in $NOTIFY_WAIT seconds."
     [ -z "$LAB_NAME" ] && LAB_NAME=$3
 
-    log_print "send '$NOTIFY_MSG' to $LAB_NAME"
+    info_print "send '$NOTIFY_MSG' to $LAB_NAME"
     "$DOCKER_NOTIFY_CMD" $LAB_NAME "$NOTIFY_MSG"
     [ $? -eq 0 -a $NOTIFY_WAIT -gt 0 ] && sleep $NOTIFY_WAIT
-    log_end
 }
 
 # time_to_seconds "10D"

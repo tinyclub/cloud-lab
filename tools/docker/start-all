@@ -11,7 +11,7 @@ TOP_DIR="$(cd "$(dirname "$0")"/../../ && pwd)"
 . "$TOP_DIR"/tools/docker/config >/dev/null
 
 log_print "Check exited containers"
-id_names=`docker ps -f status=exited --format='{{.ID}},{{.Names}}' | sed '1!G;h;$!d'`
+id_names=`docker ps -f status=exited --format='{{.ID}},{{.Names}}' -q`
 log_end
 
 [ -z "$id_names" ] && info_print "No exited container found."  && exit 0
