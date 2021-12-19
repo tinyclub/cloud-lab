@@ -218,10 +218,8 @@ get_random_pwd ()
   echo $((random % 89273831 * 513793917553423 / 3))
 }
 
-get_browser ()
+__get_browser ()
 {
-  log_print "Get web browser"
-
   local macos_chrome='/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'
   local macos_safari=/Applications/Safari.app/Contents/MacOS/Safari
   local macos_firefox=/Applications/Firefox.app/Contents/MacOS/firefox
@@ -234,9 +232,11 @@ get_browser ()
 
   local DEF_WEB_BROWSER=firefox
   if [ "x$HOST_OS" = "xDarwin" ]; then
-    [ -f "$macos_safari" ] && DEF_WEB_BROWSER="$macos_safari"
-    [ -f "$macos_firefox" ] && DEF_WEB_BROWSER="$macos_firefox"
-    [ -f "$macos_chrome" ] && DEF_WEB_BROWSER="$(echo $macos_chrome | tr ' ' '-')"
+    for b in "$macos_chrome" "$macos_firefox" "$macos_safari"
+    do
+      [ -f "$macos_safari" ] && DEF_WEB_BROWSER="$macos_safari" && break
+    done
+    DEF_WEB_BROWSER="$(echo $macos_chrome | tr ' ' '-')"
   elif [ "x$HOST_OS" = "xLinux" ]; then
     for b in $linux_chrome $linux_firefox $deepin_browser
     do
@@ -249,14 +249,12 @@ get_browser ()
     done
   fi
 
-  do_unlock
-  [ -z "$WEB_BROWSER" ] && get_var WEB_BROWSER "'$DEF_WEB_BROWSER'"
-  do_lock
+  [ -z "$WEB_BROWSER" ] && WEB_BROWSER="'$DEF_WEB_BROWSER'"
 
   if [ "x$HOST_OS" = "xDarwin" ]; then
     WEB_BROWSER="$(echo $WEB_BROWSER | tr '-' ' ')"
     if [ ! -f "$WEB_BROWSER" ]; then
-      web_browser=`ls /Applications/*/Contents/MacOS/* | grep -i "$WEB_BROWSER$"`
+      web_browser=`ls /Applications/*/Contents/MacOS/* | grep -i "$WEB_BROWSER$" | head -1`
       if [ $? -eq 0 ]; then
         WEB_BROWSER="$web_browser"
       else
@@ -266,30 +264,47 @@ get_browser ()
   elif [ "x$HOST_OS" = "xLinux" ]; then
     which "$WEB_BROWSER" >/dev/null 2>&1
     if [ $? -ne 0 ]; then
-      if [ x"$WEB_BROWSER" = "xfirefox" ]; then
+      if [ "x$WEB_BROWSER" = "xfirefox" ]; then
         echo "ERR: No web browser found, are you running me in cloud? please open the 'Normal' url yourself."
         exit 1
       else
         info_print "No "$WEB_BROWSER" found, try firefox instead."
         WEB_BROWSER=firefox
         which "$WEB_BROWSER" >/dev/null 2>&1
-        [ $? -ne 0 ] && echo "ERR: No "$WEB_BROWSER" found too." && exit 2
+        [ $? -ne 0 ] && echo "ERR: No "$WEB_BROWSER" found too." && WEB_BROWSER="" && return 1
       fi
     fi
   else # Windows
     which "$WEB_BROWSER" >/dev/null 2>&1
     if [ $? -ne 0 ]; then
-      if [ x"$WEB_BROWSER" = "xstart" ]; then
+      if [ "x$WEB_BROWSER" = "xfirefox" ]; then
         echo "ERR: No web browser found, are you running me in cloud? please open the 'Normal' url yourself."
         exit 1
       else
         info_print "No "$WEB_BROWSER" found, try edge instead."
         WEB_BROWSER="$win_edge"
         which "$WEB_BROWSER" >/dev/null 2>&1
-        [ $? -ne 0 ] && echo "ERR: No "$WEB_BROWSER" found too." && exit 2
+        [ $? -ne 0 ] && echo "ERR: No "$WEB_BROWSER" found too." && WEB_BROWSER="" && return 1
       fi
     fi
 
+  fi
+
+  return 0
+}
+
+get_browser ()
+{
+  log_print "Get web browser"
+  get_var WEB_BROWSER
+
+  if [ -z "$WEB_BROWSER" ]; then
+    get_browser
+    if [ -n "$WEB_BROWSER" ]; then
+      set_var WEB_BROWSER
+    else
+      err_print "ERR: No valid browser program found, please specifiy one with 'WEB_BROWSER=browser-name tools/docker/program'"
+    fi
   fi
 
   if [ "x$HOST_OS" = "xDarwin" ]; then
@@ -437,24 +452,32 @@ EOF
 
 get_xterm ()
 {
-   log_print "Get terminal"
-   [ -z "$XTERM" ] && XTERM="`"$DOCKER_XTERM_CMD"`"
+  log_print "Get terminal"
+  get_var XTERM
+  if [ -z "$XTERM" ]; then
+    XTERM="`"$DOCKER_XTERM_CMD"`"
+    if [ -n "$XTERM" ]; then
+      set_var XTERM
+    else
+      err_print "ERR: No valid terminal program found, please specifiy one with 'XTERM=terminal-name tools/docker/program'"
+    fi
+  fi
 }
 
 notify_user ()
 {
-    ids=$(docker ps -f status=running -f name=$LAB_NAME -q 2>/dev/null)
-    [ -z "$ids" ] && return 0
+  ids=$(docker ps -f status=running -f name=$LAB_NAME -q 2>/dev/null)
+  [ -z "$ids" ] && return 0
 
-    # Notify users
-    [ -z "$NOTIFY_WAIT" ] && NOTIFY_WAIT=$1
-    [ -z "$NOTIFY_MSG" ] && NOTIFY_MSG="$2"
-    [ $NOTIFY_WAIT -gt 0 ] && NOTIFY_MSG="$NOTIFY_MSG in $NOTIFY_WAIT seconds."
-    [ -z "$LAB_NAME" ] && LAB_NAME=$3
+  # Notify users
+  [ -z "$NOTIFY_WAIT" ] && NOTIFY_WAIT=$1
+  [ -z "$NOTIFY_MSG" ] && NOTIFY_MSG="$2"
+  [ $NOTIFY_WAIT -gt 0 ] && NOTIFY_MSG="$NOTIFY_MSG in $NOTIFY_WAIT seconds."
+  [ -z "$LAB_NAME" ] && LAB_NAME=$3
 
-    info_print "send '$NOTIFY_MSG' to $LAB_NAME"
-    "$DOCKER_NOTIFY_CMD" $LAB_NAME "$NOTIFY_MSG"
-    [ $? -eq 0 -a $NOTIFY_WAIT -gt 0 ] && sleep $NOTIFY_WAIT
+  info_print "send '$NOTIFY_MSG' to $LAB_NAME"
+  "$DOCKER_NOTIFY_CMD" $LAB_NAME "$NOTIFY_MSG"
+  [ $? -eq 0 -a $NOTIFY_WAIT -gt 0 ] && sleep $NOTIFY_WAIT
 }
 
 # time_to_seconds "10D"
@@ -671,31 +694,35 @@ create_shortcuts ()
 
     get_xterm
 
-    # Customize xterm specific options and icons
-    XTERM_TITLE_OPTION=-T
-    XTERM_WORKDIR_OPTION=--working-directory
-    XTERM_ICON=/usr/share/pixmaps/${XTERM}.png
-    if [ "x$XTERM" = "xgnome-terminal" ]; then
-      XTERM_TITLE_OPTION=-t
-      XTERM_ICON=/usr/share/help/C/gnome-terminal/figures/gnome-terminal-icon.png
-    fi
-    # Add konsole support for KDE desktop
-    if [ "x$XTERM" = "xkonsole" -o "x$XTERM" = "xqterminal" ]; then
-      XTERM_TITLE_OPTION=--title
-      XTERM_WORKDIR_OPTION=--workdir
-      if [ "x$XTERM" = "xkonsole" ]; then
-        XTERM_ICON=/usr/share/icons/Humanity/apps/48/konsole.svg
-      else
-        XTERM_ICON=/usr/share/icons/hicolor/64x64/apps/qterminal.png
+    if [ -n "$XTERM" ]; then
+      set_var XTERM
+
+      # Customize xterm specific options and icons
+      XTERM_TITLE_OPTION=-T
+      XTERM_WORKDIR_OPTION=--working-directory
+      XTERM_ICON=/usr/share/pixmaps/${XTERM}.png
+      if [ "x$XTERM" = "xgnome-terminal" ]; then
+        XTERM_TITLE_OPTION=-t
+        XTERM_ICON=/usr/share/help/C/gnome-terminal/figures/gnome-terminal-icon.png
       fi
-    fi
-    if [ ! -f "$XTERM_ICON" ]; then
-      XTERM_ICON=$(find /usr/share/ -name "${XTERM}*.png" 2>/dev/null | grep icon | head -1)
-      [ -z "$XTERM_ICON" ] && XTERM_ICON=$(find /usr/share/ -name "${XTERM}*.png" 2>/dev/null | head -1)
+      # Add konsole support for KDE desktop
+      if [ "x$XTERM" = "xkonsole" -o "x$XTERM" = "xqterminal" ]; then
+        XTERM_TITLE_OPTION=--title
+        XTERM_WORKDIR_OPTION=--workdir
+        if [ "x$XTERM" = "xkonsole" ]; then
+          XTERM_ICON=/usr/share/icons/Humanity/apps/48/konsole.svg
+        else
+          XTERM_ICON=/usr/share/icons/hicolor/64x64/apps/qterminal.png
+        fi
+      fi
+      if [ ! -f "$XTERM_ICON" ]; then
+        XTERM_ICON=$(find /usr/share/ -name "${XTERM}*.png" 2>/dev/null | grep icon | head -1)
+        [ -z "$XTERM_ICON" ] && XTERM_ICON=$(find /usr/share/ -name "${XTERM}*.png" 2>/dev/null | head -1)
+      fi
     fi
 
     # For cloud lab
-    [ ! -f "$MANAGE_DESKTOP_SHORTCUT" ] && cat <<EOF > "$MANAGE_DESKTOP_SHORTCUT"
+    [ ! -f "$MANAGE_DESKTOP_SHORTCUT" -a -n "$XTERM" ] && cat <<EOF > "$MANAGE_DESKTOP_SHORTCUT"
 #!/usr/bin/env xdg-open
 [Desktop Entry]
 Encoding=UTF-8

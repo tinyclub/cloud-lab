@@ -121,7 +121,7 @@ info_print "Running '$LOGIN_TOOL'"
 echo
 
 # create desktop shortcuts
-create_shortcuts &
+(get_browser; create_shortcuts) &
 
 # bash and ssh require a virtual tty console
 case $LOGIN in
@@ -130,7 +130,7 @@ case $LOGIN in
       "$LOGIN_TOOL"
     else
       get_xterm
-      $XTERM -e "$LOGIN_TOOL"
+      [ -n "$XTERM" ] && $XTERM -e "$LOGIN_TOOL"
     fi
     ;;
   *)
