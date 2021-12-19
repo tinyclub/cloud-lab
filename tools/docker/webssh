@@ -13,7 +13,6 @@ prepare_login || exit 0
 log_print "Get cached data"
 get_vars VNC_IP UNIX_USER UNIX_PWD
 get_host
-log_end
 
 # Exit if running as root
 [ `id -u` -eq 0 ] && echo "ERR: Web browsers can not run as root user, please run as normal user." && exit 1

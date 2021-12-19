@@ -24,7 +24,6 @@ docker network disconnect -f cloud-lab-net $name 2>/dev/null
 log_print "Remove lab shortcut"
 init_shortcuts
 do_op "rm -f" LOCAL_DESKTOP_SHORTCUT
-log_end
 
 # Remove the token map from .vnc-tokens/local_map
 [ -z "$LOCAL_TOKEN_MAP" ] && prepare_export_files
@@ -36,11 +35,9 @@ fi
 
 log_print "Remove cached data"
 find "$CONFIG_DOCKER_DIR" -iname ".[^.]*" -exec rm -rf "{}" \;
-log_end
 
 # Update lab list
 if [ "$RELEASE" != '0' ]; then
   log_print "Update release page"
   "$DOCKER_RELEASE_CMD" all >/dev/null 2>&1
-  log_end
 fi

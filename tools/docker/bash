@@ -13,7 +13,6 @@ prepare_login || exit 0
 log_print "Get cached data"
 [ -z "$UNIX_USER" ] && get_var UNIX_USER $DEF_USER
 [ "x$HOST_OS" = x"Windows" ] && WINPTY="winpty"
-log_end
 
 log_print "Running docker bash of $CONTAINER_NAME"
 do_op "$WINPTY docker exec -it -w $LAB_WORKDIR/$CURRENT -u $UNIX_USER" CONTAINER_NAME "//bin/bash"

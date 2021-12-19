@@ -366,7 +366,6 @@ host_init()
   log_print "Check docker" >&2
   which docker >/dev/null 2>&1
   [ $? -ne 0 ] && prepare_docker
-  log_end >&2
 
   [ "x$HOST_OS" = "xWindows" ] && prepare_docker_for_windows >&2
 

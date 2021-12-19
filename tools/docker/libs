@@ -96,14 +96,12 @@ prepare_docker_for_windows ()
       if [ $? -ne 0 ]; then
         log_print "Start docker toolbox"
         "$(dirname "$(which docker-machine)")"/start.sh uname
-        log_end
       fi
     fi
 
     if [ "$(docker-machine status)" != "Running" ]; then
       log_print "Start default docker machine"
       timeout -k 2 10 docker-machine start default >&2
-      log_end
     fi
 
     do_vm_setting
@@ -132,7 +130,6 @@ prepare_login ()
   log_print "Check status of $CONTAINER_NAME"
   lab_id=$(docker ps -f name=$CONTAINER_NAME -f status=running -q)
   [ -z "$lab_id" ] && info_print "$LAB_NAME is not running." && run_prompt && return 1
-  log_end
 }
 
 get_screen_size ()
@@ -301,7 +298,6 @@ get_browser ()
   else
     __WEB_BROWSER="$WEB_BROWSER"
   fi
-  log_end
 }
 
 get_lab_info ()
@@ -441,7 +437,6 @@ get_xterm ()
 {
    log_print "Get terminal"
    [ -z "$XTERM" ] && XTERM="`"$DOCKER_XTERM_CMD"`"
-   log_end
 }
 
 notify_user ()
@@ -1045,7 +1040,6 @@ do_vm_setting ()
   if [ "$status" = "Running" ]; then
     log_print "Restart to let new vm setting take effect"
     docker-machine stop default >&2
-    log_end
   fi
 
   if [ -n "$add_sharedfolder" ]; then
@@ -1055,19 +1049,16 @@ do_vm_setting ()
 
     # Enable symlink, still need to set with secpol.msc (may missing, require to run tools/windows/gpedit-enabler.bat as administrator)
     "$VBVM" setextradata default VBoxInternal2/SharedFoldersEnableSymlinksCreate/$sharedname 1
-    log_end
   fi
 
   if [ -n "$set_cpu" -o -n "$set_mem" ]; then
     log_print "Set cpu to $cpus and mem to ${mem}MB"
     "$VBVM" modifyvm default --rtcuseutc on --cpus $cpus  --ioapic on --memory $mem
-    log_end
   fi
 
   # Restart to let new added sharedfolder work
   log_print "Start default docker machine"
   timeout -k 2 10 docker-machine start default >&2
-  log_end
 }
 
 get_host ()

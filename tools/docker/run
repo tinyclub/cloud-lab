@@ -14,7 +14,6 @@ if [ ! -f "$TOP_DIR"/labs/$LAB_NAME/.git ]; then
   info_print "pulling git repo: $LAB_NAME"
   "$DOCKER_CHOOSE_CMD" $LAB_NAME
 fi
-log_end
 
 # Notify for X11 system
 which notify-send >/dev/null 2>&1
@@ -37,12 +36,10 @@ if [ ! -f "$LAB_CONTAINER_ID" ]; then
     [ -n "$unused_containers" ] && docker rm -f "$unused_containers"
   done
 fi
-log_end
 
 # Prepare container net
 log_print "Check networking ..."
 prepare_cloud_lab_net
-log_end
 
 # Start the transparent proxy via tinylab/cloud-ubuntu-proxy_client_transparent container
 if [ $TPROXY -eq 1 ]; then
@@ -65,7 +62,6 @@ if [ $TPROXY -eq 1 ]; then
   do_unlock
   set_var TPROXY_IP
   do_lock
-  log_end
 fi
 
 # Start the ssh/vnc proxy via tinylab/cloud-ubuntu-web container
@@ -86,7 +82,6 @@ if [ -z "$wproxy_id" ]; then
   WPROXY_IP=$WPROXY_IP "$DOCKER_EXPORT_CMD" $*
   [ $? -ne 0 ] && echo "ERR: Failed to run $WPROXY_NAME" >&2 && exit 1
 fi
-log_end
 
 if [ -n "$CONTAINER_NAME" ]; then
   # If already there and running, open it
@@ -123,7 +118,6 @@ if [ -n "$CONTAINER_NAME" ]; then
 
   lab_id=$(docker ps -f name=$CONTAINER_NAME -f status=running -q)
   [ -z "$lab_id" ] && docker rm -f $CONTAINER_NAME 2>/dev/null
-  log_end
 
 else
   log_print "Generate container name"
@@ -135,14 +129,12 @@ else
     ids=$(docker ps -a -q -f name=$CONTAINER_NAME)
     [ -z "$ids" ] && break
   done
-  log_end
 fi
 
 # Require to prepare some environment for docker containers in host
 if [ -f "$LAB_HOST_RUN" ]; then
   log_print "Run '$LAB_HOST_RUN'"
   "$LAB_HOST_RUN"
-  log_end
 fi
 
 # Run the lab via start a lab container
@@ -165,14 +157,12 @@ if [ -z "$VNC_IP" -o "$VNC_IP" = "$DEF_VNC_IP" ]; then
   log_print "Get a new ip address"
   VNC_IP=`VNC_NET=$VNC_NET IP_USED="$VNC_GATEWAY $WPROXY_IP $TPROXY_IP" "$DOCKER_IP_CMD"`
   [ $? -ne 0 ] && err_print "\"$DOCKER_IP_CMD\": get ip address error." >&2 && exit 1
-  log_print "DONE"
 fi
 
 # Get screen size if no one cached
 log_print "Get screen size"
 get_var SCREEN_SIZE
 [ -z "$SCREEN_SIZE" ] && get_screen_size
-log_end
 
 # Sync UID before running
 [ "x$HOST_OS" = "xLinux" ] && UNIX_UID=$(id -u `get_host_user`)
@@ -204,7 +194,6 @@ for var in $VARS; do
       vars="$vars -e $var=$(echo $value | tr -d '\n' | cut -d' ' -f1)";
     fi
 done
-log_end
 
 # Get configured settings
 log_print "Building more arguments ..."
@@ -220,7 +209,6 @@ for dns in $DNS; do dnss="$dnss --dns $dns"; done
 for dev in $DEVICES; do devs="$devs --device $dev"; done
 for map in $PORTMAP; do portmap="$portmap -p $map"; done
 for map in $VOLUMEMAP; do volumemap="$volumemap -v $map"; done
-log_end
 
 # Build container name
 container="--name $CONTAINER_NAME"

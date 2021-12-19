@@ -22,5 +22,4 @@ do_op "docker network disconnect -f cloud-lab-net" CONTAINER_NAME 2>/dev/null
 if [ "$RELEASE" != '0' ]; then
   log_print "Update release page"
   "$DOCKER_RELEASE_CMD" all >/dev/null 2>&1
-  log_end
 fi

@@ -12,7 +12,6 @@ TOP_DIR="$(cd "$(dirname "$0")"/../../ && pwd)"
 
 log_print "Check running containers"
 id_names=`docker ps -f status=running --format='{{.ID}},{{.Names}}' -q`
-log_end
 
 [ -z "$id_names" ] && info_print "No running containers found." && exit 0
 
@@ -33,9 +32,7 @@ do
 
     log_print "Stop $lab ..."
     "$DOCKER_STOP_CMD" $lab
-    log_end
 done
 
 log_print "Update release page"
 "$DOCKER_RELEASE_CMD" all >/dev/null 2>&1
-log_end

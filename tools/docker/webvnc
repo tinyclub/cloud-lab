@@ -115,7 +115,6 @@ prepare_login || exit 0
 log_print "Get cached data"
 get_vars VNC_IP VNC_TOKEN VNC_PWD VNC_PWD_VIEWONLY
 get_host
-log_end
 
 # Get vnc page
 HOST_WEB_URL="$WEB_HTTP://${HOST}:${HOST_VNC_PORT}/?u=$VNC_TOKEN&p=$VNC_PWD$AUTOCONNECT"

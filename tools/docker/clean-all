@@ -16,7 +16,6 @@ TOP_DIR="$(cd "$(dirname "$0")"/../../ && pwd)"
 
 log_print "Get all of the labs"
 labs=`get_labs`
-log_end
 
 log_print "Get all of the containers"
 id_names=`docker ps --format='{{.ID}},{{.Names}}' -a -q`
@@ -48,12 +47,10 @@ do
   if [ -n "$CONTAINER_NAME" ]; then
     info_print "Clean $lab"
     "$DOCKER_CLEAN_CMD" $lab
-    log_end
   else
     info_print "Clean $name"
     docker rm -f $name
     docker network disconnect -f cloud-lab-net $name 2>/dev/null
-    log_end
   fi
 done
 
@@ -71,21 +68,17 @@ log_print "clean up for webvnc"
 if [ -f "$LOCAL_TOKEN_MAP" -a -f "$REMOTE_TOKEN_MAP" -a "$LOCAL_TOKEN_DIR" != "/" ]; then
   do_op "rm -rf" LOCAL_TOKEN_DIR
 fi
-log_end
 
 log_print "Remove lab manager and browser shotcuts"
 remove_shortcuts
-log_end
 
 [ -z "$labs" ] && info_print "No lab is found." && exit 0
 
 log_print "Update release page"
 "$DOCKER_RELEASE_CMD" all >/dev/null 2>&1
-log_end
 
 log_print "Remove general cached data"
 for f in LAB_LOGIN LAB_VNC LAB_HOST LAB_CURRENT LAB_DOCKER
 do
   do_op "rm -rf" $f
 done
-log_end

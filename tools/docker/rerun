@@ -10,7 +10,6 @@ TOP_DIR="$(cd "$(dirname "$0")"/../../ && pwd)"
 
 log_print "Remove $LAB_NAME"
 "$DOCKER_RM_CMD" $LAB_NAME
-log_end
 
 log_print "Restart $LAB_NAME"
 "$DOCKER_RUN_CMD" $LAB_NAME

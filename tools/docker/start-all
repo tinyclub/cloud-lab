@@ -12,7 +12,6 @@ TOP_DIR="$(cd "$(dirname "$0")"/../../ && pwd)"
 
 log_print "Check exited containers"
 id_names=`docker ps -f status=exited --format='{{.ID}},{{.Names}}' -q`
-log_end
 
 [ -z "$id_names" ] && info_print "No exited container found."  && exit 0
 
@@ -33,9 +32,7 @@ do
 
     log_print "Start $lab ..."
     "$DOCKER_START_CMD" $lab
-    log_end
 done
 
 log_print "Update release page"
 "$DOCKER_RELEASE_CMD" all >/dev/null 2>&1
-log_end

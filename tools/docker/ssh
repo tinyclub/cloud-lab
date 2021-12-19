@@ -13,7 +13,6 @@ prepare_login || exit 0
 log_print "Get cached data"
 get_vars UNIX_PWD UNIX_USER VNC_IP
 get_host
-log_end
 
 which sshpass >/dev/null 2>&1
 [ $? -eq 0 ] && SSH_PASS="sshpass -p '$UNIX_PWD'"
