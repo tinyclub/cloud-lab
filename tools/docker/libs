@@ -80,7 +80,7 @@ prepare_docker_for_windows ()
   fi
 
   # save docker setting
-  debug_print "Use 'docker $DOCKER' for this instance"
+  log_print "Use 'docker $DOCKER' for this instance"
   [ -z "$docker" ] && set_var DOCKER
 
   if [ "$DOCKER" = "desktop" ]; then
