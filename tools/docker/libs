@@ -34,13 +34,13 @@ prepare_docker ()
 
     groups $HOST_USER | grep -q docker
     if [ $? -ne 0 ]; then
-      echo "ERR: $HOST_USER is not in docker group, please add it, and logout or reboot to let it take effect:" >&2
+      err_print "$HOST_USER is not in docker group, please add it, and logout or reboot to let it take effect:" >&2
       echo "     $ sudo usermod -aG docker $HOST_USER" >&2
       exit 1
     else
       groups | grep -q docker
       if [ $? -ne 0 ]; then
-        echo "ERR: Not work as docker group, please logout or reboot" >&2
+        err_print "Not work as docker group, please logout or reboot" >&2
         echo "     Without logout or reboot, please issue 'newgrp docker' as a temp solution." >&2
         exit 1
       fi
@@ -482,7 +482,7 @@ get_xterm ()
     if [ -n "$XTERM" ]; then
       set_var XTERM
     else
-      err_print "ERR: No valid terminal program found, please specifiy one with 'XTERM=terminal-name tools/docker/program'"
+      err_print "No valid terminal program found, please specifiy one with 'XTERM=terminal-name tools/docker/program'"
     fi
   fi
 }
@@ -897,7 +897,7 @@ create_cloud_lab_net ()
       fi
     done
     if [ $net_retry_count -eq $NET_RETRY_MAX ]; then
-      echo "ERR: Failed to create network with driver: bridge, subnet: $VNC_NET, gateway: $VNC_GATEWAY, retry: $net_retry_count/$NET_RETRY_MAX" >&2
+      err_print "Failed to create network with driver: bridge, subnet: $VNC_NET, gateway: $VNC_GATEWAY, retry: $net_retry_count/$NET_RETRY_MAX" >&2
       exit 1
     fi
   else
@@ -963,7 +963,7 @@ prepare_export_files ()
   id=$(docker ps -f name=$WPROXY_NAME -f status=running -q)
   if [ -n "$id" ]; then
     LOCAL_TOKEN_DIR="$(docker inspect -f '{{ .Mounts }}' $WPROXY_NAME | sed -e "s%.*[ \[]\([^ ]*/*$DEF_TOKEN_DIR[ :]/*$DEF_TOKEN_DIR\).*%\1%g" | awk -F ':| ' '{ printf("%s\n",$1) }')"
-    [ $? -ne 0 ] && echo "ERR: Docker inspect failure" && exit 1
+    [ $? -ne 0 ] && err_print "Docker inspect failure" && exit 1
 
     if [ "x$HOST_OS" = "xDarwin" ]; then
       LOCAL_TOKEN_DIR=$(echo "$LOCAL_TOKEN_DIR" | sed -e "s%^/host_mnt%%g")
@@ -1004,7 +1004,7 @@ prepare_cloud_lab_net ()
   else
     docker info | grep -A2 -i Server >&2
     echo >&2
-    echo "ERR: Docker not work well, Please let docker work at first" >&2
+    err_print "Docker not work well, Please let docker work at first" >&2
     echo >&2
     exit 1
   fi
