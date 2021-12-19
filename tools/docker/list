@@ -15,7 +15,6 @@ filter=$1
 log_print "Get all of the labs" >&2
 labs="`get_lab_bases "$LAB_DIR" $filter | tr '\n' ' '`"
 log_print "$labs" >&2
-log_end >&2
 
 # reserved for old compatibility, should removed and update the functions used them
 [ -z "$lab_life" ] && lab_life=0
@@ -27,8 +26,6 @@ if [ -z "$filter" -o "$filter" = "all" ]; then
 else
   id_names=`docker ps -f status=running -f name=$filter --format='{{.ID}},{{.Names}}' -q | tr '\n' ' '`
 fi
-log_print "$id_names" >&2
-log_end >&2
 
 [ -z "$id_names" ] && info_print "No running containers found." >&2 && exit 1
 
@@ -55,14 +52,10 @@ do
   else
     lab_start=`docker exec $CONTAINER_NAME //bin/bash -c "date '+%Y%m%d %H:%M:%S' --date $start_time"`
   fi
-  log_end >&2
 
   log_print "Get cached data" >&2
   get_vars UNIX_USER UNIX_PWD VNC_PWD VNC_PWD_VIEWONLY VNC_IP VNC_TOKEN
   get_host
-  log_end >&2
 
   echo $lab $UNIX_USER $HOST $HOST_VNC_PORT $VNC_TOKEN $VNC_PWD $VNC_PWD_VIEWONLY $VNC_IP $HOST_WEBSSH_PORT $UNIX_PWD $CONTAINER_NAME $lab_life $lab_start $lab_end
-
-  log_print "Done for $lab" >&2
 done
