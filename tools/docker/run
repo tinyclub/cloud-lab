@@ -135,7 +135,7 @@ fi
 
 # Require to prepare some environment for docker containers in host
 if [ -f "$LAB_HOST_RUN" ]; then
-  log_print "Run '$LAB_HOST_RUN'"
+  log_print "Run host side init for $LAB_NAME"
   "$LAB_HOST_RUN"
 fi
 
