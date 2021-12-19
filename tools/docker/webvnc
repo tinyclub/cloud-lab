@@ -86,21 +86,6 @@ resize_screen ()
   fi
 }
 
-start_browser ()
-{
-  log_print "Open '$HOST_WEB_URL' with '$__WEB_BROWSER' ..."
-  if [ "x$HOST_OS" = "xDarwin" ]; then
-    (eval "$__WEB_BROWSER" '$HOST_WEB_URL' >/dev/null 2>&1 &)>/dev/null 2>&1
-  else
-    # Allow browser continue running even if the terminal exit
-    if [ "x$HOST_OS" = "xWindows" ]; then
-      eval "$__WEB_BROWSER '$HOST_WEB_URL'"
-    else
-      (eval nohup "'$__WEB_BROWSER'" "'$HOST_WEB_URL'" >/dev/null 2>&1 &) >/dev/null 2>&1
-    fi
-  fi
-}
-
 prepare_login || exit 0
 
 # Exit if running as root
@@ -121,15 +106,6 @@ HOST_WEB_URL="$WEB_HTTP://${HOST}:${HOST_VNC_PORT}/?u=$VNC_TOKEN&p=$VNC_PWD$AUTO
 HOST_WEB_URL_VIEWONLY="$WEB_HTTP://${HOST}:${HOST_VNC_PORT}/?r=${VNC_TOKEN}${VNC_PWD_VIEWONLY}"
 LABS_WEB_URL="$WEB_HTTP://${HOST}:${HOST_VNC_PORT}/labs/$RELEASE_HTML"
 
-# Get web browser
-get_browser
-[ $? -ne 0 ] && echo "ERR: Give up browser launching for no web browser found" && exit 1
-
-show_lab &
-
-start_browser
-
+show_lab
 resize_screen
-
-# wait for background task finish
-sleep 0.1
+browse_url "$HOST_WEB_URL"

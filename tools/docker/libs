@@ -317,6 +317,29 @@ get_browser ()
   fi
 }
 
+browse_url ()
+{
+  # Get web browser
+  get_browser
+  [ $? -ne 0 ] && err_print "Give up browser launching for no web browser found" && return 1
+
+  log_print "Open '$1' with '$__WEB_BROWSER' ..."
+
+  if [ "x$HOST_OS" = "xDarwin" ]; then
+    (eval "$__WEB_BROWSER" '$1' >/dev/null 2>&1 &)>/dev/null 2>&1
+  else
+    # Allow browser continue running even if the terminal exit
+    if [ "x$HOST_OS" = "xWindows" ]; then
+      eval "$__WEB_BROWSER '$1'"
+    else
+      (eval nohup "'$__WEB_BROWSER'" "'$1'" >/dev/null 2>&1 &) >/dev/null 2>&1
+    fi
+  fi
+
+  return 0
+}
+
+
 get_lab_info ()
 {
   local tmp=`mktemp`
