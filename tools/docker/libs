@@ -81,20 +81,16 @@ prepare_docker_for_windows ()
 
   # save docker setting
   debug_print "Use 'docker $DOCKER' for this instance"
-  [ -z "$docker" ] && set_var DOCKER &
+  [ -z "$docker" ] && set_var DOCKER
 
   if [ "$DOCKER" = "desktop" ]; then
     if [ "$CURRENT_DOCKER" = "toolbox" -o -n "$DOCKER_TOOLBOX_INSTALL_PATH" ]; then
-      log_print "Load environment for docker toolbox"
       . "$TOP_DIR"/tools/windows/docker-desktop-env.sh
-      log_end
     fi
 
   else # toolbox path
     if [ "$CURRENT_DOCKER" = "desktop" -o -z "$DOCKER_TOOLBOX_INSTALL_PATH" ]; then
-        log_print "Load environment for docker toolbox"
 	. "$TOP_DIR"/tools/windows/docker-toolbox-env.sh
-	log_end
     else
       docker-machine ls | grep -q default
       if [ $? -ne 0 ]; then
@@ -748,8 +744,9 @@ EOF
     # For cloud lab
     if [ ! -f "$MANAGE_DESKTOP_SHORTCUT" ]; then
       MANAGE_BAT="$TOP_DIR"/tools/windows/manage.bat
+      DOCKER_ENV="$TOP_DIR"/tools/windows/docker-env.sh
 
-      echo "start $GIT_BASH --cd=\"$WORK_DIR\"" > "$MANAGE_BAT"
+      echo "start $GIT_BASH --cd=\"$WORK_DIR\" -c '. \"$DOCKER_ENV\"; bash'" > "$MANAGE_BAT"
 
       MANAGE_DESKTOP_SHORTCUT="$DESKTOP_DIR/$(basename $MANAGE_DESKTOP_SHORTCUT)"
       powershell "\$s=(New-Object -COM WScript.Shell).CreateShortcut('$MANAGE_DESKTOP_SHORTCUT');\$s.TargetPath='$TOOLS_DIR/manage.bat';\$s.IconLocation='$CMD_ICON';\$s.Save()"

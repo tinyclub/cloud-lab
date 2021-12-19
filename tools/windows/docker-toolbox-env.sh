@@ -23,6 +23,7 @@ if [ $? -eq 0 ]; then
 fi
 
 if [ -f "$DOCKER_TOOLBOX_PATH"/docker-machine.exe ]; then
+  echo "LOG: Load environment for 'docker toolbox'"
   echo "LOG: Export docker toolbox environment"
   "$DOCKER_TOOLBOX_PATH"/docker-machine.exe env
   eval $("$DOCKER_TOOLBOX_PATH"/docker-machine.exe env)

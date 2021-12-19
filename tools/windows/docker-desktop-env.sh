@@ -36,6 +36,8 @@ if [ -d "$DOCKER_DESKTOP_PATH" ]; then
   DOCKER_DESKTOP="$DOCKER_DESKTOP_TOP_DIR/Docker Desktop.exe"
 
   if [ -f "$DOCKER_DESKTOP" ]; then
+    echo "LOG: Load environment for 'docker desktop'"
+
     echo $PATH | grep -q "$DOCKER_DESKTOP_PATH"
     if [ $? -ne 0 ]; then
       echo "LOG: Add path of docker desktop to global PATH"
