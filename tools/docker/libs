@@ -299,7 +299,7 @@ get_browser ()
   get_var WEB_BROWSER
 
   if [ -z "$WEB_BROWSER" ]; then
-    get_browser
+    __get_browser
     if [ -n "$WEB_BROWSER" ]; then
       set_var WEB_BROWSER
     else
