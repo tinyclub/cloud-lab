@@ -21,28 +21,19 @@ do
     id=$(echo $id_name | cut -d ',' -f1)
     name=$(echo $id_name | cut -d ',' -f2)
 
+    if [ "$name" = "$WPROXY_NAME" -o "$name" = "$TPROXY_NAME" ]; then
+      info_print "Stop $name ..."
+      docker stop $name
+      continue
+    fi
+
     lab=`echo $name | sed -e "s%-[0-9]*-[0-9a-zA-Z]\{6,6\}$%%g"`
-    echo `get_labs` $WPROXY_NAME $TPROXY_NAME | tr ' ' '\n' | grep -q ^$lab$
+    get_labs | tr ' ' '\n' | grep -q ^$lab$
     [ $? -ne 0 ] && continue
 
-    ns="$(find \"$LAB_OUTPUT\" -type d -name \"$name*\" 2>/dev/null)"
-
-    if [ -n "$ns" ]; then
-        for n in $ns
-        do
-            log_print "Stop $lab ..."
-            "$LAB_OUTPUT"/$n/tools/docker/stop $lab
-	    log_end
-        done
-    elif [ -d "$TOP_DIR"/configs/$lab ]; then
-        log_print "Stop $lab ..."
-        "$DOCKER_STOP_CMD" $lab
-	log_end
-    else
-        log_print "Stop $lab ..."
-        docker stop $id
-	log_end
-    fi
+    log_print "Stop $lab ..."
+    "$DOCKER_STOP_CMD" $lab
+    log_end
 done
 
 log_print "Update release page"

@@ -27,7 +27,7 @@ do
   name=$(echo $id_name | cut -d ',' -f2)
 
   if [ "$name" = "$WPROXY_NAME" -o "$name" = "$TPROXY_NAME" ]; then
-      log_print "Remove $name ..."
+      info_print "Remove $name ..."
       docker rm -f $name
 
       log_print "Disconnect $name from cloud-lab-net"
@@ -46,11 +46,11 @@ do
   . "$TOP_DIR"/tools/docker/config >/dev/null 2>&1
 
   if [ -n "$CONTAINER_NAME" ]; then
-    log_print "Clean $lab"
+    info_print "Clean $lab"
     "$DOCKER_CLEAN_CMD" $lab
     log_end
   else
-    log_print "Clean $name"
+    info_print "Clean $name"
     docker rm -f $name
     docker network disconnect -f cloud-lab-net $name 2>/dev/null
     log_end
@@ -59,9 +59,8 @@ done
 
 for lab in $labs
 do
-  log_print "Clean $lab"
+  info_print "Clean $lab"
   "$DOCKER_CLEAN_CMD" $lab
-  log_end
 done
 
 log_print "Clean cloud-lab-net"

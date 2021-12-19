@@ -10,17 +10,15 @@ TOP_DIR="$(cd "$(dirname "$0")"/../../ && pwd)"
 
 # Require to prepare some environment for docker containers in host
 if [ -f "$LAB_HOST_RUN" ]; then
-  log_print "Run $LAB_HOST_RUN"
+  info_print "Run $LAB_HOST_RUN"
   "$LAB_HOST_RUN"
-  log_end
 fi
 
-log_print "Start $CONTAINER_NAME"
+info_print "Start $CONTAINER_NAME"
 do_op "docker start" CONTAINER_NAME
-log_end
 
 if [ "$RELEASE" != '0' ]; then
-  log_print "Wait for lab launching"
+  info_print "Wait for lab launching"
   sleep 2
 
   log_print "Update release page"
