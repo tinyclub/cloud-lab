@@ -120,6 +120,9 @@ echo
 info_print "Running '$LOGIN_TOOL'"
 echo
 
+# create desktop shortcuts
+create_shortcuts &
+
 # bash and ssh require a virtual tty console
 case $LOGIN in
   bash|ssh)
