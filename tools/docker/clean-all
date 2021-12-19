@@ -57,6 +57,13 @@ do
   fi
 done
 
+for lab in $labs
+do
+  log_print "Clean $lab"
+  "$DOCKER_CLEAN_CMD" $lab
+  log_end
+done
+
 log_print "Clean cloud-lab-net"
 docker network rm cloud-lab-net
 

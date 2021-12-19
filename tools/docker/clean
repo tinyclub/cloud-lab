@@ -8,19 +8,19 @@
 TOP_DIR="$(cd "$(dirname "$0")"/../../ && pwd)"
 . "$TOP_DIR"/tools/docker/config >/dev/null
 
+# Remove container
+[ -z "$CONTAINER_NAME" ] && info_print "No lab container recorded." && exit 0
+
 do_unlock
 
-# Remove container
-if [ -n "$CONTAINER_NAME" ]; then
-  notify_user 2 "Lab will be removed"
-  log_print "Remove container"
-  do_op "docker rm -f" CONTAINER_NAME
-  log_end
+notify_user 2 "Lab will be removed"
+log_print "Remove container"
+do_op "docker rm -f" CONTAINER_NAME
+log_end
 
-  log_print "Disconnect $name from cloud-lab-net"
-  docker network disconnect -f cloud-lab-net $name 2>/dev/null
-  log_end
-fi
+log_print "Disconnect $name from cloud-lab-net"
+docker network disconnect -f cloud-lab-net $name 2>/dev/null
+log_end
 
 # Remove desktop shortcut
 log_print "Remove lab shortcut"
@@ -29,6 +29,7 @@ do_op "rm -f" LOCAL_DESKTOP_SHORTCUT
 log_end
 
 # Remove the token map from .vnc-tokens/local_map
+get_vars VNC_TOKEN VNC_IP
 [ -n "$VNC_TOKEN" ] && do_op "sed -i -e \"/${VNC_TOKEN}:/d\"" LOCAL_TOKEN_MAP
 [ -n "$VNC_IP" ] && do_op "sed -i -e \"/${VNC_IP}:/d\"" LOCAL_TOKEN_MAP
 

@@ -68,7 +68,7 @@ prepare_docker_for_windows ()
   else
     CURRENT_DOCKER="desktop"
   fi
-  log_print "Found 'docker $CURRENT_DOCKER' in '$DOCKER_PATH'"
+  debug_print "Found 'docker $CURRENT_DOCKER' in '$DOCKER_PATH'"
 
   if [ -z "$DOCKER" ]; then
     DOCKER="$CURRENT_DOCKER"
@@ -80,7 +80,7 @@ prepare_docker_for_windows ()
   fi
 
   # save docker setting
-  log_print "Use 'docker $DOCKER' for this instance"
+  debug_print "Use 'docker $DOCKER' for this instance"
   [ -z "$docker" ] && set_var DOCKER &
 
   if [ "$DOCKER" = "desktop" ]; then
