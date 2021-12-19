@@ -130,6 +130,8 @@ prepare_login ()
   log_print "Check status of $CONTAINER_NAME"
   lab_id=$(docker ps -f name=$CONTAINER_NAME -f status=running -q)
   [ -z "$lab_id" ] && info_print "$LAB_NAME is not running." && run_prompt && return 1
+
+  return 0
 }
 
 get_screen_size ()
