@@ -13,7 +13,7 @@ TOP_DIR="$(cd "$(dirname "$0")"/../../ && pwd)"
 # Check and download the lab source
 log_print "Check source code of $LAB_NAME ..."
 if [ ! -f "$TOP_DIR"/labs/$LAB_NAME/.git ]; then
-  info_print "pulling git repo: $LAB_NAME"
+  info_print "Pull git repo: $LAB_NAME"
   "$DOCKER_CHOOSE_CMD" $LAB_NAME
 fi
 
@@ -56,7 +56,7 @@ if [ $TPROXY -eq 1 ]; then
     if [ -n "$PROXY_SERVER" -a -n "$PROXY_PWD" -a -n "$ENCRYPT_CMD" ]; then
       info_print "Start $TPROXY_NAME"
       TPROXY_IP=$TPROXY_IP PROXY_SERVER="$PROXY_SERVER" PROXY_PWD="$PROXY_PWD" ENCRYPT_CMD="$ENCRYPT_CMD" PROXY_LIMIT=$PROXY_LIMIT "$DOCKER_TPROXY_CMD" $*
-      [ $? -ne 0 ] && echo "ERR: Failed to run $TPROXY_NAME" >&2 && exit 1
+      [ $? -ne 0 ] && err_print "Failed to run $TPROXY_NAME" >&2 && exit 1
     fi
   fi
 
@@ -82,7 +82,7 @@ if [ -z "$wproxy_id" ]; then
   info_print "Start $WPROXY_NAME"
   prepare_and_touch_export_files
   WPROXY_IP=$WPROXY_IP "$DOCKER_EXPORT_CMD" $*
-  [ $? -ne 0 ] && echo "ERR: Failed to run $WPROXY_NAME" >&2 && exit 1
+  [ $? -ne 0 ] && err_print "Failed to run $WPROXY_NAME" >&2 && exit 1
 fi
 
 if [ -n "$CONTAINER_NAME" ]; then
@@ -198,7 +198,7 @@ for var in $VARS; do
 done
 
 # Get configured settings
-log_print "Building more arguments ..."
+log_print "Build more arguments ..."
 if [ "x$HOST_OS" = "xWindows" ]; then
   get_vars CAPS DEVICES VOLUMEMAP
 else
@@ -246,13 +246,13 @@ while :; do
     echo ".... $boot_time / $BOOT_TIMEOUT"
 
     if [ $boot_time -gt $BOOT_TIMEOUT ]; then
-       echo "ERR: Booting $CONTAINER_NAME Timeout, exit."
+       err_print "Boot $CONTAINER_NAME Timeout, exit."
        echo
-       err_print "Booting log is below:"
+       err_print "Boot log is below:"
        echo
        docker logs $CONTAINER_NAME
        echo
-       err_print "Removing not completed $CONTAINER_NAME"
+       err_print "Remove not completed $CONTAINER_NAME"
        docker rm -f $CONTAINER_NAME
        exit 1
     fi

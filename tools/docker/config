@@ -318,7 +318,7 @@ get_var () #VAR #defval
 get_vars ()
 {
   for var in $@; do
-    debug_print "Reading $var"
+    debug_print "Read $var"
     get_var $var
     debug_end
   done
@@ -343,7 +343,7 @@ set_var () #VAR
 set_vars ()
 {
   for var in $@; do
-    debug_print "Saving $var"
+    debug_print "Save $var"
     set_var $var
     debug_end
   done

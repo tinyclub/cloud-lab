@@ -8,7 +8,7 @@
 #
 
 echo
-log_print "Removing tags from remote hub.docker.com"
+log_print "Remove tags from remote hub.docker.com"
 echo
 
 log_print "Please input necessary information:"
@@ -35,7 +35,7 @@ info_print "Old Tags"
 curl -s "https://registry.hub.docker.com/v2/repositories/${DOCKER_ORGANIZATION}/${DOCKER_IMAGE}/tags/" | jq '."results"[]["name"]'
 
 # Removing tags
-log_print "Removing ${DOCKER_ORGANIZATION}/${DOCKER_IMAGE}:${DOCKER_TAG}"
+log_print "Remove ${DOCKER_ORGANIZATION}/${DOCKER_IMAGE}:${DOCKER_TAG}"
 
 TOKEN=`curl -s -H "Content-Type: application/json" -X POST -d "$(login_data)" "https://hub.docker.com/v2/users/login/" | jq -r .token`
 

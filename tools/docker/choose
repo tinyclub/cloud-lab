@@ -58,10 +58,10 @@ download_submodule ()
         && git submodule update --init --remote $RECURSIVE "$LAB_CURRENT_DIR" \
         && cd "$LAB_CURRENT_DIR" && git checkout $BRANCH
 
-      [ $PULL -eq 1 ] && info_print "Pulling repository: $lab" \
+      [ $PULL -eq 1 ] && info_print "Pull repository: $lab" \
         && git pull -v && git submodule sync && git pull $PULL_RECURSIVE -v
 
-      [ $SUBMODULE -eq 1 ] && info_print "Pulling submodules of $lab" \
+      [ $SUBMODULE -eq 1 ] && info_print "Pull submodules of $lab" \
 	&& git submodule update --init --remote $RECURSIVE .
 
       # Convert absolute path to relative path for gitdir in .git of submodules

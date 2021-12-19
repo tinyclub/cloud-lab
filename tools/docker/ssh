@@ -58,7 +58,7 @@ fi
 
 if [ "x$HOST_OS" != "xWindows" ]; then
   echo
-  log_print "Enabling X11 Forwarding support"
+  log_print "Enable X11 Forwarding support"
   echo
 
   which xhost >/dev/null 2>&1

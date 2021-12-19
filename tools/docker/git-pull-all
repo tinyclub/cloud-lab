@@ -10,7 +10,7 @@ TOP_DIR="$(cd "$(dirname "$0")"/../../ && pwd)"
 
 for lab in `get_labs`
 do
-    info_print "Pulling repository: $lab"
+    info_print "Pull repository: $lab"
 
     lab_dir="$LAB_DIR"/$lab
     [ -d "$lab_dir" ] && cd "$lab_dir" && git pull -v

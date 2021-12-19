@@ -9,9 +9,9 @@ TOP_DIR="$(cd "$(dirname "$0")"/../../ && pwd)"
 . "$TOP_DIR"/tools/docker/config >/dev/null
 
 # Fix up the port already used issue
-info_print "Stopping docker-proxy"
+info_print "Stop docker-proxy"
 sudo pkill docker-proxy
 
-info_print "Restarting docker service"
+info_print "Restart docker service"
 # Restart docker service
 sudo systemctl restart docker
