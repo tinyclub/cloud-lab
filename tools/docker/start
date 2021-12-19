@@ -10,7 +10,7 @@ TOP_DIR="$(cd "$(dirname "$0")"/../../ && pwd)"
 
 # Require to prepare some environment for docker containers in host
 if [ -f "$LAB_HOST_RUN" ]; then
-  info_print "Run $LAB_HOST_RUN"
+  info_print "Run host side init for $LAB_NAME"
   "$LAB_HOST_RUN"
 fi
 
