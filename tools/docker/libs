@@ -228,7 +228,7 @@ __get_browser ()
   local deepin_browser=browser
   local win_firefox='/c/Program Files/Mozilla Firefox/firefox.exe'
   local win_chrome='/c/Program Files (x86)/Google/Chrome/Application/chrome.exe'
-  local win_edge=start
+  local win_edge=/usr/bin/start
 
   local DEF_WEB_BROWSER=firefox
   if [ "x$HOST_OS" = "xDarwin" ]; then
@@ -245,11 +245,11 @@ __get_browser ()
   else
     for b in "$win_chrome" "$win_firefox" "$win_edge"
     do
-      which "$b" >/dev/null 2>&1 && DEF_WEB_BROWSER="$b" && break
+      [ -f "$b" ] && DEF_WEB_BROWSER="$b" && break
     done
   fi
 
-  [ -z "$WEB_BROWSER" ] && WEB_BROWSER="'$DEF_WEB_BROWSER'"
+  [ -z "$WEB_BROWSER" ] && WEB_BROWSER="$DEF_WEB_BROWSER"
 
   if [ "x$HOST_OS" = "xDarwin" ]; then
     WEB_BROWSER="$(echo $WEB_BROWSER | tr '-' ' ')"
@@ -265,26 +265,24 @@ __get_browser ()
     which "$WEB_BROWSER" >/dev/null 2>&1
     if [ $? -ne 0 ]; then
       if [ "x$WEB_BROWSER" = "xfirefox" ]; then
-        echo "ERR: No web browser found, are you running me in cloud? please open the 'Normal' url yourself."
+        err_print "No web browser found, are you running me in cloud? please open the 'Normal' url yourself."
         exit 1
       else
         info_print "No "$WEB_BROWSER" found, try firefox instead."
         WEB_BROWSER=firefox
         which "$WEB_BROWSER" >/dev/null 2>&1
-        [ $? -ne 0 ] && echo "ERR: No "$WEB_BROWSER" found too." && WEB_BROWSER="" && return 1
+        [ $? -ne 0 ] && err_print "No "$WEB_BROWSER" found too." && WEB_BROWSER="" && return 1
       fi
     fi
   else # Windows
-    which "$WEB_BROWSER" >/dev/null 2>&1
-    if [ $? -ne 0 ]; then
+    if [ ! -f "$WEB_BROWSER" ]; then
       if [ "x$WEB_BROWSER" = "xfirefox" ]; then
-        echo "ERR: No web browser found, are you running me in cloud? please open the 'Normal' url yourself."
+        err_print "No web browser found, are you running me in cloud? please open the 'Normal' url yourself."
         exit 1
       else
         info_print "No "$WEB_BROWSER" found, try edge instead."
         WEB_BROWSER="$win_edge"
-        which "$WEB_BROWSER" >/dev/null 2>&1
-        [ $? -ne 0 ] && echo "ERR: No "$WEB_BROWSER" found too." && WEB_BROWSER="" && return 1
+        [ ! -f "$WEB_BROWSER" ] && err_print "No "$WEB_BROWSER" found too." && WEB_BROWSER="" && return 1
       fi
     fi
 
@@ -303,7 +301,7 @@ get_browser ()
     if [ -n "$WEB_BROWSER" ]; then
       set_var WEB_BROWSER
     else
-      err_print "ERR: No valid browser program found, please specifiy one with 'WEB_BROWSER=browser-name tools/docker/program'"
+      err_print "No valid browser program found, please specifiy one with 'WEB_BROWSER=browser-name tools/docker/program'"
     fi
   fi
 
@@ -315,6 +313,8 @@ get_browser ()
   else
     __WEB_BROWSER="$WEB_BROWSER"
   fi
+
+  return 0
 }
 
 browse_url ()
