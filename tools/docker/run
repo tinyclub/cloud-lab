@@ -90,10 +90,9 @@ if [ -n "$CONTAINER_NAME" ]; then
   log_print "Check status of $CONTAINER_NAME"
   lab_id=$(docker ps -f name=$CONTAINER_NAME -f status=running -q)
   if [ -n "$lab_id" ]; then
-    get_host
     if [ "$LOGIN" != "none" ]; then
       info_print "Open the running $LAB_NAME"
-      LOGIN=$LOGIN "$DOCKER_LOGIN_CMD" $*
+      [ "$LOGIN" != "none" ] && LOGIN=$LOGIN "$DOCKER_LOGIN_CMD" $*
     fi
     exit $?
   fi
@@ -110,10 +109,8 @@ if [ -n "$CONTAINER_NAME" ]; then
       [ -n "$boot_completed" ] && break
     done
 
-    get_host
-
     "$DOCKER_PUBLISH_CMD" $*
-    "$DOCKER_LOGIN_CMD" $*
+    [ "$LOGIN" != "none" ] && LOGIN=$LOGIN "$DOCKER_LOGIN_CMD" $*
 
     exit $?
   fi
