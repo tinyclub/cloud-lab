@@ -658,6 +658,9 @@ create_shortcuts ()
 
   log_print "Create local shortcut on Desktop"
   [ -z "$LAB_DESKTOP_SHORTCUT" ] && LAB_DESKTOP_SHORTCUT=1
+  [ -z "$HOST" ] && get_host
+  [ -z "$RELEASE_HTML" ] && prepare_export_files
+  LABS_WEB_URL="$WEB_HTTP://${HOST}:${HOST_VNC_PORT}/labs/$RELEASE_HTML"
 
   init_shortcuts
 
