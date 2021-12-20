@@ -56,12 +56,11 @@ if [ "x$HOST_OS" = "xLinux" ]; then
   fi
 fi
 
-echo "Note: Please make sure this lab network is connectable outside,"
-echo "      If so, use external ip or domain name instead of 'localhost':"
+echo "Note: If running on a remote server, use external ip or domain name instead of 'localhost':"
 echo
-echo "      $ echo \$ip > '$LAB_HOST'"
-echo "      Or"
-echo "      $ echo \$domain_name > '$LAB_HOST'"
+echo "      $ echo \$ip_or_domain_name > '$LAB_HOST'"
+echo "      $ tools/docker/release $LAB_NAME"
+echo
 
 echo
 echo "Note: firefox, safari and edge work, but google chrome web browser is preferable."
