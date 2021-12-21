@@ -370,7 +370,11 @@ host_init()
   which docker >/dev/null 2>&1
   [ $? -ne 0 ] && prepare_docker
 
-  [ "x$HOST_OS" = "xWindows" ] && prepare_docker_for_windows >&2
+  if [ "x$HOST_OS" = "xWindows" ]; then
+    prepare_docker_for_windows >&2
+    # add .host_name.$DOCKER for both of toolbox and desktop
+    [ -n "$DOCKER" ] && LAB_HOST="$TOP_DIR"/.host_name.$DOCKER
+  fi
 
   [ -z "$TPROXY" ] && TPROXY=0
   [ -z "$VNC_NET_NAME" ] && VNC_NET_NAME=cloud-lab-net

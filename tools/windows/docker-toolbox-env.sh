@@ -23,10 +23,15 @@ if [ $? -eq 0 ]; then
 fi
 
 docker_machine="$DOCKER_TOOLBOX_PATH"/docker-machine.exe
+docker="$DOCKER_TOOLBOX_PATH"/docker
 if [ -f "$docker_machine" ]; then
   echo "LOG: Check and start docker toolbox"
   "$docker_machine" ls | grep -q default
   [ $? -ne 0 ] && "$DOCKER_TOOLBOX_PATH"/start.sh uname
+
+  echo "LOG: Check docker service"
+  "$docker" ps >/dev/null
+  [ $? -ne 0 ] && "$docker" start default
 
   echo "LOG: Load environment for 'docker toolbox'"
   echo "LOG: Export docker toolbox environment"
