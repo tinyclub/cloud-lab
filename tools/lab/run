@@ -230,7 +230,8 @@ which startlxqt >/dev/null 2>&1
 # Run image built-in tasks
 for f in /etc/startup.aux/*.sh
 do
-    $f
+  chmod a+x $f
+  $f
 done
 
 # Report boot_completed
