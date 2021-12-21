@@ -234,14 +234,14 @@ do
   $f
 done
 
+# Report boot_completed
+echo "boot_completed"
+
 # Reset environment passed from host
 if [ -n "$VARS" ]; then
   VARS="$(echo $VARS | sed -e 's/\(HOST_OS\|UNIX_USER\|UNIX_UID\)//g')"
   unset $VARS
 fi
-
-# Report boot_completed
-echo "boot_completed"
 
 # Launch supervisor tasks
 SYSTEM_SUPERVISORD_CONF=/etc/supervisor/supervisord.conf
