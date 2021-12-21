@@ -19,6 +19,7 @@ do_unlock
 
 # Don't touch me
 [ -z "$UNIX_USER" ] && get_var UNIX_USER $DEF_USER
+[ -z "$LAB_SECURITY" ] && LAB_SECURITY=0
 
 get_var HOST_NAME localhost
 get_var UNIX_IDENTIFY $DEF_UNIX_IDENTIFY
@@ -105,7 +106,7 @@ else
   [ $SUDO_IDENTIFY -eq 2 ] && echo "$UNIX_USER ALL=(ALL) NOPASSWD: ALL" > $SYSTEM_SUDOERS_USER \
   			&& chmod 440 $SYSTEM_SUDOERS_USER
 
-  [ -f "$DEF_SYSTEM_SUDOERS_USER" -a $LAB_SECURITY -ge 1 ] \
+  [ -f "$DEF_SYSTEM_SUDOERS_USER" -a "$LAB_SECURITY" != "0" ] \
     && mv $DEF_SYSTEM_SUDOERS_USER $SYSTEM_SUDOERS_USER \
     && sed -i -e "s/^$DEF_USER/$UNIX_USER/g" $SYSTEM_SUDOERS_USER \
     && chmod 440 $SYSTEM_SUDOERS_USER

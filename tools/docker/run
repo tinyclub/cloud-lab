@@ -140,7 +140,7 @@ fi
 caps=""
 dnss=""
 devs=""
-vars="-e LAB_SECURITY=$LAB_SECURITY"
+vars=""
 envs=""
 
 # Fixed up for docker toolbox in windows
@@ -166,12 +166,17 @@ get_var SCREEN_SIZE
 # Sync UID before running
 [ "x$HOST_OS" = "xLinux" ] && UNIX_UID=$(id -u `get_host_user`)
 [ "x$UNIX_UID" = "x0" -o -z "$UNIX_UID" ] && UNIX_UID=$DEF_UID
+[ -z "$UNIX_USER" ] && UNIX_USER=$DEF_USER
 
 # Build vars passed to container
 log_print "Build variables for $CONTAINER_NAME"
 for var in $VARS; do
     # Available encrypt cmds: sha1sum, sha224sum, cksum, sha256sum, sha512sum, md5sum, sha384sum, sum
     value=$(eval echo \$${var})
+
+    # Ignore empty setting
+    [ -z "$value" ] && continue
+
     # Maximize the screen size of container, allow resize to what user want
     if [ "$var" = "SCREEN_SIZE" ]; then
       get_host_virtual
@@ -186,7 +191,7 @@ for var in $VARS; do
       fi
     fi
     echo "$var" | grep -q "_PWD"
-    if [ $? -eq 0 -a -n "$ENCRYPT" -a -n "$ENCRYPT_CMD" -a -n "$value" ]; then
+    if [ $? -eq 0 -a -n "$ENCRYPT_CMD" ]; then
       vars="$vars -e $var=$(echo $value | tr -d '\n' | $ENCRYPT_CMD | cut -d' ' -f1)";
     else
       vars="$vars -e $var=$(echo $value | tr -d '\n' | cut -d' ' -f1)";
