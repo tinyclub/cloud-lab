@@ -231,7 +231,7 @@ which startlxqt >/dev/null 2>&1
 # Run image built-in tasks
 for f in /etc/startup.aux/*.sh
 do
-  chmod a+x $f
+  [ ! -x $f ] && chmod a+x $f
   $f
 done
 

@@ -225,7 +225,7 @@ net="$ip --network $VNC_NET_NAME"
 
 [ "x$HOST_OS" = "xLinux" ] && audio="-v //run/user/${UNIX_UID}/pulse://run/user/${UNIX_UID}/pulse"
 
-info_print "Wait for lab launching..."
+info_print "Wait for lab launching ..."
 
 lab_id=$(eval docker run -d --privileged $coredump -h $LAB_NAME $net $audio $container $portmap $caps $dnss $devices $limits $volumemap $vars $EXTRA_ARGS $IMAGE)
 
@@ -241,6 +241,7 @@ trap 'echo "  Please wait for a while, to really stop me, please press 'CTRL+z' 
 boot_time=0
 while :; do
     boot_completed=`docker logs $CONTAINER_NAME 2>/dev/null | grep boot_completed`
+    [ -n "$boot_completed" ] && break
 
     boot_time=`expr $boot_time + 1`
     echo ".... $boot_time / $BOOT_TIMEOUT"
@@ -258,12 +259,7 @@ while :; do
     fi
 
     sleep 1
-
-    [ -n "$boot_completed" ] && break
 done
-
-# Wait for more completed
-sleep 1
 
 do_unlock
 
