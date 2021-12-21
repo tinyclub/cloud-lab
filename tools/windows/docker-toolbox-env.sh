@@ -22,20 +22,20 @@ if [ $? -eq 0 ]; then
   fi
 fi
 
-if [ -f "$DOCKER_TOOLBOX_PATH"/docker-machine.exe ]; then
+docker_machine="$DOCKER_TOOLBOX_PATH"/docker-machine.exe
+if [ -f "$docker_machine" ]; then
+  echo "LOG: Check and start docker toolbox"
+  "$docker_machine" ls | grep -q default
+  [ $? -ne 0 ] && "$DOCKER_TOOLBOX_PATH"/start.sh uname
+
   echo "LOG: Load environment for 'docker toolbox'"
   echo "LOG: Export docker toolbox environment"
-  "$DOCKER_TOOLBOX_PATH"/docker-machine.exe env
-  eval $("$DOCKER_TOOLBOX_PATH"/docker-machine.exe env)
+  "$docker_machine" env
+  eval $("$docker_machine" env)
 
   echo "LOG: Add path of docker toolbox to global PATH"
   echo "$PATH" | grep -q "Docker Toolbox"
   [ $? -ne 0 ] && export PATH="$DOCKER_TOOLBOX_PATH:$PATH"
-  echo $PATH
-
-  echo "LOG: Check and start docker toolbox"
-  docker-machine ls | grep -q default
-  [ $? -ne 0 ] && "$DOCKER_TOOLBOX_PATH"/start.sh uname
 else
   echo "ERR: No Docker Toolbox found, you can try Docker Desktop with tools/windows/docker-desktop-env.sh"
 fi
