@@ -169,7 +169,6 @@ get_var SCREEN_SIZE
 
 # Build vars passed to container
 log_print "Build variables for $CONTAINER_NAME"
-VARS="UNIX_USER UNIX_UID UNIX_PWD VNC_PWD VNC_PWD_VIEWONLY VNC_IP VNC_TOKEN TPROXY_IP TPROXY VNC_SHARED SCREEN_SIZE HOST_NAME UNIX_IDENTIFY VNC_IDENTIFY SUDO_IDENTIFY HOST_OS"
 for var in $VARS; do
     # Available encrypt cmds: sha1sum, sha224sum, cksum, sha256sum, sha512sum, md5sum, sha384sum, sum
     value=$(eval echo \$${var})

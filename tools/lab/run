@@ -234,6 +234,12 @@ do
   $f
 done
 
+# Reset environment passed from host
+if [ -n "$VARS" ]; then
+  VARS="$(echo $VARS | sed -e 's/\(HOST_OS\|UNIX_USER\|UNIX_UID\)//g')"
+  unset $VARS
+fi
+
 # Report boot_completed
 echo "boot_completed"
 
