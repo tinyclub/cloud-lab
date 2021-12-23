@@ -4,7 +4,8 @@
 #
 # Copyright (C) 2016-2021 Wu Zhangjin <falcon@ruma.tech>
 #
-
+# Usage: $ tools/docker/cmd "ls //labs/linux-lab"
+#
 
 TOP_DIR="$(cd "$(dirname "$0")"/../../ && pwd)"
 . "$TOP_DIR"/tools/docker/config >/dev/null
