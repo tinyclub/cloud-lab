@@ -17,7 +17,7 @@ fi
 
 modules="loop minix kvm $kvm_dri"
 container_mdir=/lib/modules/`uname -r`/
-if [ -d $container_mdir -a -f $container_mdir/modules.dep.bin ]; then
+if [ -d $container_mdir -a ! -f $container_mdir/modules.dep.bin ]; then
   depmod -A
   depmod=1
 fi
