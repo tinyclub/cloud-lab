@@ -34,6 +34,7 @@ fi
 if [ -d "$DOCKER_DESKTOP_PATH" ]; then
   DOCKER_DESKTOP_TOP_DIR="$(cd "$DOCKER_DESKTOP_PATH"/../../ && pwd)"
   DOCKER_DESKTOP="$DOCKER_DESKTOP_TOP_DIR/Docker Desktop.exe"
+  DOCKER_DAEMON="$DOCKER_DESKTOP_TOP_DIR/resources/dockerd.exe"
 
   if [ -f "$DOCKER_DESKTOP" ]; then
     echo "LOG: Load environment for 'docker desktop'"
@@ -46,8 +47,27 @@ if [ -d "$DOCKER_DESKTOP_PATH" ]; then
 
     docker ps >/dev/null 2>&1
     if [ $? -ne 0 ] ; then
+      echo "LOG: Clean up background tasks"
+      taskkill.exe //F //IM "Docker Desktop.exe"
+      taskkill.exe //F //IM "dockerd.exe"
+
+      echo "LOG: Start Docker Daemon"
+      "$DOCKER_DAEMON"
+
       echo "LOG: Start Docker Desktop"
-      "$DOCKER_DESKTOP"
+      "$DOCKER_DESKTOP" &
+
+      echo "LOG: Wait for Docker Service being ready ..."
+      loop=0; wait=60
+      while [ $loop -lt $wait ]; do
+        loop=`expr $loop + 1`
+        echo ".... $loop / $wait"
+
+        docker ps >/dev/null 2>&1
+	[ $? -eq 0 ] && break
+
+        sleep 1
+      done
     fi
   else
     echo "ERR: No Docker Desktop found, you can try Docker Toolbox with tools/windows/docker-toolbox-env.sh"
