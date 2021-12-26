@@ -15,11 +15,6 @@ TOP_DIR="$(cd "$(dirname "$0")"/../../ && pwd)"
 IMAGE_NAME=tinylab/$TPROXY_NAME
 [ -n "$TPROXY_TAG" ] && IMAGE_NAME=$IMAGE_NAME:$TPROXY_TAG
 
-[ -z "$PULL" ] && PULL=0
-
-docker images | grep -q $IMAGE_NAME
-[ $? -ne 0 -o $PULL -eq 1 ] && docker pull $IMAGE_NAME
-
 [ -z "$PROXY_PORT" ] && PROXY_PORT=1080
 EXTRA_ARGS="$EXTRA_ARGS -e PROXY_PORT=$PROXY_PORT"
 

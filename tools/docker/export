@@ -15,11 +15,6 @@ TOP_DIR="$(cd "$(dirname "$0")"/../../ && pwd)"
 IMAGE_NAME=tinylab/$WPROXY_NAME
 [ -n "$WPROXY_TAG" ] && IMAGE_NAME=$IMAGE_NAME:$WPROXY_TAG
 
-[ -z "$PULL" ] && PULL=0
-
-docker images | grep -q $IMAGE_NAME
-[ $? -ne 0 -o $PULL -eq 1 ] && docker pull $IMAGE_NAME
-
 id=$(docker ps -a -f name=$WPROXY_NAME -f status=running -q)
 [ -n "$id" ] && echo "ERR: $WPROXY_NAME has already been created" && exit 0
 
