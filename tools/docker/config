@@ -387,7 +387,7 @@ host_init()
   TPROXY_NAME=proxy-client
   WPROXY_NAME=cloud-ubuntu-web
   TPROXY_TAG=latest
-  WRPOXY_TAG=latest
+  WPROXY_TAG=20211227
 
   get_vars CONTAINER_NAME CONTAINER_ID IMAGE
 
