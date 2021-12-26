@@ -12,8 +12,8 @@ TOP_DIR="$(cd "$(dirname "$0")"/../../ && pwd)"
 
 [ -z "$WPROXY_IP" ] && prepare_cloud_lab_net
 
-WPROXY_IMAGE_NAME=cloud-ubuntu-web
-IMAGE_NAME=tinylab/$WPROXY_IMAGE_NAME
+IMAGE_NAME=tinylab/$WPROXY_NAME
+[ -n "$WPROXY_TAG" ] && IMAGE_NAME=$IMAGE_NAME:$WPROXY_TAG
 
 [ -z "$PULL" ] && PULL=0
 

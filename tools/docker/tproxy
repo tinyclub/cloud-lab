@@ -12,8 +12,8 @@ TOP_DIR="$(cd "$(dirname "$0")"/../../ && pwd)"
 
 [ -z "$TPROXY_IP" ] && prepare_cloud_lab_net
 
-TPROXY_IMAGE_NAME=cloud-ubuntu-proxy_client_transparent
-IMAGE_NAME=tinylab/$TPROXY_IMAGE_NAME
+IMAGE_NAME=tinylab/$TPROXY_NAME
+[ -n "$TPROXY_TAG" ] && IMAGE_NAME=$IMAGE_NAME:$TPROXY_TAG
 
 [ -z "$PULL" ] && PULL=0
 
