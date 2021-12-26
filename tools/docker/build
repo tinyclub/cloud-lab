@@ -14,4 +14,6 @@ TOP_DIR="$(cd "$(dirname "$0")"/../../ && pwd)"
 
 [ -n "$LAB_CACHE" -a "x$LAB_CACHE" = "x0"  ] && NO_CACHE="--no-cache"
 
+[ -z "$CURRENT" ] && err_print "Usage: $0 LAB_NAME" && exit 1
+
 do_op "docker build $NO_CACHE -t " IMAGE "'$CONFIG_DIR'"
