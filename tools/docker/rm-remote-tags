@@ -8,10 +8,10 @@
 #
 
 echo
-log_print "Remove tags from remote hub.docker.com"
+echo "LOG: Remove tags from remote hub.docker.com"
 echo
 
-log_print "Please input necessary information:"
+echo "LOG: Please input necessary information:"
 
 read -p "Docker Username: " DOCKER_USERNAME
 read -p "Docker password: " DOCKER_PASSWORD
@@ -31,11 +31,11 @@ EOF
 }
 
 # Before removing
-info_print "Old Tags"
+echo "INFO: Old Tags"
 curl -s "https://registry.hub.docker.com/v2/repositories/${DOCKER_ORGANIZATION}/${DOCKER_IMAGE}/tags/" | jq '."results"[]["name"]'
 
 # Removing tags
-log_print "Remove ${DOCKER_ORGANIZATION}/${DOCKER_IMAGE}:${DOCKER_TAG}"
+echo "LOG: Remove ${DOCKER_ORGANIZATION}/${DOCKER_IMAGE}:${DOCKER_TAG}"
 
 TOKEN=`curl -s -H "Content-Type: application/json" -X POST -d "$(login_data)" "https://hub.docker.com/v2/users/login/" | jq -r .token`
 
@@ -44,5 +44,5 @@ curl "https://hub.docker.com/v2/repositories/${DOCKER_ORGANIZATION}/${DOCKER_IMA
 -H "Authorization: JWT ${TOKEN}"
 
 # After removing
-info_print "New Tags"
+echo "INFO: New Tags"
 curl -s "https://registry.hub.docker.com/v2/repositories/${DOCKER_ORGANIZATION}/${DOCKER_IMAGE}/tags/" | jq '."results"[]["name"]'
