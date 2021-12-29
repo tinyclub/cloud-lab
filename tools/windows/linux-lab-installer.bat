@@ -2,6 +2,7 @@
 
 set GIT_BASH="C:/Program Files (x86)/Git/git-bash.exe"
 set CLOUD_LAB="https://gitee.com/tinylab/cloud-lab.git"
+set WORK_BRANCH=next
 
 echo .................................................................................................
 echo ........................... Linux Lab for Windows Installer .....................................
@@ -20,7 +21,7 @@ echo .
 echo .==== STOP by input 'n', Press any key to CONTINUE.
 echo .
 
-set /p answer=Yes/No?
+set /p answer=Yes/No? 
 if /i "%answer:~,1%" EQU "n" exit /b
 
 @echo off
@@ -46,38 +47,49 @@ echo .
 echo .=== STOP by input 'n', Press any key to CONTINUE.
 echo .
 
-set /p answer=Yes/No?
+set /p answer=Yes/No? 
 if /i "%answer:~,1%" EQU "n" exit /b
 
-if exist %cd%\cloud-lab (
+echo .
+echo .LOG: Current workdir: %cd%
+echo .
+
+if exist cloud-lab (
   echo .
-  echo LOG: Found 'cloud-lab' in %cd%
-  echo .
-  goto run_linux_lab
-)
-if exist %cd%\..\cloud-lab (
-  cd ../
-  echo .
-  echo LOG: Found 'cloud-lab' in %cd%
+  echo .1. LOG: Found 'cloud-lab' in %cd%
   echo .
   goto run_linux_lab
 )
 
-if exist %cd%\..\..\cloud-lab (
-  cd ../../
+set OLD_DIR=%cd%
+cd ../
+if exist cloud-lab (
   echo .
-  echo LOG: Found 'cloud-lab' in %cd%
+  echo .2. LOG: Found 'cloud-lab' in %cd%
   echo .
   goto run_linux_lab
 )
+cd %OLD_DIR%
 
-if exist %cd%\..\..\..\cloud-lab (
-  cd ../../../
+set OLD_DIR=%cd%
+cd ../../
+if exist cloud-lab (
   echo .
-  echo LOG: Found 'cloud-lab' in %cd%
+  echo .3. LOG: Found 'cloud-lab' in %cd%
   echo .
   goto run_linux_lab
 )
+cd %OLD_DIR%
+
+set OLD_DIR=%cd%
+cd ../../../
+if exist cloud-lab (
+  echo .
+  echo .1. LOG: Found 'cloud-lab' in %cd%
+  echo .
+  goto run_linux_lab
+)
+cd %OLD_DIR%
 
 echo .
 echo .LOG: Download Linux Lab Manager: Cloud Lab
@@ -93,7 +105,7 @@ echo .
 echo .=== STOP by input 'n', Press any key to CONTINUE.
 echo .
 
-set /p answer=Yes/No?
+set /p answer=Yes/No? 
 if /i "%answer:~,1%" EQU "n" exit /b
 
 echo .
@@ -122,7 +134,7 @@ echo .    It costs some time to download the whole environment ...
 echo .
 
 echo .
-%GIT_BASH% -c 'cd "%cd%"; tools/docker/run linux-lab'
+%GIT_BASH% -c 'cd "%cd%"/cloud-lab; echo "LOG: Switch to work branch: %WORK_BRANCH%"; git checkout %WORK_BRANCH%; echo "LOG: Running Linux Lab ..."; BRANCH=%WORK_BRANCH% tools/docker/run linux-lab; ret=$?; if [ $ret -ne 0 ]; then sleep 5 ; fi ; exit $ret'
 echo .
 
 IF %ERRORLEVEL% EQU 0 (
@@ -131,7 +143,7 @@ IF %ERRORLEVEL% EQU 0 (
   echo .
 ) ELSE (
   echo .
-  echo .ERR Failed to run 'Linux Lab'.
+  echo .ERR: Failed to run 'Linux Lab'.
   echo .
 )
 
