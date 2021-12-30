@@ -348,7 +348,7 @@ get_lab_info ()
 
   [ -z "$prompt" ] && prompt="Hello, Cloud Lab !"
   [ -z "$empty_prompt" ] && empty_prompt="当前没有任何 Lab 在线运行!"
-  [ -z "$RELEASE_DIR" ] && prepare_export_files
+  [ -z "$HOST_RELEASE_DIR" ] && prepare_export_files
 
   [ -n "$list" ] && "$list" $filter | grep -v "LOG:" > "$tmp"
 
@@ -360,7 +360,7 @@ get_lab_info ()
         }'
   echo
 
-  [ ! -d "$RELEASE_DIR" ] && mkdir -p "$RELEASE_DIR"
+  [ ! -d "$HOST_RELEASE_DIR" ] && mkdir -p "$HOST_RELEASE_DIR"
 
   get_host
 
@@ -938,58 +938,53 @@ prepare_export_files ()
   [ -z "$DEF_RECORD_DIR" ] && DEF_RECORD_DIR=recordings
   [ -z "$DEF_RELEASE_DIR" ] && DEF_RELEASE_DIR=releasings
 
-  if [ -z "$RELEASE_DIR" ]; then
-    GROUP_RELEASE_DIR=""
-    if [ "$MAIN_CLOUD_LAB" != "$CLOUD_LAB_TOP_DIR" ]; then
-      GROUP_LAB_DIR="`basename "$CLOUD_LAB_TOP_DIR"`"
-      GROUP_RELEASE_DIR="${GROUP_LAB_DIR##*-}"
-    fi
-
-    USER_RELEASE_DIR=""
-    if [ -n "$CURRENT" ]; then
-      if [ "$CLOUD_LAB_TOP_DIR" != "$TOP_DIR" ]; then
-        USER_LAB_DIR="`basename "$TOP_DIR"`"
-        USER_RELEASE_DIR="${USER_LAB_DIR%%+*}-$(echo ${USER_LAB_DIR##*+} | cut -d'-' -f1)"
-      fi
-    fi
-
-    RELEASE_DIR="$TOP_RELEASE_DIR"/$DEF_RELEASE_DIR
-    [ -n "$GROUP_RELEASE_DIR" ] && RELEASE_DIR="$RELEASE_DIR"/$GROUP_RELEASE_DIR
-    [ -n "$USER_RELEASE_DIR" ] && RELEASE_DIR="$RELEASE_DIR"/$USER_RELEASE_DIR
-  fi
-
-  [ -z "$RELEASE_HTML" ] && RELEASE_HTML=index.html
-  [ -z "$RELEASE_FILE" ] && RELEASE_FILE="$RELEASE_DIR"/$RELEASE_HTML
-
   ## Share running wproxy
   ### TODO: Check LOCAL_TOKEN_MAP and REMOTE_TOKEN_MAP path for Windows and macOS
-  id=$(docker ps -f name=$WPROXY_NAME -f status=running -q)
-  if [ -n "$id" ]; then
-    LOCAL_TOKEN_DIR="$(docker inspect -f '{{ .Mounts }}' $WPROXY_NAME | sed -e "s%.*[ \[]\([^ ]*/*$DEF_TOKEN_DIR[ :]/*$DEF_TOKEN_DIR\).*%\1%g" | awk -F ':| ' '{ printf("%s\n",$1) }')"
-    [ $? -ne 0 ] && err_print "Docker inspect failure" && exit 1
+  mounts=$(docker inspect -f '{{ json .Mounts }}' $WPROXY_NAME)
+  if [ $? -eq 0 -a -n "$mounts" ]; then
+    LOCAL_TOKEN_DIR="$(echo $mounts | tr ',' '\n' | sed -ne '/"Source":.*\/'$DEF_TOKEN_DIR'/s/"Source"://gp' | tr -d '"')"
+    LOCAL_RECORD_DIR="$(echo $mounts | tr ',' '\n' | sed -ne '/"Source":.*\/'$DEF_RECORD_DIR'/s/"Source"://gp' | tr -d '"')"
+    LOCAL_RELEASE_DIR="$(echo $mounts | tr ',' '\n' | sed -ne '/"Source":.*\/'$DEF_RELEASE_DIR'/s/"Source"://gp' | tr -d '"')"
 
     if [ "x$HOST_OS" = "xDarwin" ]; then
-      LOCAL_TOKEN_DIR=$(echo "$LOCAL_TOKEN_DIR" | sed -e "s%^/host_mnt%%g")
+      LOCAL_TOKEN_DIR="$(echo "$LOCAL_TOKEN_DIR" | sed -e "s%/host_mnt%%g")"
+      LOCAL_RECORD_DIR="$(echo "$LOCAL_RECORD_DIR" | sed -e "s%/host_mnt%%g")"
+      LOCAL_RELEASE_DIR="$(echo "$LOCAL_RELEASE_DIR" | sed -e "s%/host_mnt%%g")"
     elif [ "x$HOST_OS" = "xLinux" ]; then
       LOCAL_TOKEN_DIR="$LOCAL_TOKEN_DIR"
+      LOCAL_RECORD_DIR="$LOCAL_RECORD_DIR"
+      LOCAL_RELEASE_DIR="$LOCAL_RELEASE_DIR"
     else # Windows
-      LOCAL_TOKEN_DIR=$(echo "$LOCAL_TOKEN_DIR" | sed -e "s%^/run/desktop/mnt/host%%g")
+      LOCAL_TOKEN_DIR="$(echo "$LOCAL_TOKEN_DIR" | sed -e "s%/run/desktop/mnt/host%%g")"
+      LOCAL_RECORD_DIR="$(echo "$LOCAL_RECORD_DIR" | sed -e "s%/run/desktop/mnt/host%%g")"
+      LOCAL_RELEASE_DIR="$(echo "$LOCAL_RELEASE_DIR" | sed -e "s%/run/desktop/mnt/host%%g")"
     fi
 
     #echo $LOCAL_TOKEN_DIR >&2
+  else
+    err_print "Docker inspect failure" && exit 1
   fi
 
   if [ -z "$LOCAL_TOKEN_DIR" -o ! -d "$LOCAL_TOKEN_DIR" ]; then
     LOCAL_TOKEN_DIR="$TOP_TOKEN_DIR"/$DEF_TOKEN_DIR
+  fi
+  if [ -z "$LOCAL_RECORD_DIR" -o ! -d "$LOCAL_RECORD_DIR" ]; then
+    LOCAL_RECORD_DIR="$TOP_RECORD_DIR"/$DEF_RECORD_DIR
+  fi
+  if [ -z "$LOCAL_RELEASE_DIR" -o ! -d "$LOCAL_RELEASE_DIR" ]; then
+    LOCAL_RELEASE_DIR="$TOP_RELEASE_DIR"/$DEF_RELEASE_DIR
   fi
 
   LOCAL_TOKEN_MAP="$LOCAL_TOKEN_DIR"/local_map
   REMOTE_TOKEN_MAP="$LOCAL_TOKEN_DIR"/remote_map
 
   # Init variable for export command
-  HOST_RECORD_DIR="$TOP_RECORD_DIR"/$DEF_RECORD_DIR
-  HOST_RELEASE_DIR="$TOP_RELEASE_DIR"/$DEF_RELEASE_DIR
+  HOST_RECORD_DIR="$LOCAL_RECORD_DIR"
+  HOST_RELEASE_DIR="$LOCAL_RELEASE_DIR"
   HOST_TOKEN_DIR="$LOCAL_TOKEN_DIR"
+
+  [ -z "$RELEASE_HTML" ] && RELEASE_HTML=index.html
+  [ -z "$RELEASE_FILE" ] && RELEASE_FILE="$HOST_RELEASE_DIR"/$RELEASE_HTML
 }
 
 prepare_cloud_lab_net ()

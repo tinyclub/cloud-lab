@@ -90,6 +90,8 @@ if [ -n "$CONTAINER_NAME" ]; then
   log_print "Check status of $CONTAINER_NAME"
   lab_id=$(docker ps -f name=$CONTAINER_NAME -f status=running -q)
   if [ -n "$lab_id" ]; then
+    "$DOCKER_PUBLISH_CMD" $*
+
     if [ "$LOGIN" != "none" ]; then
       info_print "Open the running $LAB_NAME"
       [ "$LOGIN" != "none" ] && LOGIN=$LOGIN "$DOCKER_LOGIN_CMD" $*

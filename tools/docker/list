@@ -38,10 +38,28 @@ do
   echo $labs | tr ' ' '\n' | grep -q ^$lab$
   [ $? -ne 0 ] && continue
 
+  # Get the real workdir of the target lab
+  mounts=$(docker inspect -f '{{ json .Mounts }}' $name)
+  if [ $? -eq -0 -a -n "$mounts" ]; then
+    _TOP_DIR="$(echo $mounts | tr ',' '\n' | sed -ne '/"Source":.*\/.git/s/"Source"://gp' | sed -e 's%/.git%%g' | tr -d '"')"
+    if [ "x$HOST_OS" = "xDarwin" ]; then
+      _TOP_DIR="$(echo "$_TOP_DIR" | sed -e 's%/host_mnt%%g')"
+    elif [ "x$HOST_OS" = "xLinux" ]; then
+      _TOP_DIR="$_TOP_DIR"
+    else # Windows
+      _TOP_DIR="$(echo "$_TOP_DIR" | sed -e 's%/run/desktop/mnt/host%%g')"
+    fi
+  else
+    echo "ERR: can not inspect the mounts for $name, skip it" && continue
+  fi
+
+  echo "LOG: Found $lab in $_TOP_DIR"
+
   current="$lab"
   log_print "Get data of $lab" >&2
   unset UNIX_USER UNIX_PWD VNC_PWD VNC_PWD_VIEWONLY CONTAINER_NAME CONTAINER_ID VNC_IP VNC_TOKEN
-  . "$TOP_DIR"/tools/docker/config >/dev/null 2>&1
+
+  . "$_TOP_DIR"/tools/docker/config >/dev/null 2>&1
 
   [ "$id" != "$CONTAINER_ID" -o "$name" != "$CONTAINER_NAME" ] && continue
 
