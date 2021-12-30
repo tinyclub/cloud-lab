@@ -938,9 +938,8 @@ prepare_export_files ()
   [ -z "$DEF_RECORD_DIR" ] && DEF_RECORD_DIR=recordings
   [ -z "$DEF_RELEASE_DIR" ] && DEF_RELEASE_DIR=releasings
 
-  ## Share running wproxy
-  ### TODO: Check LOCAL_TOKEN_MAP and REMOTE_TOKEN_MAP path for Windows and macOS
-  mounts=$(docker inspect -f '{{ json .Mounts }}' $WPROXY_NAME)
+  # Share running wproxy
+  mounts=$(docker inspect -f '{{ json .Mounts }}' $WPROXY_NAME 2>/dev/null)
   if [ $? -eq 0 -a -n "$mounts" ]; then
     LOCAL_TOKEN_DIR="$(echo $mounts | tr ',' '\n' | sed -ne '/"Source":.*\/'$DEF_TOKEN_DIR'/s/"Source"://gp' | tr -d '"')"
     LOCAL_RECORD_DIR="$(echo $mounts | tr ',' '\n' | sed -ne '/"Source":.*\/'$DEF_RECORD_DIR'/s/"Source"://gp' | tr -d '"')"
@@ -961,19 +960,11 @@ prepare_export_files ()
     fi
 
     #echo $LOCAL_TOKEN_DIR >&2
-  else
-    err_print "Docker inspect failure" && exit 1
   fi
 
-  if [ -z "$LOCAL_TOKEN_DIR" -o ! -d "$LOCAL_TOKEN_DIR" ]; then
-    LOCAL_TOKEN_DIR="$TOP_TOKEN_DIR"/$DEF_TOKEN_DIR
-  fi
-  if [ -z "$LOCAL_RECORD_DIR" -o ! -d "$LOCAL_RECORD_DIR" ]; then
-    LOCAL_RECORD_DIR="$TOP_RECORD_DIR"/$DEF_RECORD_DIR
-  fi
-  if [ -z "$LOCAL_RELEASE_DIR" -o ! -d "$LOCAL_RELEASE_DIR" ]; then
-    LOCAL_RELEASE_DIR="$TOP_RELEASE_DIR"/$DEF_RELEASE_DIR
-  fi
+  [ -z "$LOCAL_TOKEN_DIR" -o ! -d "$LOCAL_TOKEN_DIR" ] && LOCAL_TOKEN_DIR="$TOP_TOKEN_DIR"/$DEF_TOKEN_DIR
+  [ -z "$LOCAL_RECORD_DIR" -o ! -d "$LOCAL_RECORD_DIR" ] && LOCAL_RECORD_DIR="$TOP_RECORD_DIR"/$DEF_RECORD_DIR
+  [ -z "$LOCAL_RELEASE_DIR" -o ! -d "$LOCAL_RELEASE_DIR" ] && LOCAL_RELEASE_DIR="$TOP_RELEASE_DIR"/$DEF_RELEASE_DIR
 
   LOCAL_TOKEN_MAP="$LOCAL_TOKEN_DIR"/local_map
   REMOTE_TOKEN_MAP="$LOCAL_TOKEN_DIR"/remote_map
