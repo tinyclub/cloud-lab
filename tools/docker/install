@@ -33,9 +33,16 @@ else
     echo
     echo "   It is able to compile and boot a new linux kernel in 5 minutes."
     echo
-    echo "2. Install docker manually, see more: https://docs.docker.com/install/, README.md or README_zh.md"
+    echo "2. For Linux, Install docker manually"
     echo
     echo "   $ curl -fsSL https://get.docker.com -o get-docker.sh && sh get-docker.sh"
+    echo
+    echo "3. For Windows, please install Docker Toolbox without wsl or Docker Desktop with wsl2"
+    echo
+    echo "   Docker Toolbox: https://get.daocloud.io/toolbox/"
+    echo "   Docker Desktop: https://docs.docker.com/desktop/windows/install/"
+    echo
+    echo "4. For MacOS, please refer to https://docs.docker.com/desktop/mac/install/"
     echo
     echo "Contact us via wechat: tinylab."
     echo

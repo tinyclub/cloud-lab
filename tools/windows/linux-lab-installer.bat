@@ -10,10 +10,9 @@ echo ...........................................................................
 echo .......... Copyright © 2016-2022 Wu Zhangjin, falcon@tinylab.org, All Right Reserved. ...........
 echo .................................................................................................
 
-
 echo .
 echo .Note: Please don't run me in the cloud-lab source code, this is only for the first fresh install
-echo .      If you has downloaded cloud-lab, please open git-bash.exe and run those commands instead:
+echo .      If you have downloaded cloud-lab, please open git-bash.exe and run those commands instead:
 echo .
 echo .      $ cd /path/to/cloud-lab
 echo .      $ tools/docker/run
@@ -24,31 +23,54 @@ echo .
 set /p answer=Yes/No? 
 if /i "%answer:~,1%" EQU "n" exit /b
 
-@echo off
 echo .
-echo .LOG: Linux Lab depends on Docker toolbox or Docker Desktop with wsl and Git for Windows
-echo .
-echo .LOG: Please make answer the dependencies are there, otherwise, input 'n' to stop installation
-echo .
-echo .     1. Docker Toolbox Download Page: https://get.daocloud.io/toolbox/
-echo .
-echo .        Install the latest one and please don't enable 'upgrade boot2docker'
-echo .        The default selected tools must be installed, such as virtualbox and git for windows
-echo .
-echo .     2. Docker Desktop with wsl2: https://hub.docker.com/editions/community/docker-ce-desktop-windows
-echo .
-echo .        The wsl2 must be enabled during the installation, otherwise, it will not work.
-echo .
-echo .     3. Git for Windows: https://git-scm.com/download/win
-echo .
-echo .        Git Bash is provided by it, we use this bash to run everything. By default, both of them provide it.
-echo .
-echo .
-echo .=== STOP by input 'n', Press any key to CONTINUE.
+echo .LOG: Detect running environment ...
 echo .
 
-set /p answer=Yes/No? 
-if /i "%answer:~,1%" EQU "n" exit /b
+echo .
+echo .LOG: Detect docker ...
+echo .
+
+where docker
+IF %ERRORLEVEL% NEQ 0 (
+  echo .
+  echo .LOG: No docker found, it means you must install Docker Desktop with wsl2 or Docker Toolbox without the requirement of wsl.
+  echo .
+  echo .LOG: Linux Lab depends on Docker toolbox without wsl or Docker Desktop with wsl2 and Git for Windows
+  echo .
+  echo .LOG: Please make sure the dependencies are there, if no, try the following steps:
+  echo .
+  echo .     1. Get a preinstalled Linux Lab Disk from https://shop155917374.taobao.com/
+  echo .
+  echo .        It is able to compile and boot a new linux kernel in 5 minutes.
+  echo .
+  echo .     2. Docker Toolbox Download Page: https://get.daocloud.io/toolbox/
+  echo .
+  echo .        Install the latest one and please don't enable 'upgrade boot2docker'
+  echo .        The default selected tools must be installed, such as virtualbox and git for windows
+  echo .
+  echo .     3. Docker Desktop with wsl2: https://docs.docker.com/desktop/windows/install/
+  echo .
+  echo .        The wsl2 must be enabled during the installation, otherwise, it will not work.
+  echo .
+  echo .     4. Git for Windows: https://git-scm.com/download/win
+  echo .
+  echo .        Git Bash is provided by it, we use this bash to run everything. By default, both of the above two Docker versions provide it.
+  echo .
+
+  exit /b
+)
+
+echo .
+echo .LOG: Detect git-bash ...
+echo .
+
+if not exist %GIT_BASH% (
+  echo .
+  echo .LOG: No Git Bash found, it means Git for Windows is not installed, please install one from https://git-scm.com/download/win. 
+  echo .
+  exit /b
+)
 
 echo .
 echo .LOG: Current workdir: %cd%
