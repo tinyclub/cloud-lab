@@ -53,12 +53,13 @@ do
     echo "ERR: can not inspect the mounts for $name, skip it" && continue
   fi
 
-  echo "LOG: Found $lab in $_TOP_DIR"
+  echo "LOG: Found $lab in '$_TOP_DIR'"
 
   current="$lab"
   log_print "Get data of $lab" >&2
   unset UNIX_USER UNIX_PWD VNC_PWD VNC_PWD_VIEWONLY CONTAINER_NAME CONTAINER_ID VNC_IP VNC_TOKEN
 
+  TOP_DIR="$_TOP_DIR"
   . "$_TOP_DIR"/tools/docker/config >/dev/null 2>&1
 
   [ "$id" != "$CONTAINER_ID" -o "$name" != "$CONTAINER_NAME" ] && continue
