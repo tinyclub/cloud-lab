@@ -1,6 +1,6 @@
 @ECHO OFF
 
-SET GIT_BASH="C:/Program Files (x86)/Git/git-bash.exe"
+SET GIT_BASH="%ProgramFiles%/Git/git-bash.exe"
 SET CLOUD_LAB="https://gitee.com/tinylab/cloud-lab.git"
 SET WORK_BRANCH=next
 
