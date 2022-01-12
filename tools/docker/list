@@ -50,10 +50,10 @@ do
       _TOP_DIR="$(echo "$_TOP_DIR" | sed -e 's%/run/desktop/mnt/host%%g')"
     fi
   else
-    echo "ERR: can not inspect the mounts for $name, skip it" && continue
+    echo "ERR: can not inspect the mounts for $name, skip it" >&2 && continue
   fi
 
-  echo "LOG: Found $lab in '$_TOP_DIR'"
+  echo "LOG: Found $lab in '$_TOP_DIR'" >&2
 
   current="$lab"
   log_print "Get data of $lab" >&2
