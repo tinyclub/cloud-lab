@@ -437,7 +437,7 @@ EOF
     cat "$tmp" | awk 'BEGIN {FS=" "; }{                         \
         printf("<tr class=\"%s\">\n", (FNR%2 == 0) ? "odd" : "even"); \
         printf("  <td>%d</td>\n", FNR); \
-        printf("  <td><a title=\"Project Homepage and Usage\" target=\"_blank\" href=\"http://tinylab.org/%s\">%s</a></td>\n", $1, $1); \
+        printf("  <td><a title=\"Project Homepage and Usage\" target=\"_blank\" href=\"https://tinylab.org/%s\">%s</a></td>\n", $1, $1); \
         printf("  <td><a target=\"_blank\" href=\"'$WEB_HTTP'://%s:%s/?u=%s&p=%s&autoconnect=1\">Login</a></td>\n", \
                 $3, $4, $5, $6); \
         printf("  <td><a target=\"_blank\" href=\"'$WEB_HTTP'://%s:%s/?r=%s%s\">Login</a></td>\n", \
@@ -458,8 +458,8 @@ EOF
   fi
 
   cat <<EOF >> "$RELEASE_FILE"
-<div style="position:absolute; top:1em; right:1em; font-size:10px;"><img width="90px;" src="http://tinylab.org/images/sponsor/wechat-pay-admin-9.68.jpg"><br>微信扫码,赞助我们</div>
-<p>Powered by <a target="_blank" href="http://tinylab.org/cloud-lab">Cloud Lab</a> !</p>
+<div style="position:absolute; top:1em; right:1em; font-size:10px;"><img width="90px;" src="https://tinylab.org/images/sponsor/wechat-pay-admin-9.68.jpg"><br>微信扫码,赞助我们</div>
+<p>Powered by <a target="_blank" href="https://tinylab.org/cloud-lab">Cloud Lab</a> !</p>
 
 <script type="text/javascript">var _hmt = _hmt || [];(function() {var hm = document.createElement("script");hm.src = "//hm.baidu.com/hm.js?15260089f8e103dc1cca30bcc1957b7c";var s = document.getElementsByTagName("script")[0]; s.parentNode.insertBefore(hm, s);
 })();</script>
@@ -754,7 +754,7 @@ create_shortcuts ()
 Encoding=UTF-8
 Name=Cloud Lab Manager
 Comment=Cloud Lab Manage Center
-Exec="$XTERM" $XTERM_WORKDIR_OPTION "$TOP_DIR" $XTERM_TITLE_OPTION 'Cloud Lab -- http://tinylab.org/cloud-lab'
+Exec="$XTERM" $XTERM_WORKDIR_OPTION "$TOP_DIR" $XTERM_TITLE_OPTION 'Cloud Lab -- https://tinylab.org/cloud-lab'
 Icon=$XTERM_ICON
 Type=Application
 EOF
