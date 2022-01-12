@@ -6,11 +6,11 @@
 #
 
 TOP_DIR="$(cd "$(dirname "$0")"/../../ && pwd)"
-. "$TOP_DIR"/tools/docker/config $* >/dev/null
+. "$TOP_DIR"/tools/docker/config >/dev/null
 
-for lab in $LABS
+for lab in `get_labs`
 do
-    echo "LOG: Pulling repository: $lab"
+    info_print "Pull repository: $lab"
 
     lab_dir="$LAB_DIR"/$lab
     [ -d "$lab_dir" ] && cd "$lab_dir" && git pull -v

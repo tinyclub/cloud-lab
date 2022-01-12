@@ -12,3 +12,6 @@
 7. Add missing manpages?
 8. Remove or minimize cloud-ubuntu-web and webvnc by default?
 9. Add remote resizing support for x11vnc: https://github.com/LibVNC/x11vnc/pull/107
+10. Clean up default novnc page
+11. Change the entrypoint, from host (/tools/lab/run) to guest (/usr/bin/run)
+    * the /usr/bin/run copy tools/lab/run to /usr/bin/lab-run and run it, so, the file can be released in host side.

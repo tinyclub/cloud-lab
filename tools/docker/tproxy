@@ -8,14 +8,12 @@
 #
 
 TOP_DIR="$(cd "$(dirname "$0")"/../../ && pwd)"
-. "$TOP_DIR"/tools/docker/config $* >/dev/null
+. "$TOP_DIR"/tools/docker/config >/dev/null
 
-IMAGE_NAME=tinylab/$TPROXY_IMAGE_NAME
+[ -z "$TPROXY_IP" ] && prepare_cloud_lab_net
 
-[ -z "$PULL" ] && PULL=0
-
-docker images | grep -q $IMAGE_NAME
-[ $? -ne 0 -o $PULL -eq 1 ] && docker pull $IMAGE_NAME
+IMAGE_NAME=tinylab/$TPROXY_NAME
+[ -n "$TPROXY_TAG" ] && IMAGE_NAME=$IMAGE_NAME:$TPROXY_TAG
 
 [ -z "$PROXY_PORT" ] && PROXY_PORT=1080
 EXTRA_ARGS="$EXTRA_ARGS -e PROXY_PORT=$PROXY_PORT"

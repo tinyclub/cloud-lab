@@ -6,21 +6,36 @@
 #
 
 TOP_DIR="$(cd "$(dirname "$0")"/../../ && pwd)"
-. "$TOP_DIR"/tools/docker/config $* >/dev/null
+. "$TOP_DIR"/tools/docker/config >/dev/null
+
+prepare_login || exit 0
+
+log_print "Get cached data"
+get_vars UNIX_PWD UNIX_USER VNC_IP
+get_host
 
 which sshpass >/dev/null 2>&1
 [ $? -eq 0 ] && SSH_PASS="sshpass -p '$UNIX_PWD'"
 
-SSH_CMD="$SSH_PASS ssh -X -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -t ${UNIX_USER}@${VNC_IP} -p ${CONTAINER_SSH_PORT} 'cd $LAB_WORKDIR/$CURRENT && exec bash -l'"
+if [ "x$HOST_OS" != "xWindows" ]; then
+  SSH_X=-X
+else
+  WINPTY="winpty"
+fi
+
+IP=$VNC_IP
+SSH_PORT=$CONTAINER_SSH_PORT
+
+SSH_CMD="$WINPTY $SSH_PASS ssh $SSH_X -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -t ${UNIX_USER}@${IP} -p ${SSH_PORT} 'cd $LAB_WORKDIR/$CURRENT && exec bash -l'"
 
 if [ -z "$SSH_PASS" ]; then
   echo
-  echo "LOG: Password '$UNIX_PWD' required, please login with the following command:"
+  log_print "Password '$UNIX_PWD' required, please login with the following command:"
   echo
   echo "  $SSH_CMD"
   echo
 
-  echo "LOG: If want to login without password, there are two methods:"
+  log_print "If want to login without password, there are two methods:"
   echo
   echo "  1. Install the 'sshpass' command"
   echo
@@ -41,14 +56,15 @@ EOF
 
 fi
 
-echo
-echo "LOG: Enabling X11 Forwarding support"
-echo
+if [ "x$HOST_OS" != "xWindows" ]; then
+  echo
+  log_print "Enable X11 Forwarding support"
+  echo
 
-which xhost >/dev/null 2>&1
-[ $? -eq 0 ] && xhost +
+  which xhost >/dev/null 2>&1
+  [ $? -eq 0 ] && xhost +
 
-cat <<EOF > ~/.ssh/ssh-x11-forward.config
+  cat <<EOF > ~/.ssh/ssh-x11-forward.config
 # X11 Forwarding Support
 Host *
    ForwardAgent yes
@@ -56,8 +72,10 @@ Host *
    ForwardX11Trusted yes
 EOF
 
+fi
+
 echo
-echo "LOG: Running '$SSH_CMD'"
+log_print "Running '$SSH_CMD'"
 echo
 
 eval "$SSH_CMD"

@@ -6,8 +6,8 @@
 #
 
 TOP_DIR="$(cd "$(dirname "$0")"/../../ && pwd)"
-. "$TOP_DIR"/tools/docker/config $* >/dev/null
+. "$TOP_DIR"/tools/docker/config >/dev/null
 
-(docker search $LAB_USER | grep -q $LAB_NAME) || (echo "LOG: No $IMAGE found in docker hub" && exit 1)
+(docker search `get_lab_user` | grep -q $LAB_NAME) || (err_print "No $IMAGE found in docker hub" && exit 1)
 
 do_op "docker pull" IMAGE

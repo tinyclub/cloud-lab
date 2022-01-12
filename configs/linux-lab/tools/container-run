@@ -17,6 +17,10 @@ else
   kvm_dri=kvm-amd
 fi
 
+# get host os name
+os=$HOST_OS
+[ -z "$os" ] && os=$(uname)
+
 # FIXME: with linux kernel v5.3-v5.7, nfsd has bug while be plugged in
 # container side, but ok in host side, move it back to host side:
 # https://gitee.com/tinylab/linux-lab/issues/I1GGG1
@@ -25,23 +29,31 @@ fi
 # This may break nfsboot in Windows 10 and Mac OSX, there is no suitable method
 # to insert nfsd in 'host' side.
 
-os=`uname`
-if [ "$os" = "Linux" ]; then
-  NFS=nfsd
-  major_version=$(uname -r | cut -d '.' -f1)
-  minor_version=$(uname -r | cut -d '.' -f2)
-  if [ $major_version -eq 5 -a $minor_version -ge 3 -a $minor_version -le 7 ]; then
-    NFS=
+# The nfs module may have been compiled in or have been inserted in host side
+if [ ! -d /proc/fs/nfsd ]; then
+  if [ "$os" = "Linux" ]; then
+    NFS=nfsd
+    major_version=$(uname -r | cut -d '.' -f1)
+    minor_version=$(uname -r | cut -d '.' -f2)
+    if [ $major_version -eq 5 -a $minor_version -ge 3 -a $minor_version -le 7 ]; then
+      NFS=
+    fi
+  else
+    # Insert nfsd in container side for Windows and Mac OS X currently for there is
+    # no method to insert nfs module.
+    #
+    # If they use the same kernel, it should crash too ...
+    NFS=nfsd
   fi
-else
-  # Insert nfsd in container side for Windows and Mac OS X currently for there is
-  # no method to insert nfs module.
-  #
-  # If they use the same kernel, it should crash too ...
-  NFS=nfsd
 fi
 
 modules="loop minix $NFS 9pnet_virtio kvm $kvm_dri"
+
+container_mdir=/lib/modules/`uname -r`/
+if [ -d $container_mdir -a ! -f $container_mdir/modules.dep.bin ]; then
+  depmod -A
+  depmod=1
+fi
 
 for m in $modules
 do
@@ -49,7 +61,9 @@ do
   [ $? -ne 0 ] && continue
 
   lsmod | grep -q $m
-  [ $? -ne 0 ] && modprobe -d /m $m >/dev/null 2>&1
+  if [ $? -ne 0 -a -n "$depmod" ]; then
+    modprobe $m >/dev/null 2>&1
+  fi
 
   # tell user enable cpu virtualization in bios if not disabled
   if [ $? -ne 0 ]; then
@@ -58,6 +72,18 @@ do
     fi
   fi
 done
+
+# Configure exports for Windows wsl2 and boot2docker
+# Both of them can not export /labs/linux-lab, but can export the ram cached /labs/linux-lab/build
+nfs_exports=/etc/exports
+if [ -f $nfs_exports ]; then
+  if [ "$os" = "Windows" ]; then
+    uname -r | egrep -i "wsl2|boot2docker"
+    [ $? -eq 0 ] && sed -i -e '/^\/labs\/linux-lab\/ /s/\(.*\)/#\1/g' $nfs_exports
+  else
+    sed -i -e '/^#\/labs\/linux-lab\/ /s/#\(.*\)/\1/g' $nfs_exports
+  fi
+fi
 
 # For qemu-mips64el
 [ ! -f /proc/sys/fs/binfmt_misc/regisiter ] && mount -t binfmt_misc none /proc/sys/fs/binfmt_misc

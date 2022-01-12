@@ -6,50 +6,75 @@
 #
 
 TOP_DIR="$(cd "$(dirname "$0")"/../../ && pwd)"
-. "$TOP_DIR"/tools/docker/config $* >/dev/null 2>&1
+. "$TOP_DIR"/tools/docker/config >/dev/null 2>&1
 
 filter=$1
 [ -n "$2" ] && filter=$2
+[ -z "$filter" ] && filter=$LAB_NAME
 
-labs="`get_lab_bases "$LAB_DIR" $filter`"
+log_print "Get all of the labs" >&2
+labs="`get_lab_bases "$LAB_DIR" $filter | tr '\n' ' '`"
+log_print "$labs" >&2
 
+# reserved for old compatibility, should removed and update the functions used them
 [ -z "$lab_life" ] && lab_life=0
+[ -z "$lab_end" ] && lab_end=0
 
-_get_lab_life () # lab_attr
-{
-  echo $2
-}
+log_print "Check the running containers"
+if [ -z "$filter" -o "$filter" = "all" ]; then
+  id_names=`docker ps -f status=running --format='{{.ID}},{{.Names}}' -q | tr '\n' ' '`
+else
+  id_names=`docker ps -f status=running -f name=$filter --format='{{.ID}},{{.Names}}' -q | tr '\n' ' '`
+fi
 
-get_lab_life () # TOP_DIR
-{
-  local lab_basename="`basename $1`"
-  lab_attrs=$(echo "$lab_basename" | cut -d'+' -f2 | tr '-' ' ')
-  _get_lab_life $lab_attrs
-}
+[ -z "$id_names" ] && info_print "No running containers found." >&2 && exit 1
 
-for lab in $labs
+for id_name in $id_names
 do
-  current="$lab"
-  unset UNIX_USER UNIX_PWD VNC_PWD VNC_PWD_VIEWONLY CONTAINER_NAME VNC_IP VNC_TOKEN
-  . "$TOP_DIR"/tools/docker/config >/dev/null 2>&1
+  id=$(echo $id_name | cut -d ',' -f1)
+  name=$(echo $id_name | cut -d ',' -f2)
 
-  echo "$TOP_DIR" | grep -q "/$lab-"
-  [ $? -eq 0 ] && lab_life="`get_lab_life "$TOP_DIR"`"
-
-  # Ignore the containers not running
-  [ -z "$CONTAINER_NAME" ] && continue
-
-  docker ps -f name=$CONTAINER_NAME | grep -qv PORTS
+  lab=`echo $name | sed -e "s%-[0-9]*-[0-9a-zA-Z]\{6,6\}$%%g"`
+  echo $labs | tr ' ' '\n' | grep -q ^$lab$
   [ $? -ne 0 ] && continue
 
+  # Get the real workdir of the target lab
+  mounts=$(docker inspect -f '{{ json .Mounts }}' $name)
+  if [ $? -eq -0 -a -n "$mounts" ]; then
+    _TOP_DIR="$(echo $mounts | tr ',' '\n' | sed -ne '/"Source":.*\/.git/s/"Source"://gp' | sed -e 's%/.git%%g' | tr -d '"')"
+    if [ "x$HOST_OS" = "xDarwin" ]; then
+      _TOP_DIR="$(echo "$_TOP_DIR" | sed -e 's%/host_mnt%%g')"
+    elif [ "x$HOST_OS" = "xLinux" ]; then
+      _TOP_DIR="$_TOP_DIR"
+    else # Windows
+      _TOP_DIR="$(echo "$_TOP_DIR" | sed -e 's%/run/desktop/mnt/host%%g')"
+    fi
+  else
+    echo "ERR: can not inspect the mounts for $name, skip it" && continue
+  fi
+
+  echo "LOG: Found $lab in '$_TOP_DIR'"
+
+  current="$lab"
+  log_print "Get data of $lab" >&2
+  unset UNIX_USER UNIX_PWD VNC_PWD VNC_PWD_VIEWONLY CONTAINER_NAME CONTAINER_ID VNC_IP VNC_TOKEN
+
+  TOP_DIR="$_TOP_DIR"
+  . "$_TOP_DIR"/tools/docker/config >/dev/null 2>&1
+
+  [ "$id" != "$CONTAINER_ID" -o "$name" != "$CONTAINER_NAME" ] && continue
+
+  log_print "Get start time" >&2
   start_time=`docker inspect $CONTAINER_NAME --format '{{.Created}}'`
-  if [ "x$HOST_OS" = "xLinux" ]; then
+  if [ "x$HOST_OS" != "xDarwin" ]; then
     lab_start="$(date '+%Y%m%d %H:%M:%S' --date $start_time)"
   else
     lab_start=`docker exec $CONTAINER_NAME //bin/bash -c "date '+%Y%m%d %H:%M:%S' --date $start_time"`
   fi
-  lab_end=`get_endtime "$lab_start" $lab_life`
-  echo $lab $UNIX_USER $HOST $HOST_VNC_PORT $VNC_TOKEN $VNC_PWD $VNC_PWD_VIEWONLY $VNC_IP $HOST_WEBSSH_PORT $UNIX_PWD $CONTAINER_NAME \
-	$lab_life $lab_start $lab_end
 
+  log_print "Get cached data" >&2
+  get_vars UNIX_USER UNIX_PWD VNC_PWD VNC_PWD_VIEWONLY VNC_IP VNC_TOKEN
+  get_host
+
+  echo $lab $UNIX_USER $HOST $HOST_VNC_PORT $VNC_TOKEN $VNC_PWD $VNC_PWD_VIEWONLY $VNC_IP $HOST_WEBSSH_PORT $UNIX_PWD $CONTAINER_NAME $lab_life $lab_start $lab_end
 done

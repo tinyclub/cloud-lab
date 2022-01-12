@@ -9,4 +9,8 @@
 # /srv/nfs4/homes  gss/krb5i(rw,sync,no_subtree_check)
 #
 
+# default sharing path
 /labs/linux-lab/ *(fsid=0,rw,async,no_subtree_check,insecure_locks,insecure,no_root_squash)
+
+# for build cache with different filesystem
+/labs/linux-lab/build *(rw,async,no_subtree_check,insecure_locks,insecure,no_root_squash)

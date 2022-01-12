@@ -6,7 +6,7 @@
 #
 
 TOP_DIR="$(cd "$(dirname "$0")"/../../ && pwd)"
-. "$TOP_DIR"/tools/docker/config $* >/dev/null
+. "$TOP_DIR"/tools/docker/config >/dev/null
 
 # lab info
 show_lab()
@@ -39,11 +39,13 @@ echo
 if [ "x$HOST_OS" = "xLinux" ]; then
   ps -eo args | grep -v grep | grep -q "sshpass"
   if [ $? -eq 0 ]; then
+    [ -z "$REMOTE_TOKEN_MAP" ] && prepare_export_files
+
     # Get across access address
     VNC_TOKEN_ACROSS=$(sed -ne "`echo $VNC_IP | cut -d '.' -f4`p" $REMOTE_TOKEN_MAP | cut -d ':' -f1)
     ACROSSHOST=$(ps -eo args | grep -v grep | grep "sshpass"  | head -1 | sed -e "s/.*ubuntu@\([^ ]*\) .*/\1/g")
-    HOST_WEB_URL_ACROSS="$(echo "$HOST_WEB_URL" | sed -e "s%$VNC_TOKEN%$VNC_TOKEN_ACROSS%g;s%localhost%$ACROSSHOST%g")"
-    HOST_WEB_URL_VIEWONLY_ACROSS="$(echo "$HOST_WEB_URL_VIEWONLY" | sed -e "s%$VNC_TOKEN%$VNC_TOKEN_ACROSS%g;s%localhost%$ACROSSHOST%g")"
+    HOST_WEB_URL_ACROSS="$(echo "$HOST_WEB_URL" | sed -e "s%$VNC_TOKEN%$VNC_TOKEN_ACROSS%g;s%$HOST%$ACROSSHOST%g")"
+    HOST_WEB_URL_VIEWONLY_ACROSS="$(echo "$HOST_WEB_URL_VIEWONLY" | sed -e "s%$VNC_TOKEN%$VNC_TOKEN_ACROSS%g;s%$HOST%$ACROSSHOST%g")"
 
     echo
     echo "Across URL:"
@@ -54,231 +56,54 @@ if [ "x$HOST_OS" = "xLinux" ]; then
   fi
 fi
 
-if [ -n "$LOCALHOST" ]; then
-    # Get external access address
-    _HOST_WEB_URL="$(echo "$HOST_WEB_URL" | sed -e "s%localhost%$LOCALHOST%g")"
-    _HOST_WEB_URL_VIEWONLY="$(echo "$HOST_WEB_URL_VIEWONLY" | sed -e "s%localhost%$LOCALHOST%g")"
-
-    echo "Remote URL:"
-    echo
-    echo "  * Normal: $_HOST_WEB_URL"
-    echo "  *   View: $_HOST_WEB_URL_VIEWONLY"
-    echo
-else
-    echo "Note: Please make sure this lab network is connectable outside,"
-    echo "      If so, use external ip or domain name instead of 'localhost':"
-    echo
-    echo "      $ echo \$ip > $LAB_HOST"
-    echo "      Or"
-    echo "      $ echo \$domain_name > $LAB_HOST"
-fi
+echo "Note: If running on a remote server, use external ip or domain name instead of 'localhost':"
+echo
+echo "      $ echo \$ip_or_domain_name > '$LAB_HOST'"
+echo "      $ tools/docker/release $LAB_NAME"
+echo
 
 echo
 echo "Note: firefox, safari and edge work, but google chrome web browser is preferable."
 echo
-}
-
-# Check status
-docker ps -f name=$CONTAINER_NAME | grep -qv PORTS
-[ $? -ne 0 ] && echo "LOG: $LAB_NAME is not running." && exit 1
-
-# Enable autoconnect by default
-[ -z "$VNC_AUTOCONNECT" ] && VNC_AUTOCONNECT=1
-
-# Get vnc page
-CONTAINER_WEB_URL="$WEB_HTTP://localhost:${HOST_VNC_PORT}/?u=$VNC_TOKEN&p=$VNC_PWD"
-HOST_WEB_URL="$WEB_HTTP://${HOST}:${HOST_VNC_PORT}/?u=$VNC_TOKEN&p=$VNC_PWD"
-HOST_WEB_URL_VIEWONLY="$WEB_HTTP://${HOST}:${HOST_VNC_PORT}/?r=${VNC_TOKEN}${VNC_PWD_VIEWONLY}"
-
-if [ "x$HOST" != "xlocalhost" ]; then
-  CONTAINER_WEB_URL="$HOST_WEB_URL"
-  LABS_WEB_URL="$WEB_HTTP://${HOST}:${HOST_VNC_PORT}/labs/$RELEASE_HTML"
-else
-  LABS_WEB_URL="$WEB_HTTP://localhost:${HOST_VNC_PORT}/labs/$RELEASE_HTML"
-fi
-
-[ $VNC_AUTOCONNECT -eq 1 ] && \
-  CONTAINER_WEB_URL="$CONTAINER_WEB_URL&autoconnect=1"
-
-# Show lab info
-show_lab
-
-# Get xterm
-get_xterm
-
-# Get web browser
-get_browser
-
-[ $? -ne 0 ] && echo "ERR: Give up browser launching for no web browser found" && exit 1
-
-# Create local shortcut on Desktop
-if [ -d ~/Desktop -a -n "$REMOTE_DESKTOP_SHORTCUT" -a -f "$REMOTE_DESKTOP_SHORTCUT" ]; then
-
-  if [ "x$HOST_OS" = "xDarwin" ]; then
-
-    if [ "x$LAB_DESKTOP_SHORTCUT" = "x1" -a ! -f "$LOCAL_DESKTOP_SHORTCUT" ]; then
-      echo "'$DOCKER_RUN_CMD' $LAB_NAME" > "$LOCAL_DESKTOP_SHORTCUT"
-
-      # ref: https://superuser.com/questions/479411/close-all-mac-terminal-windows-but-the-one-running-a-script
-      echo 'osascript -e "do shell script \"osascript -e \\\\\"tell application \\\\\\\\\\\\\\"Terminal\\\\\\\\\\\\\\" \\\\\\" -e \\\\\\"set mainID to id of front window\\\\\\" -e \\\\\\" close (every window whose id = mainID)\\\\\\"  -e \\\\\\"end tell\\\\\\"   &> /dev/null &\""; exit' >> "$LOCAL_DESKTOP_SHORTCUT"
-    fi
-
-    # For cloud lab
-    if [ ! -f "$MANAGE_DESKTOP_SHORTCUT" ]; then
-      echo "/usr/bin/open -a 'Terminal' '"$CLOUD_LAB_TOP_DIR"'" > "$MANAGE_DESKTOP_SHORTCUT"
-      echo 'osascript -e "do shell script \"osascript -e \\\\\"tell application \\\\\\\\\\\\\\"Terminal\\\\\\\\\\\\\\" \\\\\\" -e \\\\\\"set mainID to id of second window\\\\\\" -e \\\\\\" close (every window whose id = mainID)\\\\\\"  -e \\\\\\"end tell\\\\\\"   &> /dev/null &\""; exit' >> "$MANAGE_DESKTOP_SHORTCUT"
-    fi
-
-    if [ ! -f "$BROWSE_DESKTOP_SHORTCUT" ]; then
-      echo "/usr/bin/open -a '"$WEB_BROWSER"' '"$LABS_WEB_URL"'" > "$BROWSE_DESKTOP_SHORTCUT"
-      echo 'osascript -e "do shell script \"osascript -e \\\\\"tell application \\\\\\\\\\\\\\"Terminal\\\\\\\\\\\\\\" \\\\\\" -e \\\\\\"set mainID to id of first window\\\\\\" -e \\\\\\" close (every window whose id = mainID)\\\\\\"  -e \\\\\\"end tell\\\\\\"   &> /dev/null &\""; exit' >> "$BROWSE_DESKTOP_SHORTCUT"
-    fi
-
-  elif [ "x$HOST_OS" = "xLinux" ]; then
-
-    # Customize browser specific options and icons
-    BROWSER_ICON=/usr/share/pixmaps/${WEB_BROWSER}.png
-    DEFAULT_BROWSER_ICON=$BROWSER_ICON
-    if [ ! -f "$BROWSER_ICON" ]; then
-      BROWSER_ICON=$(find /usr/share/ -name "${WEB_BROWSER}*.png" 2>/dev/null | egrep "hicolor" | head -1)
-    fi
-
-    if [ "x$LAB_DESKTOP_SHORTCUT" = "x1" -a ! -f "$LOCAL_DESKTOP_SHORTCUT" ]; then
-      lab_desktop_shortcut=$(mktemp)
-      echo '#!/usr/bin/env xdg-open' > $lab_desktop_shortcut
-      cat "$REMOTE_DESKTOP_SHORTCUT" \
-        | sed "s%Exec=.*%Exec=sg docker -c '\"$DOCKER_RUN_CMD\" $LAB_NAME'%g" \
-        | sed "s%terminator.png%${WEB_BROWSER}.png%g;s%lxterminal.xpm%${WEB_BROWSER}.png%g" | tr '|' '&' \
-          >> $lab_desktop_shortcut
-
-      if [ -f "$LAB_LOGO" ]; then
-        sed -i -e "s%Icon=[^$]*%Icon=$LAB_LOGO%g" $lab_desktop_shortcut
-      fi
-
-      if [ "x$DEFAULT_BROWSER_ICON" != "x$BROWSER_ICON" ]; then
-        sed -i -e "s%$DEFAULT_BROWSER_ICON%$BROWSER_ICON%g" $lab_desktop_shortcut
-      fi
-
-      mv $lab_desktop_shortcut $LOCAL_DESKTOP_SHORTCUT
-    fi
-
-    # Customize xterm specific options and icons
-    XTERM_TITLE_OPTION=-T
-    XTERM_WORKDIR_OPTION=--working-directory
-    XTERM_ICON=/usr/share/pixmaps/${XTERM}.png
-    if [ "x$XTERM" = "xgnome-terminal" ]; then
-      XTERM_TITLE_OPTION=-t
-      XTERM_ICON=/usr/share/help/C/gnome-terminal/figures/gnome-terminal-icon.png
-    fi
-    # Add konsole support for KDE desktop
-    if [ "x$XTERM" = "xkonsole" -o "x$XTERM" = "xqterminal" ]; then
-      XTERM_TITLE_OPTION=--title
-      XTERM_WORKDIR_OPTION=--workdir
-      if [ "x$XTERM" = "xkonsole" ]; then
-        XTERM_ICON=/usr/share/icons/Humanity/apps/48/konsole.svg
-      else
-        XTERM_ICON=/usr/share/icons/hicolor/64x64/apps/qterminal.png
-      fi
-    fi
-    if [ ! -f "$XTERM_ICON" ]; then
-      XTERM_ICON=$(find /usr/share/ -name "${XTERM}*.png" 2>/dev/null | grep icon | head -1)
-      [ -z "$XTERM_ICON" ] && XTERM_ICON=$(find /usr/share/ -name "${XTERM}*.png" 2>/dev/null | head -1)
-    fi
-
-    # For cloud lab
-    [ ! -f "$MANAGE_DESKTOP_SHORTCUT" ] && cat <<EOF > "$MANAGE_DESKTOP_SHORTCUT"
-#!/usr/bin/env xdg-open
-[Desktop Entry]
-Encoding=UTF-8
-Name=Cloud Lab Manager
-Comment=Cloud Lab Manage Center
-Exec="$XTERM" $XTERM_WORKDIR_OPTION "$CLOUD_LAB_TOP_DIR" $XTERM_TITLE_OPTION 'Cloud Lab -- http://tinylab.org/cloud-lab'
-Icon=$XTERM_ICON
-Type=Application
-EOF
-
-    [ ! -f "$BROWSE_DESKTOP_SHORTCUT" ] && cat <<EOF > "$BROWSE_DESKTOP_SHORTCUT"
-#!/usr/bin/env xdg-open
-[Desktop Entry]
-Encoding=UTF-8
-Name=Cloud Lab Browser
-Comment=Cloud Lab Web Center
-Exec="$WEB_BROWSER" "$LABS_WEB_URL"
-Icon=$BROWSER_ICON
-Type=Application
-EOF
-
-  else # Windows
-
-    GIT_BASH="$(cd / && pwd -W | sed -e 's% %\" \"%g')/git-bash.exe"
-    WORK_DIR="$(cd "$TOP_DIR" && pwd -W)"
-    DESKTOP_DIR="$(cd ~/Desktop && pwd -W)"
-    CMD_ICON="$(cd /c/Windows/System32/ && pwd -W)/cmd.exe"
-    TOOLS_DIR="$WORK_DIR"/tools/windows
-
-    mkdir -p "$TOP_DIR"/tools/windows
-
-    # The url should be updated with the latest info every time
-    RUN_BAT="$TOP_DIR"/tools/windows/run.bat
-    echo "start $GIT_BASH -c '\"$WORK_DIR/tools/docker/run\" $LAB_NAME'" > "$RUN_BAT"
-
-    if [ "x$LAB_DESKTOP_SHORTCUT" = "x1" -a ! -f "$LOCAL_DESKTOP_SHORTCUT" ]; then
-      # Ref: https://stackoverflow.com/questions/30028709/how-do-i-create-a-shortcut-via-command-line-in-windows
-      LOCAL_DESKTOP_SHORTCUT="$DESKTOP_DIR/$(basename $LOCAL_DESKTOP_SHORTCUT)"
-      winpty powershell "\$s=(New-Object -COM WScript.Shell).CreateShortcut('$LOCAL_DESKTOP_SHORTCUT');\$s.TargetPath='$TOOLS_DIR/run.bat';\$s.IconLocation='$CMD_ICON';\$s.Save()"
-    fi
-
-    # For cloud lab
-    if [ ! -f "$MANAGE_DESKTOP_SHORTCUT" ]; then
-      MANAGE_BAT="$TOP_DIR"/tools/windows/manage.bat
-
-      echo "start $GIT_BASH --cd=\"$WORK_DIR\"" > "$MANAGE_BAT"
-
-      MANAGE_DESKTOP_SHORTCUT="$DESKTOP_DIR/$(basename $MANAGE_DESKTOP_SHORTCUT)"
-      winpty powershell "\$s=(New-Object -COM WScript.Shell).CreateShortcut('$MANAGE_DESKTOP_SHORTCUT');\$s.TargetPath='$TOOLS_DIR/manage.bat';\$s.IconLocation='$CMD_ICON';\$s.Save()"
-    fi
-
-    if [ ! -f "$BROWSE_DESKTOP_SHORTCUT" ]; then
-      BROWSE_BAT="$TOP_DIR"/tools/windows/browse.bat
-      BROWSE_CMD="$(cd "$(dirname "$__WEB_BROWSER")" && pwd -W | sed -e 's% %\" \"%g')/$(basename "$__WEB_BROWSER")"
-      BROWSE_ICON="$(echo $BROWSE_CMD | tr -d '\"')"
-
-      echo "start $BROWSE_CMD \"$LABS_WEB_URL\"" > "$BROWSE_BAT"
-
-      BROWSE_DESKTOP_SHORTCUT="$DESKTOP_DIR/$(basename $BROWSE_DESKTOP_SHORTCUT)"
-      winpty powershell "\$s=(New-Object -COM WScript.Shell).CreateShortcut('$BROWSE_DESKTOP_SHORTCUT');\$s.TargetPath='$TOOLS_DIR/browse.bat';\$s.IconLocation='$BROWSE_ICON';\$s.Save()"
-    fi
-
-  fi
-fi
-
-# Allow Launching for Ubuntu 20.04
-if [ "x$HOST_OS" = "xLinux" ]; then
-  for sc in "$LOCAL_DESKTOP_SHORTCUT" "$MANAGE_DESKTOP_SHORTCUT" "$BROWSE_DESKTOP_SHORTCUT"
-  do
-    [ ! -f "$sc" ] && continue
-
-    chmod a+x "$sc"
-    which gio >/dev/null 2>&1 && gio set "$sc" "metadata::trusted" true
-    touch "$sc"
-  done
-fi
 
 # For web portmapping
-[ -f "$LAB_PORTMAP" ] && grep -q ":8" "$LAB_PORTMAP" \
-    && (docker logs $CONTAINER_NAME 2>/dev/null | grep "Server address:") \
-    && for port in $(grep ":8" "$LAB_PORTMAP" | cut -d':' -f1); \
-       do echo "LOG: Local Web Address: http://$HOST:$port/"; done
+[ -f "$LAB_PORTMAP" ] \
+  && log_print "Check web portmapping ..." \
+  && grep -q ":8" "$LAB_PORTMAP" \
+  && (docker logs $CONTAINER_NAME 2>/dev/null | grep "Server address:") \
+  && for port in $(grep ":8" "$LAB_PORTMAP" | cut -d':' -f1); \
+       do info_print "Local Web Address: http://$HOST:$port/"; done
+
+}
+
+resize_screen ()
+{
+  [ -f /etc/environment.d/90linux-lab-disk.conf ] && . /etc/environment.d/90linux-lab-disk.conf
+  if [ -n "$SCREEN_RESIZE" ]; then
+    log_print "Resize the screen as request"
+    (sleep 0.5; "$DOCKER_RESIZE_CMD" $LAB_NAME $SCREEN_RESIZE >/dev/null 2>&1)&
+  fi
+}
+
+prepare_login || exit 0
 
 # Exit if running as root
 [ `id -u` -eq 0 ] && echo "ERR: Web browsers can not run as root user, please run as normal user." && exit 1
 
-if [ "x$HOST_OS" = "xDarwin" ]; then
-  (eval "$__WEB_BROWSER" '$CONTAINER_WEB_URL' >/dev/null 2>&1 &)>/dev/null 2>&1
-else
-  (eval nohup "'$__WEB_BROWSER'" "'$CONTAINER_WEB_URL'" >/dev/null 2>&1 &)>/dev/null 2>&1
-fi
+# Enable autoconnect by default
+[ -z "$VNC_AUTOCONNECT" ] && VNC_AUTOCONNECT=1
 
-# Resize the screen
-[ -f /etc/environment.d/90linux-lab-disk.conf ] && . /etc/environment.d/90linux-lab-disk.conf
-[ -n "$SCREEN_RESIZE" ] && (sleep 0.5; "$DOCKER_RESIZE_CMD" $LAB_NAME $SCREEN_RESIZE >/dev/null 2>&1)&
+[ $VNC_AUTOCONNECT -eq 1 ] && \
+  AUTOCONNECT="&autoconnect=1"
+
+log_print "Get cached data"
+get_vars VNC_IP VNC_TOKEN VNC_PWD VNC_PWD_VIEWONLY
+get_host
+
+# Get vnc page
+HOST_WEB_URL="$WEB_HTTP://${HOST}:${HOST_VNC_PORT}/?u=$VNC_TOKEN&p=$VNC_PWD$AUTOCONNECT"
+HOST_WEB_URL_VIEWONLY="$WEB_HTTP://${HOST}:${HOST_VNC_PORT}/?r=${VNC_TOKEN}${VNC_PWD_VIEWONLY}"
+
+show_lab
+resize_screen
+browse_url "$HOST_WEB_URL"

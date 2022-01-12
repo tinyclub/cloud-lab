@@ -8,18 +8,26 @@
 NEW_LAB=$1
 
 TOP_DIR="$(cd "$(dirname "$0")"/../../ && pwd)"
-. "$TOP_DIR"/tools/docker/config $* >/dev/null
+
+[ $# -gt 0 ] && shift
+. "$TOP_DIR"/tools/docker/config >/dev/null
 OLD_LAB=$CURRENT
 
 [ -z "$PULL" ] && PULL=0
 
 [ -z "$SUBMODULE" ] && SUBMODULE=0
 
+# main branch
+DEF_BRANCH=master
+[ -z "$BRANCH" ] && BRANCH=$DEF_BRANCH
+
 # Fix up windows support
 config_casesensitive ()
 {
     # should enable case sensitive for ntfs filesystem
-    [ "x$HOST_OS" = "xWindows" ] && fsutil file SetCaseSensitiveInfo "$TOP_DIR" enable >/dev/null 2>&1
+    if [ "x$HOST_OS" = "xWindows" ]; then
+      echo "LOG: Please enable case sensitive as administrator: fsutil file SetCaseSensitiveInfo '$(cd "$TOP_DIR" && pwd -W | sed -e 's%/%\\%g')' enable"
+    fi
 }
 
 config_git ()
@@ -33,12 +41,11 @@ config_git ()
 download_submodule ()
 {
     LAB_CURRENT_DIR="$LAB_DIR"/$CURRENT
-    LAB_LABS="$CONFIG_DIR"/labs
 
     if [ -n "$CURRENT" ]; then
       LABS=$CURRENT
     else
-      get_var LABS $CURRENT
+      LABS=`get_labs`
     fi
 
     for lab in $LABS; do
@@ -51,48 +58,50 @@ download_submodule ()
         && git submodule update --init --remote $RECURSIVE "$LAB_CURRENT_DIR" \
         && cd "$LAB_CURRENT_DIR" && git checkout $BRANCH
 
-      [ $PULL -eq 1 ] && echo "LOG: Pulling repository: $lab" \
+      [ $PULL -eq 1 ] && info_print "Pull repository: $lab" \
         && git pull -v && git submodule sync && git pull $PULL_RECURSIVE -v
 
-      [ $SUBMODULE -eq 1 ] && echo "LOG: Pulling submodules of $lab" \
+      [ $SUBMODULE -eq 1 ] && info_print "Pull submodules of $lab" \
 	&& git submodule update --init --remote $RECURSIVE .
 
       # Convert absolute path to relative path for gitdir in .git of submodules
       [ $SUBMODULE -eq 1 ] && \
         git submodule foreach --recursive '[ -f .git ] && gitdir=$(cut -d" " -f2 .git) && (echo $gitdir | grep -q ^/) && dir=$(echo $gitdir | sed -e 's%$TOP_DIR/%%') && relpath=$(echo $PWD | sed -e 's%$TOP_DIR%%g' | tr -c -d '/' | sed -e 's%/%../%g') && echo "gitdir: $(echo $relpath)$dir" > .git || :'
 
-      echo "LOG: Source code downloaded to $LAB_CURRENT_DIR"
+      info_print "Source code downloaded to $LAB_CURRENT_DIR"
     done
 }
 
 if [ -n "$NEW_LAB" ]; then
-    . "$TOP_DIR"/tools/docker/config $NEW_LAB >/dev/null
+    CURRENT=$NEW_LAB
+
+    . "$TOP_DIR"/tools/docker/config >/dev/null
 
     set_var CURRENT
 
-    [ -n "$OLD_LAB" -a "$OLD_LAB" != "$CURRENT" ] && echo "LOG: Switch from $OLD_LAB to $CURRENT"
+    [ -n "$OLD_LAB" -a "$OLD_LAB" != "$CURRENT" ] && info_print "Switch from $OLD_LAB to $CURRENT"
     download_submodule && exit 0
 fi
 
-echo "LOG: Available Labs:"
+info_print "Available Labs:"
 echo
-echo $LABS | tr ' ' '\n' | nl -v 1
+get_labs | tr ' ' '\n' | nl -v 1
 echo
 
-read -p 'LOG: Choose the lab number: ' number
+read -p 'INFO: Choose the lab number: ' number
 
 [ -z "$number" ] && echo "ERR: No valid number specified." && exit 1
 
-CURRENT=`echo $LABS | tr ' ' '\n' | head -$number | tail -1`
+CURRENT=`get_labs | tr ' ' '\n' | head -$number | tail -1`
 
 echo
-echo $LABS | tr ' ' '\n' | nl -v 1 | grep " $number"
+get_labs | tr ' ' '\n' | nl -v 1 | grep " $number"
 echo
 
 set_var CURRENT
 
 echo
-echo "LOG: Download the lab..."
+info_print "Download the lab..."
 echo
 
 # Hacking for windows support, disable autocrlf switch

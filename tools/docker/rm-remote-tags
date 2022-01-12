@@ -8,41 +8,60 @@
 #
 
 echo
-echo "LOG: Removing tags from remote hub.docker.com"
+echo "LOG: Remove tags from remote hub.docker.com, use the official docker service."
 echo
 
 echo "LOG: Please input necessary information:"
+echo
 
 read -p "Docker Username: " DOCKER_USERNAME
 read -p "Docker password: " DOCKER_PASSWORD
 read -p "Docker Organization: " DOCKER_ORGANIZATION
 read -p "Docker Image: " DOCKER_IMAGE
-read -p "Docker Tag: " DOCKER_TAG
 
 # docker run --rm -it lumir/remove-dockerhub-tag --user "$DOCKER_USERNAME" --password "$DOCKER_PASSWORD" $DOCKER_TAGS
 
 login_data() {
 cat <<EOF
 {
-  "username": "$DOCKER_USERNAME",
-  "password": "$DOCKER_PASSWORD"
+    "username": "$DOCKER_USERNAME",
+    "password": "$DOCKER_PASSWORD"
 }
 EOF
 }
 
-# Before removing
-echo "LOG: Old Tags"
-curl -s "https://registry.hub.docker.com/v2/repositories/${DOCKER_ORGANIZATION}/${DOCKER_IMAGE}/tags/" | jq '."results"[]["name"]'
-
-# Removing tags
-echo "LOG: Removing ${DOCKER_ORGANIZATION}/${DOCKER_IMAGE}:${DOCKER_TAG}"
+# Get a token
 
 TOKEN=`curl -s -H "Content-Type: application/json" -X POST -d "$(login_data)" "https://hub.docker.com/v2/users/login/" | jq -r .token`
 
-curl "https://hub.docker.com/v2/repositories/${DOCKER_ORGANIZATION}/${DOCKER_IMAGE}/tags/${DOCKER_TAG}/" \
--X DELETE \
--H "Authorization: JWT ${TOKEN}"
+# Allow remove many tags
+while :; do
+  echo
+  echo "INFO: Current Tags"
+  curl -s "https://registry.hub.docker.com/v2/repositories/${DOCKER_ORGANIZATION}/${DOCKER_IMAGE}/tags/" | jq '."results"[]["name"]'
+  echo
 
-# After removing
-echo "LOG: New Tags"
-curl -s "https://registry.hub.docker.com/v2/repositories/${DOCKER_ORGANIZATION}/${DOCKER_IMAGE}/tags/" | jq '."results"[]["name"]'
+  while :; do
+    echo
+    echo "INFO: Please input the tag to remove, if no one required to remove, just press Enter key:"
+    echo
+    read -p "Docker Tag: " DOCKER_TAG
+    echo
+
+    if [ -z "$DOCKER_TAG" ]; then
+      read -p "LOG: No tag specified, do you want to exit? (Y/N) " sure
+      [ "$sure" = "Y" -o "$sure" = "y" ] && exit 0
+    else
+      break
+    fi
+  done
+
+  # Removing tags
+  echo
+  echo "LOG: Remove ${DOCKER_ORGANIZATION}/${DOCKER_IMAGE}:${DOCKER_TAG}"
+  echo
+
+  curl "https://hub.docker.com/v2/repositories/${DOCKER_ORGANIZATION}/${DOCKER_IMAGE}/tags/${DOCKER_TAG}/" \
+  -X DELETE \
+  -H "Authorization: JWT ${TOKEN}"
+done

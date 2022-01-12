@@ -6,7 +6,9 @@
 #
 
 TOP_DIR="$(cd "$(dirname "$0")"/../../ && pwd)"
-. "$TOP_DIR"/tools/docker/config $* >/dev/null
+. "$TOP_DIR"/tools/docker/config >/dev/null
+
+LOGIN_METHODS="bash vnc ssh webssh webvnc"
 
 verify_login()
 {
@@ -39,13 +41,13 @@ verify_login()
 login_config()
 {
   # List available login methods
-  echo "Please choose one of the login methods:"
+  echo "INFO: Please choose one of the login methods:"
   echo
   echo $LOGIN_METHODS | tr ' ' '\n' | nl -v 1
   echo
 
   # Let user choose one
-  read -p 'LOG: Choose the login method: ' method
+  read -p 'INFO: Choose the login method: ' method
 
   [ -z "$method" ] && echo "ERR: No method specified." && exit 1
 
@@ -67,9 +69,9 @@ login_config()
 # If the first argument is valid lab, use the second one as login method argument.
 if [ -n "$1" ]; then
   LAB=$1
-  [ -n "$LAB" ] && ls "$CONFIGS_DIR" | tr -s ' ' | tr ' ' '\n' | grep -q ^$LAB$
+  [ -n "$LAB" ] && ls -1 "$CONFIGS_DIR" | grep -q ^$LAB$
   if [ $? -eq 0 ]; then
-    LOGIN=$2
+    [ -n "$2" ] && LOGIN=$2
   else
     LOGIN=$1
   fi
@@ -107,16 +109,19 @@ fi
 
 LOGIN_TOOL="$TOP_DIR"/tools/docker/$LOGIN
 
-echo "LOG: Available login methods:"
+info_print "Available login methods:"
 echo
 echo "     $LOGIN_METHODS" | egrep --color "[^a-z]$LOGIN"
 echo
-echo "LOG: Switch to another method:"
+info_print "Switch to another method:"
 echo
 echo "     $0 LOGIN_METHOD" | sed -e "s%$TOP_DIR/%%g"
 echo
-echo "LOG: Running '$LOGIN_TOOL'"
+info_print "Running '$LOGIN_TOOL'"
 echo
+
+# create desktop shortcuts
+(get_host; get_browser; create_shortcuts) &
 
 # bash and ssh require a virtual tty console
 case $LOGIN in
@@ -125,7 +130,7 @@ case $LOGIN in
       "$LOGIN_TOOL"
     else
       get_xterm
-      $XTERM -e "$LOGIN_TOOL"
+      [ -n "$XTERM" ] && $XTERM -e "$LOGIN_TOOL"
     fi
     ;;
   *)

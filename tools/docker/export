@@ -8,20 +8,27 @@
 #
 
 TOP_DIR="$(cd "$(dirname "$0")"/../../ && pwd)"
-. "$TOP_DIR"/tools/docker/config $* >/dev/null
+. "$TOP_DIR"/tools/docker/config >/dev/null
 
-IMAGE_NAME=tinylab/$WPROXY_IMAGE_NAME
+[ -z "$WPROXY_IP" ] && prepare_cloud_lab_net
 
-[ -z "$PULL" ] && PULL=0
+IMAGE_NAME=tinylab/$WPROXY_NAME
+[ -n "$WPROXY_TAG" ] && IMAGE_NAME=$IMAGE_NAME:$WPROXY_TAG
 
-docker images | grep -q $IMAGE_NAME
-[ $? -ne 0 -o $PULL -eq 1 ] && docker pull $IMAGE_NAME
+id=$(docker ps -a -f name=$WPROXY_NAME -f status=running -q)
+[ -n "$id" ] && echo "ERR: $WPROXY_NAME has already been created" && exit 0
+
+prepare_export_files
+
+CONTAINER_VNC_PORT=6080
+CONTAINER_WEBSSH_PORT=443
 
 DEFAULT_PORT_MAP=" -p $HOST_VNC_PORT:$CONTAINER_VNC_PORT -p $HOST_SSH_PORT:$CONTAINER_SSH_PORT -p $HOST_WEBSSH_PORT:$CONTAINER_WEBSSH_PORT "
 
 # Available encrypt cmds: sha1sum, sha224sum, cksum, sha256sum, sha512sum, md5sum, sha384sum, sum
 # To enable auto timeout, please pass VNC_TIMEOUT=1
 [ -z "$VNC_PUBLIC" ] && VNC_PUBLIC=0
+[ -z "$GATEONE_PUBLIC" ] && GATEONE_PUBLIC=0
 [ -z "$VNC_TIMEOUT" ] && VNC_TIMEOUT=0
 [ -z "$VNC_AUTH" ] && VNC_AUTH=""
 [ -z "$PROXY_LIMIT" ] && PROXY_LIMIT=0
@@ -34,7 +41,7 @@ DEFAULT_PORT_MAP=" -p $HOST_VNC_PORT:$CONTAINER_VNC_PORT -p $HOST_SSH_PORT:$CONT
 [ -z "$TOKEN_LENGTH" ] && TOKEN_LENGTH=$DEF_TOKEN_LENGTH
 [ -z "$HOST_NAME" ] && HOST_NAME=localhost
 [ -z "$PORT_MAP" ] && PORT_MAP="$DEFAULT_PORT_MAP"
-[ -z "$ENV_ARGS" ] && ENV_ARGS=" -e VNC_PUBLIC=$VNC_PUBLIC -e VNC_TIMEOUT=$VNC_TIMEOUT -e VNC_AUTH=$VNC_AUTH -e UNIX_PWD=$UNIX_PWD -e VNC_PWD=$VNC_PWD -e SCREEN_SIZE=$SCREEN_SIZE -e PROXY_LIMIT=$PROXY_LIMIT -e NOSSL=$WEB_NOSSL -e ENCRYPT_CMD=$ENCRYPT_CMD"
+[ -z "$ENV_ARGS" ] && ENV_ARGS=" -e VNC_PUBLIC=$VNC_PUBLIC -e GATEONE_PUBLIC=$GATEONE_PUBLIC -e VNC_TIMEOUT=$VNC_TIMEOUT -e VNC_AUTH=$VNC_AUTH -e UNIX_PWD=$UNIX_PWD -e VNC_PWD=$VNC_PWD -e SCREEN_SIZE=$SCREEN_SIZE -e PROXY_LIMIT=$PROXY_LIMIT -e NOSSL=$WEB_NOSSL -e ENCRYPT_CMD=$ENCRYPT_CMD"
 [ -z "$EXTRA_ARGS" ] && EXTRA_ARGS=""
 
 # Mount a directory for storing the noVNC recording sessions
@@ -48,13 +55,13 @@ CONTAINER_TOKEN_DIR=//$VNC_TOKENS
 # Fixed up for docker toolbox in windows
 # ref: https://headsigned.com/posts/mounting-docker-volumes-with-docker-toolbox-for-windows/
 VOLUME_MAP=" -v '/$HOST_RECORD_DIR':'$CONTAINER_RECORD_DIR'"
-echo "LOG: VNC screen recorded in $HOST_RECORD_DIR"
+debug_print "VNC screen recorded in $HOST_RECORD_DIR"
 
 VOLUME_MAP="$VOLUME_MAP -v '/$HOST_RELEASE_DIR':'$CONTAINER_RELEASE_DIR'"
-echo "LOG: VNC pages released in $HOST_RELEASE_DIR"
+debug_print "VNC pages released in $HOST_RELEASE_DIR"
 
 VOLUME_MAP="$VOLUME_MAP -v '/$HOST_TOKEN_DIR':'$CONTAINER_TOKEN_DIR'"
-echo "LOG: VNC tokens stored in $HOST_TOKEN_DIR"
+debug_print "VNC tokens stored in $HOST_TOKEN_DIR"
 
 [ -n "$WPROXY_IP" ] && ip="--ip=$WPROXY_IP"
 WPROXY_NET="$ip --network $VNC_NET_NAME"

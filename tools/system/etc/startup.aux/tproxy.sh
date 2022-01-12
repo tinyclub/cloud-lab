@@ -5,9 +5,9 @@
 
 [ -z "$TPROXY" ] && TPROXY=0
 
-sleep 2
-
 if [ $TPROXY -eq 1 ]; then
+    sleep 2
+
     [ -z "$DEFAULT_GW" ] && DEFAULT_GW=$(route -n | grep "^0.0.0.0" | tr -s ' ' | cut -d' ' -f2)
     [ -z "$DEFAULT_IFACE" ] && DEFAULT_IFACE=$(ifconfig | head -1 | cut -d' ' -f1 | tr -d ':')
 

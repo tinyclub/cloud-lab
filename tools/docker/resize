@@ -72,12 +72,13 @@ if [ "$SCREEN_SIZE" = "auto" -o "$SCREEN_SIZE" = "fullscreen" ]; then
 fi
 
 TOP_DIR="$(cd "$(dirname "$0")"/../../ && pwd)"
-. "$TOP_DIR"/tools/docker/config $* >/dev/null
+. "$TOP_DIR"/tools/docker/config >/dev/null
 
-docker ps -f name=$CONTAINER_NAME | grep -qv PORTS
-[ $? -ne 0 ] && echo "LOG: $LAB_NAME is not running." && exit 1
+lab_id=$(docker ps -f name=$CONTAINER_NAME -f status=running -q)
+[ -z "$lab_id" ] && err_print "$LAB_NAME is not running." && exit 1
 
 [ -z "$UNIX_USER" ] && get_var UNIX_USER $DEF_USER
+[ "x$HOST_OS" = x"Windows" ] && WINPTY="winpty"
 
 # wait for a while till the screen size is really changed
 i=0
@@ -91,10 +92,10 @@ do
   scale=$(do_op "docker exec -i -w $LAB_WORKDIR/$CURRENT -u $UNIX_USER" CONTAINER_NAME "x11vnc -display :1 -query scale" | cut -d':' -f2)
 
   if [ "$scale" = "$SCREEN_SIZE" ]; then
-    echo "LOG: The screen size is changed to $scale sucessfully"
+    info_print "The screen size is changed to $scale sucessfully"
     break
   else
-    echo "LOG: The screen size is $scale, not changed to $SCREEN_SIZE"
+    info_print "The screen size is $scale, not changed to $SCREEN_SIZE"
   fi
   i=`expr $i + 1`
 done

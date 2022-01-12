@@ -4,17 +4,18 @@
 #
 # Copyright (C) 2016-2021 Wu Zhangjin <falcon@ruma.tech>
 #
-
+# Usage: $ tools/docker/cmd "ls //labs/linux-lab"
+#
 
 TOP_DIR="$(cd "$(dirname "$0")"/../../ && pwd)"
-. "$TOP_DIR"/tools/docker/config $* >/dev/null
+. "$TOP_DIR"/tools/docker/config >/dev/null
 
 [ -z "$1" ] && echo "Usage: $0 [lab-name] cmd" && exit 0
 
 cmd="$1"
 [ -n "$2" ] && cmd="$2"
 
-docker ps -f name=$CONTAINER_NAME | grep -qv PORTS
-[ $? -ne 0 ] && echo "LOG: $LAB_NAME is not running." && exit 1
+lab_id=$(docker ps -f name=$CONTAINER_NAME -f status=running -q)
+[ -z "$lab_id" ] && err_print "$LAB_NAME is not running." && exit 1
 
 do_op "docker exec" CONTAINER_NAME "$cmd"

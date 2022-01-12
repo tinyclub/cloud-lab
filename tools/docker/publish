@@ -6,29 +6,27 @@
 #
 
 TOP_DIR="$(cd "$(dirname "$0")"/../../ && pwd)"
-. "$TOP_DIR"/tools/docker/config $* >/dev/null
+. "$TOP_DIR"/tools/docker/config >/dev/null
 
 do_unlock
 [ -z "$VNC_IP" ] && get_var VNC_IP
 [ -z "$VNC_TOKEN" ] && get_var VNC_TOKEN
 do_lock
 
-# SUDO only required while the map is created in WPROXY
-SUDO=""
-
 map="${VNC_TOKEN}: ${VNC_IP}:5900"
 
 # Touch token map files
+prepare_export_files
 touch_token_map
 
-[ ! -f "$LOCAL_TOKEN_MAP" ] && $SUDO sh -c "echo '$map' > '$LOCAL_TOKEN_MAP'" && exit 0
+[ ! -f "$LOCAL_TOKEN_MAP" ] && sh -c "echo '$map' > '$LOCAL_TOKEN_MAP'" && exit 0
 
 # The token:ip mapping must be unique, so, clean up the old ones if they are there
 grep ${VNC_TOKEN} -q "$LOCAL_TOKEN_MAP"
-[ $? -eq 0 ] && $SUDO sed -i -e "/${VNC_TOKEN}: /d" "$LOCAL_TOKEN_MAP"
+[ $? -eq 0 ] && sed -i -e "/${VNC_TOKEN}: /d" "$LOCAL_TOKEN_MAP"
 
 grep ${VNC_IP} -q "$LOCAL_TOKEN_MAP"
-[ $? -eq 0 ] && $SUDO sed -i -e "/${VNC_IP}:/d" "$LOCAL_TOKEN_MAP"
+[ $? -eq 0 ] && sed -i -e "/${VNC_IP}:/d" "$LOCAL_TOKEN_MAP"
 
 # Append the new token:ip mapping
-$SUDO sh -c "echo '$map' >> '$LOCAL_TOKEN_MAP'"
+sh -c "echo '$map' >> '$LOCAL_TOKEN_MAP'"

@@ -6,12 +6,12 @@
 #
 
 TOP_DIR="$(cd "$(dirname "$0")"/../../ && pwd)"
-. "$TOP_DIR"/tools/docker/config $* >/dev/null
+. "$TOP_DIR"/tools/docker/config >/dev/null
 
 # Fix up the port already used issue
-echo "LOG: Stopping docker-proxy"
-$SUDO pkill docker-proxy
+info_print "Stop docker-proxy"
+sudo pkill docker-proxy
 
-echo "LOG: Restarting docker service"
+info_print "Restart docker service"
 # Restart docker service
-$SUDO service docker restart
+sudo systemctl restart docker

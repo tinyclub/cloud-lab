@@ -24,18 +24,25 @@ which docker > /dev/null 2>&1 && exit 0
 
 [ -f /etc/issue ] && grep -qi ubuntu /etc/issue
 if [ $? -eq 0 ]; then
-    echo "LOG: Install docker-ce with $0"
+    echo "INFO: Install docker-ce with $0"
 else
     echo
-    echo "Warning: Docker is missing, but it is required by Linux Lab, please prepare one:"
+    echo "WARN: Docker is missing, but it is required by Linux Lab, please prepare one:"
     echo
     echo "1. Get a preinstalled Linux Lab Disk from https://shop155917374.taobao.com/"
     echo
     echo "   It is able to compile and boot a new linux kernel in 5 minutes."
     echo
-    echo "2. Install docker manually, see more: https://docs.docker.com/install/, README.md or README_zh.md"
+    echo "2. For Linux, Install docker manually"
     echo
     echo "   $ curl -fsSL https://get.docker.com -o get-docker.sh && sh get-docker.sh"
+    echo
+    echo "3. For Windows, please install Docker Toolbox without wsl or Docker Desktop with wsl2"
+    echo
+    echo "   Docker Toolbox: https://get.daocloud.io/toolbox/"
+    echo "   Docker Desktop: https://docs.docker.com/desktop/windows/install/"
+    echo
+    echo "4. For MacOS, please refer to https://docs.docker.com/desktop/mac/install/"
     echo
     echo "Contact us via wechat: tinylab."
     echo
@@ -59,10 +66,6 @@ $SUDO apt-get -y update
 $SUDO apt-get -y install apt-transport-https ca-certificates
 $SUDO apt-get -y install bridge-utils
 $SUDO apt-get -y install net-tools vim git
-# Not install terminator for remote server
-if pgrep Xorg >/dev/null; then
-    $SUDO apt-get -y install terminator
-fi
 
 [ "$ubuntu_version" = "trusty" ] && $SUDO apt-get -y install linux-image-extra-$(uname -r) linux-image-extra-virtual
 $SUDO apt-get -y --force-yes install docker-ce
@@ -84,4 +87,4 @@ $SUDO service docker restart
 
 # FIXME: 'newgrp' not work in script, perhaps should use 'sg' instead
 # see: https://unix.stackexchange.com/questions/18796/how-to-apply-changes-of-newly-added-user-groups-without-needing-to-reboot
-echo "LOG: Without reboot, please issue 'newgrp docker' to work in docker group" >&2
+echo "INFO: Without reboot, please issue 'newgrp docker' to work in docker group" >&2

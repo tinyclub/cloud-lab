@@ -6,3 +6,4 @@
 *.bz2	binary
 *.xz	binary
 *.ko	binary
+*.bat   eol=crlf

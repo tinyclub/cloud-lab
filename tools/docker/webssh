@@ -6,38 +6,40 @@
 #
 
 TOP_DIR="$(cd "$(dirname "$0")"/../../ && pwd)"
-. "$TOP_DIR"/tools/docker/config $* >/dev/null
+. "$TOP_DIR"/tools/docker/config >/dev/null
 
-docker ps -f name=$CONTAINER_NAME | grep -qv PORTS
-[ $? -ne 0 ] && echo "LOG: $LAB_NAME is not running." && exit 1
+prepare_login || exit 0
 
-WEBSSH_URL="$WEB_HTTP://${HOST}:${HOST_WEBSSH_PORT}?ssh=ssh://$UNIX_USER:$UNIX_PWD@$VNC_IP:$CONTAINER_SSH_PORT"
+show_lab ()
+{
+  info_print "Please login via ssh client with:"
+  echo
+  echo "    SSH_IP: $VNC_IP"
+  echo "  SSH_PORT: $CONTAINER_SSH_PORT"
+  echo "      User: $UNIX_USER"
+  echo "  Password: $UNIX_PWD"
+  echo "   Workdir: $LAB_WORKDIR/$CURRENT"
+  echo
 
-echo "LOG: Please login via ssh client with:"
-echo
-echo "    SSH_IP: $VNC_IP"
-echo "  SSH_PORT: $CONTAINER_SSH_PORT"
-echo "      User: $UNIX_USER"
-echo "  Password: $UNIX_PWD"
-echo "   Workdir: $LAB_WORKDIR/$CURRENT"
-echo
+  info_print "Or access via web browser:"
+  echo "  $WEBSSH_URL"
+  echo
 
-echo "LOG: Or access via web browser:"
-echo "  $WEBSSH_URL"
-echo
+  echo "Note: If running on a remote server, use external ip or domain name instead of 'localhost':"
+  echo
+  echo "      $ echo \$ip_or_domain_name > '$LAB_HOST'"
+  echo "      $ tools/docker/release $LAB_NAME"
+  echo
+}
 
-# Get web browser
-get_browser
-[ $? -ne 0 ] && echo "ERR: Give up browser launching for no web browser found" && exit 1
+log_print "Get cached data"
+get_vars VNC_IP UNIX_USER UNIX_PWD
+get_host
 
 # Exit if running as root
 [ `id -u` -eq 0 ] && echo "ERR: Web browsers can not run as root user, please run as normal user." && exit 1
 
-(eval "'$__WEB_BROWSER'" "'$WEBSSH_URL'" >/dev/null 2>&1 &) >/dev/null 2>&1
+WEBSSH_URL="$WEB_HTTP://${HOST}:${HOST_WEBSSH_PORT}?ssh=ssh://$UNIX_USER:$UNIX_PWD@$VNC_IP:$CONTAINER_SSH_PORT"
 
-if [ -n "$LOCALHOST" ]; then
-    _WEBSSH_URL="$(echo "$WEBSSH_URL" | sed -e "s%localhost%$LOCALHOST%g" )"
-    echo "LOG: Or access it outside via:"
-    echo "  $_WEBSSH_URL"
-    echo
-fi
+show_lab
+browse_url "$WEBSSH_URL"

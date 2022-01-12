@@ -6,9 +6,9 @@
 #
 
 TOP_DIR="$(cd "$(dirname "$0")"/../../ && pwd)"
-. "$TOP_DIR"/tools/docker/config $* >/dev/null
+. "$TOP_DIR"/tools/docker/config >/dev/null
 
-for lab in $LABS
+for lab in `get_labs`
 do
   "$DOCKER_RUN_CMD" $lab
 done

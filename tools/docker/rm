@@ -6,18 +6,20 @@
 #
 
 TOP_DIR="$(cd "$(dirname "$0")"/../../ && pwd)"
-. "$TOP_DIR"/tools/docker/config $* >/dev/null
+. "$TOP_DIR"/tools/docker/config >/dev/null
+
+[ -z "$CONTAINER_NAME" ] && info_print "No lab container found." && exit 0
 
 notify_user 2 "Lab will be removed"
 
-# Remove desktop shortcut
-# do_op "rm -f" LOCAL_DESKTOP_SHORTCUT
-
-# Remove container
+info_print "Remove $CONTAINER_NAME"
 do_op "docker rm -f" CONTAINER_NAME
 
-# Disconnect docket network
+log_print "Disconnect $CONTAINER_NAME from cloud-lab-net"
 do_op "docker network disconnect -f cloud-lab-net" CONTAINER_NAME 2>/dev/null
 
 # Update lab list
-[ "$RELEASE" != '0' ] && "$DOCKER_RELEASE_CMD" all >/dev/null 2>&1
+if [ "$RELEASE" != '0' ]; then
+  log_print "Update release page"
+  "$DOCKER_RELEASE_CMD" all >/dev/null 2>&1
+fi

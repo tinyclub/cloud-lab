@@ -6,23 +6,38 @@
 #
 
 TOP_DIR="$(cd "$(dirname "$0")"/../../ && pwd)"
-. "$TOP_DIR"/tools/docker/config $* >/dev/null
+. "$TOP_DIR"/tools/docker/config >/dev/null
 
-notify_user 2 "Lab will be removed"
+# Remove container
+[ -z "$CONTAINER_NAME" ] && info_print "No lab container recorded." && exit 0
 
 do_unlock
 
-# Remove container
-[ -n "$CONTAINER_NAME" ] && do_op "docker rm -f" CONTAINER_NAME
+notify_user 2 "Lab will be removed"
+info_print "Remove $CONTAINER_NAME"
+do_op "docker rm -f" CONTAINER_NAME
+
+info_print "Disconnect $name from cloud-lab-net"
+docker network disconnect -f cloud-lab-net $name 2>/dev/null
 
 # Remove desktop shortcut
-# do_op "rm -f" LOCAL_DESKTOP_SHORTCUT
+log_print "Remove lab shortcut"
+init_shortcuts
+do_op "rm -f" LOCAL_DESKTOP_SHORTCUT
 
 # Remove the token map from .vnc-tokens/local_map
-[ -n "$VNC_TOKEN" ] && do_op "sed -i -e \"/${VNC_TOKEN}:/d\"" LOCAL_TOKEN_MAP
-[ -n "$VNC_IP" ] && do_op "sed -i -e \"/${VNC_IP}:/d\"" LOCAL_TOKEN_MAP
+[ -z "$LOCAL_TOKEN_MAP" ] && prepare_export_files
+if [ -f "$LOCAL_TOKEN_MAP" ]; then
+  get_vars VNC_TOKEN VNC_IP
+  [ -n "$VNC_TOKEN" ] && do_op "sed -i -e \"/${VNC_TOKEN}:/d\"" LOCAL_TOKEN_MAP
+  [ -n "$VNC_IP" ] && do_op "sed -i -e \"/${VNC_IP}:/d\"" LOCAL_TOKEN_MAP
+fi
 
+log_print "Remove cached data"
 find "$CONFIG_DOCKER_DIR" -iname ".[^.]*" -exec rm -rf "{}" \;
 
 # Update lab list
-[ "$RELEASE" != '0' ] && "$DOCKER_RELEASE_CMD" all >/dev/null 2>&1
+if [ "$RELEASE" != '0' ]; then
+  log_print "Update release page"
+  "$DOCKER_RELEASE_CMD" all >/dev/null 2>&1
+fi

@@ -3,7 +3,7 @@
 # Copyright (C) 2016-2021 Wu Zhangjin <falcon@ruma.tech>
 #
 
-# Please next run it manually
+# Please don't run it manually
 if [ ! -d /labs -o ! -d /.git ]; then
     echo "ERR: Please don't run this manually, do you mean tools/docker/run ?"
     exit 1
@@ -19,6 +19,7 @@ do_unlock
 
 # Don't touch me
 [ -z "$UNIX_USER" ] && get_var UNIX_USER $DEF_USER
+[ -z "$LAB_SECURITY" ] && LAB_SECURITY=0
 
 get_var HOST_NAME localhost
 get_var UNIX_IDENTIFY $DEF_UNIX_IDENTIFY
@@ -105,7 +106,7 @@ else
   [ $SUDO_IDENTIFY -eq 2 ] && echo "$UNIX_USER ALL=(ALL) NOPASSWD: ALL" > $SYSTEM_SUDOERS_USER \
   			&& chmod 440 $SYSTEM_SUDOERS_USER
 
-  [ -f "$DEF_SYSTEM_SUDOERS_USER" -a $LAB_SECURITY -ge 1 ] \
+  [ -f "$DEF_SYSTEM_SUDOERS_USER" -a "$LAB_SECURITY" != "0" ] \
     && mv $DEF_SYSTEM_SUDOERS_USER $SYSTEM_SUDOERS_USER \
     && sed -i -e "s/^$DEF_USER/$UNIX_USER/g" $SYSTEM_SUDOERS_USER \
     && chmod 440 $SYSTEM_SUDOERS_USER
@@ -133,6 +134,7 @@ else
 
   [ -z "$UNIX_PWD" ] && get_var UNIX_PWD
   [ -z "$VNC_PWD" ] && get_var VNC_PWD
+  [ -z "$VNC_PWD_VIEWONLY" ] && get_var VNC_PWD_VIEWONLY
 
   [ -z "$PWD_LENGTH" ] && get_var PWD_LENGTH $DEF_PWD_LENGTH
   [ -z "$PWD_TOTAL" ] && get_var PWD_TOTAL $DEF_PWD_TOTAL
@@ -212,7 +214,7 @@ if [ ! -b /dev/loop7 ]; then
   [ -z "$max_loop" ] && max_loop=7
   for i in `seq 0 $max_loop`
   do
-    mknod /dev/loop$i b 7 $i
+    mknod /dev/loop$i b 7 $i &
   done
 fi
 
@@ -220,22 +222,28 @@ fi
 mount -t tmpfs none /tmp/
 
 # Run Lab specific tasks
-[ -x $LAB_CONTAINER_RUN ] && UNIX_USER=$UNIX_USER $LAB_CONTAINER_RUN
+[ -x $LAB_CONTAINER_RUN ] && UNIX_USER=$UNIX_USER $LAB_CONTAINER_RUN &
 
 # Detect lxqt
-which startlxqt
+which startlxqt >/dev/null 2>&1
 [ $? -eq 0 ] && ln -sf /usr/bin/lxqt-session /usr/bin/lxsession
 
 # Run image built-in tasks
 for f in /etc/startup.aux/*.sh
 do
-    . $f
+  [ ! -x $f ] && chmod a+x $f
+  $f
 done
 
 # Report boot_completed
 echo "boot_completed"
 
-# Launch supervisor tasks
+# Reset environment passed from host
+if [ -n "$VARS" ]; then
+  VARS="$(echo $VARS | sed -e 's/\(HOST_OS\|UNIX_USER\|UNIX_UID\)//g')"
+  unset $VARS
+fi
 
+# Launch supervisor tasks
 SYSTEM_SUPERVISORD_CONF=/etc/supervisor/supervisord.conf
 /usr/bin/supervisord -n -c $SYSTEM_SUPERVISORD_CONF

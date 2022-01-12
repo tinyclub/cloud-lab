@@ -7,6 +7,6 @@
 
 # Will this clean up the increasing files /run/udev/data/+cgroup:*
 
-read -p 'This command is dangerous, are you sure? say no if not sure. (yes/no) ' sure
+read -p 'WARN: This command is dangerous, are you sure? say no if not sure. (yes/no) ' sure
 
 docker system prune

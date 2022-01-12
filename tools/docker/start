@@ -6,11 +6,21 @@
 #
 
 TOP_DIR="$(cd "$(dirname "$0")"/../../ && pwd)"
-. "$TOP_DIR"/tools/docker/config $* >/dev/null
+. "$TOP_DIR"/tools/docker/config >/dev/null
 
 # Require to prepare some environment for docker containers in host
-[ -f "$LAB_HOST_RUN" ] && "$LAB_HOST_RUN"
+if [ -f "$LAB_HOST_RUN" ]; then
+  info_print "Run host side init for $LAB_NAME"
+  "$LAB_HOST_RUN"
+fi
 
+info_print "Start $CONTAINER_NAME"
 do_op "docker start" CONTAINER_NAME
 
-[ "$RELEASE" != '0' ] && sleep 2 && "$DOCKER_RELEASE_CMD" all >/dev/null 2>&1
+if [ "$RELEASE" != '0' ]; then
+  info_print "Wait for lab launching"
+  sleep 2
+
+  log_print "Update release page"
+  "$DOCKER_RELEASE_CMD" all >/dev/null 2>&1
+fi

@@ -1,0 +1,1120 @@
+#!/bin/sh
+
+get_host_user ()
+{
+  HOST_USER=`whoami`
+  [ "x$HOST_USER" = "xroot" -a -n "$SUDO_USER" ] && HOST_USER=$SUDO_USER
+}
+
+get_host_os ()
+{
+  HOST_OS="Windows"
+  [ -z "$MSYSTEM" ] && HOST_OS=$(uname)
+}
+
+get_host_virtual ()
+{
+  HOST_VIRTUAL=0
+
+  [ "x$HOST_OS" != "xLinux" ] && return
+
+  for t in product_name sys_vendor; do
+    f=/sys/class/dmi/id/$t && [ -f $f ] && egrep -iq "vmware|virtualbox|qemu" $f && HOST_VIRTUAL=1 && break
+  done
+}
+
+prepare_docker ()
+{
+  "$TOP_DIR"/tools/docker/install >&2 || exit 1
+
+  # For others
+  which groups >/dev/null 2>&1 && which usermod >/dev/null 2>&1
+  if [ $? -eq 0 ]; then
+    get_host_user
+
+    groups $HOST_USER | grep -q docker
+    if [ $? -ne 0 ]; then
+      err_print "$HOST_USER is not in docker group, please add it, and logout or reboot to let it take effect:" >&2
+      echo "     $ sudo usermod -aG docker $HOST_USER" >&2
+      exit 1
+    else
+      groups | grep -q docker
+      if [ $? -ne 0 ]; then
+        err_print "Not work as docker group, please logout or reboot" >&2
+        echo "     Without logout or reboot, please issue 'newgrp docker' as a temp solution." >&2
+        exit 1
+      fi
+    fi
+  fi
+}
+
+prepare_docker_for_windows ()
+{
+  # accept tmp docker setting with low case 'docker' variable
+  if [ -n "$docker" ]; then
+    DOCKER=$docker
+  else
+    # get the docker tool which is using, empty means first start, need to choose one
+    get_var DOCKER
+  fi
+
+  # running here means docker is there, but we don't know which one is used: toolbox or desktop
+  DOCKER_PATH="$(dirname "$(which docker)")"
+
+  # get the one currently in the path
+  echo "$DOCKER_PATH" | grep -q "Docker Toolbox" >/dev/null 2>&1
+  if [ $? -eq 0 ]; then
+    CURRENT_DOCKER="toolbox"
+  else
+    CURRENT_DOCKER="desktop"
+  fi
+  debug_print "Found 'docker $CURRENT_DOCKER' in '$DOCKER_PATH'"
+
+  if [ -z "$DOCKER" ]; then
+    DOCKER="$CURRENT_DOCKER"
+  else
+    if [ "$DOCKER" != "toolbox" -a "$DOCKER" != "desktop" ]; then
+      log_print "Not support '$DOCKER' setting for DOCKER, use 'docker $CURRENT_DOCKER' instead"
+      DOCKER="$CURRENT_DOCKER"
+    fi
+  fi
+
+  # save docker setting
+  log_print "Use 'docker $DOCKER' for this instance"
+  [ -z "$docker" ] && set_var DOCKER
+
+  if [ "$DOCKER" = "desktop" ]; then
+    if [ "$CURRENT_DOCKER" = "toolbox" -o -n "$DOCKER_TOOLBOX_INSTALL_PATH" ]; then
+      . "$TOP_DIR"/tools/windows/docker-desktop-env.sh
+    fi
+
+  else # toolbox path
+    if [ "$CURRENT_DOCKER" = "desktop" -o -z "$DOCKER_TOOLBOX_INSTALL_PATH" ]; then
+	. "$TOP_DIR"/tools/windows/docker-toolbox-env.sh
+    else
+      docker-machine ls | grep -q default
+      if [ $? -ne 0 ]; then
+        log_print "Start docker toolbox"
+        "$(dirname "$(which docker-machine)")"/start.sh uname
+      fi
+    fi
+
+    if [ "$(docker-machine status)" != "Running" ]; then
+      log_print "Start default docker machine"
+      timeout -k 2 10 docker-machine start default >&2
+    fi
+
+    do_vm_setting
+  fi
+}
+
+run_prompt ()
+{
+  info_print ""
+  info_print "Please run one with the following command:"
+  info_print ""
+  info_print "  $ $DOCKER_RUN_CMD <LAB_NAME>"
+  info_print ""
+  info_print "Available labs:"
+  info_print ""
+  for lab in `get_labs`
+  do
+    info_print "  $lab"
+  done
+}
+
+prepare_login ()
+{
+  [ -z "$CONTAINER_NAME" ] && info_print "No lab container recorded." && run_prompt && return 1
+
+  log_print "Check status of $CONTAINER_NAME"
+  lab_id=$(docker ps -f name=$CONTAINER_NAME -f status=running -q)
+  [ -z "$lab_id" ] && info_print "$LAB_NAME is not running." && run_prompt && return 1
+
+  return 0
+}
+
+get_screen_size ()
+{
+  [ -n "$SCREEN_SIZE" ] && return
+
+  # 16:10: 640x480 800x480 1280x800 1440x900 1680x1050 1920x1200 2560x1600
+  # 16:9: 960x540 1280x720 1920x1080 2560x1440
+  DEF_SCREEN_SIZE=1280x720
+
+  if [ "x$HOST_OS" = "xWindows" ]; then
+    SCREEN_SIZE=$(wmic path Win32_VideoController get CurrentHorizontalResolution,CurrentVerticalResolution /format:value | sed -e ':a;N;$!ba;s/\r\n/_/g;s/[^0-9_]//g;s/_\{2,\}//g;s/_/x/g')
+  else
+    which xrandr >/dev/null 2>&1
+    [ $? -ne 0 ] && SCREEN_SIZE=$DEF_SCREEN_SIZE && return
+    pgrep Xorg >/dev/null 2>&1
+    [ $? -ne 0 ] && SCREEN_SIZE=$DEF_SCREEN_SIZE && return
+
+    SCREEN_SIZE=`xrandr --current 2>/dev/null | grep "^ .*\*" | tr -s ' ' | cut -d' ' -f2 | cut -d '_' -f1 | head -1 | tr -d -c '[0-9x]'`
+    [ $? -ne 0 ] && SCREEN_SIZE=$DEF_SCREEN_SIZE && return
+
+    current_height=`echo $SCREEN_SIZE | cut -d 'x' -f2 | tr -d -c '[0-9]'`
+    for h in `xrandr --current 2>/dev/null | grep "^ [ 0-9]*x" | cut -d'x' -f2 | cut -d' ' -f1`
+    do
+      h=$(echo $h | tr -d -c '[0-9]')
+      [ $h -lt $current_height ] && break
+    done
+    SCREEN_SIZE=`xrandr --current 2>/dev/null | grep "^ [ 0-9]*x"  | grep "x$h" | tr -s ' ' | cut -d' ' -f2 | cut -d '_' -f1 | head -1 | tr -d -c '[0-9x]'`
+  fi
+
+  [ -z "$SCREEN_SIZE" ] && SCREEN_SIZE=$DEF_SCREEN_SIZE
+}
+
+do_op () #op $ARG $args
+{
+  local op
+  local ARG
+  local arg
+  local args
+
+  op="$1"
+  ARG="$2"
+  args="$3"
+
+  arg="'`eval echo "\\$${ARG}"`'"
+
+  [ -z "$arg" ] && err_print "'$ARG' required for '$op'" && exit 1
+
+  debug_print "Running ' $op $arg $args'"
+
+  eval $op $arg $args
+}
+
+get_time ()
+{
+  local t=`date '+%N'`
+
+  [ $t = "N" ] && t=`date '+%s'`
+
+  echo $t | sed -e 's%^0*%%g'
+}
+
+get_random ()
+{
+  local random=$RANDOM
+
+  if [ -n "$random" ]; then
+      echo $random
+  else
+      random=`get_time`
+      echo $(( random % 65535 ))
+  fi
+}
+
+get_random_pwd ()
+{
+  local random
+
+  which pwgen >/dev/null 2>&1 && pwgen -c -n -s -1 50 && exit 0
+
+  random=$RANDOM
+  [ -z "$random" ] && random=`get_time`
+
+  echo $((random % 89273831 * 513793917553423 / 3))
+}
+
+__get_browser ()
+{
+  local macos_chrome='/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'
+  local macos_safari=/Applications/Safari.app/Contents/MacOS/Safari
+  local macos_firefox=/Applications/Firefox.app/Contents/MacOS/firefox
+  local linux_chrome=chromium-browser
+  local linux_firefox=firefox
+  local deepin_browser=browser
+  local win_firefox='/c/Program Files/Mozilla Firefox/firefox.exe'
+  local win_chrome='/c/Program Files (x86)/Google/Chrome/Application/chrome.exe'
+  local win_edge=/usr/bin/start
+
+  local DEF_WEB_BROWSER=firefox
+  if [ "x$HOST_OS" = "xDarwin" ]; then
+    for b in "$macos_chrome" "$macos_firefox" "$macos_safari"
+    do
+      [ -f "$macos_safari" ] && DEF_WEB_BROWSER="$macos_safari" && break
+    done
+    DEF_WEB_BROWSER="$(echo $macos_chrome | tr ' ' '-')"
+  elif [ "x$HOST_OS" = "xLinux" ]; then
+    for b in $linux_chrome $linux_firefox $deepin_browser
+    do
+      which $b >/dev/null 2>&1 && DEF_WEB_BROWSER=$b && break
+    done
+  else
+    for b in "$win_chrome" "$win_firefox" "$win_edge"
+    do
+      [ -f "$b" ] && DEF_WEB_BROWSER="$b" && break
+    done
+  fi
+
+  [ -z "$WEB_BROWSER" ] && WEB_BROWSER="$DEF_WEB_BROWSER"
+
+  if [ "x$HOST_OS" = "xDarwin" ]; then
+    WEB_BROWSER="$(echo $WEB_BROWSER | tr '-' ' ')"
+    if [ ! -f "$WEB_BROWSER" ]; then
+      web_browser=`ls /Applications/*/Contents/MacOS/* | grep -i "$WEB_BROWSER$" | head -1`
+      if [ $? -eq 0 ]; then
+        WEB_BROWSER="$web_browser"
+      else
+        info_print "No $WEB_BROWSER found, use safari instead." && WEB_BROWSER=$macos_safari
+      fi
+    fi
+  elif [ "x$HOST_OS" = "xLinux" ]; then
+    which "$WEB_BROWSER" >/dev/null 2>&1
+    if [ $? -ne 0 ]; then
+      if [ "x$WEB_BROWSER" = "xfirefox" ]; then
+        err_print "No web browser found, are you running me in cloud? please open the 'Normal' url yourself."
+        exit 1
+      else
+        info_print "No "$WEB_BROWSER" found, try firefox instead."
+        WEB_BROWSER=firefox
+        which "$WEB_BROWSER" >/dev/null 2>&1
+        [ $? -ne 0 ] && err_print "No "$WEB_BROWSER" found too." && WEB_BROWSER="" && return 1
+      fi
+    fi
+  else # Windows
+    if [ ! -f "$WEB_BROWSER" ]; then
+      if [ "x$WEB_BROWSER" = "xfirefox" ]; then
+        err_print "No web browser found, are you running me in cloud? please open the 'Normal' url yourself."
+        exit 1
+      else
+        info_print "No "$WEB_BROWSER" found, try edge instead."
+        WEB_BROWSER="$win_edge"
+        [ ! -f "$WEB_BROWSER" ] && err_print "No "$WEB_BROWSER" found too." && WEB_BROWSER="" && return 1
+      fi
+    fi
+
+  fi
+
+  return 0
+}
+
+get_browser ()
+{
+  log_print "Get web browser"
+  get_var WEB_BROWSER
+
+  if [ -z "$WEB_BROWSER" ]; then
+    __get_browser
+    if [ -n "$WEB_BROWSER" ]; then
+      set_var WEB_BROWSER
+    else
+      err_print "No valid browser program found, please specifiy one with 'WEB_BROWSER=browser-name tools/docker/program'"
+    fi
+  fi
+
+  if [ "x$HOST_OS" = "xDarwin" ]; then
+    __WEB_BROWSER="/usr/bin/open -a '$WEB_BROWSER'"
+  elif [ "x$HOST_OS" = "xWindows" ]; then
+    __WEB_BROWSER="$(basename "$WEB_BROWSER")"
+    [ "$__WEB_BROWSER" != "start" ] && __WEB_BROWSER="start $__WEB_BROWSER"
+  else
+    __WEB_BROWSER="$WEB_BROWSER"
+  fi
+
+  return 0
+}
+
+browse_url ()
+{
+  # Get web browser
+  get_browser
+  [ $? -ne 0 ] && err_print "Give up browser launching for no web browser found" && return 1
+
+  log_print "Open '$1' with '$__WEB_BROWSER' ..."
+
+  if [ "x$HOST_OS" = "xDarwin" ]; then
+    (eval "$__WEB_BROWSER" '$1' >/dev/null 2>&1 &)>/dev/null 2>&1
+  else
+    # Allow browser continue running even if the terminal exit
+    if [ "x$HOST_OS" = "xWindows" ]; then
+      eval "$__WEB_BROWSER '$1'"
+    else
+      (eval nohup "'$__WEB_BROWSER'" "'$1'" >/dev/null 2>&1 &) >/dev/null 2>&1
+    fi
+  fi
+
+  return 0
+}
+
+
+get_lab_info ()
+{
+  local tmp=`mktemp`
+  local list="$1"
+  local filter="$2"
+
+  [ -z "$prompt" ] && prompt="Hello, Cloud Lab !"
+  [ -z "$empty_prompt" ] && empty_prompt="当前没有任何 Lab 在线运行!"
+  [ -z "$HOST_RELEASE_DIR" ] && prepare_export_files
+
+  [ -n "$list" ] && "$list" $filter | grep -v "LOG:" > "$tmp"
+
+  cat "$tmp" | awk 'BEGIN{FS=" "}{ \
+        printf("Lab: %s, User: %s\n", $11, $2); \
+        printf("  * VNC (Normal): '$WEB_HTTP'://%s:%s/?u=%s&p=%s&autoconnect=1\n", $3, $4, $5, $6); \
+        printf("  * VNC   (View): '$WEB_HTTP'://%s:%s/?r=%s%s\n", $3, $4, $5, $7); \
+        printf("  * SSH    (Web): '$WEB_HTTP'://%s:%s/?ssh=ssh://%s:%s@%s:22\n", $3, $9, $2, $10, $8); \
+        }'
+  echo
+
+  [ ! -d "$HOST_RELEASE_DIR" ] && mkdir -p "$HOST_RELEASE_DIR"
+
+  get_host
+
+  info_print "Released to: $RELEASE_FILE"
+  info_print "Labs online: `echo $RELEASE_FILE | sed -e \"s%$MAIN_CLOUD_LAB/$DEF_RELEASE_DIR%$WEB_HTTP://$HOST:$HOST_VNC_PORT/labs%g\"`"
+  echo
+
+  cat << EOF > "$RELEASE_FILE"
+<html>
+<body>
+<head>
+ <meta charset="UTF-8">
+ <title>Cloud Lab | 泰晓实验云台</title>
+
+ <style type="text/css">
+  body { padding: 1.2em; margin: auto; overflow: auto; text-align: center; max-width: 960px; font-family: 'Lucida Grande', 'Helvetica Neue', Arial, 'Hiragino Sans GB', 'Microsoft YaHei', '微软雅黑', 'WenQuanYi Micro Hei', sans-serif, 'SimSun', "宋体", 'Heiti', "黑体"; font-size: 1em; *font-size: small; -moz-transform: scale(1.0); -moz-transform-origin: center top 0; zoom: 1.0; }
+
+  h1 { font-weight: 600; }
+  a { text-decoration: none; outline: none; }
+  p { text-align: center; }
+  p.empty { line-height: 300px; }
+
+  table { border: 1px solid #333; border-spacing: 0; border-collapse: collapse; width: 100%; }
+  th, td { font-size: 95%; padding-left: 2px; padding-right: 2px; padding-top: 10px; padding-bottom: 10px;
+     border: 1px solid #aaa; display: table-cell;
+     text-align: center; max-width: 100px; }
+  td { overflow: hidden; text-overflow: ellipsis }
+  td.time { font-size: 92%; }
+  tr.head { background-color: #ccc; }
+  tr.odd { background-color: #eee; }
+  tr.even { background-color: #fff; }
+  th { font-weight: 600; }
+
+  @media (max-width: 999px) {
+    body {
+        -moz-transform: scale(1.5);
+        -moz-transform-origin: center top 0;
+        zoom: 1.5
+    }
+  }
+ </style>
+</head>
+
+<h1><a target="_blank" href="${WEB_HTTP}://${HOST}:6080">Cloud Lab | 泰晓实验云台</a></h1>
+EOF
+
+  # No lab running
+  if [ `cat "$tmp" | wc -c | tr -d ' '` -eq 0 ]; then
+    cat <<EOF >> "$RELEASE_FILE"
+<p class="empty">$empty_prompt</p>
+EOF
+
+  # Labs exist
+  else
+
+    cat <<EOF >> "$RELEASE_FILE"
+<p>$prompt</p>
+EOF
+
+    cat <<EOF >> "$RELEASE_FILE"
+<br/>
+<div style="padding-left: 30%">
+<p style="text-align: left">1. <a href="https://www.cctalk.com/m/group/88948325" target="_blank">免费学习 Linux Lab 视频公开课，快速上手</a></p>
+<p style="text-align: left">2. <a href="https://shop155917374.taobao.com" target="_blank">淘宝检索 “Linux Lab真盘” 购买开机即用版，免安装，无忧体验</a></p>
+</div>
+<br/>
+EOF
+
+    cat << EOF >> "$RELEASE_FILE"
+<table>
+<tr class="head"><th></th><th>Lab</th><th>VNC</th><th>VIEW</th><th>SSH</th><th>Start</th><th>End</th></tr>
+EOF
+
+    cat "$tmp" | awk 'BEGIN {FS=" "; }{                         \
+        printf("<tr class=\"%s\">\n", (FNR%2 == 0) ? "odd" : "even"); \
+        printf("  <td>%d</td>\n", FNR); \
+        printf("  <td><a title=\"Project Homepage and Usage\" target=\"_blank\" href=\"http://tinylab.org/%s\">%s</a></td>\n", $1, $1); \
+        printf("  <td><a target=\"_blank\" href=\"'$WEB_HTTP'://%s:%s/?u=%s&p=%s&autoconnect=1\">Login</a></td>\n", \
+                $3, $4, $5, $6); \
+        printf("  <td><a target=\"_blank\" href=\"'$WEB_HTTP'://%s:%s/?r=%s%s\">Login</a></td>\n", \
+                $3, $4, $5, $7); \
+        printf("  <td><a target=\"_blank\" href=\"'$WEB_HTTP'://%s:%s/?ssh=ssh://%s:%s@%s:22\">Login</a></td>\n", \
+                $3, $9, $2, $10, $8); \
+        printf("  <td class=\"time\">%s<br>%s</td>\n", $13, $14); \
+        printf("  <td class=\"time\">%s<br>%s</td>\n", $15, $16); \
+        printf("</tr>\n"); \
+     }' >> "$RELEASE_FILE"
+
+
+    cat <<EOF >> "$RELEASE_FILE"
+</table>
+EOF
+
+  # Labs running or not, end if
+  fi
+
+  cat <<EOF >> "$RELEASE_FILE"
+<div style="position:absolute; top:1em; right:1em; font-size:10px;"><img width="90px;" src="http://tinylab.org/images/sponsor/wechat-pay-admin-9.68.jpg"><br>微信扫码,赞助我们</div>
+<p>Powered by <a target="_blank" href="http://tinylab.org/cloud-lab">Cloud Lab</a> !</p>
+
+<script type="text/javascript">var _hmt = _hmt || [];(function() {var hm = document.createElement("script");hm.src = "//hm.baidu.com/hm.js?15260089f8e103dc1cca30bcc1957b7c";var s = document.getElementsByTagName("script")[0]; s.parentNode.insertBefore(hm, s);
+})();</script>
+
+</body>
+</html>
+EOF
+
+  #sync
+
+  rm "$tmp"
+}
+
+get_xterm ()
+{
+  log_print "Get terminal"
+  get_var XTERM
+  if [ -z "$XTERM" ]; then
+    XTERM="`"$DOCKER_XTERM_CMD"`"
+    if [ -n "$XTERM" ]; then
+      set_var XTERM
+    else
+      err_print "No valid terminal program found, please specifiy one with 'XTERM=terminal-name tools/docker/program'"
+    fi
+  fi
+}
+
+notify_user ()
+{
+  ids=$(docker ps -f status=running -f name=$LAB_NAME -q 2>/dev/null)
+  [ -z "$ids" ] && return 0
+
+  # Notify users
+  [ -z "$NOTIFY_WAIT" ] && NOTIFY_WAIT=$1
+  [ -z "$NOTIFY_MSG" ] && NOTIFY_MSG="$2"
+  [ $NOTIFY_WAIT -gt 0 ] && NOTIFY_MSG="$NOTIFY_MSG in $NOTIFY_WAIT seconds."
+  [ -z "$LAB_NAME" ] && LAB_NAME=$3
+
+  info_print "send '$NOTIFY_MSG' to $LAB_NAME"
+  "$DOCKER_NOTIFY_CMD" $LAB_NAME "$NOTIFY_MSG"
+  [ $? -eq 0 -a $NOTIFY_WAIT -gt 0 ] && sleep $NOTIFY_WAIT
+}
+
+# time_to_seconds "10D"
+time_to_seconds ()
+{
+  local time=$1
+  local format=`echo $time | tr -d '[0-9]'`
+
+  time=`echo $time | tr -c -d '[0-9]'`
+  case $format in
+    "Y" | "y")
+      echo $((time * 360 * 24 * 60 * 60))
+      ;;
+    "M")
+      echo $((time * 30 * 24 * 60 * 60))
+      ;;
+    "D" | "d")
+      echo $((time * 24 * 60 * 60))
+      ;;
+    "H" | "h")
+      echo $((time * 60 * 60))
+      ;;
+    "m")
+      echo $((time * 60))
+      ;;
+    *)
+      echo $time
+      ;;
+  esac
+}
+
+# time_to_seconds "10D"
+time_to_strings ()
+{
+  local time=$1
+  local format=`echo $time | tr -d '[0-9]'`
+  local time=`echo $time | tr -c -d '[0-9]'`
+
+  case $format in
+    "Y" | "y")
+      format='years'
+      ;;
+    "M")
+      format='months'
+      ;;
+    "D" | "d")
+      format='days'
+      ;;
+    "H" | "h")
+      format='hours'
+      ;;
+    "m")
+      format='minutes'
+      ;;
+    *)
+      format='seconds'
+      ;;
+  esac
+
+  echo "$time $format"
+}
+# get_starttime "20170633092133" -> "20170633 09:21:33"
+get_starttime ()
+{
+  local lab_start="$1"
+
+  echo $lab_start | sed -e "s/\([0-9]\{8\}\)\([0-9]\{2\}\)\([0-9]\{2\}\)\([0-9]\{2\}\)/\1 \2:\3:\4/g"
+}
+
+# get_endtime "20171120 09:23:20" "1D" -> "20171121 09:23:20"
+get_endtime ()
+{
+  # "20171120 09:23:20"
+  local lab_start="$1"
+  # 30D, 24H, 1Y, 12H, 10M
+  local lab_life="$2"
+
+  [ "$lab_life" = "0" ] && echo && exit 0
+
+  if [ "x$HOST_OS" = "xDarwin" ]; then
+    lab_start_seconds=`date -j -f "%Y%m%d %H:%M:%S" "$lab_start" "+%s"`
+  else
+    lab_start_seconds=`date --date="$lab_start" "+%s"`
+  fi
+
+  #echo "start_seconds: "$lab_start_seconds
+
+  lab_life_seconds=`time_to_seconds $lab_life`
+
+  #echo "life_seconds:" $lab_life_seconds
+
+  lab_seconds=$((lab_start_seconds + lab_life_seconds))
+
+  #echo "seconds: " $lab_seconds
+
+  if [ "x$HOST_OS" = "xDarwin" ]; then
+    date -j -f "%s" "$lab_seconds" "+%Y%m%d %H:%M:%S"
+  else
+    date "+%Y%m%d %H:%M:%S" --date="@$lab_seconds"
+  fi
+}
+
+get_lab_list ()
+{
+  local dir="$1"
+  local filter="$2"
+
+  if [ -z "$filter" ]; then
+     filter=$LAB_NAME
+  else
+     [ "$filter" = "all" ] && filter=".*"
+  fi
+
+  find "$dir" -maxdepth 1 -mindepth 1 -type d | grep "$filter" | sort -k 1
+}
+
+get_lab_bases ()
+{
+  local dir="$1"
+  local filter="$2"
+
+  get_lab_list "$dir" $filter | xargs -I{} basename "{}"
+}
+
+init_shortcuts ()
+{
+  if [ "x$HOST_OS" = "xDarwin" ]; then
+    LOCAL_DESKTOP_SHORTCUT=~/Desktop/${LAB_NAME}.command
+    MANAGE_DESKTOP_SHORTCUT=~/Desktop/lab-manager.command
+    BROWSE_DESKTOP_SHORTCUT=~/Desktop/lab-browser.command
+  elif [ "x$HOST_OS" = "xLinux" ]; then
+    LOCAL_DESKTOP_SHORTCUT=~/Desktop/${LAB_NAME}.desktop
+    MANAGE_DESKTOP_SHORTCUT=~/Desktop/lab-manager.desktop
+    BROWSE_DESKTOP_SHORTCUT=~/Desktop/lab-browser.desktop
+  else
+    LOCAL_DESKTOP_SHORTCUT=~/Desktop/${LAB_NAME}.lnk
+    MANAGE_DESKTOP_SHORTCUT=~/Desktop/lab-manager.lnk
+    BROWSE_DESKTOP_SHORTCUT=~/Desktop/lab-browser.lnk
+  fi
+}
+
+remove_shortcuts ()
+{
+  init_shortcuts
+
+  for f in "$MANAGE_DESKTOP_SHORTCUT" "$BROWSE_DESKTOP_SHORTCUT"
+  do
+    [ -f "$f" ] && rm -rf "$f"
+  done
+}
+
+create_shortcuts ()
+{
+  [ ! -d ~/Desktop ] && return
+
+  log_print "Create local shortcut on Desktop"
+  [ -z "$LAB_DESKTOP_SHORTCUT" ] && LAB_DESKTOP_SHORTCUT=1
+  [ -z "$HOST" ] && get_host
+  [ -z "$RELEASE_HTML" ] && prepare_export_files
+  LABS_WEB_URL="$WEB_HTTP://${HOST}:${HOST_VNC_PORT}/labs/$RELEASE_HTML"
+
+  init_shortcuts
+
+  if [ "x$HOST_OS" = "xDarwin" ]; then
+
+    if [ "x$LAB_DESKTOP_SHORTCUT" = "x1" -a ! -f "$LOCAL_DESKTOP_SHORTCUT" ]; then
+      echo "'$DOCKER_RUN_CMD' $LAB_NAME" > "$LOCAL_DESKTOP_SHORTCUT"
+
+      # ref: https://superuser.com/questions/479411/close-all-mac-terminal-windows-but-the-one-running-a-script
+      echo 'osascript -e "do shell script \"osascript -e \\\\\"tell application \\\\\\\\\\\\\\"Terminal\\\\\\\\\\\\\\" \\\\\\" -e \\\\\\"set mainID to id of front window\\\\\\" -e \\\\\\" close (every window whose id = mainID)\\\\\\"  -e \\\\\\"end tell\\\\\\"   &> /dev/null &\""; exit' >> "$LOCAL_DESKTOP_SHORTCUT"
+    fi
+
+    # For cloud lab
+    if [ ! -f "$MANAGE_DESKTOP_SHORTCUT" ]; then
+      echo "/usr/bin/open -a 'Terminal' '"$TOP_DIR"'" > "$MANAGE_DESKTOP_SHORTCUT"
+      echo 'osascript -e "do shell script \"osascript -e \\\\\"tell application \\\\\\\\\\\\\\"Terminal\\\\\\\\\\\\\\" \\\\\\" -e \\\\\\"set mainID to id of second window\\\\\\" -e \\\\\\" close (every window whose id = mainID)\\\\\\"  -e \\\\\\"end tell\\\\\\"   &> /dev/null &\""; exit' >> "$MANAGE_DESKTOP_SHORTCUT"
+    fi
+
+    if [ ! -f "$BROWSE_DESKTOP_SHORTCUT" ]; then
+      echo "/usr/bin/open -a '"$WEB_BROWSER"' '"$LABS_WEB_URL"'" > "$BROWSE_DESKTOP_SHORTCUT"
+      echo 'osascript -e "do shell script \"osascript -e \\\\\"tell application \\\\\\\\\\\\\\"Terminal\\\\\\\\\\\\\\" \\\\\\" -e \\\\\\"set mainID to id of first window\\\\\\" -e \\\\\\" close (every window whose id = mainID)\\\\\\"  -e \\\\\\"end tell\\\\\\"   &> /dev/null &\""; exit' >> "$BROWSE_DESKTOP_SHORTCUT"
+    fi
+
+  elif [ "x$HOST_OS" = "xLinux" ]; then
+
+    # Customize browser specific options and icons
+    BROWSER_ICON=/usr/share/pixmaps/${WEB_BROWSER}.png
+    DEFAULT_BROWSER_ICON=$BROWSER_ICON
+    if [ ! -f "$BROWSER_ICON" ]; then
+      BROWSER_ICON=$(find /usr/share/ -name "${WEB_BROWSER}*.png" 2>/dev/null | egrep "hicolor" | head -1)
+    fi
+
+    if [ "x$LAB_DESKTOP_SHORTCUT" = "x1" -a ! -f "$LOCAL_DESKTOP_SHORTCUT" ]; then
+      lab_desktop_shortcut=$(mktemp)
+      echo '#!/usr/bin/env xdg-open' > $lab_desktop_shortcut
+
+
+      [ -d "$CONFIG_SYSTEM_DIR" ] \
+        && REMOTE_DESKTOP_SHORTCUT="`find "$CONFIG_SYSTEM_DIR" -maxdepth 4 -name "lab.desktop"`"
+
+      [ -f "$REMOTE_DESKTOP_SHORTCUT" ] && cat "$REMOTE_DESKTOP_SHORTCUT" \
+        | sed "s%Name=.*%Name=$LAB_NAME GUI%g" \
+        | sed "s%Exec=.*%Exec=sg docker -c '\"$DOCKER_RUN_CMD\" $LAB_NAME'%g" \
+        | sed "s%terminator.png%${WEB_BROWSER}.png%g;s%lxterminal.xpm%${WEB_BROWSER}.png%g" | tr '|' '&' \
+          >> $lab_desktop_shortcut
+
+      if [ -f "$LAB_LOGO" ]; then
+        sed -i -e "s%Icon=[^$]*%Icon=$LAB_LOGO%g" $lab_desktop_shortcut
+      fi
+
+      if [ "x$DEFAULT_BROWSER_ICON" != "x$BROWSER_ICON" ]; then
+        sed -i -e "s%$DEFAULT_BROWSER_ICON%$BROWSER_ICON%g" $lab_desktop_shortcut
+      fi
+
+      mv $lab_desktop_shortcut $LOCAL_DESKTOP_SHORTCUT
+    fi
+
+    get_xterm
+
+    if [ -n "$XTERM" ]; then
+      set_var XTERM
+
+      # Customize xterm specific options and icons
+      XTERM_TITLE_OPTION=-T
+      XTERM_WORKDIR_OPTION=--working-directory
+      XTERM_ICON=/usr/share/pixmaps/${XTERM}.png
+      if [ "x$XTERM" = "xgnome-terminal" ]; then
+        XTERM_TITLE_OPTION=-t
+        XTERM_ICON=/usr/share/help/C/gnome-terminal/figures/gnome-terminal-icon.png
+      fi
+      # Add konsole support for KDE desktop
+      if [ "x$XTERM" = "xkonsole" -o "x$XTERM" = "xqterminal" ]; then
+        XTERM_TITLE_OPTION=--title
+        XTERM_WORKDIR_OPTION=--workdir
+        if [ "x$XTERM" = "xkonsole" ]; then
+          XTERM_ICON=/usr/share/icons/Humanity/apps/48/konsole.svg
+        else
+          XTERM_ICON=/usr/share/icons/hicolor/64x64/apps/qterminal.png
+        fi
+      fi
+      if [ ! -f "$XTERM_ICON" ]; then
+        XTERM_ICON=$(find /usr/share/ -name "${XTERM}*.png" 2>/dev/null | grep icon | head -1)
+        [ -z "$XTERM_ICON" ] && XTERM_ICON=$(find /usr/share/ -name "${XTERM}*.png" 2>/dev/null | head -1)
+      fi
+    fi
+
+    # For cloud lab
+    [ ! -f "$MANAGE_DESKTOP_SHORTCUT" -a -n "$XTERM" ] && cat <<EOF > "$MANAGE_DESKTOP_SHORTCUT"
+#!/usr/bin/env xdg-open
+[Desktop Entry]
+Encoding=UTF-8
+Name=Cloud Lab Manager
+Comment=Cloud Lab Manage Center
+Exec="$XTERM" $XTERM_WORKDIR_OPTION "$TOP_DIR" $XTERM_TITLE_OPTION 'Cloud Lab -- http://tinylab.org/cloud-lab'
+Icon=$XTERM_ICON
+Type=Application
+EOF
+
+    [ ! -f "$BROWSE_DESKTOP_SHORTCUT" ] && cat <<EOF > "$BROWSE_DESKTOP_SHORTCUT"
+#!/usr/bin/env xdg-open
+[Desktop Entry]
+Encoding=UTF-8
+Name=Cloud Lab Browser
+Comment=Cloud Lab Web Center
+Exec="$WEB_BROWSER" "$LABS_WEB_URL"
+Icon=$BROWSER_ICON
+Type=Application
+EOF
+
+  else # Windows
+
+    GIT_BASH="$(cd / && pwd -W | sed -e 's% %\" \"%g')/git-bash.exe"
+    WORK_DIR="$(cd "$TOP_DIR" && pwd -W)"
+    DESKTOP_DIR="$(cd ~/Desktop && pwd -W)"
+    CMD_ICON="$(cd /c/Windows/System32/ && pwd -W)/cmd.exe"
+    TOOLS_DIR="$WORK_DIR"/tools/windows
+
+    mkdir -p "$TOP_DIR"/tools/windows
+
+
+    if [ "x$LAB_DESKTOP_SHORTCUT" = "x1" -a ! -f "$LOCAL_DESKTOP_SHORTCUT" ]; then
+      LAB_RUN_BAT="${LAB_NAME}.run.bat"
+      RUN_BAT="$TOP_DIR"/tools/windows/$LAB_RUN_BAT
+      echo "start $GIT_BASH -c '\"$WORK_DIR/tools/docker/run\" $LAB_NAME'" > "$RUN_BAT"
+
+      # Ref: https://stackoverflow.com/questions/30028709/how-do-i-create-a-shortcut-via-command-line-in-windows
+      LOCAL_DESKTOP_SHORTCUT="$DESKTOP_DIR/$(basename $LOCAL_DESKTOP_SHORTCUT)"
+      powershell "\$s=(New-Object -COM WScript.Shell).CreateShortcut('$LOCAL_DESKTOP_SHORTCUT');\$s.TargetPath='$TOOLS_DIR/$LAB_RUN_BAT';\$s.IconLocation='$CMD_ICON';\$s.Save()"
+    fi
+
+    # For cloud lab
+    if [ ! -f "$MANAGE_DESKTOP_SHORTCUT" ]; then
+      MANAGE_BAT="$TOP_DIR"/tools/windows/manage.bat
+      DOCKER_ENV="$TOP_DIR"/tools/windows/docker-env.sh
+
+      echo "start $GIT_BASH --cd=\"$WORK_DIR\" -c '. \"$DOCKER_ENV\"; bash'" > "$MANAGE_BAT"
+
+      MANAGE_DESKTOP_SHORTCUT="$DESKTOP_DIR/$(basename $MANAGE_DESKTOP_SHORTCUT)"
+      powershell "\$s=(New-Object -COM WScript.Shell).CreateShortcut('$MANAGE_DESKTOP_SHORTCUT');\$s.TargetPath='$TOOLS_DIR/manage.bat';\$s.IconLocation='$CMD_ICON';\$s.Save()"
+    fi
+
+    if [ ! -f "$BROWSE_DESKTOP_SHORTCUT" ]; then
+      BROWSE_BAT="$TOP_DIR"/tools/windows/browse.bat
+      BROWSE_CMD="$(cd "$(dirname "$WEB_BROWSER")" && pwd -W | sed -e 's% %\" \"%g')/$(basename "$WEB_BROWSER")"
+      BROWSE_ICON="$(echo $BROWSE_CMD | tr -d '\"')"
+
+      echo "start $BROWSE_CMD \"$LABS_WEB_URL\"" > "$BROWSE_BAT"
+
+      BROWSE_DESKTOP_SHORTCUT="$DESKTOP_DIR/$(basename $BROWSE_DESKTOP_SHORTCUT)"
+      powershell "\$s=(New-Object -COM WScript.Shell).CreateShortcut('$BROWSE_DESKTOP_SHORTCUT');\$s.TargetPath='$TOOLS_DIR/browse.bat';\$s.IconLocation='$BROWSE_ICON';\$s.Save()"
+    fi
+
+  fi
+
+  # Allow Launching for Ubuntu 20.04
+  if [ "x$HOST_OS" = "xLinux" ]; then
+    for sc in "$LOCAL_DESKTOP_SHORTCUT" "$MANAGE_DESKTOP_SHORTCUT" "$BROWSE_DESKTOP_SHORTCUT"
+    do
+      [ ! -f "$sc" ] && continue
+
+      chmod a+x "$sc"
+      which gio >/dev/null 2>&1 && gio set "$sc" "metadata::trusted" true
+      touch "$sc"
+    done
+  fi
+
+}
+
+
+# Override the token map generation in wproxy
+touch_record_file ()
+{
+  [ ! -d "$HOST_RECORD_DIR" ] && mkdir -p "$HOST_RECORD_DIR"
+}
+
+touch_release_file ()
+{
+  [ ! -d "$HOST_RELEASE_DIR" ] && mkdir -p "$HOST_RELEASE_DIR"
+  [ ! -f "$RELEASE_FILE" ] && touch "$RELEASE_FILE"
+}
+
+touch_token_map ()
+{
+  [ ! -d "$LOCAL_TOKEN_DIR" ] && mkdir -p "$LOCAL_TOKEN_DIR"
+  [ ! -f "$LOCAL_TOKEN_MAP" ] && touch "$LOCAL_TOKEN_MAP"
+}
+
+# run before container start to make sure the files' owner is normal user
+touch_export_files ()
+{
+  touch_record_file
+  touch_release_file
+  touch_token_map
+}
+
+prepare_and_touch_export_files ()
+{
+  prepare_export_files
+  touch_export_files
+}
+
+get_random_net ()
+{
+  # use one of the net in (172.16.0.0 - 172.31.255.255  (172.16/12 prefix)
+
+  subnet=$((19 + $((`get_random` % 12))))
+  echo 172.${subnet}.19.0
+}
+
+create_cloud_lab_net ()
+{
+  docker network ls | grep -q $VNC_NET_NAME >/dev/null 2>&1
+  if [ $? -ne 0 ]; then
+    [ -z "$VNC_NET_MASK" ] && VNC_NET_MASK=16
+
+    net_retry_count=0
+    NET_RETRY_MAX=10
+    while [ $net_retry_count -lt $NET_RETRY_MAX ]; do
+      if [ -z "$VNC_NET" ]; then
+        # Init one for the first try
+        VNC_NET=172.20.19.0/$VNC_NET_MASK
+      else
+        # If old not work, use a random one
+        VNC_NET=`get_random_net`/$VNC_NET_MASK
+      fi
+      VNC_NET_PREFIX=$(echo $VNC_NET | cut -d'/' -f1 | cut -d '.' -f1-$((5-$VNC_NET_MASK/8)))
+      VNC_GATEWAY=${VNC_NET_PREFIX}.1
+
+      docker network create --driver bridge --subnet=$VNC_NET --gateway=$VNC_GATEWAY $VNC_NET_NAME
+      if [ $? -eq 0 ]; then
+        info_print "Created network with driver: bridge, subnet: $VNC_NET, gateway: $VNC_GATEWAY" >&2
+        break
+      else
+        warn_print "Failed to create network with driver: bridge, subnet: $VNC_NET, gateway: $VNC_GATEWAY, retry: $net_retry_count/$NET_RETRY_MAX" >&2
+        net_retry_count=`expr $net_retry_count + 1`
+        sleep 1
+      fi
+    done
+    if [ $net_retry_count -eq $NET_RETRY_MAX ]; then
+      err_print "Failed to create network with driver: bridge, subnet: $VNC_NET, gateway: $VNC_GATEWAY, retry: $net_retry_count/$NET_RETRY_MAX" >&2
+      exit 1
+    fi
+  else
+    VNC_NET=`docker inspect --format "{{ .IPAM.Config }}" $VNC_NET_NAME | grep -oE "\b([0-9]{1,3}\.){3}[0-9]{1,3}\b/[0-9]{1,2}"`
+    VNC_NET_MASK=`echo $VNC_NET | cut -d'/' -f2`
+    VNC_NET_PREFIX=$(echo $VNC_NET | cut -d'/' -f1 | cut -d '.' -f1-$((5-$VNC_NET_MASK/8)))
+    VNC_GATEWAY=${VNC_NET_PREFIX}.1
+  fi
+
+  # Set gateway, wproxy and tproxy
+  [ -z "$WPROXY_IP" ] && WPROXY_IP=${VNC_NET_PREFIX}.2
+  [ -z "$TPROXY_IP" ] && TPROXY_IP=${VNC_NET_PREFIX}.3
+
+  ## If saved ip is not in the new net ip range of docker, remove it for new generation
+  get_var VNC_IP
+  if [ -n "$VNC_IP" ]; then
+    VNC_IP_BASE=`echo $VNC_IP | cut -d '.' -f1,2`
+    echo $VNC_NET | grep -q $VNC_IP_BASE
+    if [ $? -ne 0 ]; then
+      unset VNC_IP
+      rm "$LAB_VNC_IP"
+    fi
+  fi
+}
+
+prepare_export_files ()
+{
+  [ -z "$CLOUD_LAB_TOP_DIR" ] && CLOUD_LAB_TOP_DIR="$TOP_DIR"
+  [ -z "$MAIN_CLOUD_LAB" ] && MAIN_CLOUD_LAB="$CLOUD_LAB_TOP_DIR"
+
+  [ -z "$TOP_TOKEN_DIR" ] && TOP_TOKEN_DIR="$MAIN_CLOUD_LAB"
+  [ -z "$TOP_RECORD_DIR" ] && TOP_RECORD_DIR="$MAIN_CLOUD_LAB"
+  [ -z "$TOP_RELEASE_DIR" ] && TOP_RELEASE_DIR="$MAIN_CLOUD_LAB"
+
+  [ -z "$DEF_RECORD_DIR" ] && DEF_RECORD_DIR=recordings
+  [ -z "$DEF_RELEASE_DIR" ] && DEF_RELEASE_DIR=releasings
+
+  # Share running wproxy
+  mounts=$(docker inspect -f '{{ json .Mounts }}' $WPROXY_NAME 2>/dev/null)
+  if [ $? -eq 0 -a -n "$mounts" ]; then
+    LOCAL_TOKEN_DIR="$(echo $mounts | tr ',' '\n' | sed -ne '/"Source":.*\/'$DEF_TOKEN_DIR'/s/"Source"://gp' | tr -d '"')"
+    LOCAL_RECORD_DIR="$(echo $mounts | tr ',' '\n' | sed -ne '/"Source":.*\/'$DEF_RECORD_DIR'/s/"Source"://gp' | tr -d '"')"
+    LOCAL_RELEASE_DIR="$(echo $mounts | tr ',' '\n' | sed -ne '/"Source":.*\/'$DEF_RELEASE_DIR'/s/"Source"://gp' | tr -d '"')"
+
+    if [ "x$HOST_OS" = "xDarwin" ]; then
+      LOCAL_TOKEN_DIR="$(echo "$LOCAL_TOKEN_DIR" | sed -e "s%/host_mnt%%g")"
+      LOCAL_RECORD_DIR="$(echo "$LOCAL_RECORD_DIR" | sed -e "s%/host_mnt%%g")"
+      LOCAL_RELEASE_DIR="$(echo "$LOCAL_RELEASE_DIR" | sed -e "s%/host_mnt%%g")"
+    elif [ "x$HOST_OS" = "xLinux" ]; then
+      LOCAL_TOKEN_DIR="$LOCAL_TOKEN_DIR"
+      LOCAL_RECORD_DIR="$LOCAL_RECORD_DIR"
+      LOCAL_RELEASE_DIR="$LOCAL_RELEASE_DIR"
+    else # Windows
+      LOCAL_TOKEN_DIR="$(echo "$LOCAL_TOKEN_DIR" | sed -e "s%/run/desktop/mnt/host%%g")"
+      LOCAL_RECORD_DIR="$(echo "$LOCAL_RECORD_DIR" | sed -e "s%/run/desktop/mnt/host%%g")"
+      LOCAL_RELEASE_DIR="$(echo "$LOCAL_RELEASE_DIR" | sed -e "s%/run/desktop/mnt/host%%g")"
+    fi
+
+    #echo $LOCAL_TOKEN_DIR >&2
+  fi
+
+  [ -z "$LOCAL_TOKEN_DIR" -o ! -d "$LOCAL_TOKEN_DIR" ] && LOCAL_TOKEN_DIR="$TOP_TOKEN_DIR"/$DEF_TOKEN_DIR
+  [ -z "$LOCAL_RECORD_DIR" -o ! -d "$LOCAL_RECORD_DIR" ] && LOCAL_RECORD_DIR="$TOP_RECORD_DIR"/$DEF_RECORD_DIR
+  [ -z "$LOCAL_RELEASE_DIR" -o ! -d "$LOCAL_RELEASE_DIR" ] && LOCAL_RELEASE_DIR="$TOP_RELEASE_DIR"/$DEF_RELEASE_DIR
+
+  LOCAL_TOKEN_MAP="$LOCAL_TOKEN_DIR"/local_map
+  REMOTE_TOKEN_MAP="$LOCAL_TOKEN_DIR"/remote_map
+
+  # Init variable for export command
+  HOST_RECORD_DIR="$LOCAL_RECORD_DIR"
+  HOST_RELEASE_DIR="$LOCAL_RELEASE_DIR"
+  HOST_TOKEN_DIR="$LOCAL_TOKEN_DIR"
+
+  [ -z "$RELEASE_HTML" ] && RELEASE_HTML=index.html
+  [ -z "$RELEASE_FILE" ] && RELEASE_FILE="$HOST_RELEASE_DIR"/$RELEASE_HTML
+}
+
+prepare_cloud_lab_net ()
+{
+  # Create cloud lab subnet
+  if [ "x$HOST_OS" = "xWindows" ]; then
+    docker ps >/dev/null 2>&1
+    docker_exists_code=$?
+  else
+    docker info >/dev/null 2>&1
+    docker_exists_code=$?
+  fi
+  if [ $docker_exists_code -eq 0 ]; then
+    create_cloud_lab_net
+  else
+    docker info | grep -A2 -i Server >&2
+    echo >&2
+    err_print "Docker not work well, Please let docker work at first" >&2
+    echo >&2
+    exit 1
+  fi
+}
+
+get_vm_path ()
+{
+  # Get path of vbvm
+  if [ -n "$VBOX_MSI_INSTALL_PATH" ]; then
+    VBOX="$VBOX_MSI_INSTALL_PATH"
+  elif [ -n "$VBOX_INSTALL_PATH" ]; then
+    VBOX="$VBOX_INSTALL_PATH"
+  else
+    VBOX="$(reg query HKEY_LOCAL_MACHINE\\SOFTWARE\\Oracle\\VirtualBox //v InstallDir | grep InstallDir | awk '{print substr($0, index($0,$3))}')"
+  fi
+  VBVM="/$(echo $VBOX | sed 's/\\/\//g' | sed 's/://')VBoxManage.exe"
+}
+
+do_vm_setting ()
+{
+  get_vm_path
+
+  if [ ! -f "$VBVM" ]; then
+    err_print "Can not find virtualbox."
+    return 1
+  fi
+
+  # Share current working directory to virtualbox
+  hostpath="\\\\?\\$(cd "$TOP_DIR" && pwd -W | cut -d '/' -f1)"'\'
+  sharedname="$(cd "$TOP_DIR" && pwd | cut -d '/' -f2)"
+
+  "$VBVM" showvminfo default | grep -i -A10 "Shared folders" | grep -q "Name: '$sharedname', Host path:"
+  [ $? -ne 0 ] && add_sharedfolder=1
+  
+  cpu_total=$NUMBER_OF_PROCESSORS
+  [ -z "$cpu_total" ] && cpu_total=4
+
+  if [ $cpu_total -ge 16 ]; then
+    cpus=8
+  elif [ $cpu_total -ge 8 ]; then
+    cpus=4
+  elif [ $cpu_total -ge 4 ]; then
+    cpus=2
+  else
+    cpus=2
+  fi
+
+  cur_cpus=$("$VBVM" showvminfo default | grep -i "Number of CPUS" | tr -d -c '[0-9]')
+  if [ $? -eq 0 -a -n "$cur_cpus" ]; then
+    if [ $cur_cpus -lt $cpus ]; then
+      log_print "Current cpus is $cur_cpus, new is $cpus"
+      set_cpu=1
+    else
+      mem=$cur_cpus
+    fi
+  fi
+
+  mem_total="$(($(wmic memorychip get Capacity | tr -d -c '[0-9]')/1024/1024/1024+1))"
+
+  if [ $mem_total -ge 16 ]; then
+    mem=4
+  elif [ $mem_total -ge 8 ]; then
+    mem=3
+  elif [ $mem_total -ge 4 ]; then
+    mem=2
+  else:
+    mem=2
+  fi
+
+  mem=$((mem*1024))
+
+  cur_mem=$("$VBVM" showvminfo default | grep -i "Memory Size" | tr -d -c '[0-9]')
+  if [ $? -eq 0 -a -n "$cur_mem" ]; then
+    if [ $cur_mem -lt $mem ]; then
+      log_print "Current mem is $cur_mem, new is $mem"
+      set_mem=1
+    else
+      mem=$cur_mem
+    fi
+  fi
+
+  [ -z "$add_sharedfolder" -a -z "$set_cpu" -a -z "$set_mem" ] && return 0
+
+  status=$(docker-machine status)
+  if [ "$status" = "Running" ]; then
+    log_print "Restart to let new vm setting take effect"
+    docker-machine stop default >&2
+  fi
+
+  if [ -n "$add_sharedfolder" ]; then
+    log_print "Add '$hostpath' as sharedfolder"
+    # Add current working volume as sharedfolder and let it automount
+    "$VBVM" sharedfolder add default --name="$sharedname" --hostpath="$hostpath" --automount
+
+    # Enable symlink, still need to set with secpol.msc (may missing, require to run tools/windows/gpedit-enabler.bat as administrator)
+    "$VBVM" setextradata default VBoxInternal2/SharedFoldersEnableSymlinksCreate/$sharedname 1
+  fi
+
+  if [ -n "$set_cpu" -o -n "$set_mem" ]; then
+    log_print "Set cpu to $cpus and mem to ${mem}MB"
+    "$VBVM" modifyvm default --rtcuseutc on --cpus $cpus  --ioapic on --memory $mem
+  fi
+
+  # Restart to let new added sharedfolder work
+  log_print "Start default docker machine"
+  timeout -k 2 10 docker-machine start default >&2
+}
+
+get_host ()
+{
+  [ -n "$host" ] && HOST=$host && return 0
+
+  get_var HOST localhost
+  oldhost=$HOST
+
+  # Update ip address for docker toolbox
+  [ "x$HOST_OS" = "xWindows" -a "$DOCKER" = "toolbox" ] && HOST="`docker-machine ip default`"
+
+  # host requires to update if it changes
+  [ "x$HOST" != "x$oldhost" -a -z "$host" ] && set_var HOST
+}
+
+get_images() { find "$CONFIGS_DIR" -name "name" | xargs -I{} cat "{}" | sort -u; }
+get_labs() { ls "$CONFIGS_DIR" | tr -s ' '; }

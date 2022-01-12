@@ -6,10 +6,16 @@
 #
 
 TOP_DIR="$(cd "$(dirname "$0")"/../../ && pwd)"
-. "$TOP_DIR"/tools/docker/config $* >/dev/null
+. "$TOP_DIR"/tools/docker/config >/dev/null
+
+[ -z "$CONTAINER_NAME" ] && info_print "No lab container recorded." && exit 0
 
 notify_user 2 "Lab will be stopped"
 
+info_print "Stop $CONTAINER_NAME"
 do_op "docker stop" CONTAINER_NAME
 
-[ "$RELEASE" != '0' ] && "$DOCKER_RELEASE_CMD" all >/dev/null 2>&1
+if [ "$RELEASE" != '0' ]; then
+  log_print "Update release page"
+  "$DOCKER_RELEASE_CMD" all >/dev/null 2>&1
+fi

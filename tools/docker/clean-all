@@ -7,38 +7,78 @@
 
 export RELEASE=0
 
-read -p 'This command is dangerous, are you sure? (Yes/No) ' sure
+read -p 'WARN: This command is dangerous, are you sure? (Yes/No) ' sure
 
 [ "x$sure" != 'xyes' -a "x$sure" != 'xY' -a "x$sure" != 'xy' -a "x$sure" != 'xYES' ] && exit 0
 
 TOP_DIR="$(cd "$(dirname "$0")"/../../ && pwd)"
-. "$TOP_DIR"/tools/docker/config $* >/dev/null
+. "$TOP_DIR"/tools/docker/config >/dev/null
 
-for lab in $LABS
+log_print "Get all of the labs"
+labs=`get_labs`
+
+log_print "Get all of the containers"
+id_names=`docker ps --format='{{.ID}},{{.Names}}' -a -q`
+
+for id_name in $id_names
 do
-  current=$lab
-  unset CONTAINER_NAME
+  id=$(echo $id_name | cut -d ',' -f1)
+  name=$(echo $id_name | cut -d ',' -f2)
+
+  if [ "$name" = "$WPROXY_NAME" -o "$name" = "$TPROXY_NAME" ]; then
+      info_print "Remove $name ..."
+      docker rm -f $name
+
+      log_print "Disconnect $name from cloud-lab-net"
+      docker network disconnect -f cloud-lab-net $name 2>/dev/null
+      continue
+  fi
+
+  lab=`echo $name | sed -e "s%-[0-9]*-[0-9a-zA-Z]\{6,6\}$%%g"`
+  echo $labs | tr ' ' '\n' | grep -q ^$lab$
+  [ $? -ne 0 ] && continue
+
+  current="$lab"
+  log_print "Get data of $lab" >&2
+  unset CONTAINER_NAME CONTAINER_ID
+  log_print "Check status of $lab"
   . "$TOP_DIR"/tools/docker/config >/dev/null 2>&1
 
-  # Ignore the containers not exists
-  [ -z "$CONTAINER_NAME" ] && continue
-
-  #docker ps -f name=$CONTAINER_NAME | grep -qv PORTS
-  #[ $? -ne 0 ] && continue
-
-  "$DOCKER_CLEAN_CMD" $lab
-
+  if [ -n "$CONTAINER_NAME" ]; then
+    info_print "Clean $lab"
+    "$DOCKER_CLEAN_CMD" $lab
+  else
+    info_print "Clean $name"
+    docker rm -f $name
+    docker network disconnect -f cloud-lab-net $name 2>/dev/null
+  fi
 done
 
-"$DOCKER_RM_ALL_CMD"
+for lab in $labs
+do
+  info_print "Clean $lab"
+  "$DOCKER_CLEAN_CMD" $lab
+done
 
-# clean up the ip:token mappings for webvnc
+log_print "Clean cloud-lab-net"
+docker network rm cloud-lab-net
+
+log_print "clean up for webvnc"
+[ -z "$LOCAL_TOKEN_MAP" -o "$REMOTE_TOKEN_MAP" ] && prepare_export_files
 if [ -f "$LOCAL_TOKEN_MAP" -a -f "$REMOTE_TOKEN_MAP" -a "$LOCAL_TOKEN_DIR" != "/" ]; then
-  rm -rf "$LOCAL_TOKEN_DIR"
+  do_op "rm -rf" LOCAL_TOKEN_DIR
 fi
 
-rm -rf "$LAB_LOGIN"
-rm -rf "$LAB_VNC"
-rm -rf "$LAB_HOST"
+log_print "Remove lab manager and browser shotcuts"
+remove_shortcuts
 
+[ -z "$labs" ] && info_print "No lab is found." && exit 0
+
+log_print "Update release page"
 "$DOCKER_RELEASE_CMD" all >/dev/null 2>&1
+
+log_print "Remove general cached data"
+for f in LAB_LOGIN LAB_VNC LAB_HOST LAB_CURRENT LAB_DOCKER
+do
+  do_op "rm -rf" $f
+done

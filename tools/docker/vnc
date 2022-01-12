@@ -6,7 +6,14 @@
 #
 
 TOP_DIR="$(cd "$(dirname "$0")"/../../ && pwd)"
-. "$TOP_DIR"/tools/docker/config $* >/dev/null
+. "$TOP_DIR"/tools/docker/config >/dev/null
+
+prepare_login || exit 0
+
+log_print "Get cached data"
+get_vars VNC_IP VNC_PWD VNC_PWD_VIEWONLY
+
+VNC_CLIENTS="vinagre xvnc4viewer gvncviewer xtightvncviewer krdc mstsc"
 
 vnc_clients()
 {
@@ -50,13 +57,13 @@ vnc_config()
   client=$1
 
   # List available vnc clients
-  echo "Available VNC Clients:"
+  echo "INFO: Available VNC Clients:"
   echo
   echo $INSTALLED_VNC_CLIENTS | tr ' ' '\n' | nl -v 1
   echo
   
   # Let user choose one
-  read -p 'LOG: Choose the vnc client: ' client
+  read -p 'INFO: Choose the vnc client: ' client
 
   [ -z "$client" ] && echo "ERR: No client specified." && exit 1
 
@@ -91,7 +98,7 @@ show_vnc()
 show_usage()
 {
   # Report if no vnc client specified
-  echo "LOG: No vnc client found, please configure one with one of the following methods:"
+  info_print "No vnc client found, please configure one with one of the following methods:"
   echo
   echo "1. Specify via: $0 VNC_CLIENT"
   echo "2. Or install any one you prefer and add it to $LAB_VNC"
@@ -105,9 +112,9 @@ show_usage()
 # If the first argument is valid lab, use the second one as vnc client argument.
 if [ -n "$1" ]; then
   LAB=$1
-  [ -n "$LAB" ] && ls "$CONFIGS_DIR" | tr -s ' ' | tr ' ' '\n' | grep -q ^$LAB$
+  [ -n "$LAB" ] && ls -1 "$CONFIGS_DIR" | grep -q ^$LAB$
   if [ $? -eq 0 ]; then
-    VNC=$2
+    [ -n "$2" ] && VNC=$2
   else
     VNC=$1
   fi
@@ -128,7 +135,7 @@ fi
 
 # show vnc info
 echo
-echo "LOG: VNC login information:"
+info_print "VNC login information:"
 show_vnc
 
 # show usage
@@ -147,18 +154,38 @@ case $VNC in
   vinagre)
       VNC_LOGIN="$VNC --vnc-scale --geometry 800x600 $VNC_IP"
       ;;
+  mstsc)
+      VNC_LOGIN="$VNC //v:$VNC_IP"
+      ;;
   *)
       VNC_LOGIN="$VNC $VNC_IP"
       ;;
 esac
 
 # Easier login
-which xclip >/dev/null 2>&1
-[ $? -eq 0 ] && echo $VNC_PWD | tr -d '\n' | xclip -selection clipboard
-which xsel >/dev/null 2>&1
-[ $? -eq 0 ] && echo $VNC_PWD | tr -d '\n' | xsel -b
+copy2clipboard ()
+{
+  [ -z "$1" ] && return 1
 
-echo "LOG: Running '$VNC_LOGIN'"
+  clip=""
+  for c in xsel xclip clip
+  do
+    which $c >/dev/null 2>&1 && clip=$c && break
+  done
+
+  case "$clip" in
+    xsel)  clip_cmd="$clip -b" ;;
+    xclip) clip_cmd="$clip -selection clipboard" ;;
+    clip)  clip_cmd="$clip" ;;
+    *)     err_print "No clipboard command found" && return 1 ;;
+  esac
+
+  echo "$1" | tr -d '\r\n' | eval "$clip_cmd"
+}
+
+copy2clipboard "$VNC_PWD"
+
+info_print "Running '$VNC_LOGIN'"
 echo
 
 nohup $VNC_LOGIN >/dev/null 2>&1 &
