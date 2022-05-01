@@ -692,6 +692,9 @@ create_shortcuts ()
     if [ ! -f "$BROWSER_ICON" ]; then
       BROWSER_ICON=$(find /usr/share/ -name "*${WEB_BROWSER}*.png" -o -name "*${WEB_BROWSER}*.svg"  2>/dev/null | egrep -i "hicolor|bloom" | egrep "48|64|96" | tail -1)
     fi
+    if [ ! -f "$BROWSER_ICON" ]; then
+      BROWSER_ICON=$TOP_DIR/images/3rd-party/${WEB_BROWSER}.png
+    fi
 
     if [ "x$LAB_DESKTOP_SHORTCUT" = "x1" -a ! -f "$LOCAL_DESKTOP_SHORTCUT" ]; then
       lab_desktop_shortcut=$(mktemp)
