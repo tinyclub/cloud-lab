@@ -12,6 +12,8 @@
 
 [Cloud Lab](http://tinylab.org/cloud-lab) 是一套基于 Docker 的计算机软件云端实验管理平台。
 
+Cloud Lab 是一个开源软件，不提供任何保证，请自行承担使用过程中的任何风险。
+
 ## 2. 产品安装
 
 ### 2.1 安装 Docker
