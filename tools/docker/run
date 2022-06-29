@@ -229,7 +229,9 @@ net="$ip --network $VNC_NET_NAME"
 
 info_print "Wait for lab launching ..."
 
-lab_id=$(eval docker run -d $coredump -h $LAB_NAME $net $audio $container $portmap $caps $dnss $devs $limits $volumemap $vars $EXTRA_ARGS $IMAGE)
+seccomp="--security-opt seccomp=$TOP_DIR/configs/common/seccomp-profiles-default.json"
+
+lab_id=$(eval docker run -d $coredump -h $LAB_NAME $seccomp $net $audio $container $portmap $caps $dnss $devs $limits $volumemap $vars $EXTRA_ARGS $IMAGE)
 
 [ $? -ne 0 ] && err_print "docker running error." && exit 1
 
