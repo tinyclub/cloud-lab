@@ -211,7 +211,7 @@ fi
 for env in $ENVS; do vars="$vars -e $env"; done
 for cap in $CAPS; do caps="$caps --cap-add $cap"; done
 for dns in $DNS; do dnss="$dnss --dns $dns"; done
-for dev in $DEVICES; do devs="$devs --device $dev"; done
+for dev in $DEVICES; do [ -e "$dev" ] && devs="$devs --device $dev"; done
 for map in $PORTMAP; do portmap="$portmap -p $map"; done
 for map in $VOLUMEMAP; do volumemap="$volumemap -v $map"; done
 
@@ -229,7 +229,7 @@ net="$ip --network $VNC_NET_NAME"
 
 info_print "Wait for lab launching ..."
 
-lab_id=$(eval docker run -d --privileged $coredump -h $LAB_NAME $net $audio $container $portmap $caps $dnss $devices $limits $volumemap $vars $EXTRA_ARGS $IMAGE)
+lab_id=$(eval docker run -d $coredump -h $LAB_NAME $net $audio $container $portmap $caps $dnss $devs $limits $volumemap $vars $EXTRA_ARGS $IMAGE)
 
 [ $? -ne 0 ] && err_print "docker running error." && exit 1
 
