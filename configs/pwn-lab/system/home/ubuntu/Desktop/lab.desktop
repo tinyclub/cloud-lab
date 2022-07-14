@@ -1,0 +1,7 @@
+[Desktop Entry]
+Encoding=UTF-8
+Name=Pwn Lab
+Comment=A Friendly Lab for CTF PWN Learning
+Exec=/usr/bin/gnome-terminal --working-directory=/labs/pwn-lab/ --title "PWN Lab"
+Icon=/configs/lab-logo.png
+Type=Application
