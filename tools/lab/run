@@ -30,6 +30,12 @@ get_var HOST_NAME localhost
 get_var UNIX_IDENTIFY $DEF_UNIX_IDENTIFY
 get_var SUDO_IDENTIFY $DEF_SUDO_IDENTIFY
 get_var UNIX_UID 1000
+get_var MIRROR_SITE $DEF_MIRROR_SITE
+
+# Check and update mirror site
+old=$(grep -m1 ^deb /etc/apt/sources.list  | cut -d ' ' -f2 | tr -s '/' | cut -d '/' -f2)
+[ "$old" != "$MIRROR_SITE" ] && sed -i -e "s/$old/$MIRROR_SITE/g" /etc/apt/sources.list &
+[ "$MIRROR_SITE" != "$DEF_MIRROR_SITE" ] && set_var MIRROR_SITE
 
 [ "x$UNIX_UID" = "x0" ] && UNIX_UID=1000
 set_var UNIX_UID
