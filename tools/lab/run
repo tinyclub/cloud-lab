@@ -9,6 +9,11 @@ if [ ! -d /labs -o ! -d /.git ]; then
     exit 1
 fi
 
+# Clean up everything before running
+find /var/lib/apt/lists -type f -delete &
+find /var/cache -type f -delete &
+find /var/log -type f -delete &
+
 # no argument required of config for container
 IN_CONTAINER=1
 
