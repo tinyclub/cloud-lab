@@ -23,3 +23,8 @@
 	url = https://gitee.com/tinylab/tinylab.org.git
 	branch = master
 	ignore = all
+[submodule "labs/pwn-lab"]
+	path = labs/pwn-lab
+	url = https://gitee.com/tinylab/pwn-lab.git
+	branch = master
+	ignore = all
