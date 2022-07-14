@@ -188,4 +188,6 @@ copy2clipboard "$VNC_PWD"
 info_print "Running '$VNC_LOGIN'"
 echo
 
+sleep 1
+
 nohup $VNC_LOGIN >/dev/null 2>&1 &
