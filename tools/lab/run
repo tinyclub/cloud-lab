@@ -236,6 +236,7 @@ mount -t tmpfs none /tmp/
 which startlxqt >/dev/null 2>&1 && ln -sf /usr/bin/lxqt-session /usr/bin/lxsession
 # Detect cinnamon
 which cinnamon-session >/dev/null 2>&1 && ln -sf /usr/bin/cinnamon-session /usr/bin/lxsession
+[ $? -eq 0 ] && rm -rf $HOME/.config/lxqt $HOME/.config/pcmanfm-qt $HOME/.config/autostart/lxqt*.desktop
 
 # Run image built-in tasks
 for f in /etc/startup.aux/*.sh
