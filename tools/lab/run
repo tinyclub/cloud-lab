@@ -236,8 +236,9 @@ mount -t tmpfs none /tmp/
 [ -x $LAB_CONTAINER_RUN ] && UNIX_USER=$UNIX_USER $LAB_CONTAINER_RUN &
 
 # Detect lxqt
-which startlxqt >/dev/null 2>&1
-[ $? -eq 0 ] && ln -sf /usr/bin/lxqt-session /usr/bin/lxsession
+which startlxqt >/dev/null 2>&1 && ln -sf /usr/bin/lxqt-session /usr/bin/lxsession
+# Detect cinnamon
+which cinnamon-session >/dev/null 2>&1 && ln -sf /usr/bin/cinnamon-session /usr/bin/lxsession
 
 # Run image built-in tasks
 for f in /etc/startup.aux/*.sh
