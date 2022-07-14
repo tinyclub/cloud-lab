@@ -1,7 +1,0 @@
-[Desktop Entry]
-Encoding=UTF-8
-Name=RT-Thread Lab
-Comment=Cloud Lab for RT-Thread Development
-Exec=/usr/bin/terminator --working-directory=/labs/rtthread-lab/ -T "RT-Thread Lab"
-Icon=/usr/share/pixmaps/terminator.png
-Type=Application

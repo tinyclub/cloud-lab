@@ -1,7 +1,0 @@
-[Desktop Entry]
-Encoding=UTF-8
-Name=RT-Thread Git Repo
-Comment=RT-Thread Git Repository
-Exec=/usr/bin/chromium-browser https://github.com/rt-thread/rt-thread.git
-Icon=/usr/share/pixmaps/chromium-browser.png
-Type=Application

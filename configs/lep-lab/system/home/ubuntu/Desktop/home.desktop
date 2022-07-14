@@ -1,7 +1,0 @@
-[Desktop Entry]
-Encoding=UTF-8
-Name=Help Page
-Comment=LEP Lab Project Home page
-Exec=/usr/bin/chromium-browser https://tinylab.org/lep-lab
-Icon=/usr/share/pixmaps/chromium-browser.png
-Type=Application

@@ -1,7 +1,0 @@
-[Desktop Entry]
-Encoding=UTF-8
-Name=RT-Thread Home Page
-Comment=RT-Thread Home Page
-Exec=/usr/bin/chromium-browser http://www.rt-thread.org/
-Icon=/usr/share/pixmaps/chromium-browser.png
-Type=Application

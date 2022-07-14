@@ -23,13 +23,3 @@
 	url = https://gitee.com/tinylab/tinylab.org.git
 	branch = master
 	ignore = all
-[submodule "labs/lep-lab"]
-	path = labs/lep-lab
-	url = https://github.com/tinyclub/lep-lab.git
-	branch = master
-	ignore = all
-[submodule "labs/rtthread-lab"]
-	path = labs/rtthread-lab
-	url = https://github.com/tinyclub/rtthread-lab
-	branch = master
-	ignore = all

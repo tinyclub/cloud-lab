@@ -1,7 +1,0 @@
-[Desktop Entry]
-Encoding=UTF-8
-Name=LEP Lab
-Comment=An open-sourced all-in-one toolbox for Linux/Android performance profiling & visualization
-Exec=/usr/bin/terminator --working-directory=/labs/lep-lab/ -T "LEP Lab"
-Icon=/usr/share/pixmaps/terminator.png
-Type=Application
