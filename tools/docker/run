@@ -203,9 +203,9 @@ done
 # Get configured settings
 log_print "Build more arguments ..."
 if [ "x$HOST_OS" = "xWindows" ]; then
-  get_vars CAPS DEVICES VOLUMEMAP
+  get_vars CAPS DEVICES VOLUMEMAP PRIV_MODE
 else
-  get_vars ENVS CAPS DNS DEVICES PORTMAP VOLUMEMAP
+  get_vars ENVS CAPS DNS DEVICES PORTMAP VOLUMEMAP PRIV_MODE
 fi
 
 for env in $ENVS; do vars="$vars -e $env"; done
@@ -214,6 +214,7 @@ for dns in $DNS; do dnss="$dnss --dns $dns"; done
 for dev in $DEVICES; do [ -e "$dev" ] && devs="$devs --device $dev"; done
 for map in $PORTMAP; do portmap="$portmap -p $map"; done
 for map in $VOLUMEMAP; do volumemap="$volumemap -v $map"; done
+[ "x$PRIV_MODE" = "x1" ] && privmode=--privileged
 
 # Build container name
 container="--name $CONTAINER_NAME"
@@ -232,7 +233,7 @@ info_print "Wait for lab launching ..."
 seccomp="--security-opt seccomp=$TOP_DIR/configs/common/seccomp-profiles-default.json"
 devs_extra='--device-cgroup-rule="b 7:* rmw"'
 
-lab_id=$(eval docker run -d $coredump -h $LAB_NAME $seccomp $net $audio $container $portmap $caps $dnss $devs $devs_extra $limits $volumemap $vars $EXTRA_ARGS $IMAGE)
+lab_id=$(eval docker run -d $privmode $coredump -h $LAB_NAME $seccomp $net $audio $container $portmap $caps $dnss $devs $devs_extra $limits $volumemap $vars $EXTRA_ARGS $IMAGE)
 
 [ $? -ne 0 ] && err_print "docker running error." && exit 1
 
@@ -273,6 +274,7 @@ get_host
 
 # Save the lab's information (for restore the container for 'docker start')
 set_vars CONTAINER_NAME CONTAINER_ID SCREEN_SIZE
+[ -n "$PRIV_MODE" ] && set_var PRIV_MODE
 
 do_lock
 
