@@ -111,3 +111,6 @@ $TOP_DIR/restart-net-servers.sh
 
 # FIXME: Disable git detachedHead advice, bsp submodule use FETCH_HEAD currently.
 git config --global advice.detachedHead false
+
+# Clean up the target directory
+rm /binutils-arm-linux-gnueabi.tar.gz &
