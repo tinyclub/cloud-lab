@@ -35,10 +35,8 @@ get_var MIRROR_SITE $DEF_MIRROR_SITE
 # Check and update mirror site
 old=$(grep -m1 ^deb /etc/apt/sources.list  | cut -d ' ' -f2 | tr -s '/' | cut -d '/' -f2)
 [ "$old" != "$MIRROR_SITE" ] && sed -i -e "s/$old/$MIRROR_SITE/g" /etc/apt/sources.list &
-[ "$MIRROR_SITE" != "$DEF_MIRROR_SITE" ] && set_var MIRROR_SITE
 
 [ "x$UNIX_UID" = "x0" ] && UNIX_UID=1000
-set_var UNIX_UID
 
 [ -z "$VNC_IP" ] && get_var VNC_IP $DEF_VNC_IP
 [ -z "$VNC_TOKEN" ] && get_var VNC_TOKEN ""
@@ -54,7 +52,7 @@ else
 fi
 
 [ -n "$VNC_IP" -a -z "$VNC_TOKEN" ] && VNC_TOKEN=`echo -n $VNC_IP | tr -d '\n' | $ENCRYPT_CMD | cut -d' ' -f1 | cut -c1-$TOKEN_LENGTH`
-[ -n "$VNC_IP" ] && set_var VNC_IP
+[ -n "$VNC_IP" -a "$VNC_IP" != "$DEF_VNC_IP" ] && set_var VNC_IP
 [ -n "$VNC_TOKEN" ] && set_var VNC_TOKEN
 
 do_lock
@@ -155,7 +153,6 @@ else
   [ -z "$VNC_PWD" ] && VNC_PWD=`pwgen $PWGEN_OPTS | tr '[A-Z]' '[a-z]'`
   [ -z "$VNC_PWD_VIEWONLY" ] && VNC_PWD_VIEWONLY=`pwgen $PWGEN_OPTS | tr '[A-Z]' '[a-z]'`
 
-  [ -n "$UNIX_USER" ] && set_var UNIX_USER
   [ -n "$UNIX_PWD" ] && set_var UNIX_PWD
   [ -n "$VNC_PWD" ] && set_var VNC_PWD
   [ -n "$VNC_PWD_VIEWONLY" ] && set_var VNC_PWD_VIEWONLY

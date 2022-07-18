@@ -150,7 +150,7 @@ envs=""
 volumemap="-v '/$GIT_DIR':'$GIT_WORKDIR'"
 volumemap="$volumemap -v '/$LAB_DIR':'$LAB_WORKDIR'"
 volumemap="$volumemap -v '/$TOOL_DIR':'$TOOL_WORKDIR'"
-volumemap="$volumemap -v '/$CONFIG_DIR':'$CONFIG_WORKDIR'"
+volumemap="$volumemap -v '/$CONFIG_DIR/docker/private':'$CONFIG_WORKDIR/docker/private'"
 limits=$LIMITS
 
 # Get a new ip for our new container if no one cached
@@ -274,7 +274,10 @@ get_host
 
 # Save the lab's information (for restore the container for 'docker start')
 set_vars CONTAINER_NAME CONTAINER_ID SCREEN_SIZE
-[ -n "$PRIV_MODE" ] && set_var PRIV_MODE
+[ -n "$PRIV_MODE" -a "x$PRIV_MODE" = "x1" ] && set_var PRIV_MODE
+[ "$MIRROR_SITE" != "$DEF_MIRROR_SITE" ] && set_var MIRROR_SITE
+[ "$UNIX_USER" != "$DEF_USER" ] && set_var UNIX_USER
+[ "$UNIX_UID" != "1000" -a "$UNIX_UID" != "0" ] && set_var UNIX_UID
 
 do_lock
 
