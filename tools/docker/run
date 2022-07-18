@@ -149,8 +149,12 @@ envs=""
 # ref: https://headsigned.com/posts/mounting-docker-volumes-with-docker-toolbox-for-windows/
 volumemap="-v '/$GIT_DIR':'$GIT_WORKDIR'"
 volumemap="$volumemap -v '/$LAB_DIR':'$LAB_WORKDIR'"
-volumemap="$volumemap -v '/$TOOL_DIR':'$TOOL_WORKDIR'"
-volumemap="$volumemap -v '/$CONFIG_DIR/docker/private':'$CONFIG_WORKDIR/docker/private'"
+volumemap="$volumemap -v '/$TOOL_DIR/docker/container':'$TOOL_WORKDIR/docker/container':ro"
+volumemap="$volumemap -v '/$TOOL_DIR/lab/run':'$TOOL_WORKDIR/lab/run':ro"
+volumemap="$volumemap -v '/$TOOL_DIR/system':'$TOOL_WORKDIR/system':ro"
+volumemap="$volumemap -v '/$CONFIG_DIR/tools':'$CONFIG_WORKDIR/tools':ro"
+volumemap="$volumemap -v '/$CONFIG_DIR/system':'$CONFIG_WORKDIR/system':ro"
+volumemap="$volumemap -v '/$CONFIG_DIR/docker/container':'$CONFIG_WORKDIR/docker/container'"
 limits=$LIMITS
 
 # Get a new ip for our new container if no one cached
@@ -172,6 +176,12 @@ get_var SCREEN_SIZE
 
 # Build vars passed to container
 log_print "Build variables for $CONTAINER_NAME"
+
+# Init environment variables instead of parsing it in container
+get_var UNIX_IDENTIFY $DEF_UNIX_IDENTIFY
+get_var SUDO_IDENTIFY $DEF_SUDO_IDENTIFY
+get_var VNC_IDENTIFY $DEF_VNC_IDENTIFY
+
 for var in $VARS; do
     # Available encrypt cmds: sha1sum, sha224sum, cksum, sha256sum, sha512sum, md5sum, sha384sum, sum
     value=$(eval echo \$${var})

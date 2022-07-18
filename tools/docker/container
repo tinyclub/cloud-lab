@@ -1,0 +1,130 @@
+#!/bin/sh
+#
+# container -- Configure the common variables for container
+#
+# Copyright (C) 2016-2021 Wu Zhangjin <falcon@ruma.tech>
+#
+
+if [ -z "$TOP_DIR" ]; then
+  TOP_DIR="$(cd "$(dirname "$0")"/../../ && pwd)"
+else
+  TOP_DIR="$(cd "$(dirname "$TOP_DIR"/null)" && pwd)"
+fi
+
+# Basic files/directories
+TOOL_WORKDIR=//tools
+
+CONFIGS_DIR="$TOP_DIR"/configs/
+CONFIG_WORKDIR=//configs
+
+TOOL_DIR="$TOOL_WORKDIR"
+CONFIG_DIR="$CONFIG_WORKDIR"
+
+CORE_SYSTEM_DIR="$TOOL_DIR"/system
+CONFIG_SYSTEM_DIR="$CONFIG_DIR"/system
+
+CONFIG_DOCKER_DIR="$CONFIG_DIR"/docker
+CONFIG_CONTAINER_DIR="$CONFIG_DIR"/docker/container
+
+# Container writable
+LAB_UNIX_PWD="$CONFIG_CONTAINER_DIR"/.unix_pwd
+LAB_VNC_PWD="$CONFIG_CONTAINER_DIR"/.vnc_pwd
+LAB_VNC_PWD_VIEWONLY="$CONFIG_CONTAINER_DIR"/.vnc_pwd_viewonly
+LAB_VNC_IP="$CONFIG_CONTAINER_DIR"/.vnc_ip
+LAB_VNC_TOKEN="$CONFIG_CONTAINER_DIR"/.vnc_token
+LAB_UNIX_USER="$CONFIG_CONTAINER_DIR"/.unix_user
+LAB_UNIX_UID="$CONFIG_CONTAINER_DIR"/.unix_uid
+LAB_HOST_NAME="$CONFIG_CONTAINER_DIR"/.host_name
+LAB_MIRROR_SITE="$CONFIG_CONTAINER_DIR"/.mirror_site
+
+# Default variables
+DEF_USER=ubuntu
+DEF_UID=1000
+
+DEF_PWD_LENGTH=6
+DEF_PWD_TOTAL=100
+
+# Get default encrypt command
+for cs in sha1sum shasum; do
+  which $cs >/dev/null 2>&1 && DEF_ENCRYPT_CMD=$cs && break
+done
+[ -z "$ENCRYPT_CMD" ] && ENCRYPT_CMD=$DEF_ENCRYPT_CMD
+
+# Lock the important files for security
+__do_lock ()
+{
+  [ `id -u` -ne 0 ] && SUDO=sudo
+
+  [ -d "$CONFIG_DOCKER_DIR" ] && \
+    $SUDO find "$CONFIG_DOCKER_DIR" -iname ".[^.]*" -exec chmod -f -R a-rw "{}" \;
+
+  which chattr >/dev/null 2>&1
+  if [ $? -eq 0 ]; then
+    $SUDO chattr -R +i "$CONFIGS_DIR"
+    $SUDO chattr -R +i "$TOOL_DIR"
+  fi
+}
+
+# Unlock the important files for configuration
+__do_unlock ()
+{
+  [ `id -u` -ne 0 ] && SUDO=sudo
+
+  which chattr >/dev/null 2>&1
+  if [ $? -eq 0 ]; then
+    $SUDO chattr -R -i "$CONFIGS_DIR"
+    $SUDO chattr -R -i "$TOOL_DIR"
+  fi
+  [ -d "$CONFIG_DOCKER_DIR" ] && \
+    $SUDO find "$CONFIG_DOCKER_DIR" -iname ".[^.]*" -exec chmod -f -R 664 "{}" \;
+}
+
+do_lock ()
+{
+  [ $LAB_SECURITY -ge 1 ] && __do_lock
+}
+
+do_unlock ()
+{
+  [ $LAB_SECURITY -ge 1 ] && __do_unlock
+}
+
+get_var () #VAR #defval
+{
+  local var_value
+  local VAR
+  local defval
+
+  VAR=$1
+  defval=$2
+
+  # Get potential variable cache file
+  var_file="`eval echo \\${LAB_$VAR}`"
+
+  # Init it as user input
+  var_value=`eval echo \\$${VAR}`
+
+  # Load from variable cached file, if no user input specified
+  if [ -f "$var_file" -a -z "$var_value" ]; then
+    eval var_value=\\\'$\(sed -e \'':a;N;$!ba;s/\r//g;s/\n/ /g;s/#[^ ]* //g;s%^\s*$%%g;s%\s\{1,\}$%%g'\' \'$var_file\'\)\\\'
+    eval `eval echo \\$VAR='$var_value'`
+    var_value="`eval echo '$'${VAR}`"
+  fi
+
+  # If no variable specified or cached, use the default value if specified, otherwise, reserve empty
+  [ -z "$var_value" -a -n "$defval" ] && eval `eval echo \\$VAR='$defval'`
+}
+
+set_var () #VAR
+{
+  local VAR
+  local var
+  local var_file
+
+  VAR=$1
+
+  var=`eval echo \\$${VAR} | egrep -v "^$|^ *$"`
+  var_file="`eval echo \\${LAB_$VAR}`"
+
+  [ -n "$var" ] && echo "$var" | sed -e ':a;N;$!ba;s/\r//g;s%^\s*$%%g;s%\s\{1,\}$%%g;s/ /\n/g' > "$var_file"
+}

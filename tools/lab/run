@@ -9,28 +9,29 @@ if [ ! -d /labs -o ! -d /.git ]; then
     exit 1
 fi
 
+# Dump environment variables
+# env
+
 # Clean up everything before running
 find /var/lib/apt/lists -type f -delete &
 find /var/cache -type f -delete &
 find /var/log -type f -delete &
 
-# no argument required of config for container
-IN_CONTAINER=1
-
 # NOTE: for Security, variables should be passed as environment variables
-. /tools/docker/config >/dev/null
+# NOTE: for Security, variables should be passed as environment variables
+. /tools/docker/container >/dev/null
 
 do_unlock
 
 # Don't touch me
-[ -z "$UNIX_USER" ] && get_var UNIX_USER $DEF_USER
 [ -z "$LAB_SECURITY" ] && LAB_SECURITY=0
 
+get_var UNIX_USER $DEF_USER
+get_var UNIX_UID $DEF_UID
 get_var HOST_NAME localhost
-get_var UNIX_IDENTIFY $DEF_UNIX_IDENTIFY
-get_var SUDO_IDENTIFY $DEF_SUDO_IDENTIFY
-get_var UNIX_UID 1000
 get_var MIRROR_SITE $DEF_MIRROR_SITE
+get_var PWD_LENGTH $DEF_PWD_LENGTH
+get_var PWD_TOTAL $DEF_PWD_TOTAL
 
 # Check and update mirror site
 old=$(grep -m1 ^deb /etc/apt/sources.list  | cut -d ' ' -f2 | tr -s '/' | cut -d '/' -f2)
@@ -145,8 +146,8 @@ else
   [ -z "$VNC_PWD" ] && get_var VNC_PWD
   [ -z "$VNC_PWD_VIEWONLY" ] && get_var VNC_PWD_VIEWONLY
 
-  [ -z "$PWD_LENGTH" ] && get_var PWD_LENGTH $DEF_PWD_LENGTH
-  [ -z "$PWD_TOTAL" ] && get_var PWD_TOTAL $DEF_PWD_TOTAL
+  [ -z "$PWD_TOTAL" ] && PWD_TOTAL=$DEF_PWD_TOTAL
+  [ -z "$PWD_LENGTH" ] && PWD_TOTAL=$DEF_PWD_LENGTH
 
   PWGEN_OPTS="-B -s -n -v $PWD_LENGTH 1"
   [ -z "$UNIX_PWD" ] && UNIX_PWD=`pwgen $PWGEN_OPTS | tr '[A-Z]' '[a-z]'`
@@ -159,8 +160,12 @@ else
 
   # Sync UID between host and container
   FILES_TO_SYN_PERM="$LAB_UNIX_PWD $LAB_VNC_PWD $LAB_VNC_PWD_VIEWONLY $LAB_UNIX_UID $LAB_UNIX_USER $LAB_VNC_IP $LAB_VNC_TOKEN"
-  sudo chown $UNIX_USER:$UNIX_USER $FILES_TO_SYN_PERM
-  sudo chmod a+w $FILES_TO_SYN_PERM
+  for f in $FILES_TO_SYN_PERM
+  do
+    [ ! -f $f ] && continue
+    sudo chown $UNIX_USER:$UNIX_USER $f
+    sudo chmod a+w $f
+  done
 
   do_lock
 
@@ -189,7 +194,6 @@ else
     chmod o-rwx $VNC_PWD_FILE
 
     # Disable the VNC login password
-    get_var VNC_IDENTIFY 1
     [ $VNC_IDENTIFY -eq 0 -a "x$HOST_NAME" = "xlocalhost" ] \
        && sed -i -e "s% -usepw$%-nopw%g" $SYSTEM_SUPERVISORD_CONF
   fi
