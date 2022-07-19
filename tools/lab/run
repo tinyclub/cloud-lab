@@ -35,7 +35,7 @@ get_var PWD_TOTAL $DEF_PWD_TOTAL
 
 # Check and update mirror site
 old=$(grep -m1 ^deb /etc/apt/sources.list  | cut -d ' ' -f2 | tr -s '/' | cut -d '/' -f2)
-[ "$old" != "$MIRROR_SITE" ] && sed -i -e "s/$old/$MIRROR_SITE/g" /etc/apt/sources.list &
+[ "$old" != "$MIRROR_SITE" -a -n "$MIRROR_SITE" ] && sed -i -e "s/$old/$MIRROR_SITE/g" /etc/apt/sources.list &
 
 [ "x$UNIX_UID" = "x0" ] && UNIX_UID=1000
 
