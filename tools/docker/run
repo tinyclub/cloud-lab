@@ -154,6 +154,7 @@ volumemap="$volumemap -v '/$TOOL_DIR/lab/run':'$TOOL_WORKDIR/lab/run':ro"
 volumemap="$volumemap -v '/$TOOL_DIR/system':'$TOOL_WORKDIR/system':ro"
 volumemap="$volumemap -v '/$CONFIG_DIR/tools':'$CONFIG_WORKDIR/tools':ro"
 volumemap="$volumemap -v '/$CONFIG_DIR/system':'$CONFIG_WORKDIR/system':ro"
+volumemap="$volumemap -v '/$CONFIG_DIR/lab-logo.png':'$CONFIG_WORKDIR/lab-logo.png':ro"
 volumemap="$volumemap -v '/$CONFIG_DIR/docker/container':'$CONFIG_WORKDIR/docker/container'"
 limits=$LIMITS
 
