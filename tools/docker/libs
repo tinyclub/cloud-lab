@@ -924,7 +924,7 @@ create_cloud_lab_net ()
     echo $VNC_NET | grep -q $VNC_IP_BASE
     if [ $? -ne 0 ]; then
       unset VNC_IP
-      rm "$LAB_VNC_IP"
+      [ -f "$LAB_VNC_IP" ] && rm "$LAB_VNC_IP"
     fi
   fi
 }
