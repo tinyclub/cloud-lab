@@ -1,0 +1,5 @@
+[Desktop Entry]
+Exec=/usr/bin/openbox-session
+Name=openbox-session
+Type=Application
+Version=1.0
