@@ -28,3 +28,8 @@
 	url = https://gitee.com/tinylab/pwn-lab.git
 	branch = master
 	ignore = all
+[submodule "labs/riscv-lab"]
+	path = labs/riscv-lab
+	url = https://gitee.com/tinylab/riscv-lab.git
+	branch = master
+	ignore = all

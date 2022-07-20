@@ -1,0 +1,5 @@
+[Desktop Entry]
+Exec=/usr/bin/lxqt-panel
+Name=lxqt-panel
+Type=Application
+Version=1.0

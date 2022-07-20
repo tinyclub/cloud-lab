@@ -1,0 +1,8 @@
+[Desktop Entry]
+Name=RISC-V Lab
+GenericName=
+Comment=
+Exec=/usr/bin/qterminal
+Type=Application
+Icon=/configs/lab-logo.png
+Terminal=false
