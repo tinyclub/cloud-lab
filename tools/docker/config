@@ -143,9 +143,9 @@ LAB_CONTAINER_RUN="$CONFIG_TOOL_DIR"/container-run
 
 # Default variables
 [ -z "$LAB_SECURITY" ] && LAB_SECURITY=0
-DEF_USER=ubuntu
-DEF_UID=1000
-
+DEF_UNIX_USER=ubuntu
+DEF_UNIX_UID=1000
+DEF_HOSTNAME=localhost
 DEF_PWD_LENGTH=6
 DEF_PWD_TOTAL=100
 
@@ -321,8 +321,14 @@ get_var () #VAR #defval
   fi
 
   # If no variable specified or cached, use the default value if specified, otherwise, reserve empty
-  [ -z "$var_value" -a -n "$defval" ] && eval `eval echo \\$VAR='$defval'`
-
+  if [ -z "$var_value" ]; then
+    if [ -n "$defval" ]; then
+      eval `eval echo \\$VAR='$defval'`
+    else
+      defval="`eval echo '$DEF_'${VAR}`"
+      eval `eval echo \\$VAR='$defval'`
+    fi
+  fi
   debug_print "`eval echo GET: $VAR=\\$${VAR}`"
 }
 
