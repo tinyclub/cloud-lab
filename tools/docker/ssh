@@ -78,4 +78,13 @@ echo
 log_print "Running '$SSH_CMD'"
 echo
 
+# Wait for sshd being ready
+while :;
+do
+  $DOCKER_CMD_CMD $LAB_NAME "ls /var/log/sshd.log >/dev/null 2>&1"
+  [ $? -eq 0 ] && break
+  echo "Wait for ssh server being ready ..."
+  sleep 1
+done
+
 eval "$SSH_CMD"
