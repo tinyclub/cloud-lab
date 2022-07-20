@@ -90,7 +90,7 @@ else
     echo "LOG: Restore old home"
     rsync -a /tmp/backup/$UNIX_USER/ $HOME/
     chown $UNIX_USER:$UNIX_USER -R $HOME/
-    rm -rf /tmp/backup
+    rm -rf /tmp/backup &
   fi
 
   # Install more system configuration files
@@ -119,7 +119,7 @@ else
   chown $UNIX_USER:$UNIX_USER -R $HOME/
 
   [ -d /usr/share/desktop/home/.config ] \
-    && sudo -u $UNIX_USER -i bash -c "cp -r /usr/share/desktop/home/{.[^.]*,*} /home/$UNIX_USER/" >/dev/null 2>&1
+    && sudo -u $UNIX_USER -i bash -c "rsync -a /usr/share/desktop/home/ /home/$UNIX_USER/" >/dev/null 2>&1
 
   # Override user's configurations pre-installed in /usr/share/desktop/home/
   for system in $CORE_SYSTEM_DIR $CONFIG_SYSTEM_DIR
