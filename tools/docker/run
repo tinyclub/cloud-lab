@@ -241,7 +241,9 @@ info_print "Wait for lab launching ..."
 
 seccomp="--security-opt seccomp=$TOP_DIR/configs/common/seccomp-profiles-default.json"
 
-lab_id=$(eval docker run -d $privmode $coredump -h $LAB_NAME $seccomp $net $audio $container $portmap $caps $dnss $devs $limits $volumemap $vars $EXTRA_ARGS $IMAGE)
+tmpfs="--tmpfs /tmp:rw"
+
+lab_id=$(eval docker run -d $privmode $coredump -h $LAB_NAME $tmpfs $seccomp $net $audio $container $portmap $caps $dnss $devs $limits $volumemap $vars $EXTRA_ARGS $IMAGE)
 
 [ $? -ne 0 ] && err_print "docker running error." && exit 1
 

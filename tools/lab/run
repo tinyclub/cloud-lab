@@ -225,9 +225,6 @@ if [ ! -b /dev/loop7 ]; then
   done
 fi
 
-# mount tmpfs
-mount -t tmpfs none /tmp/
-
 # Run Lab specific tasks
 [ -x $LAB_CONTAINER_RUN ] && UNIX_USER=$UNIX_USER $LAB_CONTAINER_RUN &
 
