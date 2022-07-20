@@ -26,12 +26,7 @@ do_unlock
 # Don't touch me
 [ -z "$LAB_SECURITY" ] && LAB_SECURITY=0
 
-get_var UNIX_USER $DEF_USER
-get_var UNIX_UID $DEF_UID
-get_var HOST_NAME localhost
-get_var MIRROR_SITE $DEF_MIRROR_SITE
-get_var PWD_LENGTH $DEF_PWD_LENGTH
-get_var PWD_TOTAL $DEF_PWD_TOTAL
+get_vars UNIX_USER UNIX_UID HOST_NAME MIRROR_SITE PWD_LENGTH PWD_TOTAL
 
 # Check and update mirror site
 old=$(grep -m1 ^deb /etc/apt/sources.list  | cut -d ' ' -f2 | tr -s '/' | cut -d '/' -f2)
@@ -78,8 +73,8 @@ else
   # Touch a flag
   touch $CREATE_FLAG
 
-  DEF_HOME=/home/$DEF_USER
-  DEF_SYSTEM_SUDOERS_USER=/etc/sudoers.d/$DEF_USER
+  DEF_HOME=/home/$DEF_UNIX_USER
+  DEF_SYSTEM_SUDOERS_USER=/etc/sudoers.d/$DEF_UNIX_USER
   DESKTOP=$HOME/Desktop/
 
   [ $SUDO_IDENTIFY -ge 1 ] && UNIX_USER_GROUPS="--groups adm,sudo,audio"
@@ -118,7 +113,7 @@ else
 
   [ -f "$DEF_SYSTEM_SUDOERS_USER" -a "$LAB_SECURITY" != "0" ] \
     && mv $DEF_SYSTEM_SUDOERS_USER $SYSTEM_SUDOERS_USER \
-    && sed -i -e "s/^$DEF_USER/$UNIX_USER/g" $SYSTEM_SUDOERS_USER \
+    && sed -i -e "s/^$DEF_UNIX_USER/$UNIX_USER/g" $SYSTEM_SUDOERS_USER \
     && chmod 440 $SYSTEM_SUDOERS_USER
 
   chown $UNIX_USER:$UNIX_USER -R $HOME/
@@ -173,9 +168,9 @@ else
   echo "User: $UNIX_USER ,Password: $UNIX_PWD ,VNC Password: $VNC_PWD ,Viewonly Password: $VNC_PWD_VIEWONLY"
 
   SYSTEM_SUPERVISORD_CONF=/etc/supervisor/conf.d/x11vnc.conf
-  if [ "$UNIX_USER" != "$DEF_USER" ]; then
+  if [ "$UNIX_USER" != "$DEF_UNIX_USER" ]; then
     sed -i -e "s%$DEF_HOME%$HOME%g" $SYSTEM_SUPERVISORD_CONF
-    sed -i -e "s%user=$DEF_USER%user=$UNIX_USER%g" $SYSTEM_SUPERVISORD_CONF
+    sed -i -e "s%user=$DEF_UNIX_USER%user=$UNIX_USER%g" $SYSTEM_SUPERVISORD_CONF
   fi
 
   # VNC PASS

@@ -172,16 +172,14 @@ get_var SCREEN_SIZE
 
 # Sync UID before running
 [ "x$HOST_OS" = "xLinux" ] && UNIX_UID=$(id -u `get_host_user`)
-[ "x$UNIX_UID" = "x0" -o -z "$UNIX_UID" ] && UNIX_UID=$DEF_UID
-[ -z "$UNIX_USER" ] && UNIX_USER=$DEF_USER
+[ "x$UNIX_UID" = "x0" -o -z "$UNIX_UID" ] && UNIX_UID=$DEF_UNIX_UID
+[ -z "$UNIX_USER" ] && UNIX_USER=$DEF_UNIX_USER
 
 # Build vars passed to container
 log_print "Build variables for $CONTAINER_NAME"
 
 # Init environment variables instead of parsing it in container
-get_var UNIX_IDENTIFY $DEF_UNIX_IDENTIFY
-get_var SUDO_IDENTIFY $DEF_SUDO_IDENTIFY
-get_var VNC_IDENTIFY $DEF_VNC_IDENTIFY
+get_vars UNIX_IDENTIFY SUDO_IDENTIFY VNC_IDENTIFY
 
 for var in $VARS; do
     # Available encrypt cmds: sha1sum, sha224sum, cksum, sha256sum, sha512sum, md5sum, sha384sum, sum
@@ -286,7 +284,7 @@ get_host
 set_vars CONTAINER_NAME CONTAINER_ID SCREEN_SIZE
 [ -n "$PRIV_MODE" -a "x$PRIV_MODE" = "x1" ] && set_var PRIV_MODE
 [ "$MIRROR_SITE" != "$DEF_MIRROR_SITE" ] && set_var MIRROR_SITE
-[ "$UNIX_USER" != "$DEF_USER" ] && set_var UNIX_USER
+[ "$UNIX_USER" != "$DEF_UNIX_USER" ] && set_var UNIX_USER
 [ "$UNIX_UID" != "1000" -a "$UNIX_UID" != "0" ] && set_var UNIX_UID
 
 do_lock

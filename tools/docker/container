@@ -38,9 +38,9 @@ LAB_HOST_NAME="$CONFIG_CONTAINER_DIR"/.host_name
 LAB_MIRROR_SITE="$CONFIG_CONTAINER_DIR"/.mirror_site
 
 # Default variables
-DEF_USER=ubuntu
-DEF_UID=1000
-
+DEF_UNIX_USER=ubuntu
+DEF_UNIX_UID=1000
+DEF_HOSTNAME=localhost
 DEF_PWD_LENGTH=6
 DEF_PWD_TOTAL=100
 
@@ -114,7 +114,21 @@ get_var () #VAR #defval
   fi
 
   # If no variable specified or cached, use the default value if specified, otherwise, reserve empty
-  [ -z "$var_value" -a -n "$defval" ] && eval `eval echo \\$VAR='$defval'`
+  if [ -z "$var_value" ]; then
+    if [ -n "$defval" ]; then
+      eval `eval echo \\$VAR='$defval'`
+    else
+      defval="`eval echo '$DEF_'${VAR}`"
+      eval `eval echo \\$VAR='$defval'`
+    fi
+  fi
+}
+
+get_vars ()
+{
+  for var in $@; do
+    get_var $var
+  done
 }
 
 set_var () #VAR
@@ -129,4 +143,11 @@ set_var () #VAR
   var_file="`eval echo \\${LAB_$VAR}`"
 
   [ -n "$var" ] && echo "$var" | sed -e ':a;N;$!ba;s/\r//g;s%^\s*$%%g;s%\s\{1,\}$%%g;s/ /\n/g' > "$var_file"
+}
+
+set_vars ()
+{
+  for var in $@; do
+    set_var $var
+  done
 }
