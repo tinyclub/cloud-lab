@@ -188,6 +188,13 @@ copy2clipboard "$VNC_PWD"
 info_print "Running '$VNC_LOGIN'"
 echo
 
-sleep 1
+# Wait for desktop being ready
+while :;
+do
+  $DOCKER_CMD_CMD $LAB_NAME "grep -q 'screen setup finished' /var/log/x11vnc.log >/dev/null 2>&1"
+  [ $? -eq 0 ] && break
+  echo "Wait for vnc server being ready ..."
+  sleep 1
+done
 
 nohup $VNC_LOGIN >/dev/null 2>&1 &
