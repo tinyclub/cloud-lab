@@ -59,10 +59,10 @@ HOME=/home/$UNIX_USER
 CREATE_FLAG=/create_flag
 BACKUP_FLAG=/backup_flag
 
-if [ -d $HOME -a ! -f $CREATE_FLAG ]; then
+if [ -d $HOME/ -a ! -f $CREATE_FLAG ]; then
   echo "LOG: Backup old home"
   mkdir -p /tmp/backup/
-  mv $HOME/* /tmp/backup/
+  mv $HOME /tmp/backup/
   touch $BACKUP_FLAG
 fi
 
@@ -86,9 +86,9 @@ else
   useradd --uid $UNIX_UID --create-home --shell /bin/bash --user-group $UNIX_USER_GROUPS $UNIX_USER
 
   # Restore the backuped home
-  if [ -f $BACKUP_FLAG ]; then
+  if [ -f $BACKUP_FLAG -a -d /tmp/backup/ ]; then
     echo "LOG: Restore old home"
-    mv /tmp/backup/* $HOME/
+    rsync -a /tmp/backup/$UNIX_USER/ $HOME/
     chown $UNIX_USER:$UNIX_USER -R $HOME/
     rm -rf /tmp/backup
   fi
