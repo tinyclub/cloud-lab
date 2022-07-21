@@ -289,6 +289,7 @@ set_vars CONTAINER_NAME CONTAINER_ID SCREEN_SIZE
 [ "$UNIX_USER" != "$DEF_UNIX_USER" ] && set_var UNIX_USER
 [ "$UNIX_UID" != "1000" -a "$UNIX_UID" != "0" ] && set_var UNIX_UID
 [ -n "$DESKTOP" -a "$DESKTOP" != "$DEF_DESKTOP" ] && set_var DESKTOP
+[ -n "$VNC_TOKEN" ] && set_var VNC_TOKEN
 
 do_lock
 
