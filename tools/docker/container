@@ -43,12 +43,13 @@ DEF_UNIX_UID=1000
 DEF_HOSTNAME=localhost
 DEF_PWD_LENGTH=6
 DEF_PWD_TOTAL=100
-
 DEF_MIRROR_SITE="mirrors.ustc.edu.cn"
+DEF_VNC_IP="0.0.0.0"
+DEF_VNC_TOKEN=""
 
 # Get default encrypt command
 for cs in sha1sum shasum; do
-  which $cs >/dev/null 2>&1 && DEF_ENCRYPT_CMD=$cs && break
+  [ -f /usr/bin/$cs ] >/dev/null 2>&1 && DEF_ENCRYPT_CMD=$cs && break
 done
 [ -z "$ENCRYPT_CMD" ] && ENCRYPT_CMD=$DEF_ENCRYPT_CMD
 

@@ -155,6 +155,7 @@ DEF_TOKEN_LENGTH=6
 [ -z "$TOKEN_LENGTH" ] && TOKEN_LENGTH=$DEF_TOKEN_LENGTH
 [ -z "$DEF_TOKEN_DIR" ] && DEF_TOKEN_DIR=.vnc-tokens
 DEF_VNC_IP="0.0.0.0"
+DEF_VNC_TOKEN=""
 
 DEF_MIRROR_SITE="mirrors.ustc.edu.cn"
 
