@@ -2,7 +2,7 @@
 Name=RISC-V Lab
 GenericName=
 Comment=
-Exec=/usr/bin/qterminal
+Exec=/bin/sh -c 'if [ -f /usr/bin/qterminal ]; then /usr/bin/qterminal; else /usr/bin/xfce4-terminal; fi'
 Type=Application
 Icon=/configs/lab-logo.png
 Terminal=false
