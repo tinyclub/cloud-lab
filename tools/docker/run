@@ -179,7 +179,7 @@ get_var SCREEN_SIZE
 log_print "Build variables for $CONTAINER_NAME"
 
 # Init environment variables instead of parsing it in container
-get_vars UNIX_IDENTIFY SUDO_IDENTIFY VNC_IDENTIFY
+get_vars UNIX_IDENTIFY SUDO_IDENTIFY VNC_IDENTIFY DESKTOP
 
 for var in $VARS; do
     # Available encrypt cmds: sha1sum, sha224sum, cksum, sha256sum, sha512sum, md5sum, sha384sum, sum
@@ -288,6 +288,7 @@ set_vars CONTAINER_NAME CONTAINER_ID SCREEN_SIZE
 [ "$MIRROR_SITE" != "$DEF_MIRROR_SITE" ] && set_var MIRROR_SITE
 [ "$UNIX_USER" != "$DEF_UNIX_USER" ] && set_var UNIX_USER
 [ "$UNIX_UID" != "1000" -a "$UNIX_UID" != "0" ] && set_var UNIX_UID
+[ -n "$DESKTOP" -a "$DESKTOP" != "$DEF_DESKTOP" ] && set_var DESKTOP
 
 do_lock
 

@@ -75,7 +75,7 @@ else
 
   DEF_HOME=/home/$DEF_UNIX_USER
   DEF_SYSTEM_SUDOERS_USER=/etc/sudoers.d/$DEF_UNIX_USER
-  DESKTOP=$HOME/Desktop/
+  DESKTOP_PATH=$HOME/Desktop/
 
   [ $SUDO_IDENTIFY -ge 1 ] && UNIX_USER_GROUPS="--groups adm,sudo,audio"
   [ $SUDO_IDENTIFY -eq 0 ] && UNIX_USER_GROUPS=""
@@ -94,7 +94,7 @@ else
   fi
 
   # Install more system configuration files
-  [ ! -d $DESKTOP ] && mkdir $DESKTOP
+  [ ! -d $DESKTOP_PATH ] && mkdir $DESKTOP_PATH
 
   for system in $CORE_SYSTEM_DIR $CONFIG_SYSTEM_DIR
   do
@@ -228,14 +228,35 @@ fi
 # Run Lab specific tasks
 [ -x $LAB_CONTAINER_RUN ] && UNIX_USER=$UNIX_USER $LAB_CONTAINER_RUN &
 
-# Init lxqt detection
-lxqt=0
-# Detect lxqt
-which startlxqt >/dev/null 2>&1 && ln -sf /usr/bin/lxqt-session /usr/bin/lxsession && lxqt=1
-# Detect cinnamon
-which cinnamon-session >/dev/null 2>&1 && ln -sf /usr/bin/cinnamon-session /usr/bin/lxsession
-# Clean up lxqt specific files
-[ $lxqt -eq 0 ] && rm -rf $HOME/.config/lxqt $HOME/.config/pcmanfm-qt $HOME/.config/autostart/lxqt*.desktop &
+# desktop detection
+# Use lxde by default, detect the other desktops one by one
+lxde=0
+lxqt=1
+cinnamon=2
+xfce=3
+desktop=$lxde
+if [ -z "$DESKTOP" -o "$DESKTOP" = "auto" ]; then
+  # Detect lxqt
+  [ -f /usr/bin/lxqt-session ] && ln -sf /usr/bin/lxqt-session /usr/bin/lxsession && desktop=$lxqt
+  # Detect cinnamon
+  [ -f /usr/bin/cinnamon-session ] && ln -sf /usr/bin/cinnamon-session /usr/bin/lxsession && desktop=$cinnamon
+  # Detect xfce
+  [ -f /usr/bin/xfce4-session ] && ln -sf /usr/bin/xfce4-session /usr/bin/lxsession && desktop=$xfce
+elif [ "$DESKTOP" != "lxde" ]; then
+  if [ "$DESKTOP" = "lxqt" ]; then
+    [ -f /usr/bin/lxqt-session ] && ln -sf /usr/bin/lxqt-session /usr/bin/lxsession && desktop=$lxqt
+  fi
+  if [ "$DESKTOP" = "cinnamon" ]; then
+    [ -f /usr/bin/cinnamon-session ] && ln -sf /usr/bin/cinnamon-session /usr/bin/lxsession && desktop=$cinnamon
+  fi
+  if [ "$DESKTOP" = "xfce" ]; then
+    [ -f /usr/bin/xfce-session ] && ln -sf /usr/bin/xfce-session /usr/bin/lxsession && $desktop=$xfce
+  fi
+fi
+
+# Clean up lxqt & xfce specific files
+[ "$desktop" != "$lxqt" ] && rm -rf $HOME/.config/lxqt $HOME/.config/pcmanfm-qt $HOME/.config/autostart/lxqt*.desktop &
+[ "$desktop" != "$xfce" ] && rm -rf $HOME/.config/xfce4 $HOME/.config/autostart/xfce*.desktop &
 
 # Run image built-in tasks
 for f in /etc/startup.aux/*.sh
