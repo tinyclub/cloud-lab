@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# startup.sh -- lab specific startup script,
+# container-run.sh -- lab specific startup script,
 #
 # Copyright (C) 2016-2021 Wu Zhangjin <falcon@ruma.tech>
 #
