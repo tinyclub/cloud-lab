@@ -2,7 +2,7 @@
 Name=RISC-V Lab
 GenericName=
 Comment=
-Exec=/bin/sh -c 'if [ -f /usr/bin/qterminal ]; then /usr/bin/qterminal; else /usr/bin/xfce4-terminal; fi'
+Exec=/bin/sh -c "if [ \"$DESKTOP\" != "lxqt" ]; then /usr/bin/xfce4-terminal; else /usr/bin/qterminal; fi"
 Type=Application
 Icon=/configs/lab-logo.png
 Terminal=false

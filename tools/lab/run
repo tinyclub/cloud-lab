@@ -15,16 +15,11 @@ find /var/lib/apt/lists /var/cache /var/log -type f -delete &
 # NOTE: for Security, variables should be passed as environment variables
 . /tools/docker/container >/dev/null
 
-do_unlock
-
-# Don't touch me
-[ -z "$LAB_SECURITY" ] && LAB_SECURITY=0
-[ "x$UNIX_UID" = "x0" ] && UNIX_UID=1000
-get_vars UNIX_USER UNIX_UID HOST_NAME MIRROR_SITE PWD_LENGTH PWD_TOTAL VNC_IP VNC_TOKEN
-
 # Do some preparation
 do_prepare ()
 {
+  get_vars MIRROR_SITE VNC_IP VNC_TOKEN
+
   # Configure mirror site
   if [ -n "$MIRROR_SITE" ]; then
     old=$(sed -ne "0,/^deb/s%deb .*://\([^/ ]*\)/.*%\1%p" /etc/apt/sources.list)
@@ -46,11 +41,16 @@ do_prepare ()
     [ "$VNC_IP" != "$DEF_VNC_IP" ] && set_var VNC_IP
     [ -z "$VNC_TOKEN" ] && VNC_TOKEN=`echo -n $VNC_IP | tr -d '\n' | $ENCRYPT_CMD | cut -d' ' -f1 | cut -c1-$TOKEN_LENGTH` && set_var VNC_TOKEN
   fi
+
+  do_lock
 }
 
 # Do desktop detection
 do_desktop_config ()
 {
+  # Convert xfce to xfce4
+  [ "$DESKTOP" = "xfce" ] && DESKTOP=xfce4
+
   # Use lxde by default, detect the other desktops one by one
   desktop=lxde
   if [ -z "$DESKTOP" -o "$DESKTOP" = "auto" ]; then
@@ -102,11 +102,12 @@ do_vnc_pass_config ()
       pwgen $PWGEN_OPTS | tr ' ' '\n' >> $VNC_PWD_FILE
     fi
     chmod o-rwx $VNC_PWD_FILE
-
-    # Disable the VNC login password
-    [ $VNC_IDENTIFY -eq 0 -a "x$HOST_NAME" = "xlocalhost" ] \
-       && sed -i -e "s% -usepw$%-nopw%g" $SYSTEM_SUPERVISORD_CONF
   fi
+
+  # Disable the VNC login password
+  get_var HOST_NAME
+  [ $VNC_IDENTIFY -eq 0 -a "x$HOST_NAME" = "xlocalhost" ] \
+    && sed -i -e "s% -usepw$%-nopw%g" $SYSTEM_SUPERVISORD_CONF
 }
 
 # Sync uid
@@ -119,6 +120,43 @@ do_uid_sync ()
     sudo chown $UNIX_USER:$UNIX_USER $f
     sudo chmod a+w $f
   done
+}
+
+# Configure user and pass
+do_user_config ()
+{
+  # Create password, ENV > CONF > PWGEN
+  do_unlock
+
+  get_vars UNIX_PWD VNC_PWD VNC_PWD_VIEWONLY PWD_LENGTH PWD_TOTAL
+  PWGEN_OPTS="-B -s -n -v $PWD_LENGTH 1"
+  [ -z "$UNIX_PWD" ] && UNIX_PWD=`pwgen $PWGEN_OPTS | tr '[A-Z]' '[a-z]'`
+  [ -z "$VNC_PWD" ] && VNC_PWD=`pwgen $PWGEN_OPTS | tr '[A-Z]' '[a-z]'`
+  [ -z "$VNC_PWD_VIEWONLY" ] && VNC_PWD_VIEWONLY=`pwgen $PWGEN_OPTS | tr '[A-Z]' '[a-z]'`
+  set_vars UNIX_PWD VNC_PWD VNC_PWD_VIEWONLY
+
+  # Sync UID between host and container
+  do_uid_sync &
+
+  do_lock
+
+  # Don't touch me: otherwise, need to modify tools/docker/run
+  echo "User: $UNIX_USER ,Password: $UNIX_PWD ,VNC Password: $VNC_PWD ,Viewonly Password: $VNC_PWD_VIEWONLY"
+
+  # Update user setting
+  SYSTEM_SUPERVISORD_CONF=/etc/supervisor/conf.d/x11vnc.conf
+  if [ "$UNIX_USER" != "$DEF_UNIX_USER" ]; then
+    sed -i -e "s%$DEF_HOME%$HOME%g" $SYSTEM_SUPERVISORD_CONF
+    sed -i -e "s%user=$DEF_UNIX_USER%user=$UNIX_USER%g" $SYSTEM_SUPERVISORD_CONF
+  fi
+
+  # set password
+  do_pass_config &
+
+  # VNC PASS
+  do_vnc_pass_config
+
+  touch /tmp/user.config
 }
 
 # Configure owner
@@ -155,6 +193,9 @@ do_loop_config ()
 # Startup scripts
 run_startup_scripts ()
 {
+  # Run Lab specific tasks
+  [ -x $LAB_CONTAINER_RUN ] && UNIX_USER=$UNIX_USER $LAB_CONTAINER_RUN &
+
   for f in /etc/startup.aux/*.sh
   do
     [ ! -x $f ] && chmod a+x $f
@@ -178,9 +219,96 @@ do_home_create ()
   useradd --uid $UNIX_UID --create-home --shell /bin/bash --user-group $UNIX_USER_GROUPS $UNIX_USER
 }
 
+# Hack system
+do_system_hack ()
+{
+  uname_r=$(uname -r)
+  sfiles=""
+  for sdir in $CONFIG_SYSTEM_DIR $CORE_SYSTEM_DIR
+  do
+    for sfile in $(find $sdir/etc $sdir/usr $sdir/lib/modules/$uname_r -type f 2>/dev/null | grep -v /home/ | sed -e "s%$sdir%%g")
+    do
+      # Use left instead of right, if already in left side, ignore the others
+      _sfile=$(echo $sfile | tr -s '/')
+      echo "$sfiles" | grep -q ";$_sfile;"
+      #[ $? -eq 0 ] && echo "duplicated: $_sfile" && continue
+      [ $? -eq 0 ] && continue
+      sfiles="$sfiles;$_sfile;"
+
+      sdest=`dirname $sfile`
+      [ ! -d $sdest ] && mkdir -p $sdest
+      # echo cp $sdir/$sfile $sdest
+      cp $sdir/$sfile $sdest
+    done
+  done
+
+  SYSTEM_SUDOERS_USER=/etc/sudoers.d/$UNIX_USER
+  [ $SUDO_IDENTIFY -eq 2 ] && echo "$UNIX_USER ALL=(ALL) NOPASSWD: ALL" > $SYSTEM_SUDOERS_USER \
+  			&& chmod 440 $SYSTEM_SUDOERS_USER
+
+  [ -f "$DEF_SYSTEM_SUDOERS_USER" -a "$LAB_SECURITY" != "0" ] \
+    && mv $DEF_SYSTEM_SUDOERS_USER $SYSTEM_SUDOERS_USER \
+    && sed -i -e "s/^$DEF_UNIX_USER/$UNIX_USER/g" $SYSTEM_SUDOERS_USER \
+    && chmod 440 $SYSTEM_SUDOERS_USER
+
+  touch /tmp/system.hacked
+}
+
+# Hack home
+do_home_hack ()
+{
+  # Install more system configuration files
+  [ ! -d $DESKTOP_PATH ] && mkdir $DESKTOP_PATH
+
+  # Override user's configurations pre-installed in /usr/share/desktop/home/
+  ROOT_SYSTEM_DIR=/usr/share/desktop/
+  hfiles=""
+
+  # If not belong our desktop, ignore them
+  dfilters="INIT_FILTER"
+  if [ "$desktop" != "lxqt" ]; then
+    dfilters="$dfilters|lxqt|pcmanfm-qt"
+  fi
+  if [ "$desktop" != "xfce4" ]; then
+    dfilters="$dfilters|xfce"
+  fi
+
+  for hdir in $CONFIG_SYSTEM_DIR $CORE_SYSTEM_DIR/$ROOT_SYSTEM_DIR $ROOT_SYSTEM_DIR
+  do
+    for hfile in `find $hdir/home -type f | sed -e "s%$hdir%%g" | egrep -v "$dfilters"`
+    do
+      # Use left instead of right, if already in left side, ignore the others
+      # the old path: /usr/share/desktop/home/.config has no user info, should support it
+      _hfile=$(echo $hfile | sed -e "s%$DEF_HOME/%/home/%g" | tr -s '/')
+      echo "$hfiles" | grep -q ";$_hfile;"
+      #[ $? -eq 0 ] && echo "duplicated: $_hfile" && continue
+      [ $? -eq 0 ] && continue
+      hfiles="$hfiles;$_hfile;"
+
+      # do copy it
+      _hfile=$(echo $_hfile | sed -e "s%/home/%$HOME/%g")
+      hdest=`dirname $_hfile`
+      [ ! -d $hdest ] && mkdir -p $hdest
+
+      #echo "cp $hdir/$hfile $hdest"
+      cp $hdir/$hfile $hdest
+    done
+  done
+
+  # update owner of $HOME
+  chown $UNIX_USER:$UNIX_USER -R $HOME/
+
+  touch /tmp/home.hacked
+}
+
+# Don't touch me
+[ -z "$LAB_SECURITY" ] && LAB_SECURITY=0
+do_unlock
+get_vars UNIX_USER UNIX_UID
+[ "x$UNIX_UID" = "x0" ] && UNIX_UID=1000
+
 # Prepare network and mirror site
 do_prepare &
-do_lock
 
 # create a ubuntu user
 HOME=/home/$UNIX_USER
@@ -198,6 +326,9 @@ if [ -f $CREATE_FLAG ]; then
   # Simply report current setting
   echo "User: $UNIX_USER ,Password: $UNIX_PWD ,VNC Password: $VNC_PWD ,Viewonly Password: $VNC_PWD_VIEWONLY"
 else
+  # !home files
+  do_system_hack &
+
   # Touch a flag
   touch $CREATE_FLAG
 
@@ -215,119 +346,32 @@ else
     rm -rf /tmp/backup &
   fi
 
-  # Install more system configuration files
-  [ ! -d $DESKTOP_PATH ] && mkdir $DESKTOP_PATH
+  # home files
+  do_home_hack &
 
-  # !home files
-  uname_r=$(uname -r)
-  files=""
-  for system in $CONFIG_SYSTEM_DIR $CORE_SYSTEM_DIR
-  do
-    for f in $(find $system/etc $system/usr $system/lib/modules/$uname_r -type f 2>/dev/null | grep -v /home/ | sed -e "s%$system%%g")
-    do
-      # Use left instead of right, if already in left side, ignore the others
-      echo "$files" | grep -q ";$f;"
-      [ $? -eq 0 ] && continue
-      files="$files;$f;"
-
-      d=$f
-      dest=`dirname $d`
-      [ ! -d $dest ] && mkdir -p $dest
-      # echo cp $system/$f $d
-      cp $system/$f $d
-    done
-  done
-
-  SYSTEM_SUDOERS_USER=/etc/sudoers.d/$UNIX_USER
-  [ $SUDO_IDENTIFY -eq 2 ] && echo "$UNIX_USER ALL=(ALL) NOPASSWD: ALL" > $SYSTEM_SUDOERS_USER \
-  			&& chmod 440 $SYSTEM_SUDOERS_USER
-
-  [ -f "$DEF_SYSTEM_SUDOERS_USER" -a "$LAB_SECURITY" != "0" ] \
-    && mv $DEF_SYSTEM_SUDOERS_USER $SYSTEM_SUDOERS_USER \
-    && sed -i -e "s/^$DEF_UNIX_USER/$UNIX_USER/g" $SYSTEM_SUDOERS_USER \
-    && chmod 440 $SYSTEM_SUDOERS_USER
-
-  # Override user's configurations pre-installed in /usr/share/desktop/home/
-  ROOT_SYSTEM_DIR=/usr/share/desktop/
-  files=""
-  for system in $CONFIG_SYSTEM_DIR $CORE_SYSTEM_DIR/$ROOT_SYSTEM_DIR $ROOT_SYSTEM_DIR
-  do
-    for f in `find $system/home -type f | sed -e "s%$system%%g"`
-    do
-      # Use left instead of right, if already in left side, ignore the others
-      # the old path: /usr/share/desktop/home/.config has no user info, should support it
-      d=$(echo $f | sed -e "s%$DEF_HOME/%/home/%g")
-      echo "$files" | grep -q ";$d;"
-      [ $? -eq 0 ] && continue
-      files="$files;$d;"
-
-      # If not belong our desktop, ignore them
-      if [ "$desktop" != "lxqt" ]; then
-        (echo $d | egrep -q "lxqt|pcmanfm-qt") && continue
-      fi
-      if [ "$desktop" != "xfce4" ]; then
-	(echo $d | egrep -q "xfce") && continue
-      fi
-
-      # do copy it
-      d=$(echo $d | sed -e "s%/home/%$HOME/%g")
-      dest=`dirname $d`
-      [ ! -d $dest ] && mkdir -p $dest
-
-      #echo "cp $system/$f $d"
-      cp $system/$f $d
-    done
-  done
-
-  # update owner of $HOME
-  chown $UNIX_USER:$UNIX_USER -R $HOME/
-
-  # Create password, ENV > CONF > PWGEN
-
-  do_unlock
-
-  get_vars UNIX_PWD VNC_PWD VNC_PWD_VIEWONLY
-  PWGEN_OPTS="-B -s -n -v $PWD_LENGTH 1"
-  [ -z "$UNIX_PWD" ] && UNIX_PWD=`pwgen $PWGEN_OPTS | tr '[A-Z]' '[a-z]'`
-  [ -z "$VNC_PWD" ] && VNC_PWD=`pwgen $PWGEN_OPTS | tr '[A-Z]' '[a-z]'`
-  [ -z "$VNC_PWD_VIEWONLY" ] && VNC_PWD_VIEWONLY=`pwgen $PWGEN_OPTS | tr '[A-Z]' '[a-z]'`
-  set_vars UNIX_PWD VNC_PWD VNC_PWD_VIEWONLY &
-
-  # Sync UID between host and container
-  do_uid_sync &
-
-  do_lock
-
-  # Don't touch me: otherwise, need to modify tools/docker/run
-  echo "User: $UNIX_USER ,Password: $UNIX_PWD ,VNC Password: $VNC_PWD ,Viewonly Password: $VNC_PWD_VIEWONLY"
-
-  # Update user setting
-  SYSTEM_SUPERVISORD_CONF=/etc/supervisor/conf.d/x11vnc.conf
-  if [ "$UNIX_USER" != "$DEF_UNIX_USER" ]; then
-    sed -i -e "s%$DEF_HOME%$HOME%g" $SYSTEM_SUPERVISORD_CONF
-    sed -i -e "s%user=$DEF_UNIX_USER%user=$UNIX_USER%g" $SYSTEM_SUPERVISORD_CONF
-  fi
-
-  # VNC PASS
-  do_vnc_pass_config
-
-  do_pass_config &
+  do_user_config
 fi
 
 # update owner for the mapped volumes
-do_owner_config &
+do_owner_config
 
 # configure loop devices
-do_loop_config &
-
-# Run Lab specific tasks
-[ -x $LAB_CONTAINER_RUN ] && UNIX_USER=$UNIX_USER $LAB_CONTAINER_RUN &
-
-# Run image built-in tasks
-run_startup_scripts
+do_loop_config
 
 # Report boot_completed
 echo "boot_completed"
+
+# Wait for operations finish
+i=0
+while :;
+do
+  sleep 1
+  [ -f /tmp/home.hacked -a -f /tmp/system.hacked -a -f /tmp/user.config ] && break
+done
+rm -rf /tmp/{home.hacked,system.hacked,user.config} &
+
+# Run image built-in tasks
+run_startup_scripts
 
 # Reset environment passed from host
 if [ -n "$VARS" ]; then
