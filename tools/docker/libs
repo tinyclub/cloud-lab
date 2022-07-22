@@ -832,6 +832,42 @@ EOF
 
 }
 
+# Wait for remote services
+wait_services ()
+{
+  local login_method=$1
+  [ -z "$login_method" ] && return
+
+  service_check=""
+  if [ "$login_method" = "vnc" -o "$login_method" = "webvnc" ]; then
+    service_check="grep -q 'screen setup finished' /var/log/x11vnc.log >/dev/null 2>&1"
+  fi
+  if [ "$login_method" = "ssh" -o "$login_method" = "webssh" ]; then
+    service_check="ls /var/log/sshd.log >/dev/null 2>&1"
+  fi
+  [ -z "$service_check" ] && return
+
+  info_print "Wait for $login_method service launching ..."
+
+  wait_time=0
+  WAIT_TIMEOUT=60
+  while :;
+  do
+    $DOCKER_CMD_CMD $LAB_NAME "$service_check"
+    [ $? -eq 0 ] && break
+
+    wait_time=`expr $wait_time + 1`
+    echo ".... $wait_time / $WAIT_TIMEOUT"
+
+    if [ $wait_time -gt $WAIT_TIMEOUT ]; then
+      err_print "$login_method service timeout, exit."
+      exit 1
+    fi
+    sleep 1
+  done
+
+  echo ""
+}
 
 # Override the token map generation in wproxy
 touch_record_file ()
@@ -1030,7 +1066,7 @@ do_vm_setting ()
 
   "$VBVM" showvminfo default | grep -i -A10 "Shared folders" | grep -q "Name: '$sharedname', Host path:"
   [ $? -ne 0 ] && add_sharedfolder=1
-  
+
   cpu_total=$NUMBER_OF_PROCESSORS
   [ -z "$cpu_total" ] && cpu_total=4
 
