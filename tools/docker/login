@@ -85,7 +85,7 @@ if [ "$LOGIN" != "list" ]; then
     verify_login $LOGIN
     if [ $? -ne 0 ]; then
       echo
-      echo "ERR: $LOGIN is not valid login method, avilable methods:"
+      echo "ERR: $LOGIN is not valid login method, available methods:"
       echo
       echo "    $LOGIN_METHODS."
       echo
