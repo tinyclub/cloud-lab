@@ -212,9 +212,9 @@ done
 # Get configured settings
 log_print "Build more arguments ..."
 if [ "x$HOST_OS" = "xWindows" ]; then
-  get_vars CAPS DEVICES VOLUMEMAP PRIV_MODE
+  get_vars CAPS DEVICES VOLUMEMAP PRIV_MODE PLATFORM
 else
-  get_vars ENVS CAPS DNS DEVICES PORTMAP VOLUMEMAP PRIV_MODE
+  get_vars ENVS CAPS DNS DEVICES PORTMAP VOLUMEMAP PRIV_MODE PLATFORM
 fi
 
 for env in $ENVS; do vars="$vars -e $env"; done
@@ -231,6 +231,9 @@ if [ "x$PRIV_MODE" = "x1" ]; then
   privmode=--privileged
 fi
 
+# For cross platform support
+[ -n "$PLATFORM" ] && platform="--platform $PLATFORM"
+
 # Build container name
 container="--name $CONTAINER_NAME"
 
@@ -241,15 +244,21 @@ coredump="--ulimit core=-1"
 [ -n "$VNC_IP" ] && ip="--ip=$VNC_IP"
 net="$ip --network $VNC_NET_NAME"
 
+# Audio output support
 [ "x$HOST_OS" = "xLinux" ] && audio="-v //run/user/${UNIX_UID}/pulse://run/user/${UNIX_UID}/pulse"
+
+# For security support
+seccomp="--security-opt seccomp=$TOP_DIR/configs/common/seccomp-profiles-default.json"
+
+# For /tmp automount
+tmpfs="--tmpfs /tmp:rw"
+
+# For lab name
+lab_name="-h $LAB_NAME"
 
 info_print "Wait for lab launching ..."
 
-seccomp="--security-opt seccomp=$TOP_DIR/configs/common/seccomp-profiles-default.json"
-
-tmpfs="--tmpfs /tmp:rw"
-
-lab_id=$(eval docker run -d $privmode $coredump -h $LAB_NAME $tmpfs $seccomp $net $audio $container $portmap $caps $dnss $devs $limits $volumemap $vars $EXTRA_ARGS $IMAGE)
+lab_id=$(eval docker run -d $lab_name $privmode $coredump $tmpfs $seccomp $platform $net $audio $container $portmap $caps $dnss $devs $limits $volumemap $vars $EXTRA_ARGS $IMAGE)
 
 [ $? -ne 0 ] && err_print "docker running error." && exit 1
 
