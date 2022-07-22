@@ -227,7 +227,7 @@ for map in $VOLUMEMAP; do volumemap="$volumemap -v $map"; done
 # Enable privileged mode by default
 [ -z "$PRIV_MODE" ] && PRIV_MODE=1
 if [ "x$PRIV_MODE" = "x1" ]; then
-  warn_print "privileged mode is enabled by default for some functions, but it is not safe if used in public network."
+  warn_print "PRIV_MODE=0 required to disable privileged mode"
   privmode=--privileged
 fi
 
