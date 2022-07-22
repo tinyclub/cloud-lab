@@ -33,3 +33,8 @@
 	url = https://gitee.com/tinylab/riscv-lab.git
 	branch = master
 	ignore = all
+[submodule "labs/tinylab.site"]
+	path = labs/tinylab.site
+	url = https://gitee.com/tinylab/tinylab.org
+	branch = master
+	ignore = all
