@@ -47,6 +47,9 @@ DEF_MIRROR_SITE="mirrors.ustc.edu.cn"
 DEF_VNC_IP="0.0.0.0"
 DEF_VNC_TOKEN=""
 
+DEF_TOKEN_LENGTH=6
+[ -z "$TOKEN_LENGTH" ] && TOKEN_LENGTH=$DEF_TOKEN_LENGTH
+
 # Get default encrypt command
 for cs in sha1sum shasum; do
   [ -f /usr/bin/$cs ] >/dev/null 2>&1 && DEF_ENCRYPT_CMD=$cs && break
