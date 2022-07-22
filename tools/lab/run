@@ -226,7 +226,13 @@ do_system_hack ()
   sfiles=""
   for sdir in $CONFIG_SYSTEM_DIR $CORE_SYSTEM_DIR
   do
-    for sfile in $(find $sdir/etc $sdir/usr $sdir/lib/modules/$uname_r -type f 2>/dev/null | grep -v /home/ | sed -e "s%$sdir%%g")
+    tdir=""
+    [ -d $sdir/etc ] && tdir="$tdir $sdir/etc"
+    [ -d $sdir/usr ] && tdir="$tdir $sdir/usr"
+    [ -d $sdir/lib/modules/$uname_r ] && mdir=$sdir/lib/modules/$uname_r && tdir="$tdir $mdir"
+    [ -z "$tdir" ] && continue
+
+    for sfile in $(find $tdir -type f 2>/dev/null | grep -v /home/ | sed -e "s%$sdir%%g")
     do
       # Use left instead of right, if already in left side, ignore the others
       _sfile=$(echo $sfile | tr -s '/')
@@ -237,7 +243,7 @@ do_system_hack ()
 
       sdest=`dirname $sfile`
       [ ! -d $sdest ] && mkdir -p $sdest
-      # echo cp $sdir/$sfile $sdest
+      #echo "cp $sdir/$sfile $sdest"
       cp $sdir/$sfile $sdest
     done
   done
@@ -275,6 +281,8 @@ do_home_hack ()
 
   for hdir in $CONFIG_SYSTEM_DIR $CORE_SYSTEM_DIR/$ROOT_SYSTEM_DIR $ROOT_SYSTEM_DIR
   do
+    [ ! -d $hdir/home ] && continue
+
     for hfile in `find $hdir/home -type f | sed -e "s%$hdir%%g" | egrep -v "$dfilters"`
     do
       # Use left instead of right, if already in left side, ignore the others
