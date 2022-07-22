@@ -704,8 +704,13 @@ create_shortcuts ()
       [ -d "$CONFIG_SYSTEM_DIR" ] \
         && REMOTE_DESKTOP_SHORTCUT="`find "$CONFIG_SYSTEM_DIR" -maxdepth 4 -name "lab.desktop"`"
 
+      if [ -z "$LOGIN" ]; then
+        LOGIN_METHOD="login"
+      else
+        LOGIN_METHOD="$LOGIN login"
+      fi
       [ -f "$REMOTE_DESKTOP_SHORTCUT" ] && cat "$REMOTE_DESKTOP_SHORTCUT" \
-        | sed "s%Name=.*%Name=$LAB_NAME GUI%g" \
+        | sed "s%Name=.*%Name=$LAB_NAME $LOGIN_METHOD%g" \
         | sed "s%Exec=.*%Exec=sg docker -c '\"$DOCKER_RUN_CMD\" $LAB_NAME'%g" \
         | sed "s%terminator.png%${WEB_BROWSER}.png%g;s%lxterminal.xpm%${WEB_BROWSER}.png%g" | tr '|' '&' \
           >> $lab_desktop_shortcut
