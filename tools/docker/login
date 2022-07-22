@@ -123,6 +123,9 @@ echo
 # create desktop shortcuts
 (get_host; get_browser; create_shortcuts) &
 
+# wait for service running
+wait_services $LOGIN
+
 # bash and ssh require a virtual tty console
 case $LOGIN in
   bash|ssh)
