@@ -223,7 +223,13 @@ for dns in $DNS; do dnss="$dnss --dns $dns"; done
 for dev in $DEVICES; do [ -e "$dev" ] && devs="$devs --device $dev"; done
 for map in $PORTMAP; do portmap="$portmap -p $map"; done
 for map in $VOLUMEMAP; do volumemap="$volumemap -v $map"; done
-[ "x$PRIV_MODE" = "x1" ] && privmode=--privileged
+
+# Enable privileged mode by default
+[ -z "$PRIV_MODE" ] && PRIV_MODE=1
+if [ "x$PRIV_MODE" = "x1" ]; then
+  warn_print "privileged mode is enabled by default for some functions, but it is not safe if used in public network."
+  privmode=--privileged
+fi
 
 # Build container name
 container="--name $CONTAINER_NAME"
