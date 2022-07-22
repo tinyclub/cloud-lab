@@ -324,6 +324,7 @@ fi
 
 if [ -f $CREATE_FLAG ]; then
   # Simply report current setting
+  get_vars UNIX_PWD VNC_PWD VNC_PWD_VIEWONLY
   echo "User: $UNIX_USER ,Password: $UNIX_PWD ,VNC Password: $VNC_PWD ,Viewonly Password: $VNC_PWD_VIEWONLY"
 else
   # !home files
@@ -358,17 +359,20 @@ do_owner_config
 # configure loop devices
 do_loop_config
 
-# Report boot_completed
+# Report boot_completed, report earlier for better user experience
 echo "boot_completed"
 
-# Wait for operations finish
-i=0
-while :;
-do
-  sleep 1
-  [ -f /tmp/home.hacked -a -f /tmp/system.hacked -a -f /tmp/user.config ] && break
-done
-rm -rf /tmp/{home.hacked,system.hacked,user.config} &
+# Only required by first boot, still during boot
+if [ ! -f $CREATE_FLAG ]; then
+  # Wait for operations finish
+  i=0
+  while :;
+  do
+    sleep 1
+    [ -f /tmp/home.hacked -a -f /tmp/system.hacked -a -f /tmp/user.config ] && break
+  done
+  rm -rf /tmp/{home.hacked,system.hacked,user.config} &
+fi
 
 # Run image built-in tasks
 run_startup_scripts
