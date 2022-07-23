@@ -16,4 +16,8 @@ TOP_DIR="$(cd "$(dirname "$0")"/../../ && pwd)"
 
 [ -z "$CURRENT" ] && err_print "Usage: $0 LAB_NAME" && exit 1
 
-do_op "docker build $NO_CACHE -t " IMAGE "'$CONFIG_DIR'"
+get_var PLATFORM
+# For cross platform support
+[ -n "$PLATFORM" ] && platform="--platform $PLATFORM"
+
+do_op "docker build $NO_CACHE $platform -t " IMAGE "'$CONFIG_DIR'"
