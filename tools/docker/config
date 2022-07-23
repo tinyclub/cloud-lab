@@ -59,11 +59,14 @@ CONFIG_DOCKER_DIR="$CONFIG_DIR"/docker
 CONFIG_CONTAINER_DIR="$CONFIG_DIR"/docker/container
 CONFIG_SYSTEM_DIR="$CONFIG_DIR"/system
 
-LAB_LOGIN="$TOP_DIR"/.login_method
-LAB_VNC="$TOP_DIR"/.login_vnc
+# Share among labs
 LAB_HOST="$TOP_DIR"/.host_name
-LAB_DOCKER="$TOP_DIR"/.docker_name
 LAB_OUTPUT="$TOP_DIR"/output
+
+# Lab Specific
+LAB_DOCKER="$CONFIG_DIR"/.docker_name
+LAB_LOGIN="$CONFIG_DIR"/.login_method
+LAB_VNC="$CONFIG_DIR"/.login_vnc
 
 DOCKER_DIR="$TOOL_DIR"/docker
 DOCKER_IDENTIFY_CMD="$DOCKER_DIR"/identify
