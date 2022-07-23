@@ -1,0 +1,5 @@
+[Desktop Entry]
+Exec=pcmanfm-qt --desktop
+Name=Desktop
+Type=Application
+Version=1.0

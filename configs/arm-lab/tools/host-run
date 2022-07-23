@@ -1,0 +1,7 @@
+#!/bin/bash
+
+# For qemu-aarch64
+# ref: https://github.com/qemu/qemu/blob/master/scripts/qemu-binfmt-conf.sh
+if [ ! -f /proc/sys/fs/binfmt_misc/register -o ! -f /proc/sys/fs/binfmt_misc/qemu-aarch64 ]; then
+  sudo docker run --rm --privileged multiarch/qemu-user-static --reset -p yes --credential yes >/dev/null
+fi
