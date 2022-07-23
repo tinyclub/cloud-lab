@@ -1,5 +1,5 @@
 FROM tinylab/cloud-ubuntu-riscv64:20220723
-MAINTAINER Wu Zhangjin <wuzhangjin@gmail.com>
+MAINTAINER Wu Zhangjin <falcon@tinylab.org>
 
 EXPOSE 5900 22
 
