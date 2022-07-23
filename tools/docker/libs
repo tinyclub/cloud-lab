@@ -706,7 +706,7 @@ create_shortcuts ()
 
       if [ -f "$REMOTE_DESKTOP_SHORTCUT" ]; then
         get_var FULLNAME
-        [ -z "$FULLNAME" ] && FULLNAME="$(echo $LAB_NAME | sed 's/./\U&/;s/-/ /;s/ l/ L/')"
+        [ -z "$FULLNAME" ] && FULLNAME="$(echo $LAB_NAME | sed -e 's/\-/ /g;s/\([a-z]\)\([^ ]*\)/\U\1\L\2/g')"
       fi
 
       [ -f "$REMOTE_DESKTOP_SHORTCUT" ] && cat "$REMOTE_DESKTOP_SHORTCUT" \
