@@ -1161,4 +1161,4 @@ get_host ()
 }
 
 get_images() { find "$CONFIGS_DIR" -name "name" | xargs -I{} cat "{}" | sort -u; }
-get_labs() { ls "$CONFIGS_DIR" | tr -s ' '; }
+get_labs() { ls "$CONFIGS_DIR" | egrep -v '^common$' | tr -s ' '; }
