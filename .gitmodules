@@ -41,3 +41,5 @@
 [submodule "labs/arm-lab"]
 	path = labs/arm-lab
 	url = https://gitee.com/tinylab/arm-lab.git
+	branch = master
+	ignore = all
