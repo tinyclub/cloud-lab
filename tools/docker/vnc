@@ -152,7 +152,7 @@ case $VNC in
       VNC_LOGIN="$VNC $VNC_IP"
       ;;
   vinagre)
-      VNC_LOGIN="$VNC --vnc-scale --geometry 800x600 $VNC_IP"
+      VNC_LOGIN="$VNC --vnc-scale $VNC_IP"
       ;;
   mstsc)
       VNC_LOGIN="$VNC //v:$VNC_IP"
