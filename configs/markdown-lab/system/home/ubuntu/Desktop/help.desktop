@@ -2,6 +2,6 @@
 Encoding=UTF-8
 Name=Help Page
 Comment=Project Home Page
-Exec=/usr/bin/chromium-browser http://www.tinylab.org/markdown-lab/
+Exec=/usr/bin/chromium-browser https://tinylab.org/markdown-lab/
 Icon=/usr/share/pixmaps/chromium-browser.png
 Type=Application
