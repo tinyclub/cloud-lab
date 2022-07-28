@@ -211,8 +211,8 @@ do_home_create ()
   [ $SUDO_IDENTIFY -ge 1 ] && UNIX_USER_GROUPS="--groups adm,sudo,audio"
   [ $SUDO_IDENTIFY -eq 0 ] && UNIX_USER_GROUPS=""
 
-  # The old one should be removed before create a new one
-  id -u $UNIX_USER &>/dev/null && userdel -f -r $UNIX_USER
+  # The old one should be removed before create a new one, but reserve the saved directory
+  id -u $UNIX_USER &>/dev/null && userdel -f $UNIX_USER
 
   useradd --uid $UNIX_UID --create-home --shell /bin/bash --user-group $UNIX_USER_GROUPS $UNIX_USER
 
@@ -291,11 +291,13 @@ do_home_hack ()
       [ $? -eq 0 ] && continue
       hfiles="$hfiles;$_hfile;"
 
-      # do copy it
       _hfile=$(echo $_hfile | sed -e "s%/home/%$HOME/%g")
       hdest=`dirname $_hfile`
-      [ ! -d $hdest ] && mkdir -p $hdest
+      # Ignore if already there
+      [ -f $_hfile ] && continue
 
+      # do copy it
+      [ ! -d $hdest ] && mkdir -p $hdest
       #echo "cp $hdir/$hfile $hdest"
       cp $hdir/$hfile $hdest
     done

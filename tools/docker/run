@@ -145,6 +145,12 @@ devs=""
 vars=""
 envs=""
 
+# Sync UID before running
+[ "x$HOST_OS" = "xLinux" ] && UNIX_UID=$(id -u `get_host_user`)
+[ "x$UNIX_UID" = "x0" -o -z "$UNIX_UID" ] && UNIX_UID=$DEF_UNIX_UID
+[ -z "$UNIX_USER" ] && UNIX_USER=$DEF_UNIX_USER
+[ ! -d $CONFIG_DIR/home ] && mkdir -p $CONFIG_DIR/home
+
 # Fixed up for docker toolbox in windows
 # ref: https://headsigned.com/posts/mounting-docker-volumes-with-docker-toolbox-for-windows/
 volumemap="-v '/$GIT_DIR':'$GIT_WORKDIR'"
@@ -154,6 +160,7 @@ volumemap="$volumemap -v '/$TOOL_DIR/lab/run':'$TOOL_WORKDIR/lab/run':ro"
 volumemap="$volumemap -v '/$TOOL_DIR/system':'$TOOL_WORKDIR/system':ro"
 volumemap="$volumemap -v '/$CONFIG_DIR/tools':'$CONFIG_WORKDIR/tools':ro"
 volumemap="$volumemap -v '/$CONFIG_DIR/system':'$CONFIG_WORKDIR/system':ro"
+volumemap="$volumemap -v '/$CONFIG_DIR/home':'//home/':rw"
 volumemap="$volumemap -v '/$CONFIG_DIR/lab-logo.png':'$CONFIG_WORKDIR/lab-logo.png':ro"
 volumemap="$volumemap -v '/$CONFIG_DIR/docker/container':'$CONFIG_WORKDIR/docker/container'"
 limits=$LIMITS
@@ -169,11 +176,6 @@ fi
 log_print "Get screen size"
 get_var SCREEN_SIZE
 [ -z "$SCREEN_SIZE" ] && get_screen_size
-
-# Sync UID before running
-[ "x$HOST_OS" = "xLinux" ] && UNIX_UID=$(id -u `get_host_user`)
-[ "x$UNIX_UID" = "x0" -o -z "$UNIX_UID" ] && UNIX_UID=$DEF_UNIX_UID
-[ -z "$UNIX_USER" ] && UNIX_USER=$DEF_UNIX_USER
 
 # Build vars passed to container
 log_print "Build variables for $CONTAINER_NAME"
