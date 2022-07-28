@@ -72,7 +72,7 @@ do_desktop_config ()
 
   # Clean up lxqt & xfce specific files
   [ "$desktop" != "lxqt" ] && rm -rf $HOME/.config/lxqt $HOME/.config/pcmanfm-qt $HOME/.config/autostart/lxqt*.desktop &
-  [ "$desktop" != "xfce" ] && rm -rf $HOME/.config/xfce4 $HOME/.config/autostart/xfce*.desktop &
+  [ "$desktop" != "xfce4" ] && rm -rf $HOME/.config/xfce4 $HOME/.config/autostart/xfce*.desktop &
 }
 
 # Configure pass
