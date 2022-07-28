@@ -73,11 +73,10 @@ For Linux or Mac OSX, please simply choose one directory in `~/Downloads` or `~/
          2	linux-0.11-lab
          3	linux-lab
          4	markdown-lab
-         5	qing-lab
-         6	tinylab.org
+         5	tinylab.site
 
-    Choose the lab number: 2
-         2	linux-0.11-lab
+    Choose the lab number: 3
+         3	linux-lab
 
 
     Download the lab...
@@ -97,14 +96,6 @@ For Linux or Mac OSX, please simply choose one directory in `~/Downloads` or `~/
 ### Start the Lab
 
     $ tools/docker/start
-
-### Update everything
-
-    $ tools/docker/update
-
-### Autostart everything
-
-    $ tools/docker/autostart
 
 ### Run as root without password
 
