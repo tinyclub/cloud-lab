@@ -16,6 +16,8 @@ Cloud Lab 是一个开源软件，不提供任何保证，请自行承担使用�
 
 ## 2. 产品安装
 
+如果确实是 Linux 新手或不喜欢无聊的安装过程，想**免安装**立马使用 Cloud Lab，那么可以从 [泰晓开源小店](https://shop155917374.taobao.com) 选购一枚即插即跑的 [Linux Lab Disk](https://tinylab.org/linux-lab-disk)。它也叫 “泰晓 Linux 实验盘”，可以在淘宝手机 APP 内搜索 “泰晓 Linux” 后购买。
+
 ### 2.1 安装 Docker
 
 Cloud Lab 基于 Docker，所以必须先安装 [Docker CE](https://store.docker.com/search?type=edition&offering=community)。
