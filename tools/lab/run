@@ -319,14 +319,6 @@ do_prepare &
 # create a ubuntu user
 HOME=/home/$UNIX_USER
 CREATE_FLAG=/create_flag
-BACKUP_FLAG=/backup_flag
-
-if [ -d $HOME/ -a ! -f $CREATE_FLAG ]; then
-  echo "LOG: Backup old home"
-  mkdir -p /tmp/backup/
-  mv $HOME /tmp/backup/
-  touch $BACKUP_FLAG
-fi
 
 if [ -f $CREATE_FLAG ]; then
   # Simply report current setting
@@ -344,14 +336,6 @@ else
 
   # Create home
   do_home_create
-
-  # Restore the backuped home
-  if [ -f $BACKUP_FLAG -a -d /tmp/backup/ ]; then
-    echo "LOG: Restore old home"
-    rsync -a /tmp/backup/$UNIX_USER/ $HOME/
-    chown $UNIX_USER:$UNIX_USER -R $HOME/
-    rm -rf /tmp/backup &
-  fi
 
   # home files
   do_home_hack &
