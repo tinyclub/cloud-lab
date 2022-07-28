@@ -217,6 +217,15 @@ do_home_create ()
   id -u $UNIX_USER &>/dev/null && userdel -f -r $UNIX_USER
 
   useradd --uid $UNIX_UID --create-home --shell /bin/bash --user-group $UNIX_USER_GROUPS $UNIX_USER
+
+  SYSTEM_SUDOERS_USER=/etc/sudoers.d/$UNIX_USER
+  [ $SUDO_IDENTIFY -eq 2 ] && echo "$UNIX_USER ALL=(ALL) NOPASSWD: ALL" > $SYSTEM_SUDOERS_USER \
+			&& chmod 440 $SYSTEM_SUDOERS_USER
+
+  [ -f "$DEF_SYSTEM_SUDOERS_USER" -a "$LAB_SECURITY" != "0" ] \
+    && mv $DEF_SYSTEM_SUDOERS_USER $SYSTEM_SUDOERS_USER \
+    && sed -i -e "s/^$DEF_UNIX_USER/$UNIX_USER/g" $SYSTEM_SUDOERS_USER \
+    && chmod 440 $SYSTEM_SUDOERS_USER
 }
 
 # Hack system
@@ -247,15 +256,6 @@ do_system_hack ()
       cp $sdir/$sfile $sdest
     done
   done
-
-  SYSTEM_SUDOERS_USER=/etc/sudoers.d/$UNIX_USER
-  [ $SUDO_IDENTIFY -eq 2 ] && echo "$UNIX_USER ALL=(ALL) NOPASSWD: ALL" > $SYSTEM_SUDOERS_USER \
-  			&& chmod 440 $SYSTEM_SUDOERS_USER
-
-  [ -f "$DEF_SYSTEM_SUDOERS_USER" -a "$LAB_SECURITY" != "0" ] \
-    && mv $DEF_SYSTEM_SUDOERS_USER $SYSTEM_SUDOERS_USER \
-    && sed -i -e "s/^$DEF_UNIX_USER/$UNIX_USER/g" $SYSTEM_SUDOERS_USER \
-    && chmod 440 $SYSTEM_SUDOERS_USER
 
   touch /tmp/system.hacked
 }
