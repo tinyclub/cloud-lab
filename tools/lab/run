@@ -277,7 +277,7 @@ do_home_hack ()
     dfilters="$dfilters|xfce"
   fi
 
-  for hdir in $CONFIG_SYSTEM_DIR $CORE_SYSTEM_DIR/$ROOT_SYSTEM_DIR $ROOT_SYSTEM_DIR
+  for hdir in $CONFIG_SYSTEM_DIR $CORE_SYSTEM_DIR $ROOT_SYSTEM_DIR
   do
     [ ! -d $hdir/home ] && continue
 
