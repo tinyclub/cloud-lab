@@ -155,8 +155,6 @@ do_user_config ()
 
   # VNC PASS
   do_vnc_pass_config
-
-  touch /tmp/user.config
 }
 
 # Configure owner
@@ -377,9 +375,9 @@ if [ ! -f $CREATE_FLAG ]; then
   while :;
   do
     sleep 1
-    [ -f /tmp/home.hacked -a -f /tmp/system.hacked -a -f /tmp/user.config ] && break
+    [ -f /tmp/home.hacked -a -f /tmp/system.hacked ] && break
   done
-  rm -rf /tmp/{home.hacked,system.hacked,user.config} &
+  rm -rf /tmp/{home.hacked,system.hacked} &
 fi
 
 # Run image built-in tasks
