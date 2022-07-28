@@ -10,6 +10,8 @@ Cloud Lab is open source with no warranty – use at your own risk.
 
 ## Quickstart
 
+If really a Linux newbie or simply don't want to spend time on boring installation, buy the instant [Linux Lab Disk](https://shop155917374.taobao.com).
+
 ### Install docker
 
 Cload Lab is docker based, please make sure docker environment is installed with [Docker CE](https://store.docker.com/search?type=edition&offering=community), Docker CE support Mac, Windows, Ubuntu, Debian, Fedora, CentOS, Azure and AWS, we have tested Cloud Lab with Docker CE in Ubuntu and Mac.
