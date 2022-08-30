@@ -3,7 +3,7 @@
 
 # Cloud Lab
 
-[Cloud Lab](http://tinylab.org/cloud-lab) is a Docker based online lab center, it integrates many popular computer
+[Cloud Lab][003] is a Docker based online lab center, it integrates many popular computer
 science courses and provides a Docker based experiment environment as-is.
 
 Cloud Lab is open source with no warranty – use at your own risk.
@@ -12,9 +12,9 @@ Cloud Lab is open source with no warranty – use at your own risk.
 
 ### Install docker
 
-Cload Lab is docker based, please make sure docker environment is installed with [Docker CE](https://store.docker.com/search?type=edition&offering=community), Docker CE support Mac, Windows, Ubuntu, Debian, Fedora, CentOS, Azure and AWS, we have tested Cloud Lab with Docker CE in Ubuntu and Mac.
+Cload Lab is docker based, please make sure docker environment is installed with [Docker CE][001], Docker CE support Mac, Windows, Ubuntu, Debian, Fedora, CentOS, Azure and AWS, we have tested Cloud Lab with Docker CE in Ubuntu and Mac.
 
-The old install method for Windows and Mac OSX is [Docker Toolbox](https://www.docker.com/docker-toolbox).
+The old install method for Windows and Mac OSX is [Docker Toolbox][002].
 
 ### Configure docker
 
@@ -69,16 +69,14 @@ For Linux or Mac OSX, please simply choose one directory in `~/Downloads` or `~/
 
     Available Labs:
 
-         1	cs630-qemu-lab
-         2	linux-0.11-lab
-         3	linux-lab
-         4	markdown-lab
-         5	qing-lab
-         6	tinylab.org
+        1	cs630-qemu-lab
+        2	linux-0.11-lab
+        3	linux-lab
+        4	markdown-lab
+        5	tinylab.site
 
     Choose the lab number: 2
-         2	linux-0.11-lab
-
+        2	linux-0.11-lab
 
     Download the lab...
 
@@ -112,3 +110,7 @@ If get syntax error under `/etc/sudoers*`, please use `pkexec visudo` to fix up 
 
     $ sudo -s
     $ echo "$SUDO_USER ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/$SUDO_USER
+
+[001]: https://store.docker.com/search?type=edition&offering=community
+[002]: https://www.docker.com/docker-toolbox
+[003]: https://tinylab.org/cloud-lab
