@@ -253,7 +253,7 @@ net="$ip --network $VNC_NET_NAME"
 seccomp="--security-opt seccomp=$TOP_DIR/configs/common/seccomp-profiles-default.json"
 
 # For /tmp automount
-tmpfs="--tmpfs /tmp:rw"
+tmpfs="--tmpfs /tmp:rw,exec"
 
 # For lab name
 lab_name="-h $LAB_NAME"
