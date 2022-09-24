@@ -1160,5 +1160,5 @@ get_host ()
   [ "x$HOST" != "x$oldhost" -a -z "$host" ] && set_var HOST
 }
 
-get_images() { find "$CONFIGS_DIR" -name "name" | xargs -I{} cat "{}" | sort -u; }
+get_images() { find "$CONFIGS_DIR"/*/docker/name | xargs -I{} cat "{}" | sort -u; }
 get_labs() { ls "$CONFIGS_DIR" | egrep -v '^common$' | tr -s ' '; }

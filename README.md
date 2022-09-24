@@ -10,6 +10,8 @@ Cloud Lab is open source with no warranty – use at your own risk.
 
 ## Quickstart
 
+If really a Linux newbie or simply don't want to spend time on boring installation, buy the instant [Linux Lab Disk](https://shop155917374.taobao.com).
+
 ### Install docker
 
 Cload Lab is docker based, please make sure docker environment is installed with [Docker CE][001], Docker CE support Mac, Windows, Ubuntu, Debian, Fedora, CentOS, Azure and AWS, we have tested Cloud Lab with Docker CE in Ubuntu and Mac.
@@ -69,14 +71,14 @@ For Linux or Mac OSX, please simply choose one directory in `~/Downloads` or `~/
 
     Available Labs:
 
-        1	cs630-qemu-lab
-        2	linux-0.11-lab
-        3	linux-lab
-        4	markdown-lab
-        5	tinylab.site
+         1	cs630-qemu-lab
+         2	linux-0.11-lab
+         3	linux-lab
+         4	markdown-lab
+         5	tinylab.site
 
-    Choose the lab number: 2
-        2	linux-0.11-lab
+    Choose the lab number: 3
+         3	linux-lab
 
     Download the lab...
 
@@ -95,14 +97,6 @@ For Linux or Mac OSX, please simply choose one directory in `~/Downloads` or `~/
 ### Start the Lab
 
     $ tools/docker/start
-
-### Update everything
-
-    $ tools/docker/update
-
-### Autostart everything
-
-    $ tools/docker/autostart
 
 ### Run as root without password
 

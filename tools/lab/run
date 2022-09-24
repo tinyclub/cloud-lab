@@ -72,7 +72,7 @@ do_desktop_config ()
 
   # Clean up lxqt & xfce specific files
   [ "$desktop" != "lxqt" ] && rm -rf $HOME/.config/lxqt $HOME/.config/pcmanfm-qt $HOME/.config/autostart/lxqt*.desktop &
-  [ "$desktop" != "xfce" ] && rm -rf $HOME/.config/xfce4 $HOME/.config/autostart/xfce*.desktop &
+  [ "$desktop" != "xfce4" ] && rm -rf $HOME/.config/xfce4 $HOME/.config/autostart/xfce*.desktop &
 }
 
 # Configure pass
@@ -155,8 +155,6 @@ do_user_config ()
 
   # VNC PASS
   do_vnc_pass_config
-
-  touch /tmp/user.config
 }
 
 # Configure owner
@@ -213,10 +211,19 @@ do_home_create ()
   [ $SUDO_IDENTIFY -ge 1 ] && UNIX_USER_GROUPS="--groups adm,sudo,audio"
   [ $SUDO_IDENTIFY -eq 0 ] && UNIX_USER_GROUPS=""
 
-  # The old one should be removed before create a new one
-  id -u $UNIX_USER &>/dev/null && userdel -f -r $UNIX_USER
+  # The old one should be removed before create a new one, but reserve the saved directory
+  id -u $UNIX_USER &>/dev/null && userdel -f $UNIX_USER
 
   useradd --uid $UNIX_UID --create-home --shell /bin/bash --user-group $UNIX_USER_GROUPS $UNIX_USER
+
+  SYSTEM_SUDOERS_USER=/etc/sudoers.d/$UNIX_USER
+  [ $SUDO_IDENTIFY -eq 2 ] && echo "$UNIX_USER ALL=(ALL) NOPASSWD: ALL" > $SYSTEM_SUDOERS_USER \
+			&& chmod 440 $SYSTEM_SUDOERS_USER
+
+  [ -f "$DEF_SYSTEM_SUDOERS_USER" -a "$LAB_SECURITY" != "0" ] \
+    && mv $DEF_SYSTEM_SUDOERS_USER $SYSTEM_SUDOERS_USER \
+    && sed -i -e "s/^$DEF_UNIX_USER/$UNIX_USER/g" $SYSTEM_SUDOERS_USER \
+    && chmod 440 $SYSTEM_SUDOERS_USER
 }
 
 # Hack system
@@ -248,15 +255,6 @@ do_system_hack ()
     done
   done
 
-  SYSTEM_SUDOERS_USER=/etc/sudoers.d/$UNIX_USER
-  [ $SUDO_IDENTIFY -eq 2 ] && echo "$UNIX_USER ALL=(ALL) NOPASSWD: ALL" > $SYSTEM_SUDOERS_USER \
-  			&& chmod 440 $SYSTEM_SUDOERS_USER
-
-  [ -f "$DEF_SYSTEM_SUDOERS_USER" -a "$LAB_SECURITY" != "0" ] \
-    && mv $DEF_SYSTEM_SUDOERS_USER $SYSTEM_SUDOERS_USER \
-    && sed -i -e "s/^$DEF_UNIX_USER/$UNIX_USER/g" $SYSTEM_SUDOERS_USER \
-    && chmod 440 $SYSTEM_SUDOERS_USER
-
   touch /tmp/system.hacked
 }
 
@@ -279,7 +277,7 @@ do_home_hack ()
     dfilters="$dfilters|xfce"
   fi
 
-  for hdir in $CONFIG_SYSTEM_DIR $CORE_SYSTEM_DIR/$ROOT_SYSTEM_DIR $ROOT_SYSTEM_DIR
+  for hdir in $CONFIG_SYSTEM_DIR $CORE_SYSTEM_DIR $ROOT_SYSTEM_DIR
   do
     [ ! -d $hdir/home ] && continue
 
@@ -293,11 +291,13 @@ do_home_hack ()
       [ $? -eq 0 ] && continue
       hfiles="$hfiles;$_hfile;"
 
-      # do copy it
       _hfile=$(echo $_hfile | sed -e "s%/home/%$HOME/%g")
       hdest=`dirname $_hfile`
-      [ ! -d $hdest ] && mkdir -p $hdest
+      # Ignore if already there
+      [ -f $_hfile ] && continue
 
+      # do copy it
+      [ ! -d $hdest ] && mkdir -p $hdest
       #echo "cp $hdir/$hfile $hdest"
       cp $hdir/$hfile $hdest
     done
@@ -321,14 +321,6 @@ do_prepare &
 # create a ubuntu user
 HOME=/home/$UNIX_USER
 CREATE_FLAG=/create_flag
-BACKUP_FLAG=/backup_flag
-
-if [ -d $HOME/ -a ! -f $CREATE_FLAG ]; then
-  echo "LOG: Backup old home"
-  mkdir -p /tmp/backup/
-  mv $HOME /tmp/backup/
-  touch $BACKUP_FLAG
-fi
 
 if [ -f $CREATE_FLAG ]; then
   # Simply report current setting
@@ -346,14 +338,6 @@ else
 
   # Create home
   do_home_create
-
-  # Restore the backuped home
-  if [ -f $BACKUP_FLAG -a -d /tmp/backup/ ]; then
-    echo "LOG: Restore old home"
-    rsync -a /tmp/backup/$UNIX_USER/ $HOME/
-    chown $UNIX_USER:$UNIX_USER -R $HOME/
-    rm -rf /tmp/backup &
-  fi
 
   # home files
   do_home_hack &
@@ -377,9 +361,9 @@ if [ ! -f $CREATE_FLAG ]; then
   while :;
   do
     sleep 1
-    [ -f /tmp/home.hacked -a -f /tmp/system.hacked -a -f /tmp/user.config ] && break
+    [ -f /tmp/home.hacked -a -f /tmp/system.hacked ] && break
   done
-  rm -rf /tmp/{home.hacked,system.hacked,user.config} &
+  rm -rf /tmp/{home.hacked,system.hacked} &
 fi
 
 # Run image built-in tasks
