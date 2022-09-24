@@ -1,6 +1,6 @@
 <!-- metadata start --><!--
 % Cloud Lab v0.8 中文手册
-% [泰晓科技 | Tinylab.org](http://tinylab.org)
+% [泰晓科技 | Tinylab.org][004]
 % \today
 --><!-- metadata end -->
 
@@ -10,17 +10,17 @@
 
 ## 1. 产品简介
 
-[Cloud Lab](http://tinylab.org/cloud-lab) 是一套基于 Docker 的计算机软件云端实验管理平台。
+[Cloud Lab][005] 是一套基于 Docker 的计算机软件云端实验管理平台。
 
 Cloud Lab 是一个开源软件，不提供任何保证，请自行承担使用过程中的任何风险。
 
 ## 2. 产品安装
 
-如果确实是 Linux 新手或不喜欢无聊的安装过程，想**免安装**立马使用 Cloud Lab，那么可以从 [泰晓开源小店](https://shop155917374.taobao.com) 选购一枚即插即跑的 [Linux Lab Disk](https://tinylab.org/linux-lab-disk)。它也叫 “泰晓 Linux 实验盘”，可以在淘宝手机 APP 内搜索 “泰晓 Linux” 后购买。
+如果确实是 Linux 新手或不喜欢无聊的安装过程，想**免安装**立马使用 Cloud Lab，那么可以从 [泰晓开源小店][006] 选购一枚即插即跑的 [Linux Lab Disk][007]。它也叫 “泰晓 Linux 实验盘”，可以在淘宝手机 APP 内搜索 “泰晓 Linux” 后购买。
 
 ### 2.1 安装 Docker
 
-Cloud Lab 基于 Docker，所以必须先安装 [Docker CE](https://store.docker.com/search?type=edition&offering=community)。
+Cloud Lab 基于 Docker，所以必须先安装 [Docker CE][002]。
 
 Docker CE 支持 Mac, Windows, Ubuntu, Debian, Fedora, CentOS, Azure and AWS，Cloud Lab 已经适配 Windows, Mac, Ubuntu 等多种系统。
 
@@ -48,8 +48,8 @@ Cloud Lab 当前已经支持的实验种类如下：
 
 这里将以 `linux-lab` 为例，它是一套 Linux 内核的实验环境和材料，相关信息为：
 
-* [Linux Lab 首页](https://tinylab.org/linux-lab)
-* [Linux Lab 仓库](https://gitee.com/tinylab/linux-lab)
+* [Linux Lab 首页][003]
+* [Linux Lab 仓库][001]
 
 ### 3.2 选择并下载某种计算机软件实验
 
@@ -95,7 +95,7 @@ Cloud Lab 当前已经支持的实验种类如下：
     $ tools/docker/bash linux-lab
     ubuntu@linux-lab:/labs/linux-lab$ ls
 
-具体实现的开展方式因实验种类而异，这里不做介绍，可参考 [Linux Lab](http://tinylab.org/linux-lab)。
+具体实现的开展方式因实验种类而异，这里不做介绍，可参考 [Linux Lab][003]。
 
 其中的 `webssh`, `webvnc` 适合访问远程的云端实验环境。
 
@@ -118,3 +118,11 @@ Cloud Lab 当前已经支持的实验种类如下：
 Cloud Lab 允许灵活添加并管理各种计算机软件实验，可以参照现有实现类型添加。
 
 这部分如有需求，可添加微信号 `tinylab` 联系商业支持。
+
+[001]: https://gitee.com/tinylab/linux-lab
+[002]: https://store.docker.com/search?type=edition&offering=community
+[003]: https://tinylab.org/linux-lab
+[004]: https://tinylab.org
+[005]: https://tinylab.org/cloud-lab
+[006]: https://shop155917374.taobao.com
+[007]: https://tinylab.org/linux-lab-disk

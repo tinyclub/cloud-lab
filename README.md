@@ -3,7 +3,7 @@
 
 # Cloud Lab
 
-[Cloud Lab](http://tinylab.org/cloud-lab) is a Docker based online lab center, it integrates many popular computer
+[Cloud Lab][003] is a Docker based online lab center, it integrates many popular computer
 science courses and provides a Docker based experiment environment as-is.
 
 Cloud Lab is open source with no warranty – use at your own risk.
@@ -14,9 +14,9 @@ If really a Linux newbie or simply don't want to spend time on boring installati
 
 ### Install docker
 
-Cload Lab is docker based, please make sure docker environment is installed with [Docker CE](https://store.docker.com/search?type=edition&offering=community), Docker CE support Mac, Windows, Ubuntu, Debian, Fedora, CentOS, Azure and AWS, we have tested Cloud Lab with Docker CE in Ubuntu and Mac.
+Cload Lab is docker based, please make sure docker environment is installed with [Docker CE][001], Docker CE support Mac, Windows, Ubuntu, Debian, Fedora, CentOS, Azure and AWS, we have tested Cloud Lab with Docker CE in Ubuntu and Mac.
 
-The old install method for Windows and Mac OSX is [Docker Toolbox](https://www.docker.com/docker-toolbox).
+The old install method for Windows and Mac OSX is [Docker Toolbox][002].
 
 ### Configure docker
 
@@ -105,3 +105,7 @@ If get syntax error under `/etc/sudoers*`, please use `pkexec visudo` to fix up 
 
     $ sudo -s
     $ echo "$SUDO_USER ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/$SUDO_USER
+
+[001]: https://store.docker.com/search?type=edition&offering=community
+[002]: https://www.docker.com/docker-toolbox
+[003]: https://tinylab.org/cloud-lab
