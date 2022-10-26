@@ -87,9 +87,6 @@ resize_screen ()
 
 prepare_login || exit 0
 
-# Exit if running as root
-[ `id -u` -eq 0 ] && echo "ERR: Web browsers can not run as root user, please run as normal user." && exit 1
-
 # Enable autoconnect by default
 [ -z "$VNC_AUTOCONNECT" ] && VNC_AUTOCONNECT=1
 

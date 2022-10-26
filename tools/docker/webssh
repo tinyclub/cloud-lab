@@ -36,10 +36,8 @@ log_print "Get cached data"
 get_vars VNC_IP UNIX_USER UNIX_PWD
 get_host
 
-# Exit if running as root
-[ `id -u` -eq 0 ] && echo "ERR: Web browsers can not run as root user, please run as normal user." && exit 1
-
 WEBSSH_URL="$WEB_HTTP://${HOST}:${HOST_WEBSSH_PORT}?ssh=ssh://$UNIX_USER:$UNIX_PWD@$VNC_IP:$CONTAINER_SSH_PORT"
 
 show_lab
+
 browse_url "$WEBSSH_URL"
