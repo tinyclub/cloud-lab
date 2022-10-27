@@ -235,6 +235,8 @@ fi
 
 # For cross platform support
 [ -n "$PLATFORM" ] && platform="--platform $PLATFORM"
+# FIXME: docker toolbox is too old to support the --platform option
+[ "x$HOST_OS" = "xWindows" -a "$DOCKER" = "toolbox" ] && platform=""
 
 # Build container name
 container="--name $CONTAINER_NAME"
