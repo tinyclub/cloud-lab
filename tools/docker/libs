@@ -822,9 +822,14 @@ EOF
     if [ ! -f "$BROWSE_DESKTOP_SHORTCUT" ]; then
       BROWSE_BAT="$TOP_DIR"/tools/windows/browse.bat
       BROWSE_CMD="$(basename "$WEB_BROWSER")"
-      BROWSE_ICON="$(echo $BROWSE_CMD | tr -d '\"')"
 
-      [ "$BROWSE_CMD" != "start" ] && BROWSE_CMD="start $BROWSE_CMD"
+      if [ "$BROWSE_CMD" != "start" ]; then
+        BROWSE_CMD="start $BROWSE_CMD"
+        __BROWSE_CMD="$(cd "$(dirname "$WEB_BROWSER")" && pwd -W | sed -e 's% %\" \"%g')/$(basename "$WEB_BROWSER")"
+        BROWSE_ICON="$(echo $__BROWSE_CMD | tr -d '\"')"
+      else
+        BROWSE_ICON=$CMD_ICON
+      fi
 
       echo "$BROWSE_CMD \"$LABS_WEB_URL\"" > "$BROWSE_BAT"
 
@@ -845,7 +850,6 @@ EOF
       touch "$sc"
     done
   fi
-
 }
 
 # Wait for remote services
