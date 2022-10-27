@@ -42,7 +42,7 @@ get_current()
   if [ -z "$CURRENT" ]; then
     [ -f "$LAB_CURRENT" ] && CURRENT=$(cat "$LAB_CURRENT")
   else
-    ls "$CONFIGS_DIR" | tr ' ' '\n' | grep -q ^$CURRENT$
+    ls "$CONFIGS_DIR" | tr -d '/' | egrep -v '^common$' | tr -s ' ' | tr ' ' '\n' | grep -q ^$CURRENT$
     [ $? -ne 0 -a -f "$LAB_CURRENT" ] && CURRENT=$(cat "$LAB_CURRENT")
 
     [ -z "$current" ] && echo $CURRENT | tr -d '\r\n' > "$LAB_CURRENT" &
