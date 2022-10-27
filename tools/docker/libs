@@ -323,6 +323,9 @@ browse_url ()
   get_browser
   [ $? -ne 0 ] && err_print "Give up browser launching for no web browser found" && return 1
 
+  # Exit if running as root
+  [ `id -u` -eq 0 ] && echo "ERR: Web browsers can not run as root user, please run as normal user." && exit 1
+
   log_print "Open '$1' with '$__WEB_BROWSER' ..."
 
   if [ "x$HOST_OS" = "xDarwin" ]; then
