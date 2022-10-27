@@ -30,7 +30,7 @@ if [ $? -eq 0 ]; then
 fi
 
 # Clean up old stopped containers if the saved environment has been cleaned up
-log_print "Check deprecated containers ..."
+log_print "Check obsoleted containers ..."
 if [ ! -f "$LAB_CONTAINER_ID" ]; then
   for status in exited created
   do
