@@ -90,7 +90,7 @@ prepare_docker_for_windows ()
 
   else # toolbox path
     if [ "$CURRENT_DOCKER" = "desktop" -o -z "$DOCKER_TOOLBOX_INSTALL_PATH" ]; then
-	. "$TOP_DIR"/tools/windows/docker-toolbox-env.sh
+      . "$TOP_DIR"/tools/windows/docker-toolbox-env.sh
     else
       docker-machine ls | grep -q default
       if [ $? -ne 0 ]; then
