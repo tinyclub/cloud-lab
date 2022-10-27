@@ -815,10 +815,12 @@ EOF
 
     if [ ! -f "$BROWSE_DESKTOP_SHORTCUT" ]; then
       BROWSE_BAT="$TOP_DIR"/tools/windows/browse.bat
-      BROWSE_CMD="$(cd "$(dirname "$WEB_BROWSER")" && pwd -W | sed -e 's% %\" \"%g')/$(basename "$WEB_BROWSER")"
+      BROWSE_CMD="$(basename "$WEB_BROWSER")"
       BROWSE_ICON="$(echo $BROWSE_CMD | tr -d '\"')"
 
-      echo "start $BROWSE_CMD \"$LABS_WEB_URL\"" > "$BROWSE_BAT"
+      [ "$BROWSE_CMD" != "start" ] && BROWSE_CMD="start $BROWSE_CMD"
+
+      echo "$BROWSE_CMD \"$LABS_WEB_URL\"" > "$BROWSE_BAT"
 
       BROWSE_DESKTOP_SHORTCUT="$DESKTOP_DIR/$(basename $BROWSE_DESKTOP_SHORTCUT)"
       powershell "\$s=(New-Object -COM WScript.Shell).CreateShortcut('$BROWSE_DESKTOP_SHORTCUT');\$s.TargetPath='$TOOLS_DIR/browse.bat';\$s.IconLocation='$BROWSE_ICON';\$s.Save()"
