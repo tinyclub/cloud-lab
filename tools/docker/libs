@@ -850,10 +850,10 @@ wait_services ()
 
   service_check=""
   if [ "$login_method" = "vnc" -o "$login_method" = "webvnc" ]; then
-    service_check="grep -q 'screen setup finished' /var/log/x11vnc.log >/dev/null 2>&1"
+    service_check="grep -q 'screen setup finished' //var/log/x11vnc.log"
   fi
   if [ "$login_method" = "ssh" -o "$login_method" = "webssh" ]; then
-    service_check="ls /var/log/sshd.log >/dev/null 2>&1"
+    service_check="ls //var/log/sshd.log"
   fi
   [ -z "$service_check" ] && return
 
