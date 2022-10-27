@@ -112,7 +112,7 @@ show_usage()
 # If the first argument is valid lab, use the second one as vnc client argument.
 if [ -n "$1" ]; then
   LAB=$1
-  [ -n "$LAB" ] && ls -1 "$CONFIGS_DIR" | grep -q ^$LAB$
+  [ -n "$LAB" ] && ls "$CONFIGS_DIR" | tr ' ' '\n' | grep -q ^$LAB$
   if [ $? -eq 0 ]; then
     [ -n "$2" ] && VNC=$2
   else
