@@ -1,0 +1,14 @@
+#!/bin/bash
+#
+# container-run.sh -- lab specific startup script,
+#
+# Copyright (C) 2016-2022 Wu Zhangjin <falcon@ruma.tech>
+#
+
+TOP_DIR=$(cd $(dirname $0) && pwd)/
+
+# FIXME: Disable git detachedHead advice, bsp submodule use FETCH_HEAD currently.
+git config --global advice.detachedHead false
+
+# Disable https ssl verify
+git config --global http.sslVerify false
