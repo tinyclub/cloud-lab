@@ -1176,4 +1176,4 @@ get_host ()
 }
 
 get_images() { find "$CONFIGS_DIR"/*/docker/name | xargs -I{} cat "{}" | sort -u; }
-get_labs() { ls "$CONFIGS_DIR" | egrep -v '^common$' | tr -s ' '; }
+get_labs() { ls "$CONFIGS_DIR" | tr -d '/' | egrep -v '^common$' | tr -s ' '; }
