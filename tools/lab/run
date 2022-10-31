@@ -87,7 +87,7 @@ do_pass_config ()
 do_vnc_config ()
 {
   which x11vnc >/dev/null 2>&1
-  [ $? -eq 0 ] && return 0
+  [ $? -ne 0 ] && return 0
 
   VNC_PWD_FILE=$HOME/.vnc/passwdfile
   [ ! -d $HOME/.vnc ] && mkdir -p $HOME/.vnc
