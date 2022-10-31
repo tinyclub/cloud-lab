@@ -81,6 +81,7 @@ do_pass_config ()
   # UNIX PASS
   echo "$UNIX_USER:$UNIX_PWD" | chpasswd
 
+  [ -z "$UNIX_IDENTIFY" ] && UNIX_IDENTIFY=1
   # Forbit unix user login(no identify) by locking it, and unlock it for login available(identify)
   [ $UNIX_IDENTIFY -eq 0 ] && passwd -l $UNIX_USER
   [ $UNIX_IDENTIFY -eq 1 ] && passwd -u $UNIX_USER
@@ -106,6 +107,7 @@ do_vnc_pass_config ()
 
   # Disable the VNC login password
   get_var HOST_NAME
+  [ -z "$VNC_IDENTIFY" ] && VNC_IDENTIFY=1
   [ $VNC_IDENTIFY -eq 0 -a "x$HOST_NAME" = "xlocalhost" ] \
     && sed -i -e "s% -usepw$%-nopw%g" $SYSTEM_SUPERVISORD_CONF
 }
@@ -208,6 +210,7 @@ do_home_create ()
   DEF_SYSTEM_SUDOERS_USER=/etc/sudoers.d/$DEF_UNIX_USER
   DESKTOP_PATH=$HOME/Desktop/
 
+  [ -z "$SUDO_IDENTIFY" ] && SUDO_IDENTIFY=2
   [ $SUDO_IDENTIFY -ge 1 ] && UNIX_USER_GROUPS="--groups adm,sudo,audio"
   [ $SUDO_IDENTIFY -eq 0 ] && UNIX_USER_GROUPS=""
 
