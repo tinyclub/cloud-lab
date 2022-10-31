@@ -338,9 +338,6 @@ else
   # !home files
   do_system_hack &
 
-  # Touch a flag
-  touch $CREATE_FLAG
-
   # Detect desktop
   do_desktop_config
 
@@ -372,6 +369,9 @@ if [ ! -f $CREATE_FLAG ]; then
     [ -f /tmp/home.hacked -a -f /tmp/system.hacked ] && break
   done
   rm -rf /tmp/{home.hacked,system.hacked} &
+
+  # Touch a flag
+  touch $CREATE_FLAG
 fi
 
 # VNC setting, should wait for /tmp/system.hacked
