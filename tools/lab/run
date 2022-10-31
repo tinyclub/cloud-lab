@@ -69,10 +69,6 @@ do_desktop_config ()
       desktop=$DESKTOP
     fi
   fi
-
-  # Clean up lxqt & xfce specific files
-  [ "$desktop" != "lxqt" ] && rm -rf $HOME/.config/lxqt $HOME/.config/pcmanfm-qt $HOME/.config/autostart/lxqt*.desktop &
-  [ "$desktop" != "xfce4" ] && rm -rf $HOME/.config/xfce4 $HOME/.config/autostart/xfce*.desktop &
 }
 
 # Configure pass
@@ -87,29 +83,37 @@ do_pass_config ()
   [ $UNIX_IDENTIFY -eq 1 ] && passwd -u $UNIX_USER
 }
 
-# Configure vnc pass
-do_vnc_pass_config ()
+# Configure vnc
+do_vnc_config ()
 {
   which x11vnc >/dev/null 2>&1
-  if [ $? -eq 0 ]; then
-    VNC_PWD_FILE=$HOME/.vnc/passwdfile
-    [ ! -d $HOME/.vnc ] && mkdir -p $HOME/.vnc
-    echo $VNC_PWD > $VNC_PWD_FILE
-    echo __BEGIN_VIEWONLY__ >> $VNC_PWD_FILE
-    echo $VNC_PWD_VIEWONLY >> $VNC_PWD_FILE
+  [ $? -eq 0 ] && return 0
 
-    if [ $PWD_TOTAL -gt 0 ]; then
-      PWGEN_OPTS="-B -s -n -v $PWD_LENGTH $PWD_TOTAL"
-      pwgen $PWGEN_OPTS | tr ' ' '\n' >> $VNC_PWD_FILE
-    fi
-    chmod o-rwx $VNC_PWD_FILE
+  VNC_PWD_FILE=$HOME/.vnc/passwdfile
+  [ ! -d $HOME/.vnc ] && mkdir -p $HOME/.vnc
+  echo $VNC_PWD > $VNC_PWD_FILE
+  echo __BEGIN_VIEWONLY__ >> $VNC_PWD_FILE
+  echo $VNC_PWD_VIEWONLY >> $VNC_PWD_FILE
+
+  if [ $PWD_TOTAL -gt 0 ]; then
+    PWGEN_OPTS="-B -s -n -v $PWD_LENGTH $PWD_TOTAL"
+    pwgen $PWGEN_OPTS | tr ' ' '\n' >> $VNC_PWD_FILE
+  fi
+  chmod o-rwx $VNC_PWD_FILE
+
+  # Update user setting
+  X11VNC_SUPERVISORD_CONF=/etc/supervisor/conf.d/x11vnc.conf
+  if [ "$UNIX_USER" != "$DEF_UNIX_USER" ]; then
+    sed -i -e "s%$DEF_HOME%$HOME%g" $X11VNC_SUPERVISORD_CONF
+    sed -i -e "s%user=$DEF_UNIX_USER%user=$UNIX_USER%g" $X11VNC_SUPERVISORD_CONF
   fi
 
   # Disable the VNC login password
-  get_var HOST_NAME
   [ -z "$VNC_IDENTIFY" ] && VNC_IDENTIFY=1
-  [ $VNC_IDENTIFY -eq 0 -a "x$HOST_NAME" = "xlocalhost" ] \
-    && sed -i -e "s% -usepw$%-nopw%g" $SYSTEM_SUPERVISORD_CONF
+  if [ $VNC_IDENTIFY -eq 0 ]; then
+    get_var HOST_NAME
+    [ "x$HOST_NAME" = "xlocalhost" ] && sed -i -e "s% -usepw$%-nopw%g" $X11VNC_SUPERVISORD_CONF
+  fi
 }
 
 # Sync uid
@@ -145,18 +149,8 @@ do_user_config ()
   # Don't touch me: otherwise, need to modify tools/docker/run
   echo "User: $UNIX_USER ,Password: $UNIX_PWD ,VNC Password: $VNC_PWD ,Viewonly Password: $VNC_PWD_VIEWONLY"
 
-  # Update user setting
-  SYSTEM_SUPERVISORD_CONF=/etc/supervisor/conf.d/x11vnc.conf
-  if [ "$UNIX_USER" != "$DEF_UNIX_USER" ]; then
-    sed -i -e "s%$DEF_HOME%$HOME%g" $SYSTEM_SUPERVISORD_CONF
-    sed -i -e "s%user=$DEF_UNIX_USER%user=$UNIX_USER%g" $SYSTEM_SUPERVISORD_CONF
-  fi
-
   # set password
   do_pass_config &
-
-  # VNC PASS
-  do_vnc_pass_config
 }
 
 # Configure owner
@@ -206,11 +200,6 @@ run_startup_scripts ()
 # Create home
 do_home_create ()
 {
-  DEF_HOME=/home/$DEF_UNIX_USER
-  DEF_SYSTEM_SUDOERS_USER=/etc/sudoers.d/$DEF_UNIX_USER
-  DESKTOP_PATH=$HOME/Desktop/
-
-  [ -z "$SUDO_IDENTIFY" ] && SUDO_IDENTIFY=2
   [ $SUDO_IDENTIFY -ge 1 ] && UNIX_USER_GROUPS="--groups adm,sudo,audio"
   [ $SUDO_IDENTIFY -eq 0 ] && UNIX_USER_GROUPS=""
 
@@ -218,7 +207,14 @@ do_home_create ()
   id -u $UNIX_USER &>/dev/null && userdel -f $UNIX_USER
 
   useradd --uid $UNIX_UID --create-home --shell /bin/bash --user-group $UNIX_USER_GROUPS $UNIX_USER
+}
 
+# Hack sudo
+do_sudo_hack ()
+{
+  [ -z "$SUDO_IDENTIFY" ] && SUDO_IDENTIFY=2
+
+  DEF_SYSTEM_SUDOERS_USER=/etc/sudoers.d/$DEF_UNIX_USER
   SYSTEM_SUDOERS_USER=/etc/sudoers.d/$UNIX_USER
   [ $SUDO_IDENTIFY -eq 2 ] && echo "$UNIX_USER ALL=(ALL) NOPASSWD: ALL" > $SYSTEM_SUDOERS_USER \
 			&& chmod 440 $SYSTEM_SUDOERS_USER
@@ -257,6 +253,9 @@ do_system_hack ()
       cp $sdir/$sfile $sdest
     done
   done
+
+  # Fix up sudo support, make sure hack after copy setting file
+  do_sudo_hack
 
   touch /tmp/system.hacked
 }
@@ -306,6 +305,10 @@ do_home_hack ()
     done
   done
 
+  # Clean up lxqt & xfce specific files
+  [ "$desktop" != "lxqt" ] && rm -rf $HOME/.config/lxqt $HOME/.config/pcmanfm-qt $HOME/.config/autostart/lxqt*.desktop &
+  [ "$desktop" != "xfce4" ] && rm -rf $HOME/.config/xfce4 $HOME/.config/autostart/xfce*.desktop &
+
   # update owner of $HOME
   chown $UNIX_USER:$UNIX_USER -R $HOME/
 
@@ -322,7 +325,9 @@ get_vars UNIX_USER UNIX_UID
 do_prepare &
 
 # create a ubuntu user
+DEF_HOME=/home/$DEF_UNIX_USER
 HOME=/home/$UNIX_USER
+DESKTOP_PATH=$HOME/Desktop/
 CREATE_FLAG=/create_flag
 
 if [ -f $CREATE_FLAG ]; then
@@ -368,6 +373,9 @@ if [ ! -f $CREATE_FLAG ]; then
   done
   rm -rf /tmp/{home.hacked,system.hacked} &
 fi
+
+# VNC setting, should wait for /tmp/system.hacked
+do_vnc_config
 
 # Run image built-in tasks
 run_startup_scripts
