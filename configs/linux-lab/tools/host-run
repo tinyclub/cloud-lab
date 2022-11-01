@@ -23,7 +23,7 @@ done
 # This may break nfsboot in Windows 10 and Mac OSX, there is no suitable method
 # to insert nfsd in 'host' side.
 
-if [ ! -d /proc/fs/nfsd ]; then
+if [ ! -d /proc/fs/nfsd -o ! -f /proc/fs/nfs/exports ]; then
   major_version=$(uname -r | cut -d '.' -f1)
   minor_version=$(uname -r | cut -d '.' -f2)
   if [ $major_version -eq 5 -a $minor_version -ge 3 -a $minor_version -le 7 ]; then

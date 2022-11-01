@@ -30,7 +30,7 @@ os=$HOST_OS
 # to insert nfsd in 'host' side.
 
 # The nfs module may have been compiled in or have been inserted in host side
-if [ ! -d /proc/fs/nfsd ]; then
+if [ ! -d /proc/fs/nfsd -o ! -f /proc/fs/nfs/exports ]; then
   if [ "$os" = "Linux" ]; then
     NFS=nfsd
     major_version=$(uname -r | cut -d '.' -f1)
