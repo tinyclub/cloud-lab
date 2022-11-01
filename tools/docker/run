@@ -241,8 +241,10 @@ fi
 # Build container name
 container="--name $CONTAINER_NAME"
 
-#coredump="--ulimit core=99999999999:99999999999 --mount source=coredumps_volume,target=/tmp/cores"
-coredump="--ulimit core=-1"
+# Only allow generate <=100M coredump
+core_size_m=100
+core_size_k=$(($core_size_m * 1024 * 1024))
+coredump="--ulimit core=$core_size_k:$core_size_k"
 
 # use --ip command to record the ip address
 [ -n "$VNC_IP" ] && ip="--ip=$VNC_IP"
