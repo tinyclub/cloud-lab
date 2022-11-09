@@ -19,7 +19,7 @@ OLD_LAB=$CURRENT
 
 # main branch
 DEF_BRANCH=master
-[ -z "$BRANCH" ] && BRANCH=$DEF_BRANCH
+get_var BRANCH
 
 # Fix up windows support
 config_casesensitive ()
