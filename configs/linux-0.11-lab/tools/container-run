@@ -16,10 +16,9 @@ else
 fi
 
 modules="loop minix kvm $kvm_dri"
-container_mdir=/lib/modules/`uname -r`/
+container_mdir=/m/lib/modules/`uname -r`/
 if [ -d $container_mdir -a ! -f $container_mdir/modules.dep.bin ]; then
   depmod -A
-  depmod=1
 fi
 
 for m in $modules
@@ -28,8 +27,8 @@ do
   [ $? -ne 0 ] && continue
 
   lsmod | grep -q $m
-  if [ $? -ne 0 -a -n "$depmod" ]; then
-    modprobe $m >/dev/null 2>&1
+  if [ $? -ne 0 ]; then
+    modprobe -d /m $m >/dev/null 2>&1
   fi
 
   # tell user enable cpu virtualization in bios if not disabled
