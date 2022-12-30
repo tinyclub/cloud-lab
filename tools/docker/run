@@ -165,6 +165,11 @@ volumemap="$volumemap -v '/$CONFIG_DIR/lab-logo.png':'$CONFIG_WORKDIR/lab-logo.p
 volumemap="$volumemap -v '/$CONFIG_DIR/docker/container':'$CONFIG_WORKDIR/docker/container'"
 limits=$LIMITS
 
+# Print shared volumes
+info_print "Shared volumes:"
+info_print "'/$CONFIG_DIR/home' --> '//home'"
+info_print "'/$LAB_DIR' --> '$LAB_WORKDIR'"
+
 # Get a new ip for our new container if no one cached
 if [ -z "$VNC_IP" -o "$VNC_IP" = "$DEF_VNC_IP" ]; then
   log_print "Get a new ip address"
