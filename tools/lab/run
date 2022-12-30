@@ -95,6 +95,7 @@ do_vnc_config ()
   echo __BEGIN_VIEWONLY__ >> $VNC_PWD_FILE
   echo $VNC_PWD_VIEWONLY >> $VNC_PWD_FILE
 
+  get_vars PWD_LENGTH PWD_TOTAL
   if [ $PWD_TOTAL -gt 0 ]; then
     PWGEN_OPTS="-B -s -n -v $PWD_LENGTH $PWD_TOTAL"
     pwgen $PWGEN_OPTS | tr ' ' '\n' >> $VNC_PWD_FILE
