@@ -99,6 +99,12 @@ echo core > /proc/sys/kernel/core_pattern
 $TOP_DIR/enable_net_bridge.sh
 
 ## Start Net servers
+NFS_PATH=/labs/linux-lab/build
+if [ ! -d $NFS_PATH ]; then
+  mkdir -p $NFS_PATH
+  [ -z "$UNIX_USER" ] && UNIX_USER=ubuntu
+  chown $UNIX_USER:$UNIX_USER $NFS_PATH
+fi
 $TOP_DIR/restart-net-servers.sh
 
 ## Install aarch64-linux-gnu-gcc alternatives
