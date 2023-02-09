@@ -115,4 +115,4 @@ git config --global advice.detachedHead false
 git config --global http.sslVerify false
 
 # Clean up the target directory
-rm /binutils-arm-linux-gnueabi.tar.gz &
+rm -rf /binutils-arm-linux-gnueabi.tar.gz &
