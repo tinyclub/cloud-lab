@@ -147,7 +147,7 @@ set_var () #VAR
 
   VAR=$1
 
-  var=`eval echo \\$${VAR} | egrep -v "^$|^ *$"`
+  var=`eval echo \\$${VAR} | grep -E -v "^$|^ *$"`
   var_file="`eval echo \\${LAB_$VAR}`"
 
   [ -n "$var" ] && echo "$var" | sed -e ':a;N;$!ba;s/\r//g;s%^\s*$%%g;s%\s\{1,\}$%%g;s/ /\n/g' > "$var_file"

@@ -111,7 +111,7 @@ LOGIN_TOOL="$TOP_DIR"/tools/docker/$LOGIN
 
 info_print "Available login methods:"
 echo
-echo "     $LOGIN_METHODS" | egrep --color "[^a-z]$LOGIN"
+echo "     $LOGIN_METHODS" | grep -E --color "[^a-z]$LOGIN"
 echo
 info_print "Switch to another method:"
 echo

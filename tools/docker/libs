@@ -19,7 +19,7 @@ get_host_virtual ()
   [ "x$HOST_OS" != "xLinux" ] && return
 
   for t in product_name sys_vendor; do
-    f=/sys/class/dmi/id/$t && [ -f $f ] && egrep -iq "vmware|virtualbox|qemu" $f && HOST_VIRTUAL=1 && break
+    f=/sys/class/dmi/id/$t && [ -f $f ] && grep -E -iq "vmware|virtualbox|qemu" $f && HOST_VIRTUAL=1 && break
   done
 }
 
@@ -699,7 +699,7 @@ create_shortcuts ()
     BROWSER_ICON=/usr/share/pixmaps/${WEB_BROWSER}.png
     DEFAULT_BROWSER_ICON=$BROWSER_ICON
     if [ ! -f "$BROWSER_ICON" ]; then
-      BROWSER_ICON=$(find /usr/share/ -name "*${WEB_BROWSER}*.png" -o -name "*${WEB_BROWSER}*.svg"  2>/dev/null | egrep -i "hicolor|bloom" | egrep "48|64|96" | tail -1)
+      BROWSER_ICON=$(find /usr/share/ -name "*${WEB_BROWSER}*.png" -o -name "*${WEB_BROWSER}*.svg"  2>/dev/null | grep -E -i "hicolor|bloom" | grep -E "48|64|96" | tail -1)
     fi
     if [ ! -f "$BROWSER_ICON" ]; then
       BROWSER_ICON=$TOP_DIR/images/3rd-party/${WEB_BROWSER}.png
@@ -759,7 +759,7 @@ create_shortcuts ()
         fi
       fi
       if [ ! -f "$XTERM_ICON" ]; then
-        XTERM_ICON=$(find /usr/share/ -name "${XTERM}*.png" -o -name "${XTERM}*.svg"  2>/dev/null | egrep -i "hicolor|bloom" | egrep "48|64|96|128" | tail -1)
+        XTERM_ICON=$(find /usr/share/ -name "${XTERM}*.png" -o -name "${XTERM}*.svg"  2>/dev/null | grep -E -i "hicolor|bloom" | grep -E "48|64|96|128" | tail -1)
         [ -z "$XTERM_ICON" ] && XTERM_ICON=$(find /usr/share/ -name "${XTERM}*.png" 2>/dev/null | tail -1)
       fi
     fi
@@ -1176,4 +1176,4 @@ get_host ()
 }
 
 get_images() { find "$CONFIGS_DIR"/*/docker/name | xargs -I{} cat "{}" | sort -u; }
-get_labs() { ls "$CONFIGS_DIR" | tr -d '/' | egrep -v '^common$' | tr -s ' '; }
+get_labs() { ls "$CONFIGS_DIR" | tr -d '/' | grep -E -v '^common$' | tr -s ' '; }

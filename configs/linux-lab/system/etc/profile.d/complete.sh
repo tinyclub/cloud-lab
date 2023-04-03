@@ -39,7 +39,7 @@ function _makefile_targets {
                         app_targets="$app_targets $app-$target"
                     done
                 done
-                default_targets="$(egrep -e '^[a-zA-Z0-9_-]+:[^=]*' $(pwd)/Makefile | grep -v ":=" | cut -d ':' -f1 | egrep -v "$ignores" | tr '\n' ' ')"
+                default_targets="$(grep -E -e '^[a-zA-Z0-9_-]+:[^=]*' $(pwd)/Makefile | grep -v ":=" | cut -d ':' -f1 | grep -E -v "$ignores" | tr '\n' ' ')"
                 targets="$common_targets $all_apps $default_targets"
             fi
             ;;

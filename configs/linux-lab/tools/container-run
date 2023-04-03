@@ -77,7 +77,7 @@ done
 nfs_exports=/etc/exports
 if [ -f $nfs_exports ]; then
   if [ "$os" = "Windows" ]; then
-    uname -r | egrep -i "wsl2|boot2docker"
+    uname -r | grep -E -i "wsl2|boot2docker"
     [ $? -eq 0 ] && sed -i -e '/^\/labs\/linux-lab\/ /s/\(.*\)/#\1/g' $nfs_exports
   else
     sed -i -e '/^#\/labs\/linux-lab\/ /s/#\(.*\)/\1/g' $nfs_exports

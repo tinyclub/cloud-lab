@@ -9,7 +9,7 @@
 
 # Allow pass first argument as SCREEN_SIZE
 if [ -n "$1" ]; then
-  echo $1 | egrep -q '[0-9]{3,}x[0-9]{3,}|^auto$|^fullscreen$'
+  echo $1 | grep -E -q '[0-9]{3,}x[0-9]{3,}|^auto$|^fullscreen$'
   if [ $? -eq 0 ]; then
     SCREEN_SIZE=$1
     shift
@@ -20,7 +20,7 @@ fi
 
 # Allow pass second argument as SCREEN_SIZE, but first one as lab name
 if [ -n "$2" ]; then
-  echo $2 | egrep -q '[0-9]{3,}x[0-9]{3,}|^auto$|^fullscreen$'
+  echo $2 | grep -E -q '[0-9]{3,}x[0-9]{3,}|^auto$|^fullscreen$'
   if [ $? -eq 0 ]; then
     SCREEN_SIZE=$2
   fi

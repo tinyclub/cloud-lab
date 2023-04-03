@@ -284,7 +284,7 @@ do_home_hack ()
   do
     [ ! -d $hdir/home ] && continue
 
-    for hfile in `find $hdir/home -type f | sed -e "s%$hdir%%g" | egrep -v "$dfilters"`
+    for hfile in `find $hdir/home -type f | sed -e "s%$hdir%%g" | grep -E -v "$dfilters"`
     do
       # Use left instead of right, if already in left side, ignore the others
       # the old path: /usr/share/desktop/home/.config has no user info, should support it

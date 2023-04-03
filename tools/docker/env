@@ -57,7 +57,7 @@ if [ "x$HOST_OS" = "xDarwin" ]; then
   mem_size="`system_profiler SPHardwareDataType | grep Memory | cut -d':' -f2 | tr -s ' '`"
   echo "RAM:$mem_size"
 else
-  mem_size=`cat /proc/meminfo | egrep 'MemTotal' | tr -s ' ' | cut -d ' ' -f2 | xargs -I{} sh -c 'echo $(({}/1024))'`
+  mem_size=`cat /proc/meminfo | grep -E 'MemTotal' | tr -s ' ' | cut -d ' ' -f2 | xargs -I{} sh -c 'echo $(({}/1024))'`
   echo "RAM: $mem_size MiB"
 fi
 
