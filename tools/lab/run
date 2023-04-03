@@ -377,7 +377,7 @@ fi
 
 # Disable rsyslog and fail2ban
 sshd_conf=/etc/supervisor/conf.d/sshd.conf
-if [ "$LAB_SECURITY" == "0" ]; then
+if [ "x$LAB_SECURITY" = "x0" ]; then
   sed -i -e "/rsyslog/,/redirect_stderr/d" $sshd_conf
   sed -i -e "/fail2ban/,/redirect_stderr/d" $sshd_conf
 fi
