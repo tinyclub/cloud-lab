@@ -63,6 +63,12 @@ debug_print "VNC pages released in $HOST_RELEASE_DIR"
 VOLUME_MAP="$VOLUME_MAP -v '/$HOST_TOKEN_DIR':'$CONTAINER_TOKEN_DIR'"
 debug_print "VNC tokens stored in $HOST_TOKEN_DIR"
 
+# Disable rsyslog, fail2ban and sshd for zero security level
+sshd_conf=/etc/supervisor/conf.d/sshd.conf
+if [ "x$LAB_SECURITY" = "x0" ]; then
+   VOLUME_MAP="$VOLUME_MAP -v '/$TOOL_DIR/web/$sshd_conf':'/$sshd_conf':ro"
+fi
+
 [ -n "$WPROXY_IP" ] && ip="--ip=$WPROXY_IP"
 WPROXY_NET="$ip --network $VNC_NET_NAME"
 
