@@ -375,6 +375,13 @@ if [ ! -f $CREATE_FLAG ]; then
   touch $CREATE_FLAG
 fi
 
+# Disable rsyslog and fail2ban
+sshd_conf=/etc/supervisor/conf.d/sshd.conf
+if [ "$LAB_SECURITY" == "0" ]; then
+  sed -i -e "/rsyslog/,/redirect_stderr/d" $sshd_conf
+  sed -i -e "/fail2ban/,/redirect_stderr/d" $sshd_conf
+fi
+
 # VNC setting, should wait for /tmp/system.hacked
 do_vnc_config
 
