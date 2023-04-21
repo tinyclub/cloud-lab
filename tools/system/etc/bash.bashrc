@@ -7,7 +7,7 @@
 [ -z "$PS1" ] && return
 
 # Fix up missing have command
-type have 2>/dev/null
+type have >/dev/null 2>&1
 if [ $? -ne 0 ]; then
     function have { :; }
 fi
