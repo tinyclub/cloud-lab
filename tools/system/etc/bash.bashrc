@@ -82,3 +82,6 @@ fi
 # Load locales for every Bash execution
 . /etc/skel/.bashrc
 . /etc/profile.d/locales.sh
+
+# Entry into the target working directory
+[ -d /labs/$HOSTNAME ] && cd /labs/$HOSTNAME
