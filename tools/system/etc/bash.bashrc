@@ -6,6 +6,12 @@
 # If not running interactively, don't do anything
 [ -z "$PS1" ] && return
 
+# Fix up missing have command
+type have 2>/dev/null
+if [ $? -ne 0 ]; then
+    function have { :; }
+fi
+
 # check the window size after each command and, if necessary,
 # update the values of LINES and COLUMNS.
 shopt -s checkwinsize
