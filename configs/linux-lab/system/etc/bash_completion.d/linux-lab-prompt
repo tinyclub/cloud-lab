@@ -1,0 +1,4 @@
+# load our own complete script
+if [[ -e /labs/linux-lab/tools/helper/complete.sh ]]; then
+	. /labs/linux-lab/tools/helper/complete.sh
+fi
