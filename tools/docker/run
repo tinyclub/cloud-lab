@@ -247,9 +247,13 @@ fi
 container="--name $CONTAINER_NAME"
 
 # Only allow generate <=100M coredump
-core_size_m=100
-core_size_k=$(($core_size_m * 1024 * 1024))
-coredump="--ulimit core=$core_size_k:$core_size_k"
+if [ "x$COREDUMP" = "x1" ]; then
+  core_size_m=100
+  core_size_k=$(($core_size_m * 1024 * 1024))
+  coredump="--ulimit core=$core_size_k:$core_size_k"
+else
+  coredump="--ulimit core=0"
+fi
 
 # use --ip command to record the ip address
 [ -n "$VNC_IP" ] && ip="--ip=$VNC_IP"
