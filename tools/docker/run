@@ -255,6 +255,14 @@ else
   coredump="--ulimit core=0"
 fi
 
+# nofile
+nofile_softlimit=524288
+nofile_hardlimit=1048576
+nofile="--ulimit nofile=$nofile_softlimit:$nofile_hardlimit"
+
+# ulimits
+ulimits="$coredump $nofile"
+
 # use --ip command to record the ip address
 [ -n "$VNC_IP" ] && ip="--ip=$VNC_IP"
 net="$ip --network $VNC_NET_NAME"
@@ -273,7 +281,7 @@ lab_name="-h $LAB_NAME"
 
 info_print "Wait for lab launching ..."
 
-lab_id=$(eval docker run -d $lab_name $privmode $coredump $tmpfs $seccomp $platform $net $audio $container $portmap $caps $dnss $devs $limits $volumemap $vars $EXTRA_ARGS $IMAGE)
+lab_id=$(eval docker run -d $lab_name $privmode $ulimits $tmpfs $seccomp $platform $net $audio $container $portmap $caps $dnss $devs $limits $volumemap $vars $EXTRA_ARGS $IMAGE)
 
 [ $? -ne 0 ] && err_print "docker running error." && exit 1
 
