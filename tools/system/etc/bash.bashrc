@@ -83,5 +83,12 @@ fi
 . /etc/skel/.bashrc
 . /etc/profile.d/locales.sh
 
+# Load local settings
+if [ -f ~/.profile ]; then
+  . ~/.profile
+fi
+
 # Entry into the target working directory
-[ -d /labs/$HOSTNAME ] && cd /labs/$HOSTNAME
+if [ -d /labs/$HOSTNAME ]; then
+    cd /labs/$HOSTNAME
+fi

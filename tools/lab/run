@@ -208,6 +208,9 @@ do_home_create ()
   id -u $UNIX_USER &>/dev/null && userdel -f $UNIX_USER
 
   useradd --uid $UNIX_UID --create-home --shell /bin/bash --user-group $UNIX_USER_GROUPS $UNIX_USER
+
+  # Make sure the local python install path added to PATH, see ~/.profile from tools/system/etc/bash.bashrc
+  mkdir -p $HOME/.local/bin
 }
 
 # Hack sudo
