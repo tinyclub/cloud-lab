@@ -633,7 +633,8 @@ init_shortcuts ()
   if [ "x$HOST_OS" = "xWindows" ]; then
     DESKTOP_DIR="$(reg query "HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Shell Folders" //v "Desktop" | grep Desktop | tr -s ' ' | cut -d ' ' -f4)"
   else
-    DESKTOP_DIR=~/Desktop
+    DESKTOP_DIR=`xdg-user-dir DESKTOP`
+    [ -z "$DESKTOP_DIR" ] && DESKTOP_DIR=~/Desktop
   fi
 
   if [ "x$HOST_OS" = "xDarwin" ]; then
