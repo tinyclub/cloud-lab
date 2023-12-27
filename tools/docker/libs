@@ -749,6 +749,9 @@ create_shortcuts ()
         XTERM_TITLE_OPTION=-t
         XTERM_ICON=/usr/share/help/C/gnome-terminal/figures/gnome-terminal-icon.png
       fi
+      if [ "x$XTERM" = "xxfce4-terminal" ]; then
+        XTERM_ICON=$(find /usr/share/icons -name "utilities-terminal.png" 2>/dev/null | grep -E "48|64|96|128" | tail -1)
+      fi
       # Add konsole support for KDE desktop
       if [ "x$XTERM" = "xkonsole" -o "x$XTERM" = "xqterminal" ]; then
         XTERM_TITLE_OPTION=--title
