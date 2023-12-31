@@ -1,2 +1,4 @@
 /dev/net/tun
 /dev/kvm
+/dev/sdb
+/dev/ttyUSB0
