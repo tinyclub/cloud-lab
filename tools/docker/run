@@ -10,6 +10,16 @@ echo "LOG: Init docker environment ..."
 TOP_DIR="$(cd "$(dirname "$0")"/../../ && pwd)"
 . "$TOP_DIR"/tools/docker/config >/dev/null
 
+# Make sure the lock is removed when this script is exited
+LOCK_FILE=/var/lock/cloud-lab-runner.lock
+trap "rm -rf ${LOCK_FILE}" QUIT INT TERM EXIT
+
+# Start Locking
+if ! mkdir $LOCK_FILE 2>/dev/null; then
+  echo "ERR: It is already running ..." >&2
+  exit 1
+fi
+
 # Check and download the lab source
 log_print "Check source code of $LAB_NAME ..."
 if [ ! -f "$TOP_DIR"/labs/$LAB_NAME/.git ]; then
@@ -94,6 +104,7 @@ if [ -n "$CONTAINER_NAME" ]; then
 
     if [ "$LOGIN" != "none" ]; then
       info_print "Open the running $LAB_NAME"
+      rm -rf $LOCK_FILE
       [ "$LOGIN" != "none" ] && LOGIN=$LOGIN "$DOCKER_LOGIN_CMD" $*
     fi
     exit $?
@@ -112,6 +123,7 @@ if [ -n "$CONTAINER_NAME" ]; then
     done
 
     "$DOCKER_PUBLISH_CMD" $*
+    rm -rf $LOCK_FILE
     [ "$LOGIN" != "none" ] && LOGIN=$LOGIN "$DOCKER_LOGIN_CMD" $*
 
     exit $?
@@ -339,6 +351,9 @@ info_print "$password"
 
 # Publish vnc port
 "$DOCKER_PUBLISH_CMD" $*
+
+# It is ok to release the lock file now
+rm -rf $LOCK_FILE
 
 [ "$LOGIN" != "none" ] && LOGIN=$LOGIN "$DOCKER_LOGIN_CMD" $*
 
