@@ -1,4 +1,4 @@
-FROM tinylab/cloud-ubuntu-vm_embedded:20211228
+FROM tinylab/cloud-ubuntu-vm_embedded:20240101
 MAINTAINER Wu Zhangjin <wuzhangjin@gmail.com>
 
 EXPOSE 5900 22
