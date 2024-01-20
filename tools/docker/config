@@ -113,6 +113,7 @@ LAB_PORTMAP="$CONFIG_DOCKER_DIR"/portmap
 LAB_VOLUMEMAP="$CONFIG_DOCKER_DIR"/volumemap
 LAB_BRANCH="$CONFIG_DOCKER_DIR"/branch
 LAB_PLATFORM="$CONFIG_DOCKER_DIR"/platform
+LAB_SUBNET="$CONFIG_DOCKER_DIR"/subnet
 
 LAB_TPROXY_LIMITS="$TPROXY_DIR"/limits
 LAB_WPROXY_LIMITS="$WPROXY_DIR"/limits
@@ -160,6 +161,10 @@ DEF_TOKEN_LENGTH=6
 [ -z "$DEF_TOKEN_DIR" ] && DEF_TOKEN_DIR=.vnc-tokens
 DEF_VNC_IP="0.0.0.0"
 DEF_VNC_TOKEN=""
+
+# FIXME: This may conflict with another network with the same subnet
+# If so, please customize one in configs/linux-lab/docker/subnet
+DEF_SUBNET="172.20.19.0/16"
 
 DEF_MIRROR_SITE="mirrors.ustc.edu.cn"
 

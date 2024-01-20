@@ -937,14 +937,28 @@ create_cloud_lab_net ()
 {
   docker network ls | grep -q $VNC_NET_NAME >/dev/null 2>&1
   if [ $? -ne 0 ]; then
-    [ -z "$VNC_NET_MASK" ] && VNC_NET_MASK=16
+    get_var SUBNET
+
+    if [ -z "$VNC_NET_MASK" ]; then
+      if [ -n "$SUBNET" ]; then
+        VNC_NET_MASK="$(echo $SUBNET | cut -d'/' -f2)"
+      fi
+      [ -z "$VNC_NET_MASK" ] && VNC_NET_MASK="$(echo $DEF_SUBNET | cut -d'/' -f2)"
+    fi
+
+    if [ -z "$VNC_NET_IP" ]; then
+      if [ -n "$SUBNET" ]; then
+        VNC_NET_IP="$(echo $SUBNET | cut -d'/' -f1)"
+      fi
+      [ -z "$VNC_NET_IP" ] && VNC_NET_IP="$(echo $DEF_SUBNET | cut -d'/' -f1)"
+    fi
 
     net_retry_count=0
     NET_RETRY_MAX=10
     while [ $net_retry_count -lt $NET_RETRY_MAX ]; do
       if [ -z "$VNC_NET" ]; then
         # Init one for the first try
-        VNC_NET=172.20.19.0/$VNC_NET_MASK
+        VNC_NET=$VNC_NET_IP/$VNC_NET_MASK
       else
         # If old not work, use a random one
         VNC_NET=`get_random_net`/$VNC_NET_MASK
