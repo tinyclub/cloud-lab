@@ -164,7 +164,7 @@ DEF_VNC_TOKEN=""
 
 # FIXME: This may conflict with another network with the same subnet
 # If so, please customize one in configs/linux-lab/docker/subnet
-DEF_SUBNET="172.20.19.0/16"
+DEF_SUBNET="172.20.0.0/16"
 
 DEF_MIRROR_SITE="mirrors.ustc.edu.cn"
 
