@@ -750,7 +750,7 @@ create_shortcuts ()
         XTERM_ICON=/usr/share/help/C/gnome-terminal/figures/gnome-terminal-icon.png
       fi
       if [ "x$XTERM" = "xxfce4-terminal" ]; then
-        XTERM_ICON=$(find /usr/share/icons -name "utilities-terminal.png" 2>/dev/null | grep -E "48|64|96|128" | tail -1)
+        XTERM_ICON=$(find /usr/share/icons -name "org.xfce.terminal.png" 2>/dev/null | grep -E "48|64|96" | tail -1)
       fi
       # Add konsole support for KDE desktop
       if [ "x$XTERM" = "xkonsole" -o "x$XTERM" = "xqterminal" ]; then
@@ -763,7 +763,7 @@ create_shortcuts ()
         fi
       fi
       if [ ! -f "$XTERM_ICON" ]; then
-        XTERM_ICON=$(find /usr/share/ -name "${XTERM}*.png" -o -name "${XTERM}*.svg"  2>/dev/null | grep -E -i "hicolor|bloom" | grep -E "48|64|96|128" | tail -1)
+        XTERM_ICON=$(find /usr/share/ -name "${XTERM}*.png" -o -name "${XTERM}*.svg"  2>/dev/null | grep -E -i "hicolor|bloom" | grep -E "48|64|96" | tail -1)
         [ -z "$XTERM_ICON" ] && XTERM_ICON=$(find /usr/share/ -name "${XTERM}*.png" 2>/dev/null | tail -1)
       fi
     fi
