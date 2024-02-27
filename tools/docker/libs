@@ -225,6 +225,7 @@ __get_browser ()
   local macos_firefox=/Applications/Firefox.app/Contents/MacOS/firefox
   local linux_chrome=chromium-browser
   local linux_firefox=firefox
+  local linux_epiphany=epiphany-browser
   local deepin_browser=browser
   local win_firefox='/c/Program Files/Mozilla Firefox/firefox.exe'
   local win_chrome='/c/Program Files (x86)/Google/Chrome/Application/chrome.exe'
@@ -238,7 +239,7 @@ __get_browser ()
     done
     DEF_WEB_BROWSER="$(echo $macos_chrome | tr ' ' '-')"
   elif [ "x$HOST_OS" = "xLinux" ]; then
-    for b in $linux_chrome $linux_firefox $deepin_browser
+    for b in $linux_chrome $linux_firefox $linux_epiphany $deepin_browser
     do
       which $b >/dev/null 2>&1 && DEF_WEB_BROWSER=$b && break
     done
@@ -704,6 +705,9 @@ create_shortcuts ()
     fi
     if [ ! -f "$BROWSER_ICON" ]; then
       BROWSER_ICON=$TOP_DIR/images/3rd-party/${WEB_BROWSER}.png
+    fi
+    if [ ! -f "$BROWSER_ICON" ]; then
+      BROWSER_ICON=$(find /usr/share/icons -name "org.xfce.webbrowser.png" 2>/dev/null | grep -E "48|64|96" | tail -1)
     fi
 
     if [ "x$LAB_DESKTOP_SHORTCUT" = "x1" -a ! -f "$LOCAL_DESKTOP_SHORTCUT" ]; then
