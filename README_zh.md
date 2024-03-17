@@ -1,5 +1,5 @@
 <!-- metadata start --><!--
-% Cloud Lab v0.8 中文手册
+% Cloud Lab v0.9 中文手册
 % [泰晓科技 | Tinylab.org][004]
 % \today
 --><!-- metadata end -->
@@ -16,7 +16,7 @@ Cloud Lab 是一个开源软件，不提供任何保证，请自行承担使用�
 
 ## 2. 产品安装
 
-如果确实是 Linux 新手或不喜欢无聊的安装过程，想**免安装**立马使用 Cloud Lab，那么可以从 [泰晓开源小店][006] 选购一枚即插即跑的 [Linux Lab Disk][007]。它也叫 “泰晓 Linux 实验盘”，可以在淘宝手机 APP 内搜索 “泰晓 Linux” 后购买。
+如果确实是 Linux 新手或不喜欢无聊的安装过程，想**免安装**立马使用 Cloud Lab，那么可以从 [泰晓开源小店][006] 选购一枚即插即跑的 [Linux Lab Disk][007]。它也叫 “泰晓 Linux 实验盘”，可以在淘宝手机 APP 内搜索 “泰晓 Linux” 后购买。泰晓 Linux 实验盘也已经上架到了 B 站的泰晓科技工房。
 
 ### 2.1 安装 Docker
 
