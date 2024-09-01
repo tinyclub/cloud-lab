@@ -27,7 +27,7 @@ DEFAULT_PORT_MAP=" -p $HOST_VNC_PORT:$CONTAINER_VNC_PORT -p $HOST_SSH_PORT:$CONT
 
 # Available encrypt cmds: sha1sum, sha224sum, cksum, sha256sum, sha512sum, md5sum, sha384sum, sum
 # To enable auto timeout, please pass VNC_TIMEOUT=1
-[ -z "$VNC_RELEASE" ] && VNC_RELEASE=0
+[ -z "$VNC_RELEASE" ] && VNC_RELEASE=1
 [ -z "$VNC_PUBLIC" ] && VNC_PUBLIC=0
 [ -z "$GATEONE_PUBLIC" ] && GATEONE_PUBLIC=0
 [ -z "$VNC_TIMEOUT" ] && VNC_TIMEOUT=0
