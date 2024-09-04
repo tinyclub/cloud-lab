@@ -1,0 +1,9 @@
+#!/bin/bash
+
+# For qemu-loongarch64
+# ref: https://github.com/qemu/qemu/blob/master/scripts/qemu-binfmt-conf.sh
+if [ ! -f /proc/sys/fs/binfmt_misc/register -o ! -f /proc/sys/fs/binfmt_misc/qemu-loongarch64 ]; then
+  # multiarch/qemu-user-static doesn't support loongarch64 yet
+  # docker run --rm --privileged multiarch/qemu-user-static --reset -p yes --credential yes >/dev/null
+  sh -c "echo ':qemu-loongarch64:M::\x7fELF\x02\x01\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00\x02\x00\x02\x01:\xff\xff\xff\xff\xff\xff\xff\xfc\x00\xff\xff\xff\xff\xff\xff\xff\xfe\xff\xff\xff:/usr/bin/qemu-loongarch64:' > /proc/sys/fs/binfmt_misc/register"
+fi

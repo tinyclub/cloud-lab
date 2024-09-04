@@ -43,3 +43,8 @@
 	url = https://gitee.com/tinylab/arm-lab.git
 	branch = master
 	ignore = all
+[submodule "labs/loongarch-lab"]
+	path = labs/loongarch-lab
+	url = https://gitee.com/tinylab/loongarch-lab.git
+	branch = master
+	ignore = all

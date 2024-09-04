@@ -1,0 +1,11 @@
+[Desktop Entry]
+NoDisplay=true
+Version=1.0
+Encoding=UTF-8
+Type=X-XFCE-Helper
+X-XFCE-Category=WebBrowser
+X-XFCE-CommandsWithParameter=netsurf-gtk "%s"
+Icon=netsurf-gtk
+Name=netsurf-gtk
+X-XFCE-Commands=netsurf-gtk
+

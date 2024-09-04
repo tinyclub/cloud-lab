@@ -1,0 +1,5 @@
+[Desktop Entry]
+Exec=lxqt-policykit-agent
+Name=PolicyKit Handler
+Type=Application
+Version=1.0
