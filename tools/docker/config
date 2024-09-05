@@ -382,6 +382,9 @@ host_init()
 {
   . "$DOCKER_LIBS"
 
+  # Load lab specific config file
+  [ -f $CONFIG_DIR/config ] && . $CONFIG_DIR/config
+
   get_host_os
 
   # Shell scripts is very slow in Windows, enable more logging to increase the responsibility
