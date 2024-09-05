@@ -13,7 +13,7 @@ prepare_login || exit 0
 log_print "Get cached data"
 get_vars VNC_IP VNC_PWD VNC_PWD_VIEWONLY
 
-VNC_CLIENTS="vinagre xvnc4viewer gvncviewer xtightvncviewer krdc mstsc"
+VNC_CLIENTS="vinagre xvnc4viewer gvncviewer xtightvncviewer krdc mstsc remmina"
 
 vnc_clients()
 {
