@@ -149,10 +149,10 @@ fi
 
 case $VNC in
   remmina)
-      VNC_LOGIN="$VNC $VNC_IP"
+      VNC_LOGIN="$VNC -c vnc://$VNC_IP"
       ;;
   vinagre)
-      VNC_LOGIN="$VNC --vnc-scale $VNC_IP"
+      VNC_LOGIN="$VNC --vnc-scale $VNC_IP --display=:0"
       ;;
   mstsc)
       VNC_LOGIN="$VNC //v:$VNC_IP"
