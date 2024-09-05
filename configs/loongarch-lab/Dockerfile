@@ -1,4 +1,4 @@
-FROM tinylab/cloud-ubuntu-loongarch64:20240905
+FROM tinylab/cloud-debian-loongarch64:20240905
 MAINTAINER Wu Zhangjin <falcon@tinylab.org>
 
 EXPOSE 5900 22
