@@ -21,7 +21,7 @@ do_prepare ()
   get_vars MIRROR_SITE VNC_IP VNC_TOKEN
 
   # Configure mirror site
-  if [ -n "$MIRROR_SITE" ]; then
+  if [ -n "$MIRROR_SITE" -a -f /etc/apt/sources.list ]; then
     old=$(sed -ne "0,/^deb/s%deb .*://\([^/ ]*\)/.*%\1%p" /etc/apt/sources.list)
     [ "$old" != "$MIRROR_SITE" ] && sed -i -e "s/$old/$MIRROR_SITE/g" /etc/apt/sources.list
   fi
