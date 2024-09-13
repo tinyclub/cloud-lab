@@ -4,7 +4,7 @@
 # ref: https://github.com/qemu/qemu/blob/master/scripts/qemu-binfmt-conf.sh
 if [ ! -f /proc/sys/fs/binfmt_misc/register -o ! -f /proc/sys/fs/binfmt_misc/qemu-loongarch64 ]; then
   # multiarch/qemu-user-static doesn't support loongarch64 yet
-  # docker run --rm --privileged multiarch/qemu-user-static --reset -p yes --credential yes >/dev/null
+  # docker run --rm --privileged multiarch/qemu-user-static --reset --credential yes >/dev/null
 
   # ref: https://github.com/multiarch/qemu-user-static/issues/17
   # FIXME: sudo: effective uid is not 0, is /usr/bin/sudo on a file system with the 'nosuid' option set or an NFS file system without root privileges
