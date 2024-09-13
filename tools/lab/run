@@ -214,7 +214,10 @@ do_home_create ()
   # The old one should be removed before create a new one, but reserve the saved directory
   id -u $UNIX_USER &>/dev/null && userdel -f $UNIX_USER
 
-  useradd --uid $UNIX_UID --create-home --shell /bin/bash --user-group $UNIX_USER_GROUPS $UNIX_USER
+  if [ ! -d $HOME ]; then
+    CREATE_HOME=--create-home
+  fi
+  useradd --uid $UNIX_UID $CREATE_HOME --shell /bin/bash --user-group $UNIX_USER_GROUPS $UNIX_USER
 
   # Make sure the local python install path added to PATH, see ~/.profile from tools/system/etc/bash.bashrc
   mkdir -p $HOME/.local/bin
