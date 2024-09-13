@@ -89,7 +89,7 @@ fi
 if [ ! -f /proc/sys/fs/binfmt_misc/qemu-mips64el -a -f /proc/sys/fs/binfmt_misc/register ]; then
   # ref: https://github.com/multiarch/qemu-user-static/issues/17
   # FIXME: sudo: effective uid is not 0, is /usr/bin/sudo on a file system with the 'nosuid' option set or an NFS file system without root privileges
-  flags="OCF"
+  flags="OC"
   sh -c "echo ':qemu-mips64el:M::\x7fELF\x02\x01\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00\x02\x00\x08\x00:\xff\xff\xff\xff\xff\xff\xff\x00\xff\xff\xff\xff\xff\xff\xff\xff\xfe\xff\xff\xff:/usr/bin/qemu-mips64el:$flags' > /proc/sys/fs/binfmt_misc/register"
 fi
 
